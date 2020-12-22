@@ -400,7 +400,7 @@ creat a new headline at the end of the buffer."
     (setq om/highlights (seq-sort-by (lambda (s) (car (cdr s))) #'< om/highlights))))
 
 (defun om/make-highlight-marker (point)
-  "Return marker of the insertion-type t.
+  "Return marker of the insertion-type t for POINT.
 The insertion-type is important in order for the highlight
 position (beg and end points) in sycn with the highlited text
 properties."
