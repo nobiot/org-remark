@@ -1,0 +1,127 @@
+#+TITLE: Org-marginalia
+
+#+PROPERTY: LOGGING nil
+
+# Note: I use the readme template that alphapapa shares on his GitHub repo <https://github.com/alphapapa/emacs-package-dev-handbook#template>. It works with the org-make-toc <https://github.com/alphapapa/org-make-toc> package, which automatically updates the table of contents.
+
+* Screenshots
+
+Org-marginalia lets you write margine notes (marginalia) for any text files in a separate Org file.
+
+[[./resources/images/2020-12-22T141331-OM-screen-shot-01.png]]
+*Figure 1*. Left: main note; Right: margine notes in its marginalia file
+
+[[./resources/images/2020-12-22T141331-OM-screen-shot-02.png]]
+*Figure 2*. It automatically adds the standard Org Mode link to margin notes, so it works well with Org-roam's backlinks
+
+[[./resources/images/2020-12-22T141331-OM-screen-shot-03.png]]
+*Figure 3*. Main note can be any text files. Left: an ~.el~ file; Right: marginalia file
+
+* Contents                                                         :noexport:
+:PROPERTIES:
+:TOC:      :include siblings
+:END:
+:CONTENTS:
+- [[#installation][Installation]]
+- [[#usage][Usage]]
+- [[#changelog][Changelog]]
+- [[#credits][Credits]]
+- [[#development][Development]]
+- [[#license][License]]
+:END:
+
+* Installation
+:PROPERTIES:
+:TOC:      :depth 0
+:END:
+
+** Manual
+This package is not yet to be on MELPA. Manual installation is required.
+Ensure to have Org Mode 9.4 or later (tested on 9.4).  This package uses ~org-collect-keywords~, which does not exist in an earlier version.
+
+Then store =org-marginalia.el= in your load-path, and put this in your init file:
+
+#+BEGIN_SRC emacs-lisp
+(require 'org-marginalia)
+#+END_SRC
+
+For example, I use this in my init file. Org-marginalia is a local minor mode. As I want to activate it automatically for all my text-mode files (Org and Markdown), I also put ~org-marginalia-mode 1~ in ~text-mode-hook~ like this below.
+
+#+begin_src emacs-lisp
+(add-hook 'after-init-hook (lambda()
+                             (add-to-list 'load-path "~/local-repos/org-marginalia/")
+                             (require 'org-marginalia)
+                             (add-hook 'text-mode-hook #'org-marginalia-mode 1)
+#+end_src
+  
+* Usage
+:PROPERTIES:
+:TOC:      :depth 0
+:END:
+
+- =org-marginalia-mode= ::
+Org-marginalia is a local minor mode.  Toggle it on/off with using =org-marginalia-mode=.  On activating, it loads your saved highlights from the marginalia file, and enables automatic saving of highlights. The automatic saving is achieved via function =om/save-all= added to =after-save-hook=.
+
+- =om/mark= (=C-c m= by default) ::
+Select a region of text, and call =om/mark= to highlight the region. It will generate a new ID, and start tracking the location -- so you can edit text around the marked text. Do not copy and paste as it will disappear and it is a bit tricky to recover the highlights. To create a new margin note entry in the marginalia file, save the buffer.
+
+- =om/save-all= ::
+By default, Org-marginalia creates or updates the highlight's location and text inside automatically in the marginalia file. You can manually call =om/save-all= to manually do it (automatic process also call this command).
+
+- =om/open-at-point= (=C-c n o= by default) ::
+Move your cursor on the highlighted text, and call =om/open-at-point= to open the relevant margin notes in a separate window. Your cursor should move to the marginalia buffer narrowed to the relevant margin notes entry. You can edit the margin notes as a normal Org file. Once you have done editing, you can simply save and close the buffer (kill or close the window) as per your normal workflow. Technically, the marginalia buffer is a cloned indirect buffer of the marginalia file. 
+
+- =om/load= ::
+This command open the marginalia file and load the saved highlights onto current buffer. If there is no margin notes for it, it will output a message in the echo. Highlights tracked locally by this packages cannot persist when you kill the buffer, or quit Emacs. When you re-launch Emacs, ensure to turn on =org-marginalia-mode= to load the highlights. Load is automatically done when you activate the minor mode.
+
+- =om/remove= ::
+This command removes the highlight at point. It will remove the highlight, and remove the properties from the marginalia, but will keep the headline and notes in tact. 
+
+** Customizing
+
+- You can customize settings in the =org-marginalia= group.
+- Highlight face can be changed via =om/highlight=
+- Marginalia file is defined with =om/notes-file-path=
+
+** Known Limitations
+
+- Turning off minor mode does not turn off the highlights :: This should not do any harm, but if you are distracted, kill the buffer (not revert) and visit it again. Toggling show/hide of highlights is something I would like to add later.
+- Copy & pasting loses highlights :: You could manually recover it by adjusting the properties in the margin notes file.
+- Undo highlight does not undo it :: Highlight a region of text with =om/mark= and immediately undo it. The highlight disappears, but it is still being tracked with =om/highlights=.
+
+* Changelog
+:PROPERTIES:
+:TOC:      :depth 0
+:END:
+
+** 0.0.1
+Initial alpha release. I consider it to be the minimal viable scope. 
+
+* Credits
+To create this package, I was inspired by the following packages. I did not copy any part of them, but borrowed some ideas from them -- e.g. saving the margin notes in a separate file.
+
+- [[https://github.com/jkitchin/ov-highlight][ov-highlight]] :: John Kitchin's (author of Org-ref). Great UX for markers wiht hydra. Saves the marker info and comments directly wihtin the Org file as base64 encoded string. It uses overlays
+- [[https://github.com/bastibe/annotate.el][Annotate.el]] :: Bastian Bechtold's (author of Org-journal). Unique display of annotations right next to (or on top of) the text. It seems to be designed for very short annotations, and perhaps for code review (programming practice); I have seen recent issues reported when used with variable-pitch fonts (prose). 
+- [[https://github.com/tkf/org-mode/blob/master/contrib/lisp/org-annotate-file.el][Org-annotate-file]] :: Part of Org's contrib library. It seems to be designed to annote a whole file in a separate Org file, rather than specific text items
+- [[https://github.com/IdoMagal/ipa.el][InPlaceAnnotations (ipa-mode)]] :: It looks similar to Annotate.el above
+
+
+* Development
+
+Feedback welcome in this repo, or in [[https://org-roam.discourse.group/t/prototype-org-marginalia-write-margin-notes-with-org-mode/1080][Org-roam Discourse forum]]. 
+
+I am aiming to keep this package to be small and focused. I plan to add the following features, and probably consier it to be function complete for my purposes.
+
+1. =om/toggle-display= to toggle show/hide of highlights without losing them
+2. =om/next= and =om/previous= to easily navigate highlighted regions in the buffer
+
+* License
+
+GPLv3
+
+# Local Variables:
+# eval: (require 'org-make-toc)
+# before-save-hook: org-make-toc
+# org-export-with-properties: ()
+# org-export-with-title: t
+# End:

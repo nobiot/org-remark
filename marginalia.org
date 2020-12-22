@@ -1,0 +1,20 @@
+#+title: Margin notes for org-marginala
+
+# Using it as test file.
+
+* Org-marginalia
+:PROPERTIES:
+:marginalia-source-file: ~/local-repos/org-marginalia/README.org
+:END:
+
+** - =om/mark= (=C-c m= by default) ::
+[[file:~/local-repos/org-marginalia/README.org][Org-marginalia]]
+It works :)
+
+** Screenshots
+:PROPERTIES:
+:marginalia-id: db316c9a
+:marginalia-source-beg: 332
+:marginalia-source-end: 343
+:END:
+[[file:~/local-repos/org-marginalia/README.org][Org-marginalia]]
