@@ -1,10 +1,10 @@
+[[file:https://img.shields.io/badge/License-GPLv3-blue.svg]]
+
 #+TITLE: Org-marginalia
 
 #+PROPERTY: LOGGING nil
 
 # Note: I use the readme template that alphapapa shares on his GitHub repo <https://github.com/alphapapa/emacs-package-dev-handbook#template>. It works with the org-make-toc <https://github.com/alphapapa/org-make-toc> package, which automatically updates the table of contents.
-
-[[file:https://img.shields.io/badge/License-GPLv3-blue.svg]]
 
 * Screenshots
 
