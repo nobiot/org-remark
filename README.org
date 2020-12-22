@@ -6,9 +6,9 @@
 
 # Note: I use the readme template that alphapapa shares on his GitHub repo <https://github.com/alphapapa/emacs-package-dev-handbook#template>. It works with the org-make-toc <https://github.com/alphapapa/org-make-toc> package, which automatically updates the table of contents.
 
-* Screenshots
-
 Org-marginalia lets you write margin notes (marginalia) for any text files in a separate Org file.
+
+* Screenshots
 
 [[./resources/images/2020-12-22T141331-OM-screen-shot-01.png]]
 *Figure 1*. Left: main note; Right: margin notes in its marginalia file
@@ -38,8 +38,8 @@ Org-marginalia lets you write margin notes (marginalia) for any text files in a 
 :END:
 
 ** Manual
-This package is not yet to be on MELPA. Manual installation is required.
-Ensure to have Org Mode 9.4 or later (tested on 9.4).  This package uses ~org-collect-keywords~, which does not exist in an earlier version.
+This package is not available on MELPA. Manual installation is required.
+Ensure to have Org Mode 9.4 or later (tested on 9.4.2). This package uses ~org-collect-keywords~, which does not exist in an earlier version.
 
 Then store =org-marginalia.el= in your load-path, and put this in your init file:
 
@@ -47,7 +47,7 @@ Then store =org-marginalia.el= in your load-path, and put this in your init file
 (require 'org-marginalia)
 #+END_SRC
 
-For example,6~ I use this in my init file. Org-marginalia is a local minor mode. As I want to activate it automatically for all my text-mode files (Org and Markdown), I also put ~org-marginalia-mode 1~ in ~text-mode-hook~ like this below.
+For example, I use this in my init file. Org-marginalia is a local minor mode. As I want to activate it automatically for all my text-mode files (Org and Markdown), I also put ~org-marginalia-mode 1~ in ~text-mode-hook~ like this below.
 
 #+begin_src emacs-lisp
 (add-hook 'after-init-hook (lambda()
@@ -62,7 +62,7 @@ For example,6~ I use this in my init file. Org-marginalia is a local minor mode.
 :END:
 
 - =org-marginalia-mode= ::
-Org-marginalia is a local minor mode.  Toggle it on/off with using =org-marginalia-mode=.  On activating, it loads your saved highlights from the marginalia file, and enables automatic saving of highlights. The automatic saving is achieved via function =om/save-all= added to =after-save-hook=.
+Org-marginalia is a local minor mode. Toggle it on/off with using =org-marginalia-mode=. On activating, it loads your saved highlights from the marginalia file, and enables automatic saving of highlights. The automatic saving is achieved via function =om/save-all= added to =after-save-hook=.
 
 - =om/mark= (=C-c m= by default) ::
 Select a region of text, and call =om/mark= to highlight the region. It will generate a new ID, and start tracking the location -- so you can edit text around the marked text. Do not copy and paste as it will disappear and it is a bit tricky to recover the highlights. To create a new margin note entry in the marginalia file, save the buffer.
