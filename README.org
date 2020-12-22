@@ -100,9 +100,9 @@ Initial alpha release. I consider it to be the minimal viable scope.
 * Credits
 To create this package, I was inspired by the following packages. I did not copy any part of them, but borrowed some ideas from them -- e.g. saving the margin notes in a separate file.
 
-- [[https://github.com/jkitchin/ov-highlight][ov-highlight]] :: John Kitchin's (author of Org-ref). Great UX for markers with hydra. Saves the marker info and comments directly within the Org file as base64 encoded string. It uses overlays
+- [[https://github.com/jkitchin/ov-highlight][ov-highlight]] :: John Kitchin's (author of Org-ref). Great UX for markers with hydra. Saves the marker info and comments directly within the Org file as Base64 encoded string. It uses overlays
 - [[https://github.com/bastibe/annotate.el][Annotate.el]] :: Bastian Bechtold's (author of Org-journal). Unique display of annotations right next to (or on top of) the text. It seems to be designed for very short annotations, and perhaps for code review (programming practice); I have seen recent issues reported when used with variable-pitch fonts (prose). 
-- [[https://github.com/tkf/org-mode/blob/master/contrib/lisp/org-annotate-file.el][Org-annotate-file]] :: Part of Org's contrib library. It seems to be designed to annote a whole file in a separate Org file, rather than specific text items
+- [[https://github.com/tkf/org-mode/blob/master/contrib/lisp/org-annotate-file.el][Org-annotate-file]] :: Part of Org's contrib library. It seems to be designed to annotate a whole file in a separate Org file, rather than specific text items
 - [[https://github.com/IdoMagal/ipa.el][InPlaceAnnotations (ipa-mode)]] :: It looks similar to Annotate.el above
 
 
@@ -110,7 +110,7 @@ To create this package, I was inspired by the following packages. I did not copy
 
 Feedback welcome in this repo, or in [[https://org-roam.discourse.group/t/prototype-org-marginalia-write-margin-notes-with-org-mode/1080][Org-roam Discourse forum]]. 
 
-I am aiming to keep this package to be small and focused. I plan to add the following features, and probably consier it to be function complete for my purposes.
+I am aiming to keep this package to be small and focused. I plan to add the following features, and probably consider it to be function complete for my purposes.
 
 1. =om/toggle-display= to toggle show/hide of highlights without losing them
 2. =om/next= and =om/previous= to easily navigate highlighted regions in the buffer
