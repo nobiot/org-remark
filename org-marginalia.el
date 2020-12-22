@@ -184,10 +184,14 @@ beginning point; this should be useful when `om/next' and
   (add-text-properties beg end '(font-lock-face om/highlighter))
   ;; This beg and end are not always in sync when you change the text in it
   (add-text-properties beg end `(om/id ,id))
-  ;; Keep track in a local variable
-  ;; It's alist; don't forget the dot (beg . end)
-  ;; The dot "." is imporant to make the car/cdr "getter" interface clean
-  (push `(,id ,(set-marker (make-marker) beg) . ,(set-marker (make-marker) end))
+  ;; Keep track in a local variable It's alist; don't forget the dot
+  ;;   (beg . end)
+  ;; The dot "." is imporant to make the car/cdr "getter" interface clean.
+
+  ;; Also, `set-marker-insertion-type' to set the type t is necessary to move
+  ;; the cursor in sync with the font-lock-face property of the text property.
+  (push `(,id
+          ,(om/make-highlight-marker beg) . ,(om/make-highlight-marker end))
         om/highlights)
   (om/sort-highlights-list))
 
@@ -394,6 +398,15 @@ creat a new headline at the end of the buffer."
   "Utility function to sort `om/sort-highlights'."
   (when om/highlights
     (setq om/highlights (seq-sort-by (lambda (s) (car (cdr s))) #'< om/highlights))))
+
+(defun om/make-highlight-marker (point)
+  "Return marker of the insertion-type t.
+The insertion-type is important in order for the highlight
+position (beg and end points) in sycn with the highlited text
+properties."
+  (let ((marker (set-marker (make-marker) point)))
+    (set-marker-insertion-type marker t)
+    marker))
 
 ;;;; Footer
 
