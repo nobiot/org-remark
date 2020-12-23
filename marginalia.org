@@ -14,3 +14,20 @@
 :marginalia-source-end: 505
 :END:
 [[file:~/local-repos/org-marginalia/README.org][Org-marginalia]]
+
+* org-marginalia
+:PROPERTIES:
+:marginalia-source-file: ~/local-repos/org-marginalia/org-marginalia.el
+:END:
+
+** defun om/next
+:PROPERTIES:
+:marginalia-id: e0047cec
+:marginalia-source-beg: 14856
+:marginalia-source-end: 14869
+:END:
+[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+
+=(view-file "marginalia.org")= is interesting. It visits the file with read-only mode on. Press q to quit. But if you turn off read-only-mode, you can then edt the buffer. 
+
+Also... It's useful to be able to cycle through (or view a list of) highlights. You may not see them. 
