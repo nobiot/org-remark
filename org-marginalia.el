@@ -178,6 +178,103 @@ It is meant to exist only one of these in each Emacs session.")
 (defconst om/prop-source-beg "marginalia-source-beg")
 (defconst om/prop-source-end "marginalia-source-end")
 
+;;;; Functions
+
+;;;;; Private
+;; `om/make-highlight-marker' and other private utility functions; however,
+;; macro expansion (?) in `om/mark' and others do not seem to understand that
+;; they are declared in this file. `declare-function' didn't seem to work.
+;; Until I figure out how to work with it, I will put this function here.
+
+(defun om/save-single-highlight (highlight title source-path)
+  "Save a single HIGHLIGHT in the marginalia file with properties.
+The marginalia file is specified by SOURCE-PATH. If headline with
+the same ID already exists, update it based on the new highlight
+position and highlighted text as TITLE. If it is a new highlight,
+creat a new headline at the end of the buffer."
+  (let* ((pos (cdr highlight))
+         (beg (marker-position (car pos)))
+         (end (marker-position (cdr pos)))
+         (text (buffer-substring-no-properties beg end)))
+    ;; TODO Want to add a check if save is applicable here.
+    (with-current-buffer (find-file-noselect om/notes-file-path)
+      (org-with-wide-buffer
+       (let ((file-headline (org-find-property om/prop-source-file source-path))
+             (id-headline (org-find-property om/prop-id (car highlight))))
+         (unless file-headline
+           ;; If file-headline does not exist, create one at the bottom
+           (goto-char (point-max))
+           ;; Ensure to be in the beginning of line to add a new headline
+           (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
+           (insert (concat "* " title "\n"))
+           (org-set-property om/prop-source-file source-path))
+         (cond (id-headline
+                (goto-char id-headline)
+                ;; Update the existing headline and position properties
+                (org-edit-headline text)
+                (org-set-property om/prop-source-beg (number-to-string beg))
+                (org-set-property om/prop-source-end (number-to-string end)))
+               (t ;; No headline with the ID property. Create one
+                (when-let ((p (org-find-property om/prop-source-file source-path)))
+                  (goto-char p))
+                (org-narrow-to-subtree)
+                (goto-char (point-max))
+                ;; Ensure to be in the beginning of line to add a new headline
+                (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
+                ;; Create a headline
+                ;; Add a properties
+                (insert (concat "** " text "\n"))
+                (org-set-property om/prop-id (car highlight))
+                (org-set-property om/prop-source-beg (number-to-string beg))
+                (org-set-property om/prop-source-end (number-to-string end))
+                (insert (concat "[[file:" source-path "]" "[" title "]]"))))))
+      (when (buffer-modified-p) (save-buffer)))))
+
+(defun om/make-highlight-marker (point)
+  "Return marker of the insertion-type t for POINT.
+The insertion-type is important in order for the highlight
+position (beg and end points) in sync with the highlighted text
+properties."
+  (let ((marker (set-marker (make-marker) point)))
+    (set-marker-insertion-type marker t)
+    marker))
+
+(defun om/list-highlights-positions (&optional reverse)
+  "Return list of beg points of highlights in this buffer.
+By default, the list is in ascending order.
+If none, return nil.
+If REVERSE is non-nil, return list in the descending order."
+  (when om/highlights
+    (let ((list (mapcar (lambda (h)
+              (marker-position (car (cdr h))))
+                        om/highlights)))
+      (if reverse (reverse list) list))))
+
+(defun om/sort-highlights-list ()
+  "Utility function to sort `om/sort-highlights'."
+  (when om/highlights
+    (setq om/highlights (seq-sort-by (lambda (s) (car (cdr s))) #'< om/highlights))))
+
+(defun om/find-next-highlight ()
+  "Return the beg point of the next highlight.
+Look through `om/highlights' list."
+
+  (when-let ((points (om/list-highlights-positions)))
+      ;; Find the first occurance of p > (point). If none, this means all the
+      ;; points occur before the current point. Take the first one. Assume
+      ;; `om/highlights' is sorted in the ascending order (it is).
+    (seq-find (lambda (p) (> p (point))) points (nth 0 points))))
+
+(defun om/find-prev-highlight ()
+  "Return the beg point of the previous highlight.
+Look through `om/highlights' list (in descending order)."
+
+  (when-let ((points (om/list-highlights-positions 'reverse)))
+      ;; Find the first occurance of p < (point). If none, this means all the
+      ;; points occur before the current point. Take the first one. Assume
+      ;; `om/highlights' is sorted in the descending order .
+    (seq-find (lambda (p) (< p (point))) points (nth 0 points))))
+
 ;;;; Commands
 
 ;;;###autoload
@@ -202,8 +299,8 @@ the mode, `toggle' toggles the state."
     :keymap (let ((map (make-sparse-keymap)))
               (define-key map (kbd "C-c n o") #'om/open)
               (define-key map (kbd "C-c m") #'om/mark)
-              (define-key map (kbd "C-c ]") #'om/next)
-              (define-key map (kbd "C-c [") #'om/prev)
+              (define-key map (kbd "C-c n ]") #'om/next)
+              (define-key map (kbd "C-c n [") #'om/prev)
               map)
     (cond
      (org-marginalia-mode
@@ -375,100 +472,6 @@ buffer, go back to the last one."
   (interactive)
   (if (not om/highlights) (message "No highlights present in this buffer.")
     (goto-char (om/find-prev-highlight))))
-
-;;;; Functions
-
-;;;;; Private
-
-(defun om/save-single-highlight (highlight title source-path)
-  "Save a single HIGHLIGHT in the marginalia file with properties.
-The marginalia file is specified by SOURCE-PATH. If headline with
-the same ID already exists, update it based on the new highlight
-position and highlighted text as TITLE. If it is a new highlight,
-creat a new headline at the end of the buffer."
-  (let* ((pos (cdr highlight))
-         (beg (marker-position (car pos)))
-         (end (marker-position (cdr pos)))
-         (text (buffer-substring-no-properties beg end)))
-    ;; TODO Want to add a check if save is applicable here.
-    (with-current-buffer (find-file-noselect om/notes-file-path)
-      (org-with-wide-buffer
-       (let ((file-headline (org-find-property om/prop-source-file source-path))
-             (id-headline (org-find-property om/prop-id (car highlight))))
-         (unless file-headline
-           ;; If file-headline does not exist, create one at the bottom
-           (goto-char (point-max))
-           ;; Ensure to be in the beginning of line to add a new headline
-           (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
-           (insert (concat "* " title "\n"))
-           (org-set-property om/prop-source-file source-path))
-         (cond (id-headline
-                (goto-char id-headline)
-                ;; Update the existing headline and position properties
-                (org-edit-headline text)
-                (org-set-property om/prop-source-beg (number-to-string beg))
-                (org-set-property om/prop-source-end (number-to-string end)))
-               (t ;; No headline with the ID property. Create one
-                (when-let ((p (org-find-property om/prop-source-file source-path)))
-                  (goto-char p))
-                (org-narrow-to-subtree)
-                (goto-char (point-max))
-                ;; Ensure to be in the beginning of line to add a new headline
-                (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
-                ;; Create a headline
-                ;; Add a properties
-                (insert (concat "** " text "\n"))
-                (org-set-property om/prop-id (car highlight))
-                (org-set-property om/prop-source-beg (number-to-string beg))
-                (org-set-property om/prop-source-end (number-to-string end))
-                (insert (concat "[[file:" source-path "]" "[" title "]]"))))))
-      (when (buffer-modified-p) (save-buffer)))))
-
-(defun om/sort-highlights-list ()
-  "Utility function to sort `om/sort-highlights'."
-  (when om/highlights
-    (setq om/highlights (seq-sort-by (lambda (s) (car (cdr s))) #'< om/highlights))))
-
-(defun om/make-highlight-marker (point)
-  "Return marker of the insertion-type t for POINT.
-The insertion-type is important in order for the highlight
-position (beg and end points) in sync with the highlighted text
-properties."
-  (let ((marker (set-marker (make-marker) point)))
-    (set-marker-insertion-type marker t)
-    marker))
-
-(defun om/list-highlights-positions (&optional reverse)
-  "Return list of beg points of highlights in this buffer.
-By default, the list is in ascending order.
-If none, return nil.
-If REVERSE is non-nil, return list in the descending order."
-  (when om/highlights
-    (let ((list (mapcar (lambda (h)
-              (marker-position (car (cdr h))))
-                        om/highlights)))
-      (if reverse (reverse list) list))))
-
-(defun om/find-next-highlight ()
-  "Return the beg point of the next highlight.
-Look through `om/highlights' list."
-
-  (when-let ((points (om/list-highlights-positions)))
-      ;; Find the first occurance of p > (point). If none, this means all the
-      ;; points occur before the current point. Take the first one. Assume
-      ;; `om/highlights' is sorted in the ascending order (it is).
-    (seq-find (lambda (p) (> p (point))) points (nth 0 points))))
-
-(defun om/find-prev-highlight ()
-  "Return the beg point of the previous highlight.
-Look through `om/highlights' list (in descending order)."
-
-  (when-let ((points (om/list-highlights-positions 'reverse)))
-      ;; Find the first occurance of p < (point). If none, this means all the
-      ;; points occur before the current point. Take the first one. Assume
-      ;; `om/highlights' is sorted in the descending order .
-    (seq-find (lambda (p) (< p (point))) points (nth 0 points))))
-
 ;;;; Footer
 
 (provide 'org-marginalia)

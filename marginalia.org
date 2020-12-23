@@ -20,12 +20,7 @@
 :marginalia-source-file: ~/local-repos/org-marginalia/org-marginalia.el
 :END:
 
-** defun om/next
-:PROPERTIES:
-:marginalia-id: e0047cec
-:marginalia-source-beg: 15055
-:marginalia-source-end: 15068
-:END:
+** (title (or
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
 =(view-file "marginalia.org")= is interesting. It visits the file with read-only mode on. Press q to quit. But if you turn off read-only-mode, you can then edt the buffer. 
@@ -47,10 +42,5 @@ For listing, built-in `tabulated-list-mode` exists. Additionallly, hierarchy.el,
 ** defun om/list-highlights-positions
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
-** om/sort-highlights-list ()
-:PROPERTIES:
-:marginalia-id: 3be187c7
-:marginalia-source-beg: 18227
-:marginalia-source-end: 18253
-:END:
+** g . ,end) highlights))))))
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]

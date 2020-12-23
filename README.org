@@ -104,6 +104,11 @@ Move to the previous highlight if any. If there is none above the cursor, and th
 :TOC:      :depth 0
 :END:
 
+** 0.0.2
+- feat: Add om/next and /prev
+- break: Change om/open-at-point to om/open
+- break: Change om/save-all to om/save
+
 ** 0.0.1
 Initial alpha release. I consider it to be the minimal viable scope. 
 
@@ -122,7 +127,9 @@ Feedback welcome in this repo, or in [[https://org-roam.discourse.group/t/protot
 I am aiming to keep this package to be small and focused. I plan to add the following features, and probably consider it to be feature complete for my purposes.
 
 1. =om/toggle-display= to toggle show/hide of highlights without losing them
-2. DONE  =om/next= and =om/prev= to easily navigate highlighted regions in the buffer
+2. =om/next= and =om/prev= to easily navigate highlighted regions in the buffer
+     This is done, but I would like to try a transient (don't want to repeat the prefix everytime).
+   
 
 * License
 
@@ -133,4 +140,5 @@ This work is licensed under a GPLv3 license. For a full copy of the licese, refe
 # before-save-hook: org-make-toc
 # org-export-with-properties: ()
 # org-export-with-title: t
+# line-spacing: 4
 # End:
