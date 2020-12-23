@@ -81,6 +81,12 @@ This command visits the marginalia file and load the saved highlights onto the c
 - =om/remove= ::
 This command removes the highlight at point. It will remove the highlight, and remove the properties from the marginalia, but will keep the headline and notes in tact. 
 
+- =om/next= (=C-c n ]= by default) ::
+Move to the next highlight if any. If there is none below the cursor, and there is a highlight above, loop back to the top one.
+
+- =om/prev= (=C-c n [= by default) ::
+Move to the previous highlight if any. If there is none above the cursor, and there is a highlight below, loop back to the bottom one.
+
 * Customizing
 
 - You can customize settings in the =org-marginalia= group.
@@ -116,7 +122,7 @@ Feedback welcome in this repo, or in [[https://org-roam.discourse.group/t/protot
 I am aiming to keep this package to be small and focused. I plan to add the following features, and probably consider it to be feature complete for my purposes.
 
 1. =om/toggle-display= to toggle show/hide of highlights without losing them
-2. =om/next= and =om/previous= to easily navigate highlighted regions in the buffer
+2. DONE  =om/next= and =om/prev= to easily navigate highlighted regions in the buffer
 
 * License
 

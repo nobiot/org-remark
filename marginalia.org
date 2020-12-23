@@ -23,11 +23,34 @@
 ** defun om/next
 :PROPERTIES:
 :marginalia-id: e0047cec
-:marginalia-source-beg: 14856
-:marginalia-source-end: 14869
+:marginalia-source-beg: 15055
+:marginalia-source-end: 15068
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
 =(view-file "marginalia.org")= is interesting. It visits the file with read-only mode on. Press q to quit. But if you turn off read-only-mode, you can then edt the buffer. 
 
-Also... It's useful to be able to cycle through (or view a list of) highlights. You may not see them. 
+Also... It's useful to be able to cycle through (or view a list of) highlights. You may not see them.
+
+For listing, built-in `tabulated-list-mode` exists. Additionallly, hierarchy.el, tablist.el, or lister.el (of publicimageltd, author of delve).
+
+
+
+** Author
+:PROPERTIES:
+:marginalia-id: f323a57f
+:marginalia-source-beg: 143
+:marginalia-source-end: 149
+:END:
+[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+
+** defun om/list-highlights-positions
+[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+
+** om/sort-highlights-list ()
+:PROPERTIES:
+:marginalia-id: 3be187c7
+:marginalia-source-beg: 18227
+:marginalia-source-end: 18253
+:END:
+[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]

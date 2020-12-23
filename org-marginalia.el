@@ -202,6 +202,8 @@ the mode, `toggle' toggles the state."
     :keymap (let ((map (make-sparse-keymap)))
               (define-key map (kbd "C-c n o") #'om/open)
               (define-key map (kbd "C-c m") #'om/mark)
+              (define-key map (kbd "C-c ]") #'om/next)
+              (define-key map (kbd "C-c [") #'om/prev)
               map)
     (cond
      (org-marginalia-mode
@@ -224,8 +226,8 @@ passed. If so, no new ID gets generated.
 
 Every highlighted texts in the local buffer is tracked by
 `om/highlights' local variable. The highlght is sorted by the
-beginning point; this should be useful when `om/next' and
-`om/previous' are implemented (not yet)."
+beginning point in the ascending; this is useful for `om/next'
+and `om/prev'."
   (interactive "r")
   ;; UUID is too long; does not have to be the full length
   (when (not id) (setq id (substring (org-id-uuid) 0 8)))
@@ -356,11 +358,23 @@ marginalia, but will keep the headline and notes."
 (defun om/toggle-display ()
   "WIP: Toggle showing/hiding of highlights in current bufer.")
 
-(defun om/next ()
-  "WIP.")
+(seq-find (lambda (p) (> p (point))) (om/list-highlights-positions) (nth 0 (om/list-highlights-positions) ))
 
-(defun om/previous ()
-  "WIP.")
+(defun om/next ()
+  "Look at the current point, and move to the next highlight, if any.
+If there is none below the point, but there is a highlight in the
+buffer, go back to the first one."
+  (interactive)
+  (if (not om/highlights) (message "No highlights present in this buffer.")
+    (goto-char (om/find-next-highlight))))
+
+(defun om/prev ()
+  "Look at the current point, and move to the previous highlight, if any.
+If there is none above the point, but there is a highlight in the
+buffer, go back to the last one."
+  (interactive)
+  (if (not om/highlights) (message "No highlights present in this buffer.")
+    (goto-char (om/find-prev-highlight))))
 
 ;;;; Functions
 
@@ -418,11 +432,42 @@ creat a new headline at the end of the buffer."
 (defun om/make-highlight-marker (point)
   "Return marker of the insertion-type t for POINT.
 The insertion-type is important in order for the highlight
-position (beg and end points) in sycn with the highlited text
+position (beg and end points) in sync with the highlighted text
 properties."
   (let ((marker (set-marker (make-marker) point)))
     (set-marker-insertion-type marker t)
     marker))
+
+(defun om/list-highlights-positions (&optional reverse)
+  "Return list of beg points of highlights in this buffer.
+By default, the list is in ascending order.
+If none, return nil.
+If REVERSE is non-nil, return list in the descending order."
+  (when om/highlights
+    (let ((list (mapcar (lambda (h)
+              (marker-position (car (cdr h))))
+                        om/highlights)))
+      (if reverse (reverse list) list))))
+
+(defun om/find-next-highlight ()
+  "Return the beg point of the next highlight.
+Look through `om/highlights' list."
+
+  (when-let ((points (om/list-highlights-positions)))
+      ;; Find the first occurance of p > (point). If none, this means all the
+      ;; points occur before the current point. Take the first one. Assume
+      ;; `om/highlights' is sorted in the ascending order (it is).
+    (seq-find (lambda (p) (> p (point))) points (nth 0 points))))
+
+(defun om/find-prev-highlight ()
+  "Return the beg point of the previous highlight.
+Look through `om/highlights' list (in descending order)."
+
+  (when-let ((points (om/list-highlights-positions 'reverse)))
+      ;; Find the first occurance of p < (point). If none, this means all the
+      ;; points occur before the current point. Take the first one. Assume
+      ;; `om/highlights' is sorted in the descending order .
+    (seq-find (lambda (p) (< p (point))) points (nth 0 points))))
 
 ;;;; Footer
 
