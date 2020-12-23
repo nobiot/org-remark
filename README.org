@@ -6,18 +6,22 @@
 
 # Note: I use the readme template that alphapapa shares on his GitHub repo <https://github.com/alphapapa/emacs-package-dev-handbook#template>. It works with the org-make-toc <https://github.com/alphapapa/org-make-toc> package, which automatically updates the table of contents.
 
-Org-marginalia lets you highlight text, and write margin notes (marginalia) for any text file in a separate Org file. 
+Org-marginalia lets you highlight text, and write margin notes (marginalia) for any text file in a separate Org file. Refer to the screenshots below for a teaser of  what it can do.
+
+Technically, it implements the highlighting feature solely with text properties, and avoids overlays. This is done in light of oft-mentioned performance degradation with the latter.
+
+Personally I have never experienced such performance issues with overlays; nevertheless, given that we might have many highlighted text regions in a single file, I thought I would take this as an opportunity to take advantage of text properties.
 
 * Screenshots
 
 [[./resources/images/2020-12-22T141331-OM-screen-shot-01.png]]
-*Figure 1*. Left: main note; Right: margin notes in a marginalia file
+*Figure 1*. Left: main note with some text highlighted in green; Right: margin notes in a marginalia file
 
 [[./resources/images/2020-12-22T141331-OM-screen-shot-02.png]]
 *Figure 2*. It automatically adds the standard Org Mode link to margin notes, so it works well with Org-roam's backlinks
 
 [[./resources/images/2020-12-22T141331-OM-screen-shot-03.png]]
-*Figure 3*. Main note can be any text files. Left: an ~.el~ file; Right: marginalia file
+*Figure 3*. Main note can be any text files. Left: an ~.el~ file with a highlight; Right: marginalia file
 
 * Contents                                                         :noexport:
 :PROPERTIES:
@@ -40,9 +44,11 @@ Org-marginalia lets you highlight text, and write margin notes (marginalia) for 
 :END:
 
 ** Manual
-This package is not available on MELPA. Manual installation is required. Ensure to have Org Mode 9.4 or later (tested on 9.4.2). This package uses ~org-collect-keywords~, which does not exist in an earlier version.
+This package is not available on MELPA. Manual installation is required.
 
-Then store =org-marginalia.el= in your load-path, and put this in your init file:
+Ensure to have Org Mode 9.4 or later (tested on 9.4.2). This package uses ~org-collect-keywords~, which does not exist in an earlier version.
+
+Store =org-marginalia.el= in your load-path, and put this in your init file:
 
 #+BEGIN_SRC emacs-lisp
 (require 'org-marginalia)
@@ -114,9 +120,9 @@ Initial alpha release. I consider it to be the minimal viable scope.
 * Credits
 To create this package, I was inspired by the following packages. I did not copy any part of them, but borrowed some ideas from them -- e.g. saving the margin notes in a separate file.
 
-- [[https://github.com/jkitchin/ov-highlight][ov-highlight]] :: John Kitchin's (author of Org-ref). Great UX for markers with hydra. Saves the marker info and comments directly within the Org file as Base64 encoded string. It uses overlays
-- [[https://github.com/bastibe/annotate.el][Annotate.el]] :: Bastian Bechtold's (author of Org-journal). Unique display of annotations right next to (or on top of) the text. It seems to be designed for very short annotations, and perhaps for code review (programming practice); I have seen recent issues reported when used with variable-pitch fonts (prose). 
-- [[https://github.com/tkf/org-mode/blob/master/contrib/lisp/org-annotate-file.el][Org-annotate-file]] :: Part of Org's contrib library. It seems to be designed to annotate a whole file in a separate Org file, rather than specific text items
+- [[https://github.com/jkitchin/ov-highlight][Ov-highlight]] :: John Kitchin's (author of Org-ref). Great UX for markers with hydra. Saves the marker info and comments directly within the Org file as Base64 encoded string. It uses overlays with using `ov` package.
+- [[https://github.com/bastibe/annotate.el][Annotate.el]] :: Bastian Bechtold's (author of Org-journal). Unique display of annotations right next to (or on top of) the text. It seems to be designed for very short annotations, and perhaps for code review (programming practice); I have seen recent issues reported when used with variable-pitch fonts (prose).
+- [[https://github.com/tkf/org-mode/blob/master/contrib/lisp/org-annotate-file.el][Org-annotate-file]] :: Part of Org's contrib library. It seems to be designed to annotate a whole file in a separate Org file, rather than specific text items.
 - [[https://github.com/IdoMagal/ipa.el][InPlaceAnnotations (ipa-mode)]] :: It looks similar to Annotate.el above
 
 * Feedback

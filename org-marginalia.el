@@ -1,11 +1,11 @@
-;;; org-marginalia.el --- Write margin notes for any text file in Org Mode  -*- lexical-binding: t; -*-
+;;; org-marginalia.el --- Highlight text, write margin notes for any text file in Org Mode  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020 Noboru Ota
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-marginalia
 ;; Version: 0.0.2
-;; Last modified: 2020-12-23T105737
+;; Last modified: 2020-12-23T135735
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, margin-notes
 
@@ -48,43 +48,55 @@
 
 ;;;; Usage
 
-;; - =org-marginalia-mode= :: Org-marginalia is a local minor mode. Toggle it
-;; on/off with using =org-marginalia-mode=. On activating, it loads your saved
-;; highlighters from the marginalia file, and enables automatic saving of
-;; highlighters. The automatic saving is achieved via function =om/save=
-;; added to =after-save-hook=.
+;; - =org-marginalia-mode= ::
+;; Org-marginalia is a local minor mode. Toggle it on/off with using
+;; =org-marginalia-mode=. On activating, it loads your saved highlighters from
+;; the marginalia file, and enables automatic saving of highlighters. The
+;; automatic saving is achieved via function =om/save= added to
+;; =after-save-hook=.
 
-;; - =om/mark= :: Select a region of text, and call =om/mark= (bound to =C-c n
-;; m= by default) to highlight the region. It will generate a new ID, and
-;; start tracking the location -- so you can edit text around the marked text.
-;; Do not copy and paste as it will disappear and it is a bit tricky to
-;; recover the highlighter. To create a new margin note entry in the
-;; marginalia file, save the buffer.
+;; - =om/mark= (C-c n m by default) ::
+;; Select a region of text, and call =om/mark= (bound to =C-c n m= by default)
+;; to highlight the region. It will generate a new ID, and start tracking the
+;; location -- so you can edit text around the marked text. Do not copy and
+;; paste as it will disappear and it is a bit tricky to recover the
+;; highlighter. To create a new margin note entry in themarginalia file, save the buffer.
 
-;; - =om/save= :: By default, Org-marginalia creates or updates the
-;; highlighter's location and text inside automatically in the marginalia
-;; file. You can manually call =om/save= to manually do it (automatic
-;; process also call this command).
+;; - =om/save= ::
+;; By default, Org-marginalia creates or updates the highlighter's location
+;; and text inside automatically in the marginalia file. You can manually call
+;; =om/save= to manually do it (automatic process also call this command).
 
-;; - =om/open= :: Move your cursor on the highlighted text, and call
-;; =om/open= to open the relevant margin notes in a separate window.
-;; Your cursor should move to the marginalia buffer narrowed to the relevant
-;; margin notes entry. You can edit the margin notes as a normal Org file.
-;; Once you have done editing, you can simply save and close the buffer (kill
-;; or close the window) as per your normal workflow. Technically, the
-;; marginalia buffer is a cloned indirect buffer of the marginalia file.
+;; - =om/open= (C-c o by default) ::
+;; Move your cursor on the highlighted text, and call =om/open= to open the
+;; relevant margin notes in a separate window. Your cursor should move to the
+;; marginalia buffer narrowed to the relevant margin notes entry. You can edit
+;; the margin notes as a normal Org file. Once you have done editing, you can
+;; simply save and close the buffer (kill or close the window) as per your
+;; normal workflow. Technically, the marginalia buffer is a cloned indirect
+;; buffer of the marginalia file.
 
-;; - =om/load= :: This command open the marginalia file and load the saved
-;; highlights onto current buffer. If there is no margin notes for it, it will
-;; output a message in the echo. Highlights tracked locally by this packages
-;; cannot persist when you kill the buffer, or quit Emacs. When you re-launch
-;; Emacs, ensure to turn on =org-marginalia-mode= to load the highlights. Load
-;; is automatically done when you activate the minor mode.
+;; - =om/load= ::
+;; This command open the marginalia file and load the saved highlights onto
+;; current buffer. If there is no margin notes for it, it will output a
+;; message in the echo. Highlights tracked locally by this packages cannot
+;; persist when you kill the buffer, or quit Emacs. When you re-launch Emacs,
+;; ensure to turn on =org-marginalia-mode= to load the highlights. Load is
+;; automatically done when you activate the minor mode.
 
 ;; - =om/remove= ::
 ;; This command removes the highlight at point. It will remove the highlight,
 ;; and remove the properties from the marginalia, but will keep the headline
 ;; and notes in tact.
+
+;; - =om/next= (C-c n ] by default) ::
+;; Move to the next highlight if any. If there is none below the cursor, and
+;; there is a highlight above, loop back to the top one.
+
+;; - =om/prev= (C-c n [ by default) ::
+;; Move to the previous highlight if any. If there is none above the cursor,
+;; and there is a highlight below, loop back to the bottom one.
+
 
 ;;;; Customizing
 
@@ -154,8 +166,8 @@ separate Org file"
 
 (defcustom om/notes-file-path "marginalia.org"
   "Specify the file path for the marginalia.org file.
-The default is \"./marginalia.org\", thus one marginalia file per
-directory. Ensure that it is an Org file."
+The default is \"./marginalia.org\", thus one marginalia file per directory.
+Ensure that it is an Org file."
   :type 'string
   :group 'org-marginalia)
 
@@ -163,11 +175,13 @@ directory. Ensure that it is an Org file."
 
 (defvar-local om/highlights '()
   "Keep track of all the highlights.
-It is a local variable. On save-buffer, kill-buffer, or
-kill-emacs, the marker will be persisted in the filesystem.
-Each highlight is also an alist of this type:
+It is a local variable, and is a list of multiple highlights.
+Each highlight is an alist of this structure:
+
    (id beg-marker . end-marker)
-The text inside the markers can change, too.")
+
+On save-buffer each highlight will be persisted in the marginalia file
+(defined by `om/notes-file-path').")
 
 (defvar om/last-notes-buffer nil
   "Stores the cloned indirect buffer for the margin notes.
@@ -183,12 +197,11 @@ It is meant to exist only one of these in each Emacs session.")
 
 ;;;###autoload
 (define-minor-mode org-marginalia-mode
-    "Toggle Org-marginalia minor mode.
-It is a local minior mode to lets you write margin notes for any
-text file in Org Mode.
+    "Highlight text, write margin notes for any text file in Org Mode.
 
-It loads your saved highlighters from the marginalia file, and
-enables automatic saving of highlights.
+This command toggles Org-marginalia local minor mode. On
+activation, it loads your saved highlights from the marginalia
+file, and enables automatic saving of highlights.
 
 The automatic saving is achieved via function `om/save' added
 to `after-save-hook'.
@@ -217,9 +230,12 @@ the mode, `toggle' toggles the state."
 
 ;;;###autoload
 (defun om/mark (beg end &optional id)
-  "Highlight the selected region (BEG and END) when used interactively.
-It will generate a new ID, and start tracking the location, but
-will not create a marginalia entry yet. Call `om/save' to
+  "Highlight the selected region (BEG and END).
+When used interactively. it will generate a new ID, always
+assuming it is a new highlighted text region, and start tracking
+the higlight's location, so that you can edit the text around.
+
+It will not create a marginalia entry yet. Call `om/save' to
 create a new entry (it is automatic with `after-save-hook').
 
 When this function is called from Elisp, ID can be optionally

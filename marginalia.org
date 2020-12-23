@@ -10,8 +10,8 @@
 ** Screenshots
 :PROPERTIES:
 :marginalia-id: 1306ba7f
-:marginalia-source-beg: 494
-:marginalia-source-end: 505
+:marginalia-source-beg: 1007
+:marginalia-source-end: 1018
 :END:
 [[file:~/local-repos/org-marginalia/README.org][Org-marginalia]]
 
@@ -43,4 +43,34 @@ For listing, built-in `tabulated-list-mode` exists. Additionallly, hierarchy.el,
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
 ** g . ,end) highlights))))))
+[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+
+** ion
+:PROPERTIES:
+:marginalia-id: 3cf97a37
+:marginalia-source-beg: 14321
+:marginalia-source-end: 14325
+:END:
+[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+
+** ;;;; Requirements
+:PROPERTIES:
+:marginalia-id: c16e73f8
+:marginalia-source-beg: 5565
+:marginalia-source-end: 5582
+:END:
+[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+(defun om/list-highlights-positions ()
+  "This is an empty function definition to be replaced by a real one later.
+The actual definition is done in the private function section of
+this file, as it is a utility function. This empty declation is
+necessary in to avoid the macro expansion from failing for
+`seq-find'.")
+
+** nts
+:PROPERTIES:
+:marginalia-id: f55e13ab
+:marginalia-source-beg: 5579
+:marginalia-source-end: 5582
+:END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
