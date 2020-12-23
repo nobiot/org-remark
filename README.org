@@ -113,7 +113,7 @@ To create this package, I was inspired by the following packages. I did not copy
 
 Feedback welcome in this repo, or in [[https://org-roam.discourse.group/t/prototype-org-marginalia-write-margin-notes-with-org-mode/1080][Org-roam Discourse forum]]. 
 
-I am aiming to keep this package to be small and focused. I plan to add the following features, and probably consider it to be function complete for my purposes.
+I am aiming to keep this package to be small and focused. I plan to add the following features, and probably consider it to be feature complete for my purposes.
 
 1. =om/toggle-display= to toggle show/hide of highlights without losing them
 2. =om/next= and =om/previous= to easily navigate highlighted regions in the buffer
