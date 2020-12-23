@@ -32,7 +32,7 @@
 
 ;;;;; MELPA
 
-;; It's yet to be on MELPA. Manual installation required.
+;; This package is not available on MELPA. Manual installation required.
 
 ;;;;; Manual
 
@@ -43,10 +43,7 @@
 
 ;; Then put this file in your load-path, and put this in your init
 ;; file:
-
-(require 'org)
-(declare-function org-id-uuid 'org-id)
-(declare-function org-collect-keywords 'org)
+;; (require 'org-marginalia)
 
 ;;;; Usage
 
@@ -106,16 +103,36 @@
 
 ;;;; Credits
 
-;; This package would not have been possible without the following
-;; packages: foo[1], which showed me how to bifurcate, and bar[2],
-;; which takes care of flanges.
-;;
-;;  [1] https://example.com/foo.el
-;;  [2] https://example.com/bar.el
+;; To create this package, I was inspired by the following packages. I did not
+;; copy any part of them, but borrowed some ideas from them -- e.g. saving the
+;; margin notes in a separate file.
+
+;; - [[https://github.com/jkitchin/ov-highlight][ov-highlight]]
+;;   John Kitchin's (author of Org-ref). Great UX for markers with hydra.
+;;   Saves the marker info and comments directly within the Org file as Base64
+;;   encoded string. It uses overlays.
+
+;; - [[https://github.com/bastibe/annotate.el][Annotate.el]]
+;;   Bastian Bechtold's (author of Org-journal). Unique display of annotations
+;;   right next to (or on top of) the text. It seems to be designed for very
+;;   short annotations, and perhaps for code review (programming practice); I
+;;   have seen recent issues reported when used with variable-pitch fonts
+;;   (prose).
+
+;; - [[https://github.com/tkf/org-mode/blob/master/contrib/lisp/org-annotate-file.el][Org-annotate-file]]
+;;   Part of Org's contrib library. It seems to be designed to annotate a
+;;   whole file in a separate Org file, rather than specific text items
+
+;; - [[https://github.com/IdoMagal/ipa.el][InPlaceAnnotations (ipa-mode)]]
+;;   It looks similar to Annotate.el above
 
 ;;; Code:
 
 ;;;; Requirements
+
+(require 'org)
+(declare-function org-id-uuid 'org-id)
+(declare-function org-collect-keywords 'org)
 
 ;;;; Customization
 
@@ -182,12 +199,10 @@ beginning point; this should be useful when `om/next' and
   (when (not id) (setq id (substring (org-id-uuid) 0 8)))
   ;; Add highlight to the text
   (add-text-properties beg end '(font-lock-face om/highlighter))
-  ;; This beg and end are not always in sync when you change the text in it
   (add-text-properties beg end `(om/id ,id))
   ;; Keep track in a local variable It's alist; don't forget the dot
   ;;   (beg . end)
   ;; The dot "." is imporant to make the car/cdr "getter" interface clean.
-
   ;; Also, `set-marker-insertion-type' to set the type t is necessary to move
   ;; the cursor in sync with the font-lock-face property of the text property.
   (push `(,id

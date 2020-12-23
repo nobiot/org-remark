@@ -7,14 +7,10 @@
 :marginalia-source-file: ~/local-repos/org-marginalia/README.org
 :END:
 
-** - =om/mark= (=C-c m= by default) ::
-[[file:~/local-repos/org-marginalia/README.org][Org-marginalia]]
-It works :)
-
 ** Screenshots
 :PROPERTIES:
-:marginalia-id: db316c9a
-:marginalia-source-beg: 332
-:marginalia-source-end: 343
+:marginalia-id: 1306ba7f
+:marginalia-source-beg: 494
+:marginalia-source-end: 505
 :END:
 [[file:~/local-repos/org-marginalia/README.org][Org-marginalia]]

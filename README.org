@@ -26,9 +26,11 @@ Org-marginalia lets you write margin notes (marginalia) for any text files in a 
 :CONTENTS:
 - [[#installation][Installation]]
 - [[#usage][Usage]]
+- [[#customizing][Customizing]]
+- [[#known-limitations][Known Limitations]]
 - [[#changelog][Changelog]]
 - [[#credits][Credits]]
-- [[#development][Development]]
+- [[#feedback][Feedback]]
 - [[#license][License]]
 :END:
 
@@ -79,13 +81,13 @@ This command open the marginalia file and load the saved highlights onto current
 - =om/remove= ::
 This command removes the highlight at point. It will remove the highlight, and remove the properties from the marginalia, but will keep the headline and notes in tact. 
 
-** Customizing
+* Customizing
 
 - You can customize settings in the =org-marginalia= group.
 - Highlight face can be changed via =om/highlight=
 - Marginalia file is defined with =om/notes-file-path=
 
-** Known Limitations
+* Known Limitations
 
 - Turning off minor mode does not turn off the highlights :: This should not do any harm, but if you are distracted, kill the buffer (not revert) and visit it again. Toggling show/hide of highlights is something I would like to add later.
 - Copy & pasting loses highlights :: You could manually recover it by adjusting the properties in the margin notes file.
@@ -107,8 +109,7 @@ To create this package, I was inspired by the following packages. I did not copy
 - [[https://github.com/tkf/org-mode/blob/master/contrib/lisp/org-annotate-file.el][Org-annotate-file]] :: Part of Org's contrib library. It seems to be designed to annotate a whole file in a separate Org file, rather than specific text items
 - [[https://github.com/IdoMagal/ipa.el][InPlaceAnnotations (ipa-mode)]] :: It looks similar to Annotate.el above
 
-
-* Development
+* Feedback
 
 Feedback welcome in this repo, or in [[https://org-roam.discourse.group/t/prototype-org-marginalia-write-margin-notes-with-org-mode/1080][Org-roam Discourse forum]]. 
 
