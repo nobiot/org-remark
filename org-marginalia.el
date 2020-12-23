@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-marginalia
 ;; Version: 0.0.3
-;; Last modified: 2020-12-23T181011
+;; Last modified: 2020-12-23T181303
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, margin-notes
 
@@ -165,7 +165,7 @@ separate Org file"
   '((((class color) (min-colors 88) (background light))
      :underline "#aecf90" :background "#ecf7ed")
     (((class color) (min-colors 88) (background dark))
-     :underline "#00422a" :background "#001904" :extend t))
+     :underline "#00422a" :background "#001904"))
   "Face for highlighters."
   :group 'org-marginalia)
 
