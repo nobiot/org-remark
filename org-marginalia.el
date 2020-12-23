@@ -4,8 +4,8 @@
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-marginalia
-;; Version: 0.0.2
-;; Last modified: 2020-12-23T135735
+;; Version: 0.0.3
+;; Last modified: 2020-12-23T181011
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, margin-notes
 
@@ -97,6 +97,11 @@
 ;; Move to the previous highlight if any. If there is none above the cursor,
 ;; and there is a highlight below, loop back to the bottom one.
 
+;; - =om/toggle= ::
+;; Toggle showing/hiding of highlighters in current buffer. It only affects
+;; the display of the highlighters. When hidden, highlights' locations are
+;; still kept tracked; thus, upon buffer-save the correct locations are still
+;; recorded in the marginalia file.
 
 ;;;; Customizing
 
@@ -158,7 +163,7 @@ separate Org file"
 
 (defface om/highlighter
   '((((class color) (min-colors 88) (background light))
-     :underline "#aecf90" :background "#ecf7ed" t)
+     :underline "#aecf90" :background "#ecf7ed")
     (((class color) (min-colors 88) (background dark))
      :underline "#00422a" :background "#001904" :extend t))
   "Face for highlighters."
@@ -387,17 +392,25 @@ buffer, go back to the last one."
   (if (not om/highlights) (message "No highlights present in this buffer.")
     (goto-char (om/find-prev-highlight))))
 
-;; WIP
-(defun om/toggle-display ()
-  "WIP: Toggle showing/hiding of highlights in current bufer.")
+(defun om/toggle ()
+  "Toggle showing/hiding of highlighters in current buffer.
+It only affects the display of the highlighters. The locations
+are still kept tracked; thus, upon buffer-save the correct
+locations are still recorded in the marginalia file."
+  (interactive)
+  (when-let ((highlights om/highlights))
+    ;; Check the first highlight in the buffer
+    ;; If it's hidden, all hidden. Show them.
+    ;; If not, all shown. Hide them.
+    (if-let* ((beg (car (cdr (nth 0 highlights))))
+              (hidden-p (get-char-property beg 'om/hidden)))
+        (om/show)
+      (om/hide))
+    t))
 
 ;;;; Functions
 
 ;;;;; Private
-;; `om/make-highlight-marker' and other private utility functions; however,
-;; macro expansion (?) in `om/mark' and others do not seem to understand that
-;; they are declared in this file. `declare-function' didn't seem to work.
-;; Until I figure out how to work with it, I will put this function here.
 
 (defun om/save-single-highlight (highlight title source-path)
   "Save a single HIGHLIGHT in the marginalia file with properties.
@@ -471,7 +484,6 @@ If REVERSE is non-nil, return list in the descending order."
 (defun om/find-next-highlight ()
   "Return the beg point of the next highlight.
 Look through `om/highlights' list."
-
   (when-let ((points (om/list-highlights-positions)))
       ;; Find the first occurance of p > (point). If none, this means all the
       ;; points occur before the current point. Take the first one. Assume
@@ -481,12 +493,39 @@ Look through `om/highlights' list."
 (defun om/find-prev-highlight ()
   "Return the beg point of the previous highlight.
 Look through `om/highlights' list (in descending order)."
-
   (when-let ((points (om/list-highlights-positions 'reverse)))
       ;; Find the first occurance of p < (point). If none, this means all the
       ;; points occur before the current point. Take the first one. Assume
       ;; `om/highlights' is sorted in the descending order .
     (seq-find (lambda (p) (< p (point))) points (nth 0 points))))
+
+(defun om/hide ()
+  "Hide highlighters.
+It will remove the font-lock-face of all the highlights, and add
+'om/hidden property with value 't. It does not check the current
+hidden state, thus not interactive. Use `om/toggle-display'
+command to manually toggle the show/hide state."
+  (when-let ((highlights om/highlights))
+    (dolist (highlight highlights)
+      (let ((beg (car (cdr highlight)))
+            (end (cdr (cdr highlight))))
+        (remove-list-of-text-properties beg end '(font-lock-face))
+        (add-text-properties beg end (list 'om/hidden t))))
+    t))
+
+(defun om/show ()
+  "Show highlighters.
+It adds the font-lock-face to all the highlighted text regions.
+It does not check the current hidden state, thus not interactive.
+Use `om/toggle-display' command to manually toggle the show/hide
+state."
+  (when-let ((highlights om/highlights))
+    (dolist (highlight highlights)
+      (let ((beg (car (cdr highlight)))
+            (end (cdr (cdr highlight))))
+        (remove-list-of-text-properties beg end '(om/hidden))
+        (add-text-properties beg end '(font-lock-face om/highlighter))))
+    t))
 
 ;;;; Footer
 

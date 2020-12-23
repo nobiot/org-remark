@@ -92,6 +92,9 @@ Move to the next highlight if any. If there is none below the cursor, and there 
 - =om/prev= (=C-c n [= by default) ::
 Move to the previous highlight if any. If there is none above the cursor, and there is a highlight below, loop back to the bottom one.
 
+- =om/toggle= ::
+Toggle showing/hiding of highlighters in current buffer. It only affects the display of the highlighters. When hidden, highlights' locations are still kept tracked; thus, upon buffer-save the correct locations are still recorded in the marginalia file.
+
 * Customizing
 
 - You can customize settings in the =org-marginalia= group.
@@ -108,6 +111,9 @@ Move to the previous highlight if any. If there is none above the cursor, and th
 :PROPERTIES:
 :TOC:      :depth 0
 :END:
+
+** 0.0.3
+- feat: Add om/toggle for show/hide highlighters
 
 ** 0.0.2
 - feat: Add om/next and /prev
@@ -131,9 +137,9 @@ Feedback welcome in this repo, or in [[https://org-roam.discourse.group/t/protot
 
 I am aiming to keep this package to be small and focused. I plan to add the following features, and probably consider it to be feature complete for my purposes.
 
-1. =om/toggle-display= to toggle show/hide of highlights without losing them
+1. DONE v0.0.3  =om/toggle= to toggle show/hide of highlights without losing them
 2. =om/next= and =om/prev= to easily navigate highlighted regions in the buffer
-     This is done, but I would like to try a transient (don't want to repeat the prefix everytime).
+     This is done (v0.0.2), but I would like to try a transient (don't want to repeat the prefix everytime).
    
 
 * License

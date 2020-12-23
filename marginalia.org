@@ -31,7 +31,7 @@ For listing, built-in `tabulated-list-mode` exists. Additionallly, hierarchy.el,
 
 
 
-** Author
+** Nobor
 :PROPERTIES:
 :marginalia-id: f323a57f
 :marginalia-source-beg: 143
@@ -45,19 +45,19 @@ For listing, built-in `tabulated-list-mode` exists. Additionallly, hierarchy.el,
 ** g . ,end) highlights))))))
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
-** ion
+** g (c
 :PROPERTIES:
 :marginalia-id: 3cf97a37
-:marginalia-source-beg: 14321
-:marginalia-source-end: 14325
+:marginalia-source-beg: 14606
+:marginalia-source-end: 14610
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
-** ;;;; Requirements
+** variable-pitch f
 :PROPERTIES:
 :marginalia-id: c16e73f8
-:marginalia-source-beg: 5565
-:marginalia-source-end: 5582
+:marginalia-source-beg: 5850
+:marginalia-source-end: 5867
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 (defun om/list-highlights-positions ()
@@ -67,10 +67,20 @@ this file, as it is a utility function. This empty declation is
 necessary in to avoid the macro expansion from failing for
 `seq-find'.")
 
-** nts
+** h f
 :PROPERTIES:
 :marginalia-id: f55e13ab
-:marginalia-source-beg: 5579
-:marginalia-source-end: 5582
+:marginalia-source-beg: 5864
+:marginalia-source-end: 5867
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+
+** remove-list-of-text-properties beg end
+:PROPERTIES:
+:marginalia-id: 74fd21ea
+:marginalia-source-beg: 22373
+:marginalia-source-end: 22411
+:END:
+[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+Note that you can use markers directly wihtin add/remove-text-properties functions.
+No need to replace specifically markers with points. 
