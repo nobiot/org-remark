@@ -181,6 +181,38 @@ It is meant to exist only one of these in each Emacs session.")
 ;;;; Commands
 
 ;;;###autoload
+(define-minor-mode org-marginalia-mode
+    "Toggle Org-marginalia minor mode.
+It is a local minior mode to lets you write margin notes for any
+text file in Org Mode.
+
+It loads your saved highlighters from the marginalia file, and
+enables automatic saving of highlights.
+
+The automatic saving is achieved via function `om/save' added
+to `after-save-hook'.
+
+Interactively with no argument, this command toggles the mode. A
+positive prefix argument enables the mode, any other prefix
+argument disables it. From Lisp, argument omitted or nil enables
+the mode, `toggle' toggles the state."
+    :init-value nil
+    :lighter " marginalia"
+    :global nil
+    :keymap (let ((map (make-sparse-keymap)))
+              (define-key map (kbd "C-c n o") #'om/open)
+              (define-key map (kbd "C-c m") #'om/mark)
+              map)
+    (cond
+     (org-marginalia-mode
+      ;; Activate
+      (om/load)
+      (add-hook 'after-save-hook #'om/save nil t))
+     (t
+      ;; Deactivate
+      (remove-hook 'after-save-hook #'om/save t))))
+
+;;;###autoload
 (defun om/mark (beg end &optional id)
   "Highlight the selected region (BEG and END) when used interactively.
 It will generate a new ID, and start tracking the location, but
@@ -329,38 +361,6 @@ marginalia, but will keep the headline and notes."
 
 (defun om/previous ()
   "WIP.")
-
-;;;###autoload
-(define-minor-mode org-marginalia-mode
-    "Toggle Org-marginalia minor mode.
-It is a local minior mode to lets you write margin notes for any
-text file in Org Mode.
-
-It loads your saved highlighters from the marginalia file, and
-enables automatic saving of highlighters.
-
-The automatic saving is achieved via function `om/save' added
-to `after-save-hook'.
-
-Interactively with no argument, this command toggles the mode. A
-positive prefix argument enables the mode, any other prefix
-argument disables it. From Lisp, argument omitted or nil enables
-the mode, `toggle' toggles the state."
-    :init-value nil
-    :lighter " marginalia"
-    :global nil
-    :keymap (let ((map (make-sparse-keymap)))
-              (define-key map (kbd "C-c n o") #'om/open)
-              (define-key map (kbd "C-c m") #'om/mark)
-              map)
-    (cond
-     (org-marginalia-mode
-      ;; Activate
-      (om/load)
-      (add-hook 'after-save-hook #'om/save nil t))
-     (t
-      ;; Deactivate
-      (remove-hook 'after-save-hook #'om/save t))))
 
 ;;;; Functions
 
