@@ -4,7 +4,8 @@
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-marginalia
-;; Version: 0.0.1
+;; Version: 0.0.2
+;; Last modified: 2020-12-23T093128
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, margin-notes
 
