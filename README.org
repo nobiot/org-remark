@@ -64,13 +64,13 @@ For example, I use this in my init file. Org-marginalia is a local minor mode. A
 :END:
 
 - =org-marginalia-mode= ::
-Org-marginalia is a local minor mode. Toggle it on/off with using =org-marginalia-mode=. On activating, it loads your saved highlights from the marginalia file, and enables automatic saving of highlights. The automatic saving is achieved via function =om/save-all= added to =after-save-hook=.
+Org-marginalia is a local minor mode. Toggle it on/off with using =org-marginalia-mode=. On activating, it loads your saved highlights from the marginalia file, and enables automatic saving of highlights. The automatic saving is achieved via function =om/save= added to =after-save-hook=.
 
 - =om/mark= (=C-c m= by default) ::
 Select a region of text, and call =om/mark= to highlight the region. It will generate a new ID, and start tracking the location -- so you can edit text around the marked text. Do not copy and paste as it will disappear and it is a bit tricky to recover the highlights. To create a new margin note entry in the marginalia file, save the buffer.
 
-- =om/save-all= ::
-By default, Org-marginalia creates or updates the highlight's location and text inside automatically in the marginalia file. You can manually call =om/save-all= to manually do it (automatic process also call this command).
+- =om/save= ::
+By default, Org-marginalia automatically creates or updates corresponding entries in the marginalia file with location and text of highlights on saving the buffer. Nevertheless, you can manually call =om/save= to do so (automatic process also call this command).
 
 - =om/open-at-point= (=C-c n o= by default) ::
 Move your cursor on the highlighted text, and call =om/open-at-point= to open the relevant margin notes in a separate window. Your cursor should move to the marginalia buffer narrowed to the relevant margin notes entry. You can edit the margin notes as a normal Org file. Once you have done editing, you can simply save and close the buffer (kill or close the window) as per your normal workflow. Technically, the marginalia buffer is a cloned indirect buffer of the marginalia file. 

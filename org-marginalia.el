@@ -50,7 +50,7 @@
 ;; - =org-marginalia-mode= :: Org-marginalia is a local minor mode. Toggle it
 ;; on/off with using =org-marginalia-mode=. On activating, it loads your saved
 ;; highlighters from the marginalia file, and enables automatic saving of
-;; highlighters. The automatic saving is achieved via function =om/save-all=
+;; highlighters. The automatic saving is achieved via function =om/save=
 ;; added to =after-save-hook=.
 
 ;; - =om/mark= :: Select a region of text, and call =om/mark= (bound to =C-c n
@@ -60,9 +60,9 @@
 ;; recover the highlighter. To create a new margin note entry in the
 ;; marginalia file, save the buffer.
 
-;; - =om/save-all= :: By default, Org-marginalia creates or updates the
+;; - =om/save= :: By default, Org-marginalia creates or updates the
 ;; highlighter's location and text inside automatically in the marginalia
-;; file. You can manually call =om/save-all= to manually do it (automatic
+;; file. You can manually call =om/save= to manually do it (automatic
 ;; process also call this command).
 
 ;; - =om/open-at-point= :: Move your cursor on the highlighted text, and call
@@ -184,7 +184,7 @@ It is meant to exist only one of these in each Emacs session.")
 (defun om/mark (beg end &optional id)
   "Highlight the selected region (BEG and END) when used interactively.
 It will generate a new ID, and start tracking the location, but
-will not create a marginalia entry yet. Call `om/save-all' to
+will not create a marginalia entry yet. Call `om/save' to
 create a new entry (it is automatic with `after-save-hook').
 
 When this function is called from Elisp, ID can be optionally
@@ -211,7 +211,7 @@ beginning point; this should be useful when `om/next' and
   (om/sort-highlights-list))
 
 ;;;###autoload
-(defun om/save-all ()
+(defun om/save ()
   "Save all the highlights tracked in current buffer to marginalia file.
 The marginalia file is defined in `om/notes-file-path' variable.
 
@@ -228,7 +228,8 @@ current buffer. Each highlight is represented by this data structure:
          (source-path (abbreviate-file-name filename))
          (title (or (car (cdr (assoc "TITLE" (org-collect-keywords '("TITLE")))))
                     (file-name-sans-extension (file-name-nondirectory (buffer-file-name))))))
-    (dolist (highlight om/highlights) (om/save highlight title source-path))))
+    (dolist (highlight om/highlights)
+      (om/save-single-highlight highlight title source-path))))
 
 ;;;###autoload
 (defun om/open-at-point (point)
@@ -338,7 +339,7 @@ text file in Org Mode.
 It loads your saved highlighters from the marginalia file, and
 enables automatic saving of highlighters.
 
-The automatic saving is achieved via function `om/save-all' added
+The automatic saving is achieved via function `om/save' added
 to `after-save-hook'.
 
 Interactively with no argument, this command toggles the mode. A
@@ -356,16 +357,16 @@ the mode, `toggle' toggles the state."
      (org-marginalia-mode
       ;; Activate
       (om/load)
-      (add-hook 'after-save-hook #'om/save-all nil t))
+      (add-hook 'after-save-hook #'om/save nil t))
      (t
       ;; Deactivate
-      (remove-hook 'after-save-hook #'om/save-all t))))
+      (remove-hook 'after-save-hook #'om/save t))))
 
 ;;;; Functions
 
 ;;;;; Private
 
-(defun om/save (highlight title source-path)
+(defun om/save-single-highlight (highlight title source-path)
   "Save a single HIGHLIGHT in the marginalia file with properties.
 The marginalia file is specified by SOURCE-PATH. If headline with
 the same ID already exists, update it based on the new highlight
