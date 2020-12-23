@@ -72,11 +72,11 @@ Select a region of text, and call =om/mark= to highlight the region. It will gen
 - =om/save= ::
 By default, Org-marginalia automatically creates or updates corresponding entries in the marginalia file with location and text of highlights on saving the buffer. Nevertheless, you can manually call =om/save= to do so (automatic process also call this command).
 
-- =om/open-at-point= (=C-c n o= by default) ::
-Move your cursor on the highlighted text, and call =om/open-at-point= to open the relevant margin notes in a separate window. Your cursor should move to the marginalia buffer narrowed to the relevant margin notes entry. You can edit the margin notes as a normal Org file. Once you have done editing, you can simply save and close the buffer (kill or close the window) as per your normal workflow. Technically, the marginalia buffer is a cloned indirect buffer of the marginalia file. 
+- =om/open= (=C-c n o= by default) ::
+Move your cursor on the highlighted text, and call =om/open= to open the relevant margin notes in a separate window. Your cursor will move to the marginalia buffer narrowed to the relevant margin notes entry. You can edit the margin notes as a normal Org file. Once you have done editing, you may simply save and close the buffer (kill or close the window) as per your normal workflow. Technically, the marginalia buffer is a cloned indirect buffer of the marginalia file. 
 
 - =om/load= ::
-This command open the marginalia file and load the saved highlights onto current buffer. If there is no margin notes for it, it will output a message in the echo. Highlights tracked locally by this packages cannot persist when you kill the buffer, or quit Emacs. When you re-launch Emacs, ensure to turn on =org-marginalia-mode= to load the highlights. Load is automatically done when you activate the minor mode.
+This command visits the marginalia file and load the saved highlights onto the current buffer. If there is no margin notes for it, it will output a message in the echo. Highlights tracked locally by Org-marginalia cannot persist when you kill the buffer, or quit Emacs. When you re-launch Emacs, ensure to turn on =org-marginalia-mode= to load the highlights. Load is automatically done when you activate the minor mode.
 
 - =om/remove= ::
 This command removes the highlight at point. It will remove the highlight, and remove the properties from the marginalia, but will keep the headline and notes in tact. 

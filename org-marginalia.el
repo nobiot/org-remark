@@ -65,8 +65,8 @@
 ;; file. You can manually call =om/save= to manually do it (automatic
 ;; process also call this command).
 
-;; - =om/open-at-point= :: Move your cursor on the highlighted text, and call
-;; =om/open-at-point= to open the relevant margin notes in a separate window.
+;; - =om/open= :: Move your cursor on the highlighted text, and call
+;; =om/open= to open the relevant margin notes in a separate window.
 ;; Your cursor should move to the marginalia buffer narrowed to the relevant
 ;; margin notes entry. You can edit the margin notes as a normal Org file.
 ;; Once you have done editing, you can simply save and close the buffer (kill
@@ -232,7 +232,7 @@ current buffer. Each highlight is represented by this data structure:
       (om/save-single-highlight highlight title source-path))))
 
 ;;;###autoload
-(defun om/open-at-point (point)
+(defun om/open (point)
   "Open the margin notes at POINT, narrowed to the relevant headline.
 It creates a cloned indirect buffer of the marginalia file
 \(`om/notes-file-path'\). You can edit the margin notes as a normal Org file.
@@ -350,7 +350,7 @@ the mode, `toggle' toggles the state."
     :lighter " marginalia"
     :global nil
     :keymap (let ((map (make-sparse-keymap)))
-              (define-key map (kbd "C-c n o") #'om/open-at-point)
+              (define-key map (kbd "C-c n o") #'om/open)
               (define-key map (kbd "C-c m") #'om/mark)
               map)
     (cond
