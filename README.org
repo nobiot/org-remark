@@ -9,19 +9,20 @@
 Org-marginalia lets you highlight text, and write margin notes (marginalia) for any text file in a separate Org file. 
 
 [[./resources/images/2020-12-24T101116_Title.png]]
+*Figure 1*. Left: Org-mode with text enlarged; Right marginalia file with the inline image display on.  
 
 * Screenshots
 
 Refer to the screenshots below for a teaser of  what it can do.
 
 [[./resources/images/2020-12-22T141331-OM-screen-shot-01.png]]
-*Figure 1*. Left: main note with some text highlighted in green; Right: margin notes in a marginalia file
+*Figure 2*. Left: main note with some text highlighted in green; Right: margin notes in a marginalia file
 
 [[./resources/images/2020-12-22T141331-OM-screen-shot-02.png]]
-*Figure 2*. It automatically adds the standard Org Mode link to margin notes, so it works well with Org-roam's backlinks
+*Figure 3*. It automatically adds the standard Org Mode link to margin notes, so it works well with Org-roam's backlinks
 
 [[./resources/images/2020-12-22T141331-OM-screen-shot-03.png]]
-*Figure 3*. Main note can be any text files. Left: an ~.el~ file with a highlight; Right: marginalia file
+*Figure 4*. Main note can be any text files. Left: an ~.el~ file with a highlight; Right: marginalia file
 
 * Contents                                                         :noexport:
 :PROPERTIES:
@@ -41,6 +42,8 @@ Refer to the screenshots below for a teaser of  what it can do.
   - [[#defun-omnext][defun om/next]]
   - [[#defgroup-org-marginalia][(defgroup org-marginalia]]
   - [[#defface-omhighlighter][(defface om/highlighter]]
+  - [[#look]["Look]]
+  - [[#interactive][interactive]]
 :END:
 
 * Installation
@@ -186,6 +189,15 @@ At the moment, ~om/list-highlights-positions~ has been changed to return beginni
 :marginalia-id: 8ccff166
 :marginalia-source-beg: 6624
 :marginalia-source-end: 6647
+:END:
+[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+**   "Look
+[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+** interactive
+:PROPERTIES:
+:marginalia-id: 9f60c405
+:marginalia-source-beg: 15935
+:marginalia-source-end: 15946
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 * COMMENT Local Variables
