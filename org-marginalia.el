@@ -552,5 +552,6 @@ state."
 ;; fill-column: 78
 ;; require-final-newline: t
 ;; sentence-end-double-space: nil
-;; eval: (org-marginalia-mode 1)
+;; eval: (setq-local om/notes-file-path "README.org")
+;; eval: (if (find-library "org-marginalia")(progn (require 'org-marginalia)(org-marginalia-mode 1)))
 ;; End:
