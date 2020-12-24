@@ -481,14 +481,13 @@ visible ones.
 
 If none, return nil."
   (when om/highlights
-    (let ((list '()))
-      (dolist (h om/highlights)
-        (org-with-wide-buffer
-         (let ((p (marker-position (car (cdr h)))))
-           (unless (car (get-char-property-and-overlay p 'invisible))
-             (push p list)))))
-      (when list
-        (if reverse (reverse list) list)))))
+     (when om/highlights
+       (let ((list (mapcar (lambda (h)
+                             (marker-position (car (cdr h))))
+                           om/highlights)))
+         (remove nil list)
+         (when list
+           (if reverse (reverse list) list))))))
 
 (defun om/sort-highlights-list ()
   "Utility function to sort `om/sort-highlights'."
