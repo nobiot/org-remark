@@ -552,4 +552,5 @@ state."
 ;; fill-column: 78
 ;; require-final-newline: t
 ;; sentence-end-double-space: nil
+;; eval: (org-marginalia-mode 1)
 ;; End:

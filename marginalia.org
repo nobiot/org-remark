@@ -1,8 +1,8 @@
 #+title: Margin notes for org-marginala
 
-# Using it as test file.
+# Using it as test and demo file.
 
-* Org-marginalia
+* Org-marginalia README
 :PROPERTIES:
 :marginalia-source-file: ~/local-repos/org-marginalia/README.org
 :END:
@@ -15,95 +15,10 @@
 :END:
 [[file:~/local-repos/org-marginalia/README.org][Org-marginalia]]
 
-* org-marginalia
+* org-marginalia.el
 :PROPERTIES:
 :marginalia-source-file: ~/local-repos/org-marginalia/org-marginalia.el
 :END:
-
-** ation
-:PROPERTIES:
-:marginalia-source-beg: 6402
-:marginalia-source-end: 6426
-:END:
-
-(defgroup org-mar
-:PROPERTIES:
-:marginalia-id: 0d953675
-:marginalia-source-beg: 6402
-:marginalia-source-end: 6426
-:END:
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
-
-** ia"))
-:PROPERTIES:
-:marginalia-source-beg: 6617
-:marginalia-source-end: 6640
-:END:
-
-(defface om/high
-:PROPERTIES:
-:marginalia-id: 8ccff166
-:marginalia-source-beg: 6617
-:marginalia-source-end: 6640
-:END:
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
-
-** ation
-:PROPERTIES:
-:marginalia-source-beg: 6402
-:marginalia-source-end: 6426
-:END:
-
-(defgroup org-mar
-:PROPERTIES:
-:marginalia-id: 0d953675
-:marginalia-source-beg: 6409
-:marginalia-source-end: 6433
-:END:
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
-
-** ia"))
-:PROPERTIES:
-:marginalia-source-beg: 6619
-:marginalia-source-end: 6640
-:END:
-
-(defface om/high
-:PROPERTIES:
-:marginalia-id: 8ccff166
-:marginalia-source-beg: 6628
-:marginalia-source-end: 6647
-:END:
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
-
-** ation
-:PROPERTIES:
-:marginalia-source-beg: 6402
-:marginalia-source-end: 6426
-:END:
-
-(defgroup org-mar
-:PROPERTIES:
-:marginalia-id: 0d953675
-:marginalia-source-beg: 6409
-:marginalia-source-end: 6433
-:END:
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
-
-** ia"))
-:PROPERTIES:
-:marginalia-source-beg: 6617
-:marginalia-source-end: 6640
-:END:
-
-(defface om/high
-:PROPERTIES:
-:marginalia-id: 8ccff166
-:marginalia-source-beg: 6626
-:marginalia-source-end: 6647
-:END:
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
-
 ** (defgroup org-marginalia
 :PROPERTIES:
 :marginalia-id: 0d953675
@@ -112,10 +27,21 @@
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
-** efface om/highlighter
+** (defface om/highlighter
 :PROPERTIES:
 :marginalia-id: 8ccff166
-:marginalia-source-beg: 6626
+:marginalia-source-beg: 6624
 :marginalia-source-end: 6647
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+
+** TODO defun om/next
+:PROPERTIES:
+:marginalia-id: 33710cc4
+:marginalia-source-beg: 15744
+:marginalia-source-end: 15757
+:END:
+[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+I need to think it through.
+Do I want to reveal invisible elments to move, or keep it hidden.
+At the moment, ~om/list-highlights-positions~ has been changed to return beginning points of visible ones only -- this can be changed to make it opsitonal arg. For example, if I want to list *all*, including the hidden ones, do I want to just visible ones?
