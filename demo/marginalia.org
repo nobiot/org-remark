@@ -1,0 +1,46 @@
+
+* demo
+:PROPERTIES:
+:marginalia-source-file: ~/local-repos/org-marginalia/demo/demo.txt
+:END:
+
+** marginalia
+:PROPERTIES:
+:marginalia-id: cba8da6a
+:marginalia-source-beg: 51
+:marginalia-source-end: 61
+:END:
+[[file:~/local-repos/org-marginalia/demo/demo.txt][demo]]
+
+*** Definition
+*Notes in the margin of a document*. [from 1830s]
+Source: https://en.wiktionary.org/wiki/marginalia
+
+Synonyms: apostil, marginal note, gloss
+
+We know what the composer was thinking as he wrote the piece because we can read his handwritten marginalia on the manuscript.
+
+*** Pronunciation
+(General American) IPA(key): /mɑɹdʒɪˈneɪli.ə/
+(Received Pronunciation) IPA(key): /mɑːdʒɪˈneɪli.ə/
+Rhymes: -eɪliə
+Hyphenation: mar‧gi‧na‧lia
+
+*** Etymology
+From New Latin marginālia, from Medieval Latin neuter plural of marginālis (“on the periphery”), from Latin margō (“border, edge”). Compare margin.
+[[file:Marginalia_from_Opticks_or,_A_treatise_of_the_reflexions,_refractions,_inflexions_and_colours_of_light.png]]
+Marginalia from Opticks or, A treatise of the reflexions, refractions, inflexions and colours of light, is lincensed under  CC BY 2.0. Obtained via https://en.wiktionary.org/wiki/marginalia
+
+
+* marginalia
+:PROPERTIES:
+:marginalia-source-file: ~/local-repos/org-marginalia/demo/marginalia.org
+:END:
+
+** *Notes in the margin of a document
+:PROPERTIES:
+:marginalia-id: 929981c5
+:marginalia-source-beg: 283
+:marginalia-source-end: 317
+:END:
+[[file:~/local-repos/org-marginalia/demo/marginalia.org][marginalia]]
