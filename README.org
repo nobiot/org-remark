@@ -112,7 +112,7 @@ Personally I have never experienced such performance issues with overlays; never
 - Turning off minor mode does not turn off the highlights :: This should not do any harm, but if you are distracted, kill the buffer (not revert) and visit it again. Toggling show/hide of highlights is something I would like to add later.
 - Copy & pasting loses highlights :: You could manually recover it by adjusting the properties in the margin notes file.
 - Undo highlight does not undo it :: Highlight a region of text with =om/mark= and immediately undo it. The highlight disappears, but it is still being tracked with =om/highlights=.
-- Moving source files and marginalia file around does not change does not update the file path -- it will confuse the marginalia file
+- Moving source files and marginalia file :: Move your files and marginalia file to another directory does not update the source path recorded in the marginalia file. It will be confusing. Try not to do this.
 
 * Changelog
 :PROPERTIES:
