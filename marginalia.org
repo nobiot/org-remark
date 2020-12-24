@@ -20,62 +20,102 @@
 :marginalia-source-file: ~/local-repos/org-marginalia/org-marginalia.el
 :END:
 
-** (title (or
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
-
-=(view-file "marginalia.org")= is interesting. It visits the file with read-only mode on. Press q to quit. But if you turn off read-only-mode, you can then edt the buffer. 
-
-Also... It's useful to be able to cycle through (or view a list of) highlights. You may not see them.
-
-For listing, built-in `tabulated-list-mode` exists. Additionallly, hierarchy.el, tablist.el, or lister.el (of publicimageltd, author of delve).
-
-
-
-** Nobor
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
-
-** defun om/list-highlights-positions
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
-
-** g . ,end) highlights))))))
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
-
-** 
+** ation
 :PROPERTIES:
-:marginalia-id: 3cf97a37
-:marginalia-source-beg: 22494
-:marginalia-source-end: 22494
+:marginalia-source-beg: 6402
+:marginalia-source-end: 6426
+:END:
+
+(defgroup org-mar
+:PROPERTIES:
+:marginalia-id: 0d953675
+:marginalia-source-beg: 6402
+:marginalia-source-end: 6426
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
-** 
+** ia"))
 :PROPERTIES:
-:marginalia-id: c16e73f8
-:marginalia-source-beg: 22494
-:marginalia-source-end: 22494
+:marginalia-source-beg: 6617
+:marginalia-source-end: 6640
 :END:
->>>>>>> 66da9a3fb918f598ff6fbc169fa4ac78172a8604
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
-(defun om/list-highlights-positions ()
-  "This is an empty function definition to be replaced by a real one later.
-The actual definition is done in the private function section of
-this file, as it is a utility function. This empty declation is
-necessary in to avoid the macro expansion from failing for
-`seq-find'.")
 
-** 
+(defface om/high
 :PROPERTIES:
-:marginalia-id: f55e13ab
-:marginalia-source-beg: 22494
-:marginalia-source-end: 22494
+:marginalia-id: 8ccff166
+:marginalia-source-beg: 6617
+:marginalia-source-end: 6640
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
-** 
+** ation
 :PROPERTIES:
-:marginalia-id: 74fd21ea
-:marginalia-source-beg: 22494
-:marginalia-source-end: 22494
->>>>>>> 66da9a3fb918f598ff6fbc169fa4ac78172a8604
+:marginalia-source-beg: 6402
+:marginalia-source-end: 6426
+:END:
+
+(defgroup org-mar
+:PROPERTIES:
+:marginalia-id: 0d953675
+:marginalia-source-beg: 6409
+:marginalia-source-end: 6433
+:END:
+[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+
+** ia"))
+:PROPERTIES:
+:marginalia-source-beg: 6619
+:marginalia-source-end: 6640
+:END:
+
+(defface om/high
+:PROPERTIES:
+:marginalia-id: 8ccff166
+:marginalia-source-beg: 6628
+:marginalia-source-end: 6647
+:END:
+[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+
+** ation
+:PROPERTIES:
+:marginalia-source-beg: 6402
+:marginalia-source-end: 6426
+:END:
+
+(defgroup org-mar
+:PROPERTIES:
+:marginalia-id: 0d953675
+:marginalia-source-beg: 6409
+:marginalia-source-end: 6433
+:END:
+[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+
+** ia"))
+:PROPERTIES:
+:marginalia-source-beg: 6617
+:marginalia-source-end: 6640
+:END:
+
+(defface om/high
+:PROPERTIES:
+:marginalia-id: 8ccff166
+:marginalia-source-beg: 6626
+:marginalia-source-end: 6647
+:END:
+[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+
+** (defgroup org-marginalia
+:PROPERTIES:
+:marginalia-id: 0d953675
+:marginalia-source-beg: 6409
+:marginalia-source-end: 6433
+:END:
+[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+
+** efface om/highlighter
+:PROPERTIES:
+:marginalia-id: 8ccff166
+:marginalia-source-beg: 6626
+:marginalia-source-end: 6647
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
