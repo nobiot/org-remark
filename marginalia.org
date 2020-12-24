@@ -10,8 +10,8 @@
 ** Screenshots
 :PROPERTIES:
 :marginalia-id: 1306ba7f
-:marginalia-source-beg: 1007
-:marginalia-source-end: 1018
+:marginalia-source-beg: 566
+:marginalia-source-end: 577
 :END:
 [[file:~/local-repos/org-marginalia/README.org][Org-marginalia]]
 
@@ -45,19 +45,19 @@ For listing, built-in `tabulated-list-mode` exists. Additionallly, hierarchy.el,
 ** g . ,end) highlights))))))
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
-** g (c
+** 
 :PROPERTIES:
 :marginalia-id: 3cf97a37
-:marginalia-source-beg: 14606
-:marginalia-source-end: 14610
+:marginalia-source-beg: 22494
+:marginalia-source-end: 22494
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
-** variable-pitch f
+** 
 :PROPERTIES:
 :marginalia-id: c16e73f8
-:marginalia-source-beg: 5850
-:marginalia-source-end: 5867
+:marginalia-source-beg: 22494
+:marginalia-source-end: 22494
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 (defun om/list-highlights-positions ()
@@ -67,19 +67,19 @@ this file, as it is a utility function. This empty declation is
 necessary in to avoid the macro expansion from failing for
 `seq-find'.")
 
-** h f
+** 
 :PROPERTIES:
 :marginalia-id: f55e13ab
-:marginalia-source-beg: 5864
-:marginalia-source-end: 5867
+:marginalia-source-beg: 22494
+:marginalia-source-end: 22494
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
-** remove-list-of-text-properties beg end
+** 
 :PROPERTIES:
 :marginalia-id: 74fd21ea
-:marginalia-source-beg: 22373
-:marginalia-source-end: 22411
+:marginalia-source-beg: 22494
+:marginalia-source-end: 22494
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 Note that you can use markers directly wihtin add/remove-text-properties functions.
