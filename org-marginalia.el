@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-marginalia
 ;; Version: 0.0.3
-;; Last modified: 2020-12-24T140044
+;; Last modified: 2020-12-24T152945
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, margin-notes
 
@@ -254,8 +254,9 @@ and `om/prev'."
   ;; UUID is too long; does not have to be the full length
   (when (not id) (setq id (substring (org-id-uuid) 0 8)))
   ;; Add highlight to the text
-  (add-text-properties beg end '(font-lock-face om/highlighter))
-  (add-text-properties beg end (list 'om/id id))
+  (org-with-wide-buffer
+   (add-text-properties beg end '(font-lock-face om/highlighter))
+   (add-text-properties beg end (list 'om/id id)))
   ;; Keep track in a local variable It's alist; don't forget the dot
   ;;   (beg . end)
   ;; The dot "." is imporant to make the car/cdr "getter" interface clean.
@@ -382,7 +383,9 @@ If there is none below the point, but there is a highlight in the
 buffer, go back to the first one."
   (interactive)
   (if (not om/highlights) (message "No highlights present in this buffer.")
-    (goto-char (om/find-next-highlight))))
+    (if (om/find-next-highlight)
+        (goto-char (om/find-next-highlight))
+      (message "Nothing done. No more visible highlights exist"))))
 
 (defun om/prev ()
   "Look at the current point, and move to the previous highlight, if any.
@@ -390,7 +393,9 @@ If there is none above the point, but there is a highlight in the
 buffer, go back to the last one."
   (interactive)
   (if (not om/highlights) (message "No highlights present in this buffer.")
-    (goto-char (om/find-prev-highlight))))
+    (if (om/find-prev-highlight)
+        (goto-char (om/find-prev-highlight))
+      (message "Nothing done. No more visible highlights exist"))))
 
 (defun om/toggle ()
   "Toggle showing/hiding of highlighters in current buffer.
@@ -469,13 +474,21 @@ properties."
 (defun om/list-highlights-positions (&optional reverse)
   "Return list of beg points of highlights in this buffer.
 By default, the list is in ascending order.
-If none, return nil.
-If REVERSE is non-nil, return list in the descending order."
+If REVERSE is non-nil, return list in the descending order.
+
+It also checks if the position is visible or not. Returns only
+visible ones.
+
+If none, return nil."
   (when om/highlights
-    (let ((list (mapcar (lambda (h)
-              (marker-position (car (cdr h))))
-                        om/highlights)))
-      (if reverse (reverse list) list))))
+    (let ((list '()))
+      (dolist (h om/highlights)
+        (org-with-wide-buffer
+         (let ((p (marker-position (car (cdr h)))))
+           (unless (car (get-char-property-and-overlay p 'invisible))
+             (push p list)))))
+      (when list
+        (if reverse (reverse list) list)))))
 
 (defun om/sort-highlights-list ()
   "Utility function to sort `om/sort-highlights'."
