@@ -6,13 +6,13 @@
 
 # Note: I use the readme template that alphapapa shares on his GitHub repo <https://github.com/alphapapa/emacs-package-dev-handbook#template>. It works with the org-make-toc <https://github.com/alphapapa/org-make-toc> package, which automatically updates the table of contents.
 
-Org-marginalia lets you highlight text, and write margin notes (marginalia) for any text file in a separate Org file. Refer to the screenshots below for a teaser of  what it can do.
+Org-marginalia lets you highlight text, and write margin notes (marginalia) for any text file in a separate Org file. 
 
-Technically, it implements the highlighting feature solely with text properties, and avoids overlays. This is done in light of oft-mentioned performance degradation with the latter.
-
-Personally I have never experienced such performance issues with overlays; nevertheless, given that we might have many highlighted text regions in a single file, I thought I would take this as an opportunity to take advantage of text properties.
+[[./resources/images/2020-12-24T101116_Title.png]]
 
 * Screenshots
+
+Refer to the screenshots below for a teaser of  what it can do.
 
 [[./resources/images/2020-12-22T141331-OM-screen-shot-01.png]]
 *Figure 1*. Left: main note with some text highlighted in green; Right: margin notes in a marginalia file
@@ -31,6 +31,7 @@ Personally I have never experienced such performance issues with overlays; never
 - [[#installation][Installation]]
 - [[#usage][Usage]]
 - [[#customizing][Customizing]]
+- [[#text-properties-not-overlays][Text-properties, not overlays]]
 - [[#known-limitations][Known Limitations]]
 - [[#changelog][Changelog]]
 - [[#credits][Credits]]
@@ -100,6 +101,11 @@ Toggle showing/hiding of highlighters in current buffer. It only affects the dis
 - You can customize settings in the =org-marginalia= group.
 - Highlight's face can be changed via =om/highlighter=
 - Marginalia file is defined by =om/notes-file-path=
+
+* Text-properties, not overlays
+Technically, Org-marginalia implements the highlighting feature solely with text properties, and avoids overlays. This is done in light of oft-mentioned performance degradation with the latter.
+
+Personally I have never experienced such performance issues with overlays; nevertheless, given that we might have many highlighted text regions in a single file, I thought I would take this as an opportunity to take advantage of text properties.
 
 * Known Limitations
 
