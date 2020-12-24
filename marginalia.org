@@ -32,11 +32,6 @@ For listing, built-in `tabulated-list-mode` exists. Additionallly, hierarchy.el,
 
 
 ** Nobor
-:PROPERTIES:
-:marginalia-id: f323a57f
-:marginalia-source-beg: 143
-:marginalia-source-end: 149
-:END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
 ** defun om/list-highlights-positions
@@ -45,20 +40,10 @@ For listing, built-in `tabulated-list-mode` exists. Additionallly, hierarchy.el,
 ** g . ,end) highlights))))))
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
-** g (c
-:PROPERTIES:
-:marginalia-id: 3cf97a37
-:marginalia-source-beg: 14606
-:marginalia-source-end: 14610
-:END:
+** ght)
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
 ** variable-pitch f
-:PROPERTIES:
-:marginalia-id: c16e73f8
-:marginalia-source-beg: 5850
-:marginalia-source-end: 5867
-:END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 (defun om/list-highlights-positions ()
   "This is an empty function definition to be replaced by a real one later.
@@ -68,19 +53,32 @@ necessary in to avoid the macro expansion from failing for
 `seq-find'.")
 
 ** h f
-:PROPERTIES:
-:marginalia-id: f55e13ab
-:marginalia-source-beg: 5864
-:marginalia-source-end: 5867
-:END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
-** remove-list-of-text-properties beg end
-:PROPERTIES:
-:marginalia-id: 74fd21ea
-:marginalia-source-beg: 22373
-:marginalia-source-end: 22411
-:END:
+** t-properties beg end '(om/hidden))
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 Note that you can use markers directly wihtin add/remove-text-properties functions.
 No need to replace specifically markers with points. 
+
+** (defvar-local om/highlights '()
+[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+
+** ;;;###autoload
+[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+
+** defvar-local om/highlights
+:PROPERTIES:
+:marginalia-id: 7ece4f53
+:marginalia-source-beg: 7182
+:marginalia-source-end: 7208
+:END:
+[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+
+This is a margin note for the Org-marginalia source code. 
+** define-minor-mode org-marginalia-mode
+:PROPERTIES:
+:marginalia-id: d4ec82f4
+:marginalia-source-beg: 7941
+:marginalia-source-end: 7978
+:END:
+[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
