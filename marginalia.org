@@ -10,8 +10,8 @@
 ** Screenshots
 :PROPERTIES:
 :marginalia-id: 1306ba7f
-:marginalia-source-beg: 1007
-:marginalia-source-end: 1018
+:marginalia-source-beg: 566
+:marginalia-source-end: 577
 :END:
 [[file:~/local-repos/org-marginalia/README.org][Org-marginalia]]
 
@@ -40,10 +40,21 @@ For listing, built-in `tabulated-list-mode` exists. Additionallly, hierarchy.el,
 ** g . ,end) highlights))))))
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
-** ght)
+** 
+:PROPERTIES:
+:marginalia-id: 3cf97a37
+:marginalia-source-beg: 22494
+:marginalia-source-end: 22494
+:END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
-** variable-pitch f
+** 
+:PROPERTIES:
+:marginalia-id: c16e73f8
+:marginalia-source-beg: 22494
+:marginalia-source-end: 22494
+:END:
+>>>>>>> 66da9a3fb918f598ff6fbc169fa4ac78172a8604
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 (defun om/list-highlights-positions ()
   "This is an empty function definition to be replaced by a real one later.
@@ -52,33 +63,19 @@ this file, as it is a utility function. This empty declation is
 necessary in to avoid the macro expansion from failing for
 `seq-find'.")
 
-** h f
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
-
-** t-properties beg end '(om/hidden))
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
-Note that you can use markers directly wihtin add/remove-text-properties functions.
-No need to replace specifically markers with points. 
-
-** (defvar-local om/highlights '()
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
-
-** ;;;###autoload
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
-
-** defvar-local om/highlights
+** 
 :PROPERTIES:
-:marginalia-id: 7ece4f53
-:marginalia-source-beg: 7182
-:marginalia-source-end: 7208
+:marginalia-id: f55e13ab
+:marginalia-source-beg: 22494
+:marginalia-source-end: 22494
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
-This is a margin note for the Org-marginalia source code. 
-** define-minor-mode org-marginalia-mode
+** 
 :PROPERTIES:
-:marginalia-id: d4ec82f4
-:marginalia-source-beg: 7941
-:marginalia-source-end: 7978
+:marginalia-id: 74fd21ea
+:marginalia-source-beg: 22494
+:marginalia-source-end: 22494
+>>>>>>> 66da9a3fb918f598ff6fbc169fa4ac78172a8604
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
