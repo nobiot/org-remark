@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-marginalia
 ;; Version: 0.0.3
-;; Last modified: 2020-12-23T181303
+;; Last modified: 2020-12-24T140044
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, margin-notes
 
@@ -421,7 +421,8 @@ creat a new headline at the end of the buffer."
   (let* ((pos (cdr highlight))
          (beg (marker-position (car pos)))
          (end (marker-position (cdr pos)))
-         (text (buffer-substring-no-properties beg end)))
+         ;;`org-with-wide-buffer is a macro that should work for non-Org file'
+         (text (org-with-wide-buffer (buffer-substring-no-properties beg end))))
     ;; TODO Want to add a check if save is applicable here.
     (with-current-buffer (find-file-noselect om/notes-file-path)
       (org-with-wide-buffer
