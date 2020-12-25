@@ -381,23 +381,69 @@ marginalia, but will keep the headline and notes."
 (defun om/next ()
   "Look at the current point, and move to the next highlight, if any.
 If there is none below the point, but there is a highlight in the
-buffer, go back to the first one."
+buffer, go back to the first one.
+
+If the point has moved to the next highlight, this function
+enables transient map with `set-transient-map'. You don't have to
+press the keybinding prefix again to move further to the next.
+That is, you can do a key sequence like this:
+
+   C-c n \] \] \] \]
+
+If you have the same prefix for `om/prev', you can combine it in
+the sequence like so:
+
+   C-c n \] \] \[ \[
+
+"
   (interactive)
   (if (not om/highlights)
       (progn (message "No highlights present in this buffer.") nil)
     (let ((p (om/find-next-highlight)))
-      (if p (progn (goto-char p) t)
+      (if p (progn
+              (goto-char p)
+              ;; Setup the overriding keymap.
+              (unless overriding-terminal-local-map
+                (let ((prefix-keys (substring (this-single-command-keys) 0 -1))
+                      (map (cdr org-marginalia-mode-map)))
+                  (when (< 0 (length prefix-keys))
+                    (mapc (lambda (k) (setq map (assq k map))) prefix-keys)
+                    (setq map (cdr-safe map))
+                    (when (keymapp map) (set-transient-map map t)))))
+              t)
         (message "Nothing done. No more visible highlights exist") nil))))
 
 (defun om/prev ()
   "Look at the current point, and move to the previous highlight, if any.
 If there is none above the point, but there is a highlight in the
-buffer, go back to the last one."
+buffer, go back to the last one.
+
+If the point has moved to the previous highlight, this function
+enables transient map with `set-transient-map'. You don't have to
+press the keybinding prefix again to move further to the next.
+That is, you can do a key sequence like this:
+
+   C-c n \[ \[ \[ \[
+
+If you have the same prefix for `om/next', you can combine it in
+the sequence like so:
+
+   C-c n \] \] \[ \["
   (interactive)
   (if (not om/highlights)
       (progn (message "No highlights present in this buffer.") nil)
     (let ((p (om/find-prev-highlight)))
-      (if p (progn (goto-char p) t)
+      (if p (progn
+              (goto-char p)
+              ;; Setup the overriding keymap.
+              (unless overriding-terminal-local-map
+                (let ((prefix-keys (substring (this-single-command-keys) 0 -1))
+                      (map (cdr org-marginalia-mode-map)))
+                  (when (< 0 (length prefix-keys))
+                    (mapc (lambda (k) (setq map (assq k map))) prefix-keys)
+                    (setq map (cdr-safe map))
+                    (when (keymapp map) (set-transient-map map t)))))
+              t)
         (message "Nothing done. No more visible highlights exist") nil))))
 
 (defun om/toggle ()
