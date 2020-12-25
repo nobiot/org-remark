@@ -68,7 +68,7 @@ For example, I use this in my init file. Org-marginalia is a local minor mode. A
 (add-hook 'after-init-hook (lambda()
                              (add-to-list 'load-path "~/local-repos/org-marginalia/")
                              (require 'org-marginalia)
-                             (add-hook 'text-mode-hook #'org-marginalia-mode 1))
+                             (add-hook 'text-mode-hook #'org-marginalia-mode 1)))
 #+end_src
   
 * Usage
