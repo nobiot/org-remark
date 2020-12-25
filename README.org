@@ -42,8 +42,8 @@ Refer to the screenshots below for a teaser of  what it can do.
   - [[#defun-omnext][defun om/next]]
   - [[#defgroup-org-marginalia][(defgroup org-marginalia]]
   - [[#defface-omhighlighter][(defface om/highlighter]]
-  - [[#look]["Look]]
   - [[#interactive][interactive]]
+  - [[#defun-ommark][defun om/mark]]
 :END:
 
 * Installation
@@ -169,8 +169,8 @@ This section is used as a demonstration and a collection of my ideas for this pa
 ** defun om/next
 :PROPERTIES:
 :marginalia-id: 33710cc4
-:marginalia-source-beg: 15744
-:marginalia-source-end: 15757
+:marginalia-source-beg: 15735
+:marginalia-source-end: 15748
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 I need to think it through.
@@ -180,26 +180,63 @@ At the moment, ~om/list-highlights-positions~ has been changed to return beginni
 ** (defgroup org-marginalia
 :PROPERTIES:
 :marginalia-id: 0d953675
-:marginalia-source-beg: 6409
-:marginalia-source-end: 6433
+:marginalia-source-beg: 6402
+:marginalia-source-end: 6426
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 ** (defface om/highlighter
 :PROPERTIES:
 :marginalia-id: 8ccff166
-:marginalia-source-beg: 6624
-:marginalia-source-end: 6647
+:marginalia-source-beg: 6617
+:marginalia-source-end: 6640
 :END:
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
-**   "Look
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 ** interactive
 :PROPERTIES:
 :marginalia-id: 9f60c405
-:marginalia-source-beg: 15935
-:marginalia-source-end: 15946
+:marginalia-source-beg: 15926
+:marginalia-source-end: 15937
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+** defun om/mark
+:PROPERTIES:
+:marginalia-id: b652604e
+:marginalia-source-beg: 9101
+:marginalia-source-end: 9114
+:END:
+[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+Some syntactic elements keep their faces descpite being marked.
+It appears to be the way font-lock-mode works. Experimenting.
+This might also lead to a way for copy and paste (need to deal with duplicate IDs)
+#+begin_src 
+;; Comment dddd
+;; This is considered
+;; Comment
+
+;;Comment  dd
+jit-lock-register
+
+(defun)
+
+(jit-lock-register #'my/font-lock-fn)
+(font-lock-unfontify-buffer)
+(jit-lock-refontify)
+(font-lock-fontify-buffer)
+
+(point);; comment
+;; Comment 
+(my/font-lock-fn 155 160)
+
+(let ((beg 1)
+      (end 10))
+  (list beg end))
+
+(defun my/font-lock-fn (beg end &optional context)
+  (unless context
+    (list beg)
+    (if (get-char-property beg 'om/id)
+        (font-lock-unfontify-region beg end))))
+#+end_src
 * COMMENT Local Variables
 
 # Local Variables:

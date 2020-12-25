@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-marginalia
 ;; Version: 0.0.3
-;; Last Modified: 2020-12-24T153114
+;; Last Modified: 2020-12-25
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, margin-notes
 
@@ -279,7 +279,7 @@ This is achieved via `after-save-hook' (added via
 `om/highlights' is the local variable that tracks every highlight in the
 current buffer. Each highlight is represented by this data structure:
 
-   (id (beg-marker . end-marker))"
+   (id beg-marker . end-marker)"
   (interactive)
   (let* ((filename (buffer-file-name))
          (source-path (abbreviate-file-name filename))
