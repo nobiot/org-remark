@@ -138,6 +138,7 @@ Personally I have never experienced such performance issues with overlays; never
 
 ** 0.0.4
 - feat: Add transient navigation to next/prev
+  See [[*Credit]] for the piece of code to achieve the transient map I used.
 
 ** 0.0.3
 - feat: Add om/toggle for show/hide highlighters
@@ -157,6 +158,8 @@ To create this package, I was inspired by the following packages. I did not copy
 - [[https://github.com/bastibe/annotate.el][Annotate.el]] :: Bastian Bechtold's (author of Org-journal). Unique display of annotations right next to (or on top of) the text. It seems to be designed for very short annotations, and perhaps for code review (programming practice); I have seen recent issues reported when used with variable-pitch fonts (prose).
 - [[https://github.com/tkf/org-mode/blob/master/contrib/lisp/org-annotate-file.el][Org-annotate-file]] :: Part of Org's contrib library. It seems to be designed to annotate a whole file in a separate Org file, rather than specific text items.
 - [[https://github.com/IdoMagal/ipa.el][InPlaceAnnotations (ipa-mode)]] :: It looks similar to Annotate.el above
+
+To implement the transient navigation feature, I liberally copied the relevant code from a wonderful Emacs package, [Binder](https://github.com/rnkn/binder/blob/24d55db236fea2b405d4bdc69b4c33d0f066059c/binder.el#L658-L665) by Paul Rankin (GitHub user [rnkn](https://github.com/rnkn)). 
 
 * Feedback
 
@@ -181,8 +184,8 @@ This section is used as a demonstration and a collection of my ideas for this pa
 ** 
 :PROPERTIES:
 :marginalia-id: 33710cc4
-:marginalia-source-beg: 23896
-:marginalia-source-end: 23896
+:marginalia-source-beg: 23927
+:marginalia-source-end: 23927
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 I need to think it through.
@@ -192,32 +195,32 @@ At the moment, ~om/list-highlights-positions~ has been changed to return beginni
 ** (defgroup org-marginalia
 :PROPERTIES:
 :marginalia-id: 0d953675
-:marginalia-source-beg: 6921
-:marginalia-source-end: 6945
+:marginalia-source-beg: 6922
+:marginalia-source-end: 6946
 :END:
 For demonstration
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 ** (defface om/highlighter
 :PROPERTIES:
 :marginalia-id: 8ccff166
-:marginalia-source-beg: 7136
-:marginalia-source-end: 7159
+:marginalia-source-beg: 7137
+:marginalia-source-end: 7160
 :END:
 For demonstration
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 ** 
 :PROPERTIES:
 :marginalia-id: 9f60c405
-:marginalia-source-beg: 23896
-:marginalia-source-end: 23896
+:marginalia-source-beg: 23927
+:marginalia-source-end: 23927
 :END:
 Keepting this one for testing for later
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 ** defun om/mark
 :PROPERTIES:
 :marginalia-id: b652604e
-:marginalia-source-beg: 9620
-:marginalia-source-end: 9633
+:marginalia-source-beg: 9621
+:marginalia-source-end: 9634
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 Some syntactic elements keep their faces descpite being marked.
