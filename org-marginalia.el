@@ -502,7 +502,11 @@ If none, return nil."
         (if reverse (reverse list) list)))))
 
 (defun om/sort-highlights-list ()
-  "Utility function to sort `om/sort-highlights'."
+  "Utility function to sort `om/sort-highlights'.
+It checks if there is any element exists for `om/highlights'.
+Instead of receiving it as an arg, it assumes its existence. It
+also distructively updates `om/highlights'.
+It returns t when sorting is done."
   (when om/highlights
     (setq om/highlights (seq-sort-by (lambda (s) (car (cdr s))) #'< om/highlights))
     t))
