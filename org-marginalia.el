@@ -375,7 +375,8 @@ marginalia, but will keep the headline and notes."
          (goto-char id-headline)
          (org-delete-property om/prop-id)
          (org-delete-property om/prop-source-beg)
-         (org-delete-property om/prop-source-end))))))
+         (org-delete-property om/prop-source-end))))
+    t))
 
 (defun om/next ()
   "Look at the current point, and move to the next highlight, if any.
@@ -462,7 +463,7 @@ creat a new headline at the end of the buffer."
                 (org-set-property om/prop-source-beg (number-to-string beg))
                 (org-set-property om/prop-source-end (number-to-string end))
                 (insert (concat "[[file:" source-path "]" "[" title "]]"))))))
-      (when (buffer-modified-p) (save-buffer)))))
+      (when (buffer-modified-p) (save-buffer) t))))
 
 (defun om/make-highlight-marker (point)
   "Return marker of the insertion-type t for POINT.
@@ -490,6 +491,7 @@ If none, return nil."
                       ;; Checking if the p is visible or not
                       (if (or
                            (> p (point-max))
+                           (< p (point-min))
                            ;; When the highlight is wihtin a visible folded
                            ;; area, this function returns 'outline
                            (org-invisible-p p))
