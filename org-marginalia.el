@@ -384,9 +384,9 @@ buffer, go back to the first one."
   (interactive)
   (if (not om/highlights)
       (progn (message "No highlights present in this buffer.") nil)
-    (if (om/find-next-highlight)
-        (progn (goto-char (om/find-next-highlight)) t)
-      (message "Nothing done. No more visible highlights exist") nil)))
+    (let ((p (om/find-next-highlight)))
+      (if p (progn (goto-char p) t)
+        (message "Nothing done. No more visible highlights exist") nil))))
 
 (defun om/prev ()
   "Look at the current point, and move to the previous highlight, if any.
@@ -394,11 +394,10 @@ If there is none above the point, but there is a highlight in the
 buffer, go back to the last one."
   (interactive)
   (if (not om/highlights)
-      (progn (message "No highlights present in this buffer.")
-             nil)
-    (if (om/find-prev-highlight)
-        (progn (goto-char (om/find-prev-highlight)) t)
-      (message "Nothing done. No more visible highlights exist") nil)))
+      (progn (message "No highlights present in this buffer.") nil)
+    (let ((p (om/find-prev-highlight)))
+      (if p (progn (goto-char p) t)
+        (message "Nothing done. No more visible highlights exist") nil))))
 
 (defun om/toggle ()
   "Toggle showing/hiding of highlighters in current buffer.
