@@ -40,9 +40,6 @@ Refer to the screenshots below for a teaser of  what it can do.
 - [[#license][License]]
 - [[#marginalia-for-org-marginaliael][Marginalia for org-marginalia.el]]
   - [[#defun-omnext][defun om/next]]
-  - [[#defgroup-org-marginalia][(defgroup org-marginalia]]
-  - [[#defface-omhighlighter][(defface om/highlighter]]
-  - [[#interactive][interactive]]
   - [[#defun-ommark][defun om/mark]]
 :END:
 
@@ -96,7 +93,6 @@ This command removes the highlight at point. It will remove the highlight, and r
 
 - =om/next= (=C-c n ]= by default) ::
 Move to the next highlight if any. If there is none below the cursor, and there is a highlight above, loop back to the top one.
-
 If the point has moved to the next highlight, this function enables transient map with `set-transient-map'. You don't have to press the keybinding prefix again to move further to the next. That is, you can do a key sequence like this:
 
    =C-c n ] ] ] ]=
@@ -159,17 +155,19 @@ To create this package, I was inspired by the following packages. I did not copy
 - [[https://github.com/tkf/org-mode/blob/master/contrib/lisp/org-annotate-file.el][Org-annotate-file]] :: Part of Org's contrib library. It seems to be designed to annotate a whole file in a separate Org file, rather than specific text items.
 - [[https://github.com/IdoMagal/ipa.el][InPlaceAnnotations (ipa-mode)]] :: It looks similar to Annotate.el above
 
-To implement the transient navigation feature, I liberally copied the relevant code from a wonderful Emacs package, [Binder](https://github.com/rnkn/binder/blob/24d55db236fea2b405d4bdc69b4c33d0f066059c/binder.el#L658-L665) by Paul Rankin (GitHub user [rnkn](https://github.com/rnkn)). 
+To implement the transient navigation feature, I liberally copied the relevant code from a wonderful Emacs package, [[https://github.com/rnkn/binder/blob/24d55db236fea2b405d4bdc69b4c33d0f066059c/binder.el#L658-L665][Binder]] by Paul Rankin (GitHub user [[https://github.com/rnkn][rnkn]]). 
 
 * Feedback
 
 Feedback welcome in this repo, or in [[https://org-roam.discourse.group/t/prototype-org-marginalia-write-margin-notes-with-org-mode/1080][Org-roam Discourse forum]]. 
 
+*Edit*: Now the features 1 & 2 have been implemented... I want to add a little more, to attend to the known limitations to see if I can remove some of them.
+
 I am aiming to keep this package to be small and focused. I plan to add the following features, and probably consider it to be feature complete for my purposes.
 
 1. DONE v0.0.3  =om/toggle= to toggle show/hide of highlights without losing them
-2. =om/next= and =om/prev= to easily navigate highlighted regions in the buffer
-     This is done (v0.0.2), but I would like to try a transient (don't want to repeat the prefix everytime).
+2. DONE =om/next= and =om/prev= to easily navigate highlighted regions in the buffer
+     This is done (v0.0.2), but I would like to try a transient (don't want to repeat the prefix everytime): transient done with v0.0.4.
    
 * License
 
@@ -181,48 +179,23 @@ This work is licensed under a GPLv3 license. For a full copy of the licese, refe
 :END:
 This section is used as a demonstration and a collection of my ideas for this package.
 
-** 
+** defun om/next
 :PROPERTIES:
-:marginalia-id: 33710cc4
-:marginalia-source-beg: 23927
-:marginalia-source-end: 23927
+:marginalia-id: 3b44ff88
+:marginalia-source-beg: 16261
+:marginalia-source-end: 16274
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 I need to think it through.
 Do I want to reveal invisible elments to move, or keep it hidden.
 At the moment, ~om/list-highlights-positions~ has been changed to return beginning points of visible ones only -- this can be changed to make it opsitonal arg. For example, if I want to list *all*, including the hidden ones, do I want to just visible ones?
 
-** (defgroup org-marginalia
-:PROPERTIES:
-:marginalia-id: 0d953675
-:marginalia-source-beg: 6922
-:marginalia-source-end: 6946
-:END:
-For demonstration
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
-** (defface om/highlighter
-:PROPERTIES:
-:marginalia-id: 8ccff166
-:marginalia-source-beg: 7137
-:marginalia-source-end: 7160
-:END:
-For demonstration
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
-** 
-:PROPERTIES:
-:marginalia-id: 9f60c405
-:marginalia-source-beg: 23927
-:marginalia-source-end: 23927
-:END:
-Keepting this one for testing for later
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 ** defun om/mark
 :PROPERTIES:
-:marginalia-id: b652604e
+:marginalia-id: 8ad8eec7
 :marginalia-source-beg: 9621
 :marginalia-source-end: 9634
 :END:
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 Some syntactic elements keep their faces descpite being marked.
 It appears to be the way font-lock-mode works. Experimenting.
 This might also lead to a way for copy and paste (need to deal with duplicate IDs)
@@ -255,6 +228,7 @@ jit-lock-register
     (if (get-char-property beg 'om/id)
         (font-lock-unfontify-region beg end))))
 #+end_src
+
 * COMMENT Local Variables
 
 # Local Variables:
