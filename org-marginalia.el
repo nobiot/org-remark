@@ -130,7 +130,7 @@
 ;;   something I - would like to add later.
 
 ;; - Copy & pasting loses highlights
-;;   You could manually recover it by adjusting the properties in the
+;;   You could mqanually recover it by adjusting the properties in the
 ;;   marginalia file.
 
 ;;;; Credits
@@ -402,14 +402,12 @@ enables transient map with `set-transient-map'. You don't have to
 press the keybinding prefix again to move further to the next.
 That is, you can do a key sequence like this:
 
-   C-c n \] \] \] \]
+   `\\[om/next]' \] \] \] \]
 
 If you have the same prefix for `om/prev', you can combine it in
 the sequence like so:
 
-   C-c n \] \] \[ \[
-
-"
+   `\\[om/next]' \] \] \[ \["
   (interactive)
   (if (not om/highlights)
       (progn (message "No highlights present in this buffer.") nil)
@@ -437,12 +435,12 @@ enables transient map with `set-transient-map'. You don't have to
 press the keybinding prefix again to move further to the next.
 That is, you can do a key sequence like this:
 
-   C-c n \[ \[ \[ \[
+   `\\[om/prev]' \[ \[ \[ \[
 
 If you have the same prefix for `om/next', you can combine it in
 the sequence like so:
 
-   C-c n \] \] \[ \["
+   `\\[om/prev]' \] \] \[ \["
   (interactive)
   (if (not om/highlights)
       (progn (message "No highlights present in this buffer.") nil)
