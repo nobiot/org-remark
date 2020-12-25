@@ -169,8 +169,8 @@ This section is used as a demonstration and a collection of my ideas for this pa
 ** 
 :PROPERTIES:
 :marginalia-id: 33710cc4
-:marginalia-source-beg: 21414
-:marginalia-source-end: 21414
+:marginalia-source-beg: 21619
+:marginalia-source-end: 21619
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 I need to think it through.
@@ -194,8 +194,8 @@ At the moment, ~om/list-highlights-positions~ has been changed to return beginni
 ** 
 :PROPERTIES:
 :marginalia-id: 9f60c405
-:marginalia-source-beg: 21414
-:marginalia-source-end: 21414
+:marginalia-source-beg: 21619
+:marginalia-source-end: 21619
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 ** defun om/mark
