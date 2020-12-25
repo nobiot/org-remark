@@ -48,27 +48,27 @@
 
 ;;;; Usage
 
-;; - =org-marginalia-mode= ::
+;; - `org-marginalia-mode' ::
 ;; Org-marginalia is a local minor mode. Toggle it on/off with using
-;; =org-marginalia-mode=. On activating, it loads your saved highlighters from
+;; `org-marginalia-mode'. On activating, it loads your saved highlighters from
 ;; the marginalia file, and enables automatic saving of highlighters. The
-;; automatic saving is achieved via function =om/save= added to
-;; =after-save-hook=.
+;; automatic saving is achieved via function `om/save' added to
+;; `after-save-hook'.
 
-;; - =om/mark= (C-c n m by default) ::
-;; Select a region of text, and call =om/mark= (bound to =C-c n m= by default)
+;; - `om/mark' (C-c n m by default) ::
+;; Select a region of text, and call `om/mark' (bound to C-c n m by default)
 ;; to highlight the region. It will generate a new ID, and start tracking the
 ;; location -- so you can edit text around the marked text. Do not copy and
 ;; paste as it will disappear and it is a bit tricky to recover the
 ;; highlighter. To create a new margin note entry in themarginalia file, save the buffer.
 
-;; - =om/save= ::
+;; - `om/save' ::
 ;; By default, Org-marginalia creates or updates the highlighter's location
 ;; and text inside automatically in the marginalia file. You can manually call
-;; =om/save= to manually do it (automatic process also call this command).
+;; `om/save' to manually do it (automatic process also call this command).
 
-;; - =om/open= (C-c o by default) ::
-;; Move your cursor on the highlighted text, and call =om/open= to open the
+;; - `om/open' (C-c o by default) ::
+;; Move your cursor on the highlighted text, and call `om/open' to open the
 ;; relevant margin notes in a separate window. Your cursor should move to the
 ;; marginalia buffer narrowed to the relevant margin notes entry. You can edit
 ;; the margin notes as a normal Org file. Once you have done editing, you can
@@ -76,28 +76,42 @@
 ;; normal workflow. Technically, the marginalia buffer is a cloned indirect
 ;; buffer of the marginalia file.
 
-;; - =om/load= ::
+;; - `om/load' ::
 ;; This command open the marginalia file and load the saved highlights onto
 ;; current buffer. If there is no margin notes for it, it will output a
 ;; message in the echo. Highlights tracked locally by this packages cannot
 ;; persist when you kill the buffer, or quit Emacs. When you re-launch Emacs,
-;; ensure to turn on =org-marginalia-mode= to load the highlights. Load is
+;; ensure to turn on `org-marginalia-mode' to load the highlights. Load is
 ;; automatically done when you activate the minor mode.
 
-;; - =om/remove= ::
+;; - `om/remove' ::
 ;; This command removes the highlight at point. It will remove the highlight,
 ;; and remove the properties from the marginalia, but will keep the headline
 ;; and notes in tact.
 
-;; - =om/next= (C-c n ] by default) ::
+;; - `om/next' (C-c n ] by default) ::
 ;; Move to the next highlight if any. If there is none below the cursor, and
 ;; there is a highlight above, loop back to the top one.
 
-;; - =om/prev= (C-c n [ by default) ::
-;; Move to the previous highlight if any. If there is none above the cursor,
-;; and there is a highlight below, loop back to the bottom one.
+;; If the point has moved to the next highlight, this function enables
+;; transient map with `set-transient-map'. You don't have to press the
+;; keybinding prefix again to move further to the next. That is, you can do a
+;; key sequence like this:
 
-;; - =om/toggle= ::
+;;   C-c n ] ] ] ]
+
+;; If you have the same prefix for `om/prev', you can combine it in the
+;; sequence like so:
+
+;;  C-c n ] ] [ [
+;;  This lets your cursor back to where you started (next next prev prev)
+
+;; - `om/prev' (C-c n [ by default) :: Move to the previous highlight if any.
+;; If there is none above the cursor, and there is a highlight below, loop
+;; back to the bottom one. This function enables transient map. See `om/next'
+;; for detail.
+
+;; - `om/toggle' ::
 ;; Toggle showing/hiding of highlighters in current buffer. It only affects
 ;; the display of the highlighters. When hidden, highlights' locations are
 ;; still kept tracked; thus, upon buffer-save the correct locations are still
