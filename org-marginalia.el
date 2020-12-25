@@ -504,7 +504,8 @@ If none, return nil."
 (defun om/sort-highlights-list ()
   "Utility function to sort `om/sort-highlights'."
   (when om/highlights
-    (setq om/highlights (seq-sort-by (lambda (s) (car (cdr s))) #'< om/highlights))))
+    (setq om/highlights (seq-sort-by (lambda (s) (car (cdr s))) #'< om/highlights))
+    t))
 
 (defun om/find-next-highlight ()
   "Return the beg point of the next highlight.

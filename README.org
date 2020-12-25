@@ -166,11 +166,11 @@ This work is licensed under a GPLv3 license. For a full copy of the licese, refe
 :END:
 This section is used as a demonstration and a collection of my ideas for this package.
 
-** defun om/next
+** 
 :PROPERTIES:
 :marginalia-id: 33710cc4
-:marginalia-source-beg: 15735
-:marginalia-source-end: 15748
+:marginalia-source-beg: 21414
+:marginalia-source-end: 21414
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 I need to think it through.
@@ -191,11 +191,11 @@ At the moment, ~om/list-highlights-positions~ has been changed to return beginni
 :marginalia-source-end: 6640
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
-** interactive
+** 
 :PROPERTIES:
 :marginalia-id: 9f60c405
-:marginalia-source-beg: 15926
-:marginalia-source-end: 15937
+:marginalia-source-beg: 21414
+:marginalia-source-end: 21414
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 ** defun om/mark
