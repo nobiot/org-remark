@@ -4,8 +4,8 @@
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-marginalia
-;; Version: 0.0.4
-;; Last Modified: 2020-12-25
+;; Version: 0.0.5
+;; Last Modified: 2021-01-05
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, margin-notes
 
@@ -52,23 +52,23 @@
 ;; Org-marginalia is a local minor mode. Toggle it on/off with using
 ;; `org-marginalia-mode'. On activating, it loads your saved highlighters from
 ;; the marginalia file, and enables automatic saving of highlighters. The
-;; automatic saving is achieved via function `om/save' added to
+;; automatic saving is achieved via function `org-marginalia-save' added to
 ;; `after-save-hook'.
 
-;; - `om/mark' (C-c n m by default) ::
-;; Select a region of text, and call `om/mark' (bound to C-c n m by default)
+;; - `org-marginalia-mark' (C-c n m by default) ::
+;; Select a region of text, and call `org-marginalia-mark' (bound to C-c n m by default)
 ;; to highlight the region. It will generate a new ID, and start tracking the
 ;; location -- so you can edit text around the marked text. Do not copy and
 ;; paste as it will disappear and it is a bit tricky to recover the
 ;; highlighter. To create a new margin note entry in themarginalia file, save the buffer.
 
-;; - `om/save' ::
+;; - `org-marginalia-save' ::
 ;; By default, Org-marginalia creates or updates the highlighter's location
 ;; and text inside automatically in the marginalia file. You can manually call
-;; `om/save' to manually do it (automatic process also call this command).
+;; `org-marginalia-save' to manually do it (automatic process also call this command).
 
-;; - `om/open' (C-c o by default) ::
-;; Move your cursor on the highlighted text, and call `om/open' to open the
+;; - `org-marginalia-open' (C-c o by default) ::
+;; Move your cursor on the highlighted text, and call `org-marginalia-open' to open the
 ;; relevant margin notes in a separate window. Your cursor should move to the
 ;; marginalia buffer narrowed to the relevant margin notes entry. You can edit
 ;; the margin notes as a normal Org file. Once you have done editing, you can
@@ -76,7 +76,7 @@
 ;; normal workflow. Technically, the marginalia buffer is a cloned indirect
 ;; buffer of the marginalia file.
 
-;; - `om/load' ::
+;; - `org-marginalia-load' ::
 ;; This command open the marginalia file and load the saved highlights onto
 ;; current buffer. If there is no margin notes for it, it will output a
 ;; message in the echo. Highlights tracked locally by this packages cannot
@@ -84,34 +84,34 @@
 ;; ensure to turn on `org-marginalia-mode' to load the highlights. Load is
 ;; automatically done when you activate the minor mode.
 
-;; - `om/remove' ::
+;; - `org-marginalia-remove' ::
 ;; This command removes the highlight at point. It will remove the highlight,
 ;; and remove the properties from the marginalia, but will keep the headline
 ;; and notes in tact.
 
-;; - `om/next' (C-c n ] by default) ::
+;; - `org-marginalia-next' (C-c n ] by default) ::
 ;; Move to the next highlight if any. If there is none below the cursor, and
 ;; there is a highlight above, loop back to the top one.
 
 ;; If the point has moved to the next highlight, this function enables
 ;; transient map with `set-transient-map'. You don't have to press the
 ;; keybinding prefix again to move further to the next. That is, you can do a
-;; key sequence like this:
+;; key sequence like this (assuming `org-marginalia-next' is bound to C-c n):
 
 ;;   C-c n ] ] ] ]
 
-;; If you have the same prefix for `om/prev', you can combine it in the
+;; If you have the same prefix for `org-marginalia-prev', you can combine it in the
 ;; sequence like so:
 
 ;;  C-c n ] ] [ [
 ;;  This lets your cursor back to where you started (next next prev prev)
 
-;; - `om/prev' (C-c n [ by default) :: Move to the previous highlight if any.
+;; - `org-marginalia-prev' (C-c n [ by default) :: Move to the previous highlight if any.
 ;; If there is none above the cursor, and there is a highlight below, loop
-;; back to the bottom one. This function enables transient map. See `om/next'
+;; back to the bottom one. This function enables transient map. See `org-marginalia-next'
 ;; for detail.
 
-;; - `om/toggle' ::
+;; - `org-marginalia-toggle' ::
 ;; Toggle showing/hiding of highlighters in current buffer. It only affects
 ;; the display of the highlighters. When hidden, highlights' locations are
 ;; still kept tracked; thus, upon buffer-save the correct locations are still
@@ -119,8 +119,8 @@
 
 ;;;; Customizing
 
-;; - Highlighter face can be changed via `om/highlighter'
-;; - Marginalia file is defined with `om/notes-file-path'
+;; - Highlighter face can be changed via `org-marginalia-highlighter'
+;; - Marginalia file is defined with `org-marginalia-notes-file-path'
 
 ;;;; Known Limitations
 
@@ -172,10 +172,10 @@
   "Write margin notes (marginalia) for any text file in a
 separate Org file"
   :group 'org
-  :prefix "om/"
+  :prefix "org-marginalia-"
   :link '(url-link :tag "Github" "https://github.com/nobiot/org-marginalia"))
 
-(defface om/highlighter
+(defface org-marginalia-highlighter
   '((((class color) (min-colors 88) (background light))
      :underline "#aecf90" :background "#ecf7ed")
     (((class color) (min-colors 88) (background dark))
@@ -183,7 +183,7 @@ separate Org file"
   "Face for highlighters."
   :group 'org-marginalia)
 
-(defcustom om/notes-file-path "marginalia.org"
+(defcustom org-marginalia-notes-file-path "marginalia.org"
   "Specify the file path for the marginalia.org file.
 The default is \"./marginalia.org\", thus one marginalia file per directory.
 Ensure that it is an Org file."
@@ -192,7 +192,7 @@ Ensure that it is an Org file."
 
 ;;;; Variables
 
-(defvar-local om/highlights '()
+(defvar-local org-marginalia-highlights '()
   "Keep track of all the highlights.
 It is a local variable, and is a list of multiple highlights.
 Each highlight is an alist of this structure:
@@ -200,17 +200,17 @@ Each highlight is an alist of this structure:
    (id beg-marker . end-marker)
 
 On save-buffer each highlight will be persisted in the marginalia file
-(defined by `om/notes-file-path').")
+(defined by `org-marginalia-notes-file-path').")
 
-(defvar om/last-notes-buffer nil
+(defvar org-marginalia-last-notes-buffer nil
   "Stores the cloned indirect buffer for the margin notes.
 It is meant to exist only one of these in each Emacs session.")
 
 ;; Const for the names of properties in Org Mode
-(defconst om/prop-id "marginalia-id")
-(defconst om/prop-source-file "marginalia-source-file")
-(defconst om/prop-source-beg "marginalia-source-beg")
-(defconst om/prop-source-end "marginalia-source-end")
+(defconst org-marginalia-prop-id "marginalia-id")
+(defconst org-marginalia-prop-source-file "marginalia-source-file")
+(defconst org-marginalia-prop-source-beg "marginalia-source-beg")
+(defconst org-marginalia-prop-source-end "marginalia-source-end")
 
 ;;;; Commands
 
@@ -222,75 +222,73 @@ This command toggles Org-marginalia local minor mode. On
 activation, it loads your saved highlights from the marginalia
 file, and enables automatic saving of highlights.
 
-The automatic saving is achieved via function `om/save' added
+The automatic saving is achieved via function `org-marginalia-save' added
 to `after-save-hook'.
 
 Interactively with no argument, this command toggles the mode. A
 positive prefix argument enables the mode, any other prefix
 argument disables it. From Lisp, argument omitted or nil enables
-the mode, `toggle' toggles the state."
+the mode, `toggle' toggles the state.
+
+\\{org-marginalia-mode-map}"
     :init-value nil
     :lighter " marginalia"
     :global nil
     :keymap (let ((map (make-sparse-keymap)))
-              (define-key map (kbd "C-c n o") #'om/open)
-              (define-key map (kbd "C-c m") #'om/mark)
-              (define-key map (kbd "C-c n ]") #'om/next)
-              (define-key map (kbd "C-c n [") #'om/prev)
               map)
     (cond
      (org-marginalia-mode
       ;; Activate
-      (om/load)
-      (add-hook 'after-save-hook #'om/save nil t))
+      (org-marginalia-load)
+      (add-hook 'after-save-hook #'org-marginalia-save nil t))
      (t
       ;; Deactivate
-      (remove-hook 'after-save-hook #'om/save t))))
+      (remove-hook 'after-save-hook #'org-marginalia-save t))))
 
 ;;;###autoload
-(defun om/mark (beg end &optional id)
+(defun org-marginalia-mark (beg end &optional id)
   "Highlight the selected region (BEG and END).
 When used interactively. it will generate a new ID, always
 assuming it is a new highlighted text region, and start tracking
 the higlight's location, so that you can edit the text around.
 
-It will not create a marginalia entry yet. Call `om/save' to
+It will not create a marginalia entry yet. Call `org-marginalia-save' to
 create a new entry (it is automatic with `after-save-hook').
 
 When this function is called from Elisp, ID can be optionally
 passed. If so, no new ID gets generated.
 
 Every highlighted texts in the local buffer is tracked by
-`om/highlights' local variable. The highlght is sorted by the
-beginning point in the ascending; this is useful for `om/next'
-and `om/prev'."
+`org-marginalia-highlights' local variable. The highlght is sorted by the
+beginning point in the ascending; this is useful for `org-marginalia-next'
+and `org-marginalia-prev'."
   (interactive "r")
   ;; UUID is too long; does not have to be the full length
   (when (not id) (setq id (substring (org-id-uuid) 0 8)))
   ;; Add highlight to the text
   (org-with-wide-buffer
-   (add-text-properties beg end '(font-lock-face om/highlighter))
-   (add-text-properties beg end (list 'om/id id)))
+   (add-text-properties beg end '(font-lock-face org-marginalia-highlighter))
+   (add-text-properties beg end (list 'org-marginalia-id id)))
   ;; Keep track in a local variable It's alist; don't forget the dot
   ;;   (beg . end)
   ;; The dot "." is imporant to make the car/cdr "getter" interface clean.
   ;; Also, `set-marker-insertion-type' to set the type t is necessary to move
   ;; the cursor in sync with the font-lock-face property of the text property.
   (push (cons id
-          (cons (om/make-highlight-marker beg) (om/make-highlight-marker end)))
-        om/highlights)
-  (om/sort-highlights-list))
+          (cons (org-marginalia-make-highlight-marker beg) (org-marginalia-make-highlight-marker end)))
+        org-marginalia-highlights)
+  (org-marginalia-sort-highlights-list))
 
 ;;;###autoload
-(defun om/save ()
+(defun org-marginalia-save ()
   "Save all the highlights tracked in current buffer to marginalia file.
-The marginalia file is defined in `om/notes-file-path' variable.
+The marginalia file is defined in `org-marginalia-notes-file-path' variable.
 
 This funcion is automatically called when you save the buffer.
 This is achieved via `after-save-hook' (added via
 `org-marginalia-mode' when you activate the minor mode).
 
-`om/highlights' is the local variable that tracks every highlight in the
+`org-marginalia-highlights' is the local variable that tracks every highlight in the
 current buffer. Each highlight is represented by this data structure:
 
    (id beg-marker . end-marker)"
@@ -299,34 +297,34 @@ current buffer. Each highlight is represented by this data structure:
          (source-path (abbreviate-file-name filename))
          (title (or (car (cdr (assoc "TITLE" (org-collect-keywords '("TITLE")))))
                     (file-name-sans-extension (file-name-nondirectory (buffer-file-name))))))
-    (dolist (highlight om/highlights)
-      (om/save-single-highlight highlight title source-path))))
+    (dolist (highlight org-marginalia-highlights)
+      (org-marginalia-save-single-highlight highlight title source-path))))
 
 ;;;###autoload
-(defun om/open (point)
+(defun org-marginalia-open (point)
   "Open the margin notes at POINT, narrowed to the relevant headline.
 It creates a cloned indirect buffer of the marginalia file
-\(`om/notes-file-path'\). You can edit the margin notes as a normal Org file.
+\(`org-marginalia-notes-file-path'\). You can edit the margin notes as a normal Org file.
 Once you have done editing, you can simply save and close the buffer (kill or
 close the window) as per your normal workflow.
 
 This package ensures that there is only one cloned buffer for marginalia by
 tracking it."
   (interactive "d")
-  (when (buffer-live-p om/last-notes-buffer)
-    (kill-buffer om/last-notes-buffer))
-  (when-let ((id (get-char-property point 'om/id))
+  (when (buffer-live-p org-marginalia-last-notes-buffer)
+    (kill-buffer org-marginalia-last-notes-buffer))
+  (when-let ((id (get-char-property point 'org-marginalia-id))
              (ibuf (make-indirect-buffer
-                   (find-file-noselect om/notes-file-path) "*marginalia*" 'clone)))
-    (setq om/last-notes-buffer ibuf)
+                   (find-file-noselect org-marginalia-notes-file-path) "*marginalia*" 'clone)))
+    (setq org-marginalia-last-notes-buffer ibuf)
     (org-switch-to-buffer-other-window ibuf)
     (widen)(goto-char (point-min))
-    (when (org-find-property om/prop-id id)
-      (goto-char (org-find-property om/prop-id id))
+    (when (org-find-property org-marginalia-prop-id id)
+      (goto-char (org-find-property org-marginalia-prop-id id))
       (org-narrow-to-subtree))))
 
 ;;;###autoload
-(defun om/load ()
+(defun org-marginalia-load ()
   "Open the marginalia file and load the saved highlights onto current buffer.
 If there is no margin notes for it, it will output a message in
 the echo.
@@ -339,7 +337,7 @@ Load is automatically done when you activate the minor mode."
   ;; Open the marginalia file
   ;; Read all the positions
   (when-let* ((filename (buffer-file-name))
-              (margin-buf (find-file-noselect om/notes-file-path))
+              (margin-buf (find-file-noselect org-marginalia-notes-file-path))
               (source-path (abbreviate-file-name filename)))
     ;; Get hilights: each highlighlight is stored as an alist
     ;; (id beg . end)
@@ -347,9 +345,9 @@ Load is automatically done when you activate the minor mode."
     (let ((highlights '()))
       (with-current-buffer margin-buf
         (org-with-wide-buffer
-         (let ((heading (org-find-property om/prop-source-file source-path)))
+         (let ((heading (org-find-property org-marginalia-prop-source-file source-path)))
            (if (not heading) (message "No marginalia written for %s." source-path)
-             (goto-char (org-find-property om/prop-source-file source-path))
+             (goto-char (org-find-property org-marginalia-prop-source-file source-path))
              ;; Narrow to only subtree for a single file
              ;; `org-find-property' ensures that it is the beginning of H1
              (org-narrow-to-subtree)
@@ -367,32 +365,32 @@ Load is automatically done when you activate the minor mode."
         (let ((id (car highlight))
               (beg (car (cdr highlight)))
               (end (cdr (cdr highlight))))
-          (om/mark beg end id))))))
+          (org-marginalia-mark beg end id))))))
 
 ;;;###autoload
-(defun om/remove (point)
+(defun org-marginalia-remove (point)
   "Remove the highlight at POINT.
 It will remove the highlight, and remove the properties from the
 marginalia, but will keep the headline and notes."
   (interactive "d")
-  (when-let* ((id (get-char-property point 'om/id))
-              (mks (cdr (assoc id om/highlights))))
+  (when-let* ((id (get-char-property point 'org-marginalia-id))
+              (mks (cdr (assoc id org-marginalia-highlights))))
     ;; Remove the highlight text prop and id
-    (remove-list-of-text-properties (marker-position (car mks)) (marker-position (cdr mks)) '(om/id font-lock-face))
-    ;; Remove the element in the variable om/highlights
-    (setq om/highlights (assoc-delete-all id om/highlights))
-    (om/sort-highlights-list)
+    (remove-list-of-text-properties (marker-position (car mks)) (marker-position (cdr mks)) '(org-marginalia-id font-lock-face))
+    ;; Remove the element in the variable org-marginalia-highlights
+    (setq org-marginalia-highlights (assoc-delete-all id org-marginalia-highlights))
+    (org-marginalia-sort-highlights-list)
     ;; Update the marginalia note file accordingly
-    (with-current-buffer (find-file-noselect om/notes-file-path)
+    (with-current-buffer (find-file-noselect org-marginalia-notes-file-path)
       (org-with-wide-buffer
-       (when-let ((id-headline (org-find-property om/prop-id id)))
+       (when-let ((id-headline (org-find-property org-marginalia-prop-id id)))
          (goto-char id-headline)
-         (org-delete-property om/prop-id)
-         (org-delete-property om/prop-source-beg)
-         (org-delete-property om/prop-source-end))))
+         (org-delete-property org-marginalia-prop-id)
+         (org-delete-property org-marginalia-prop-source-beg)
+         (org-delete-property org-marginalia-prop-source-end))))
     t))
 
-(defun om/next ()
+(defun org-marginalia-next ()
   "Look at the current point, and move to the next highlight, if any.
 If there is none below the point, but there is a highlight in the
 buffer, go back to the first one.
@@ -402,16 +400,16 @@ enables transient map with `set-transient-map'. You don't have to
 press the keybinding prefix again to move further to the next.
 That is, you can do a key sequence like this:
 
-   `\\[om/next]' \] \] \] \]
+   `\\[org-marginalia-next]' \] \] \] \]
 
-If you have the same prefix for `om/prev', you can combine it in
+If you have the same prefix for `org-marginalia-prev', you can combine it in
 the sequence like so:
 
-   `\\[om/next]' \] \] \[ \["
+   `\\[org-marginalia-next]' \] \] \[ \["
   (interactive)
-  (if (not om/highlights)
+  (if (not org-marginalia-highlights)
       (progn (message "No highlights present in this buffer.") nil)
-    (let ((p (om/find-next-highlight)))
+    (let ((p (org-marginalia-find-next-highlight)))
       (if p (progn
               (goto-char p)
               ;; Setup the overriding keymap.
@@ -425,7 +423,7 @@ the sequence like so:
               t)
         (message "Nothing done. No more visible highlights exist") nil))))
 
-(defun om/prev ()
+(defun org-marginalia-prev ()
   "Look at the current point, and move to the previous highlight, if any.
 If there is none above the point, but there is a highlight in the
 buffer, go back to the last one.
@@ -435,16 +433,16 @@ enables transient map with `set-transient-map'. You don't have to
 press the keybinding prefix again to move further to the next.
 That is, you can do a key sequence like this:
 
-   `\\[om/prev]' \[ \[ \[ \[
+   `\\[org-marginalia-prev]' \[ \[ \[ \[
 
-If you have the same prefix for `om/next', you can combine it in
+If you have the same prefix for `org-marginalia-next', you can combine it in
 the sequence like so:
 
-   `\\[om/prev]' \] \] \[ \["
+   `\\[org-marginalia-prev]' \] \] \[ \["
   (interactive)
-  (if (not om/highlights)
+  (if (not org-marginalia-highlights)
       (progn (message "No highlights present in this buffer.") nil)
-    (let ((p (om/find-prev-highlight)))
+    (let ((p (org-marginalia-find-prev-highlight)))
       (if p (progn
               (goto-char p)
               ;; Setup the overriding keymap.
@@ -458,27 +456,27 @@ the sequence like so:
               t)
         (message "Nothing done. No more visible highlights exist") nil))))
 
-(defun om/toggle ()
+(defun org-marginalia-toggle ()
   "Toggle showing/hiding of highlighters in current buffer.
 It only affects the display of the highlighters. The locations
 are still kept tracked; thus, upon buffer-save the correct
 locations are still recorded in the marginalia file."
   (interactive)
-  (when-let ((highlights om/highlights))
+  (when-let ((highlights org-marginalia-highlights))
     ;; Check the first highlight in the buffer
     ;; If it's hidden, all hidden. Show them.
     ;; If not, all shown. Hide them.
     (if-let* ((beg (car (cdr (nth 0 highlights))))
-              (hidden-p (get-char-property beg 'om/hidden)))
-        (om/show)
-      (om/hide))
+              (hidden-p (get-char-property beg 'org-marginalia-hidden)))
+        (org-marginalia-show)
+      (org-marginalia-hide))
     t))
 
 ;;;; Functions
 
 ;;;;; Private
 
-(defun om/save-single-highlight (highlight title source-path)
+(defun org-marginalia-save-single-highlight (highlight title source-path)
   "Save a single HIGHLIGHT in the marginalia file with properties.
 The marginalia file is specified by SOURCE-PATH. If headline with
 the same ID already exists, update it based on the new highlight
@@ -490,25 +488,25 @@ creat a new headline at the end of the buffer."
          ;;`org-with-wide-buffer is a macro that should work for non-Org file'
          (text (org-with-wide-buffer (buffer-substring-no-properties beg end))))
     ;; TODO Want to add a check if save is applicable here.
-    (with-current-buffer (find-file-noselect om/notes-file-path)
+    (with-current-buffer (find-file-noselect org-marginalia-notes-file-path)
       (org-with-wide-buffer
-       (let ((file-headline (org-find-property om/prop-source-file source-path))
-             (id-headline (org-find-property om/prop-id (car highlight))))
+       (let ((file-headline (org-find-property org-marginalia-prop-source-file source-path))
+             (id-headline (org-find-property org-marginalia-prop-id (car highlight))))
          (unless file-headline
            ;; If file-headline does not exist, create one at the bottom
            (goto-char (point-max))
            ;; Ensure to be in the beginning of line to add a new headline
            (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
            (insert (concat "* " title "\n"))
-           (org-set-property om/prop-source-file source-path))
+           (org-set-property org-marginalia-prop-source-file source-path))
          (cond (id-headline
                 (goto-char id-headline)
                 ;; Update the existing headline and position properties
                 (org-edit-headline text)
-                (org-set-property om/prop-source-beg (number-to-string beg))
-                (org-set-property om/prop-source-end (number-to-string end)))
+                (org-set-property org-marginalia-prop-source-beg (number-to-string beg))
+                (org-set-property org-marginalia-prop-source-end (number-to-string end)))
                (t ;; No headline with the ID property. Create one
-                (when-let ((p (org-find-property om/prop-source-file source-path)))
+                (when-let ((p (org-find-property org-marginalia-prop-source-file source-path)))
                   (goto-char p))
                 (org-narrow-to-subtree)
                 (goto-char (point-max))
@@ -517,13 +515,13 @@ creat a new headline at the end of the buffer."
                 ;; Create a headline
                 ;; Add a properties
                 (insert (concat "** " text "\n"))
-                (org-set-property om/prop-id (car highlight))
-                (org-set-property om/prop-source-beg (number-to-string beg))
-                (org-set-property om/prop-source-end (number-to-string end))
+                (org-set-property org-marginalia-prop-id (car highlight))
+                (org-set-property org-marginalia-prop-source-beg (number-to-string beg))
+                (org-set-property org-marginalia-prop-source-end (number-to-string end))
                 (insert (concat "[[file:" source-path "]" "[" title "]]"))))))
       (when (buffer-modified-p) (save-buffer) t))))
 
-(defun om/make-highlight-marker (point)
+(defun org-marginalia-make-highlight-marker (point)
   "Return marker of the insertion-type t for POINT.
 The insertion-type is important in order for the highlight
 position (beg and end points) in sync with the highlighted text
@@ -532,7 +530,7 @@ properties."
     (set-marker-insertion-type marker t)
     marker))
 
-(defun om/list-highlights-positions (&optional reverse)
+(defun org-marginalia-list-highlights-positions (&optional reverse)
   "Return list of beg points of highlights in this buffer.
 By default, the list is in ascending order.
 If REVERSE is non-nil, return list in the descending order.
@@ -541,8 +539,8 @@ It also checks if the position is visible or not. Returns only
 visible ones.
 
 If none, return nil."
-  (when om/highlights
-    (let ((list om/highlights))
+  (when org-marginalia-highlights
+    (let ((list org-marginalia-highlights))
       (setq list (mapcar
                   (lambda (h)
                     (let ((p (marker-position (car (cdr h)))))
@@ -559,60 +557,60 @@ If none, return nil."
       (when list
         (if reverse (reverse list) list)))))
 
-(defun om/sort-highlights-list ()
-  "Utility function to sort `om/sort-highlights'.
-It checks if there is any element exists for `om/highlights'.
+(defun org-marginalia-sort-highlights-list ()
+  "Utility function to sort `org-marginalia-sort-highlights'.
+It checks if there is any element exists for `org-marginalia-highlights'.
 Instead of receiving it as an arg, it assumes its existence. It
-also distructively updates `om/highlights'.
+also distructively updates `org-marginalia-highlights'.
 It returns t when sorting is done."
-  (when om/highlights
-    (setq om/highlights (seq-sort-by (lambda (s) (car (cdr s))) #'< om/highlights))
+  (when org-marginalia-highlights
+    (setq org-marginalia-highlights (seq-sort-by (lambda (s) (car (cdr s))) #'< org-marginalia-highlights))
     t))
 
-(defun om/find-next-highlight ()
+(defun org-marginalia-find-next-highlight ()
   "Return the beg point of the next highlight.
-Look through `om/highlights' list."
-  (when-let ((points (om/list-highlights-positions)))
+Look through `org-marginalia-highlights' list."
+  (when-let ((points (org-marginalia-list-highlights-positions)))
       ;; Find the first occurance of p > (point). If none, this means all the
       ;; points occur before the current point. Take the first one. Assume
-      ;; `om/highlights' is sorted in the ascending order (it is).
+      ;; `org-marginalia-highlights' is sorted in the ascending order (it is).
     (seq-find (lambda (p) (> p (point))) points (nth 0 points))))
 
-(defun om/find-prev-highlight ()
+(defun org-marginalia-find-prev-highlight ()
   "Return the beg point of the previous highlight.
-Look through `om/highlights' list (in descending order)."
-  (when-let ((points (om/list-highlights-positions 'reverse)))
+Look through `org-marginalia-highlights' list (in descending order)."
+  (when-let ((points (org-marginalia-list-highlights-positions 'reverse)))
       ;; Find the first occurance of p < (point). If none, this means all the
       ;; points occur before the current point. Take the first one. Assume
-      ;; `om/highlights' is sorted in the descending order .
+      ;; `org-marginalia-highlights' is sorted in the descending order .
     (seq-find (lambda (p) (< p (point))) points (nth 0 points))))
 
-(defun om/hide ()
+(defun org-marginalia-hide ()
   "Hide highlighters.
 It will remove the font-lock-face of all the highlights, and add
-'om/hidden property with value 't. It does not check the current
-hidden state, thus not interactive. Use `om/toggle-display'
+'org-marginalia-hidden property with value 't. It does not check the current
+hidden state, thus not interactive. Use `org-marginalia-toggle-display'
 command to manually toggle the show/hide state."
-  (when-let ((highlights om/highlights))
+  (when-let ((highlights org-marginalia-highlights))
     (dolist (highlight highlights)
       (let ((beg (car (cdr highlight)))
             (end (cdr (cdr highlight))))
         (remove-list-of-text-properties beg end '(font-lock-face))
-        (add-text-properties beg end (list 'om/hidden t))))
+        (add-text-properties beg end (list 'org-marginalia-hidden t))))
     t))
 
-(defun om/show ()
+(defun org-marginalia-show ()
   "Show highlighters.
 It adds the font-lock-face to all the highlighted text regions.
 It does not check the current hidden state, thus not interactive.
-Use `om/toggle-display' command to manually toggle the show/hide
+Use `org-marginalia-toggle-display' command to manually toggle the show/hide
 state."
-  (when-let ((highlights om/highlights))
+  (when-let ((highlights org-marginalia-highlights))
     (dolist (highlight highlights)
       (let ((beg (car (cdr highlight)))
             (end (cdr (cdr highlight))))
-        (remove-list-of-text-properties beg end '(om/hidden))
-        (add-text-properties beg end '(font-lock-face om/highlighter))))
+        (remove-list-of-text-properties beg end '(org-marginalia-hidden))
+        (add-text-properties beg end '(font-lock-face org-marginalia-highlighter))))
     t))
 
 ;;;; Footer
@@ -626,6 +624,6 @@ state."
 ;; fill-column: 78
 ;; require-final-newline: t
 ;; sentence-end-double-space: nil
-;; eval: (setq-local om/notes-file-path "README.org")
+;; eval: (setq-local org-marginalia-notes-file-path "README.org")
 ;; eval: (if (find-library "org-marginalia")(progn (require 'org-marginalia)(org-marginalia-mode 1)))
 ;; End:

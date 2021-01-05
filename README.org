@@ -39,8 +39,8 @@ Refer to the screenshots below for a teaser of  what it can do.
 - [[#feedback][Feedback]]
 - [[#license][License]]
 - [[#marginalia-for-org-marginaliael][Marginalia for org-marginalia.el]]
-  - [[#defun-omnext][defun om/next]]
-  - [[#defun-ommark][defun om/mark]]
+  - [[#org-marginalia-next][org-marginalia-next]]
+  - [[#org-marginalia-mark][org-marginalia-mark]]
 :END:
 
 * Installation
@@ -73,47 +73,96 @@ For example, I use this in my init file. Org-marginalia is a local minor mode. A
 :TOC:      :depth 0
 :END:
 
+** Commands
 - =org-marginalia-mode= ::
-Org-marginalia is a local minor mode. Toggle it on/off with using =org-marginalia-mode=. On activating, it loads your saved highlights from the marginalia file (defined by =om/notes-file-path=), and enables automatic saving of highlights. The automatic saving is achieved via function =om/save= added to =after-save-hook=.
+Org-marginalia is a local minor mode. Toggle it on/off with using =org-marginalia-mode=. On activating, it loads your saved highlights from the marginalia file (defined by =org-marginalia-notes-file-path=), and enables automatic saving of highlights. The automatic saving is achieved via function =org-marginalia-save= added to =after-save-hook=.
 
-- =om/mark= (=C-c m= by default) ::
-Select a region of text, and call =om/mark= to highlight the region. It will generate a new ID, and start tracking the location -- so you can edit text around the highlighted text. Do not cut, copy and paste as the highlight will disappear and it is a bit tricky to recover it. To create a new margin note entry in the marginalia file, save the buffer.
+- =org-marginalia-mark= ::
+Select a region of text, and call =org-marginalia-mark= to highlight the region. It will generate a new ID, and start tracking the location -- so you can edit text around the highlighted text. Do not cut, copy and paste as the highlight will disappear and it is a bit tricky to recover it. To create a new margin note entry in the marginalia file, save the buffer.
 
-- =om/save= ::
-By default, Org-marginalia automatically creates or updates corresponding entries in the marginalia file with location and text of highlights on saving the buffer. Nevertheless, you can manually call =om/save= to do so (automatic process also call this command).
+- =org-marginalia-save= ::
+By default, Org-marginalia automatically creates or updates corresponding entries in the marginalia file with location and text of highlights on saving the buffer. Nevertheless, you can manually call =org-marginalia-save= to do so (automatic process also call this command).
 
-- =om/open= (=C-c n o= by default) ::
-Move your cursor on the highlighted text, and call =om/open= to open the relevant margin notes in a separate window. Your cursor will move to the marginalia buffer narrowed to the relevant margin notes entry. You can edit the marginalia buffer as a normal Org buffer. Once you have done editing, you may simply save and close the it (kill it or close the window) as per your normal workflow. Technically, the marginalia buffer is a cloned indirect buffer of the marginalia file. 
+- =org-marginalia-open= ::
+Move your cursor on the highlighted text, and call =org-marginalia-open= to open the relevant margin notes in a separate window. Your cursor will move to the marginalia buffer narrowed to the relevant margin notes entry. You can edit the marginalia buffer as a normal Org buffer. Once you have done editing, you may simply save and close the it (kill it or close the window) as per your normal workflow. Technically, the marginalia buffer is a cloned indirect buffer of the marginalia file. 
 
-- =om/load= ::
+- =org-marginalia-load= ::
 This command visits the marginalia file and loads the saved highlights onto the current buffer. If there is no margin notes for it, it will output a message in the echo. Highlights tracked locally by Org-marginalia cannot persist when you kill the buffer, or quit Emacs. When you re-launch Emacs, ensure to turn on =org-marginalia-mode= to load the highlights. Loading is automatically done when you activate the minor mode.
 
-- =om/remove= ::
+- =org-marginalia-remove= ::
 This command removes the highlight at point. It will remove the highlight, and remove the properties from the marginalia, but will keep the headline and notes in tact. 
 
-- =om/next= (=C-c n ]= by default) ::
+- =org-marginalia-next= ::
 Move to the next highlight if any. If there is none below the cursor, and there is a highlight above, loop back to the top one.
 If the point has moved to the next highlight, this function enables transient map with `set-transient-map'. You don't have to press the keybinding prefix again to move further to the next. That is, you can do a key sequence like this:
 
    =C-c n ] ] ] ]=
 
-If you have the same prefix for `om/prev', you can combine it in
+If you have the same prefix for `org-marginalia-prev', you can combine it in
 the sequence like so:
 
   =C-c n ] ] [ [=
   This lets your cursor back to where you started (next next prev prev)
 
-- =om/prev= (=C-c n [= by default) ::
-Move to the previous highlight if any. If there is none above the cursor, and there is a highlight below, loop back to the bottom one. This function enables transient map. See =om/next= for detail.
+- =org-marginalia-prev= ::
+Move to the previous highlight if any. If there is none above the cursor, and there is a highlight below, loop back to the bottom one. This function enables transient map. See =org-marginalia-next= for detail.
 
-- =om/toggle= ::
+- =org-marginalia-toggle= ::
 Toggle showing/hiding of highlighters in current buffer. It only affects the display of the highlighters. When hidden, highlights' locations are still kept tracked; thus, upon buffer-save the correct locations are still recorded in the marginalia file.
+
+** Keybindings Examples
+
+`Org-marginalia` only provides its mode map, and does not bind any keys to it. As an example, you coud do something like this below.
+
+#+begin_src emacs-lisp
+(define-key org-marginalia-mode-map (kbd "C-c n o") #'org-marginalia-open)
+(define-key org-marginalia-mode-map (kbd "C-c m") #'org-marginalia-mark)
+(define-key org-marginalia-mode-map (kbd "C-c n ]") #'org-marginalia-next)
+(define-key org-marginalia-mode-map (kbd "C-c n [") #'org-marginalia-prev)
+#+end_src
+
+** Composing Personal Workflow
+
+Currently only "elementary" functions are defined in the package; for example,  =mark= , =save=, and =open= are all separate functions. You can string these together to compose a more fluid operation to suite your own workflow. A very useful set of such chained commands have been suggesetd by holtzermann17 in [[https://org-roam.discourse.group/t/prototype-org-marginalia-write-margin-notes-with-org-mode/1080/10][Org-roam's Discourse discussion]] (adjusted to reflect the change of the prefix from =om/= to =org-marginalia-=) .
+
+I will try to incorporate these into the package when I have more time to focus on it -- I find them useful, but there are some plans I have had, and want to think of how I can incoprate these suggestions better with my ideas. 
+
+#+begin_src emacs-lisp
+  (defun org-marginalia-make-annotation ()
+    (interactive)
+    (let ((mark-end (region-end)))
+      (org-marginalia-mark (region-beginning) (region-end))
+      (org-marginalia-save)
+      (org-marginalia-open (1- mark-end))
+      (end-of-buffer)))
+
+  (define-key org-marginalia-mode-map (kbd "C-c M")
+    #'org-marginalia-make-annotation)
+
+  (defun org-marginalia-browse-forward ()
+    (interactive)
+    (let ((buf (current-buffer)))
+      (org-marginalia-next) (org-marginalia-open (point))
+      (pop-to-buffer buf nil t)))
+
+  (define-key org-marginalia-mode-map (kbd "C-c n }")
+    #'org-marginalia-browse-forward)
+
+  (defun org-marginalia-browse-backward ()
+    (interactive)
+    (let ((buf (current-buffer)))
+      (org-marginalia-prev) (org-marginalia-open (point))
+      (pop-to-buffer buf nil t)))
+
+  (define-key org-marginalia-mode-map (kbd "C-c n {")
+    #'org-marginalia-browse-backward)
+#+end_src
 
 * Customizing
 
 - You can customize settings in the =org-marginalia= group.
-- Highlight's face can be changed via =om/highlighter=
-- Marginalia file is defined by =om/notes-file-path=
+- Highlight's face can be changed via =org-marginalia-highlighter=
+- Marginalia file is defined by =org-marginalia-notes-file-path=
 
 * Text-properties, Not Overlays
 Technically, Org-marginalia implements the highlighting feature solely with text properties, and avoids overlays. This is done in light of oft-mentioned performance degradation with the latter.
@@ -124,13 +173,16 @@ Personally I have never experienced such performance issues with overlays; never
 
 - Turning off minor mode does not turn off the highlights :: This should not do any harm, but if you are distracted, kill the buffer (not revert) and visit it again. Toggling show/hide of highlights is something I would like to add later.
 - Copy & pasting loses highlights :: You could manually recover it by adjusting the properties in the margin notes file.
-- Undo highlight does not undo it :: Highlight a region of text with =om/mark= and immediately undo it. The highlight disappears, but it is still being tracked with =om/highlights=.
+- Undo highlight does not undo it :: Highlight a region of text with =org-marginalia-mark= and immediately undo it. The highlight disappears, but it is still being tracked with =org-marginalia-highlights=.
 - Moving source files and marginalia file :: Move your files and marginalia file to another directory does not update the source path recorded in the marginalia file. It will be confusing. Try not to do this.
 
 * Changelog
 :PROPERTIES:
 :TOC:      :depth 0
 :END:
+
+** 0.0.5
+- break: Replace the prefix "om/" in the source code with "org-marginalia"
 
 ** 0.0.4
 - feat: Add transient navigation to next/prev
@@ -141,8 +193,8 @@ Personally I have never experienced such performance issues with overlays; never
 
 ** 0.0.2
 - feat: Add om/next and /prev
-- break: Change om/open-at-point to om/open
-- break: Change om/save-all to om/save
+- break: Change om/open-at-point to org-marginalia-open
+- break: Change om/save-all to org-marginalia-save
 
 ** 0.0.1
 Initial alpha release. I consider it to be the minimal viable scope. 
@@ -179,23 +231,26 @@ This work is licensed under a GPLv3 license. For a full copy of the licese, refe
 :END:
 This section is used as a demonstration and a collection of my ideas for this package.
 
-** defun om/next
+** org-marginalia-next
 :PROPERTIES:
-:marginalia-id: 3b44ff88
-:marginalia-source-beg: 16261
-:marginalia-source-end: 16274
+:marginalia-id: 0dba860c
+:marginalia-source-beg: 16997
+:marginalia-source-end: 17016
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+
 I need to think it through.
 Do I want to reveal invisible elments to move, or keep it hidden.
 At the moment, ~om/list-highlights-positions~ has been changed to return beginning points of visible ones only -- this can be changed to make it opsitonal arg. For example, if I want to list *all*, including the hidden ones, do I want to just visible ones?
 
-** defun om/mark
+** org-marginalia-mark
 :PROPERTIES:
-:marginalia-id: 8ad8eec7
-:marginalia-source-beg: 9621
-:marginalia-source-end: 9634
+:marginalia-id: b3c8f14e
+:marginalia-source-beg: 9841
+:marginalia-source-end: 9860
 :END:
+[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+
 Some syntactic elements keep their faces descpite being marked.
 It appears to be the way font-lock-mode works. Experimenting.
 This might also lead to a way for copy and paste (need to deal with duplicate IDs)
@@ -228,6 +283,8 @@ jit-lock-register
     (if (get-char-property beg 'om/id)
         (font-lock-unfontify-region beg end))))
 #+end_src
+
+
 
 * COMMENT Local Variables
 
