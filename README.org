@@ -183,6 +183,7 @@ Personally I have never experienced such performance issues with overlays; never
 
 ** 0.0.5
 - break: Replace the prefix "om/" in the source code with "org-marginalia"
+- break: Remove default keybindings; add examples in readme instead. Addresses [#3](https://github.com/nobiot/org-marginalia/issues/3)
 
 ** 0.0.4
 - feat: Add transient navigation to next/prev
