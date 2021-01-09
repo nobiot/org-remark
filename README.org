@@ -165,6 +165,7 @@ I will try to incorporate these into the package when I have more time to focus 
 - Marginalia file is defined by =org-marginalia-notes-file-path=
 
 * Text-properties, Not Overlays
+
 Technically, Org-marginalia implements the highlighting feature solely with text properties, and avoids overlays. This is done in light of oft-mentioned performance degradation with the latter.
 
 Personally I have never experienced such performance issues with overlays; nevertheless, given that we might have many highlighted text regions in a single file, I thought I would take this as an opportunity to take advantage of text properties.
@@ -181,13 +182,16 @@ Personally I have never experienced such performance issues with overlays; never
 :TOC:      :depth 0
 :END:
 
+** Curent; WIP
+- fix: Add highlighter face def for termianl
+
 ** 0.0.5
 - break: Replace the prefix "om/" in the source code with "org-marginalia"
 - break: Remove default keybindings; add examples in readme instead. Addresses [#3](https://github.com/nobiot/org-marginalia/issues/3)
 
 ** 0.0.4
 - feat: Add transient navigation to next/prev
-  See [[*Credit]] for the piece of code to achieve the transient map I used.
+  See [[*Credits][§ Credits]] for the piece of code to achieve the transient map I used.
 
 ** 0.0.3
 - feat: Add om/toggle for show/hide highlighters
@@ -201,14 +205,18 @@ Personally I have never experienced such performance issues with overlays; never
 Initial alpha release. I consider it to be the minimal viable scope. 
 
 * Credits
+
 To create this package, I was inspired by the following packages. I did not copy any part of them, but borrowed some ideas from them -- e.g. saving the margin notes in a separate file.
 
 - [[https://github.com/jkitchin/ov-highlight][Ov-highlight]] :: John Kitchin's (author of Org-ref). Great UX for markers with hydra. Saves the marker info and comments directly within the Org file as Base64 encoded string. It uses overlays with using `ov` package.
+  
 - [[https://github.com/bastibe/annotate.el][Annotate.el]] :: Bastian Bechtold's (author of Org-journal). Unique display of annotations right next to (or on top of) the text. It seems to be designed for very short annotations, and perhaps for code review (programming practice); I have seen recent issues reported when used with variable-pitch fonts (prose).
+  
 - [[https://github.com/tkf/org-mode/blob/master/contrib/lisp/org-annotate-file.el][Org-annotate-file]] :: Part of Org's contrib library. It seems to be designed to annotate a whole file in a separate Org file, rather than specific text items.
-- [[https://github.com/IdoMagal/ipa.el][InPlaceAnnotations (ipa-mode)]] :: It looks similar to Annotate.el above
-
-To implement the transient navigation feature, I liberally copied the relevant code from a wonderful Emacs package, [[https://github.com/rnkn/binder/blob/24d55db236fea2b405d4bdc69b4c33d0f066059c/binder.el#L658-L665][Binder]] by Paul Rankin (GitHub user [[https://github.com/rnkn][rnkn]]). 
+  
+- [[https://github.com/IdoMagal/ipa.el][InPlaceAnnotations (ipa-mode)]] :: It looks similar to Annotate.el above.
+  
+- Transient navigation feature :: To implement the transient navigation feature, I liberally copied the relevant code from a wonderful Emacs package, [[https://github.com/rnkn/binder/blob/24d55db236fea2b405d4bdc69b4c33d0f066059c/binder.el#L658-L665][Binder]] by Paul W. Rankin (GitHub user [[https://github.com/rnkn][rnkn]]). 
 
 * Feedback
 
@@ -235,8 +243,8 @@ This section is used as a demonstration and a collection of my ideas for this pa
 ** org-marginalia-next
 :PROPERTIES:
 :marginalia-id: 0dba860c
-:marginalia-source-beg: 16997
-:marginalia-source-end: 17016
+:marginalia-source-beg: 17029
+:marginalia-source-end: 17048
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
@@ -247,8 +255,8 @@ At the moment, ~om/list-highlights-positions~ has been changed to return beginni
 ** org-marginalia-mark
 :PROPERTIES:
 :marginalia-id: b3c8f14e
-:marginalia-source-beg: 9841
-:marginalia-source-end: 9860
+:marginalia-source-beg: 9873
+:marginalia-source-end: 9892
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
