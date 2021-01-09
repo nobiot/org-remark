@@ -179,7 +179,9 @@ separate Org file"
   '((((class color) (min-colors 88) (background light))
      :underline "#aecf90" :background "#ecf7ed")
     (((class color) (min-colors 88) (background dark))
-     :underline "#00422a" :background "#001904"))
+     :underline "#00422a" :background "#001904")
+    (t
+     :inherit highlight))
   "Face for highlighters."
   :group 'org-marginalia)
 
