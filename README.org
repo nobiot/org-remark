@@ -90,7 +90,9 @@ Move your cursor on the highlighted text, and call =org-marginalia-open= to open
 This command visits the marginalia file and loads the saved highlights onto the current buffer. If there is no margin notes for it, it will output a message in the echo. Highlights tracked locally by Org-marginalia cannot persist when you kill the buffer, or quit Emacs. When you re-launch Emacs, ensure to turn on =org-marginalia-mode= to load the highlights. Loading is automatically done when you activate the minor mode.
 
 - =org-marginalia-remove= ::
-This command removes the highlight at point. It will remove the highlight, and remove the properties from the marginalia, but will keep the headline and notes in tact. 
+This command removes the highlight at point. It will remove the highlight, and remove the properties from the marginalia, but will keep the headline and notes in tact.
+
+You can pass a universal argument (=C-u= by default). If this is the case, the command additionally deletes the entire heading subtree, along with the notes you have written, for the highlight.
 
 - =org-marginalia-next= ::
 Move to the next highlight if any. If there is none below the cursor, and there is a highlight above, loop back to the top one.

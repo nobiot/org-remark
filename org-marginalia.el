@@ -88,6 +88,12 @@
 ;; This command removes the highlight at point. It will remove the highlight,
 ;; and remove the properties from the marginalia, but will keep the headline
 ;; and notes in tact.
+;;
+;; You can pass a universal argument with
+;; \\[universal-argument] (ARG). If this is the case, the command
+;; additionally deletes the entire heading subtree, along with the
+;; notes you have written, for the highlight."
+
 
 ;; - `org-marginalia-next' (C-c n ] by default) ::
 ;; Move to the next highlight if any. If there is none below the cursor, and
