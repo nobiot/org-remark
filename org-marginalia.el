@@ -163,7 +163,7 @@
 ;;;; Requirements
 
 (require 'org)
-(declare-function org-id-uuid 'org-id)
+(require 'org-id)
 (declare-function org-collect-keywords 'org)
 
 ;;;; Customization
@@ -286,12 +286,12 @@ and `org-marginalia-prev'."
   "Save all the highlights tracked in current buffer to marginalia file.
 The marginalia file is defined in `org-marginalia-notes-file-path' variable.
 
-This funcion is automatically called when you save the buffer.
-This is achieved via `after-save-hook' (added via
-`org-marginalia-mode' when you activate the minor mode).
+This funcion is automatically called when you save the buffer. This is
+achieved via `after-save-hook' (added via `org-marginalia-mode' when you
+activate the minor mode).
 
-`org-marginalia-highlights' is the local variable that tracks every highlight in the
-current buffer. Each highlight is represented by this data structure:
+`org-marginalia-highlights' is the local variable that tracks every highlight
+in the current buffer. Each highlight is represented by this data structure:
 
    (id beg-marker . end-marker)"
   (interactive)
@@ -306,9 +306,9 @@ current buffer. Each highlight is represented by this data structure:
 (defun org-marginalia-open (point)
   "Open the margin notes at POINT, narrowed to the relevant headline.
 It creates a cloned indirect buffer of the marginalia file
-\(`org-marginalia-notes-file-path'\). You can edit the margin notes as a normal Org file.
-Once you have done editing, you can simply save and close the buffer (kill or
-close the window) as per your normal workflow.
+\(`org-marginalia-notes-file-path'\). You can edit the margin notes as a
+normal Org file. Once you have done editing, you can simply save and close the
+buffer (kill or close the window) as per your normal workflow.
 
 This package ensures that there is only one cloned buffer for marginalia by
 tracking it."
