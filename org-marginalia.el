@@ -370,15 +370,22 @@ Load is automatically done when you activate the minor mode."
           (org-marginalia-mark beg end id))))))
 
 ;;;###autoload
-(defun org-marginalia-remove (point)
+(defun org-marginalia-remove (point &optional arg)
   "Remove the highlight at POINT.
 It will remove the highlight, and remove the properties from the
-marginalia, but will keep the headline and notes."
-  (interactive "d")
+marginalia, but will keep the headline and notes.
+
+You can pass a universal argument with
+\\[universal-argument] (ARG). If this is the case, the command
+additionally deletes the entire heading subtree, along with the
+notes you have written, for the highlight."
+  (interactive "d\nP")
   (when-let* ((id (get-char-property point 'org-marginalia-id))
               (mks (cdr (assoc id org-marginalia-highlights))))
     ;; Remove the highlight text prop and id
-    (remove-list-of-text-properties (marker-position (car mks)) (marker-position (cdr mks)) '(org-marginalia-id font-lock-face))
+    (remove-list-of-text-properties (marker-position (car mks))
+				    (marker-position (cdr mks))
+				    '(org-marginalia-id font-lock-face))
     ;; Remove the element in the variable org-marginalia-highlights
     (setq org-marginalia-highlights (assoc-delete-all id org-marginalia-highlights))
     (org-marginalia-sort-highlights-list)
@@ -387,9 +394,14 @@ marginalia, but will keep the headline and notes."
       (org-with-wide-buffer
        (when-let ((id-headline (org-find-property org-marginalia-prop-id id)))
          (goto-char id-headline)
+	 (org-narrow-to-subtree)
          (org-delete-property org-marginalia-prop-id)
          (org-delete-property org-marginalia-prop-source-beg)
-         (org-delete-property org-marginalia-prop-source-end))))
+         (org-delete-property org-marginalia-prop-source-end)
+         (when arg
+           ;; TODO I would love to add the y-n prompt if there is any notes written
+           (delete-region (point-min)(point-max))
+           (message "Deleted the marginal notes.")))))
     t))
 
 (defun org-marginalia-next ()
