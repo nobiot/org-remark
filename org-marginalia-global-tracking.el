@@ -4,25 +4,19 @@
 
 (declare-function org-marginalia-mode 'org-marginalia)
 
-(defgroup org-marginalia nil
+(defgroup org-marginalia-global-tracking nil
   "Write margin notes (marginalia) for any text file in a
 separate Org file"
-  :group 'org
+  :group 'org-marginalia
   :prefix "org-marginalia-"
   :link '(url-link :tag "Github" "https://github.com/nobiot/org-marginalia"))
-
-(defcustom org-marginalia-notes-file-path "marginalia.org"
-  "Specify the file path for the marginalia.org file.
-The default is \"./marginalia.org\", thus one marginalia file per directory.
-Ensure that it is an Org file."
-  :type 'string
-  :group 'org-marginalia)
 
 (defcustom org-marginalia-tracking-file
   (locate-user-emacs-file ".org-marginalia-tracking" nil)
   "File name where the files `org-marginalia' tracks is saved.
 When `org-marginalia-global-tracking-mode' is active, opening a file
 saved in `org-marginalia-tracking-file' automatically loads highlights."
+  :group 'org-marginalia-global-tracking
   :type 'file)
 
 (defvar org-marginalia-tracking-file-loaded nil)
