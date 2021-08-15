@@ -203,11 +203,6 @@ Ensure that it is an Org file."
   :type 'boolean
   :group 'org-marginalia)
 
-(defcustom org-marginalia-create-id nil
-  "Define is Org-marginalia creates Org-ID when none present."
-  :type 'boolean
-  :group 'org-marginalia)
-
 ;;;; Variables
 
 (defvar-local org-marginalia-loaded nil)
@@ -313,9 +308,6 @@ and `org-marginalia-prev'."
 
 ;;;###autoload
 (defun org-marginalia-load ()
-:PROPERTIES:
-:ID: 9d1055a3-127c-4a27-9a3c-be6c0c140fde
-:END:
   "Open the marginalia file and load the saved highlights onto current buffer.
 If there is no margin notes for it, it will output a message in
 the echo.
@@ -390,7 +382,7 @@ in the current buffer. Each highlight is represented by this data structure:
     (org-marginalia-sort-highlights-list)
     (dolist (highlight org-marginalia-highlights)
       (let ((orgid (and org-marginalia-use-org-id
-		     (org-id-get (overlay-start highlight) org-marginalia-create-id))))
+		     (org-id-get (overlay-start highlight)))))
 	(org-marginalia-save-single-highlight highlight title source-path orgid)))
     ;; Tracking
     (when org-marginalia-files-tracked
