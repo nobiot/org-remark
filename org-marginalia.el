@@ -198,6 +198,16 @@ Ensure that it is an Org file."
   :type 'string
   :group 'org-marginalia)
 
+(defcustom org-marginalia-use-org-id t
+  "Define if Org-marginalia use Org-ID to link back to the main note."
+  :type 'boolean
+  :group 'org-marginalia)
+
+(defcustom org-marginalia-create-id nil
+  "Define is Org-marginalia creates Org-ID when none present."
+  :type 'boolean
+  :group 'org-marginalia)
+
 ;;;; Variables
 
 (defvar-local org-marginalia-loaded nil)
@@ -303,6 +313,9 @@ and `org-marginalia-prev'."
 
 ;;;###autoload
 (defun org-marginalia-load ()
+:PROPERTIES:
+:ID: 9d1055a3-127c-4a27-9a3c-be6c0c140fde
+:END:
   "Open the marginalia file and load the saved highlights onto current buffer.
 If there is no margin notes for it, it will output a message in
 the echo.
@@ -343,7 +356,7 @@ Load is automatically done when you activate the minor mode."
 				  (org-entry-get (point)
 						 "marginalia-source-beg")))
                             (end (string-to-number
-				  (org-entry-get (point)
+				  (org-entry-get (point)
 						 "marginalia-source-end"))))
                    (push (cons id (cons beg end)) highlights)))))))
 	;; Back to the current buffer
@@ -370,15 +383,19 @@ in the current buffer. Each highlight is represented by this data structure:
   (interactive)
   (let* ((filename (buffer-file-name))
          (source-path (abbreviate-file-name filename))
-         (title (or (car (cdr (assoc "TITLE" (org-collect-keywords '("TITLE")))))
-                    (file-name-sans-extension (file-name-nondirectory (buffer-file-name))))))
+         (title (or (cadr (assoc "TITLE" (org-collect-keywords '("TITLE"))))
+                    (file-name-sans-extension
+		     (file-name-nondirectory (buffer-file-name))))))
     (org-marginalia-housekeep)
     (org-marginalia-sort-highlights-list)
     (dolist (highlight org-marginalia-highlights)
-      (org-marginalia-save-single-highlight highlight title source-path))
+      (let ((orgid (and org-marginalia-use-org-id
+		     (org-id-get (overlay-start highlight) org-marginalia-create-id))))
+	(org-marginalia-save-single-highlight highlight title source-path orgid)))
     ;; Tracking
     (when org-marginalia-files-tracked
-      (add-to-list 'org-marginalia-files-tracked (abbreviate-file-name (buffer-file-name))))))
+      (add-to-list 'org-marginalia-files-tracked
+		   (abbreviate-file-name (buffer-file-name))))))
 
 (defun org-marginalia-open (point)
   "Open the margin notes at POINT, narrowed to the relevant headline.
@@ -511,7 +528,7 @@ locations are still recorded in the marginalia file."
 
 ;;;;; Private
 
-(defun org-marginalia-save-single-highlight (highlight title source-path)
+(defun org-marginalia-save-single-highlight (highlight title source-path orgid)
   "Save a single HIGHLIGHT in the marginalia file with properties.
 The marginalia file is specified by SOURCE-PATH. If headline with
 the same ID already exists, update it based on the new highlight
@@ -553,7 +570,9 @@ creat a new headline at the end of the buffer."
                 (org-set-property org-marginalia-prop-id id)
                 (org-set-property org-marginalia-prop-source-beg (number-to-string beg))
                 (org-set-property org-marginalia-prop-source-end (number-to-string end))
-                (insert (concat "[[file:" source-path "]" "[" title "]]"))))))
+		(if (and org-marginalia-use-org-id orgid)
+		    (insert (concat "[[id:" orgid "]" "[" title "]]"))
+		  (insert (concat "[[file:" source-path "]" "[" title "]]")))))))
       (when (buffer-modified-p) (save-buffer) t))))
 
 (defun org-marginalia-list-highlights-positions (&optional reverse)
