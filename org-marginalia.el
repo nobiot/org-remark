@@ -298,6 +298,7 @@ and `org-marginalia-prev'."
      ;; You cannot use `undo' to undo highlighter.
      (deactivate-mark)
      (unless (buffer-modified-p) (set-buffer-modified-p t))))
+  (org-marginalia-housekeep)
   (org-marginalia-sort-highlights-list))
 
 ;;;###autoload
@@ -371,6 +372,8 @@ in the current buffer. Each highlight is represented by this data structure:
          (source-path (abbreviate-file-name filename))
          (title (or (car (cdr (assoc "TITLE" (org-collect-keywords '("TITLE")))))
                     (file-name-sans-extension (file-name-nondirectory (buffer-file-name))))))
+    (org-marginalia-housekeep)
+    (org-marginalia-sort-highlights-list)
     (dolist (highlight org-marginalia-highlights)
       (org-marginalia-save-single-highlight highlight title source-path))
     ;; Tracking
@@ -413,25 +416,13 @@ notes you have written, for the highlight."
   (when-let* ((id (get-char-property point 'org-marginalia-id)))
     ;; Remove the highlight overlay and id
     (dolist (ov (overlays-at (point)))
+      ;; Remove the element in the variable org-marginalia-highlights
       (when (overlay-get ov 'org-marginalia-id)
 	(delete ov org-marginalia-highlights)
 	(delete-overlay ov)))
-    ;; Remove the element in the variable org-marginalia-highlights
-    ;; TODO need to go through this org-marginalia-hightlights stuff
     (org-marginalia-sort-highlights-list)
     ;; Update the marginalia note file accordingly
-    (with-current-buffer (find-file-noselect org-marginalia-notes-file-path)
-      (org-with-wide-buffer
-       (when-let ((id-headline (org-find-property org-marginalia-prop-id id)))
-         (goto-char id-headline)
-	 (org-narrow-to-subtree)
-         (org-delete-property org-marginalia-prop-id)
-         (org-delete-property org-marginalia-prop-source-beg)
-         (org-delete-property org-marginalia-prop-source-end)
-         (when arg
-           ;; TODO I would love to add the y-n prompt if there is any notes written
-           (delete-region (point-min)(point-max))
-           (message "Deleted the marginal notes.")))))
+    (org-marginalia-remove-marginalia id arg)
     t))
 
 (defun org-marginalia-next ()
@@ -646,6 +637,54 @@ state."
         (overlay-put highlight 'org-marginalia-hidden nil)
         (overlay-put highlight 'face 'org-marginalia-highlighter))
     t))
+
+(defun org-marginalia-remove-marginalia (id &optional delete-notes)
+  "Remove marginalia entry for the ID for the current buffer.
+By default, it deletes only the properties of the entry keeping
+the headline intact. You can pass DELETE-NOTES and delete the all
+notes of the entry."
+  (with-current-buffer (find-file-noselect org-marginalia-notes-file-path)
+      (org-with-wide-buffer
+       (when-let ((id-headline (org-find-property org-marginalia-prop-id id)))
+         (goto-char id-headline)
+	 (org-narrow-to-subtree)
+         (org-delete-property org-marginalia-prop-id)
+         (org-delete-property org-marginalia-prop-source-beg)
+         (org-delete-property org-marginalia-prop-source-end)
+         (when delete-notes
+           ;; TODO I would love to add the y-n prompt if there is any notes written
+           (delete-region (point-min)(point-max))
+           (message "Deleted the marginal notes."))
+	 (when (buffer-modified-p) (save-buffer))))
+      t))
+
+(defun org-marginalia-housekeep ()
+  "Housekeep the internal variable `org-marginalia-highlights'.
+
+Case 1. Both start and end of an overlay are 1
+
+        This should not happen when you manually mark a text
+        region. A typical cause of this case is when you delete a
+        region that contains a highlight overlay.
+
+Case 2. The overlay points to no buffer
+
+        This case happens when overlay is deleted by
+        `overlay-delete' but the variable not cleared."
+  
+  (interactive)
+  (dolist (ov org-marginalia-highlights)
+    ;; Both start and end of an overlay is 1 should not happen when you manually
+    ;; mark a text region. A typical cause of this case is when you delete a
+    ;; region that contains a highlight overlay.
+    (when (and (overlay-buffer ov)
+	       (= 1 (overlay-start ov))
+	       (= 1 (overlay-end ov)))
+      (org-marginalia-remove-marginalia (overlay-get ov 'org-marginalia-id))
+      (delete-overlay ov))
+    (unless (overlay-buffer ov)
+      (setq org-marginalia-highlights (delete ov org-marginalia-highlights))))
+  t)
 
 ;;;; Footer
 
