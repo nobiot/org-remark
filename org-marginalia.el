@@ -94,7 +94,6 @@
 ;; additionally deletes the entire heading subtree, along with the
 ;; notes you have written, for the highlight."
 
-
 ;; - `org-marginalia-next' (C-c n ] by default) ::
 ;; Move to the next highlight if any. If there is none below the cursor, and
 ;; there is a highlight above, loop back to the top one.
@@ -198,6 +197,13 @@ Ensure that it is an Org file."
   :type 'string
   :group 'org-marginalia)
 
+(defcustom org-marginalia-tracking-file
+  (locate-user-emacs-file ".org-marginalia-tracking" nil)
+  "File name where the files `org-marginalia' tracks is saved.
+When `org-marginalia-global-tracking-mode' is active, opening a file
+saved in `org-marginalia-tracking-file' automatically loads highlights."
+  :type 'file)
+
 ;;;; Variables
 
 (defvar-local org-marginalia-highlights '()
@@ -214,6 +220,10 @@ On save-buffer each highlight will be persisted in the marginalia file
   "Stores the cloned indirect buffer for the margin notes.
 It is meant to exist only one of these in each Emacs session.")
 
+(defvar org-marginalia-tracking-file-loaded nil)
+
+(defvar org-marginalia-files-tracked nil)
+
 ;; Const for the names of properties in Org Mode
 (defconst org-marginalia-prop-id "marginalia-id")
 (defconst org-marginalia-prop-source-file "marginalia-source-file")
@@ -221,6 +231,53 @@ It is meant to exist only one of these in each Emacs session.")
 (defconst org-marginalia-prop-source-end "marginalia-source-end")
 
 ;;;; Commands
+
+;;;###autoload
+(define-minor-mode org-marginalia-global-tracking-mode
+  "Global mode. When enabled, check files saved in
+`org-marginalia-tracking-file' and opening them automatically
+activates `org-marginalia-mode' locally for the file opened."
+  :init-value nil
+  :lighter " marginalia-tracking"
+  :global t
+  (cond
+   (org-marginalia-global-tracking-mode
+    ;; Activate
+    (when (and (not org-marginalia-tracking-file-loaded)
+	       (file-exists-p org-marginalia-tracking-file))
+      (org-marginalia-tracking-load))
+    (add-hook 'find-file-hook #'org-marginalia-tracking-auto-on)
+    (add-hook 'kill-emacs-hook #'org-marginalia-tracking-save))
+   (t
+    ;; dactivate
+    (setq org-marginalia-files-tracked nil)
+    (setq org-marginalia-tracking-file-loaded nil)
+    (remove-hook 'find-file-hook #'org-marginalia-tracking-auto-on)
+    (remove-hook 'kill-emacs-hook #'org-marginalia-tracking-save))))
+
+(defun org-marginalia-tracking-auto-on ()
+  (when (and org-marginalia-files-tracked
+	     (member (abbreviate-file-name (buffer-file-name))
+		     org-marginalia-files-tracked))
+    (org-marginalia-mode +1)))
+
+(defun org-marginalia-tracking-load ()
+  ".
+Each line. It loads regardless of `org-marginalia-tracking-file';
+if already loaded this function reloads."
+  (with-temp-buffer
+    (condition-case nil
+	(progn
+	  (insert-file-contents org-marginalia-tracking-file)
+	  (setq org-marginalia-files-tracked (split-string (buffer-string) "\n"))
+          (setq org-marginalia-tracking-file-loaded t)))))
+
+(defun org-marginalia-tracking-save ()
+  "."
+  (interactive)
+  (when org-marginalia-files-tracked
+    (with-temp-file org-marginalia-tracking-file
+      (insert (mapconcat 'identity org-marginalia-files-tracked "\n")))))
 
 ;;;###autoload
 (define-minor-mode org-marginalia-mode
@@ -271,6 +328,8 @@ Every highlighted texts in the local buffer is tracked by
 beginning point in the ascending; this is useful for `org-marginalia-next'
 and `org-marginalia-prev'."
   (interactive "r")
+  ;; Ensure to turn on the local minor mode
+  (unless org-marginalia-mode (org-marginalia-mode +1))
   ;; UUID is too long; does not have to be the full length
   (when (not id) (setq id (substring (org-id-uuid) 0 8)))
   ;; Add highlight to the text
@@ -283,7 +342,8 @@ and `org-marginalia-prev'."
   ;; Also, `set-marker-insertion-type' to set the type t is necessary to move
   ;; the cursor in sync with the font-lock-face property of the text property.
   (push (cons id
-          (cons (org-marginalia-make-highlight-marker beg) (org-marginalia-make-highlight-marker end)))
+              (cons (org-marginalia-make-highlight-marker beg)
+		    (org-marginalia-make-highlight-marker end)))
         org-marginalia-highlights)
   (org-marginalia-sort-highlights-list))
 
@@ -306,7 +366,10 @@ in the current buffer. Each highlight is represented by this data structure:
          (title (or (car (cdr (assoc "TITLE" (org-collect-keywords '("TITLE")))))
                     (file-name-sans-extension (file-name-nondirectory (buffer-file-name))))))
     (dolist (highlight org-marginalia-highlights)
-      (org-marginalia-save-single-highlight highlight title source-path))))
+      (org-marginalia-save-single-highlight highlight title source-path))
+    ;; Tracking
+    (when org-marginalia-files-tracked
+      (add-to-list 'org-marginalia-files-tracked (abbreviate-file-name (buffer-file-name))))))
 
 ;;;###autoload
 (defun org-marginalia-open (point)
@@ -645,5 +708,4 @@ state."
 ;; require-final-newline: t
 ;; sentence-end-double-space: nil
 ;; eval: (setq-local org-marginalia-notes-file-path "README.org")
-;; eval: (if (find-library "org-marginalia")(progn (require 'org-marginalia)(org-marginalia-mode 1)))
 ;; End:
