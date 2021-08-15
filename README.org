@@ -39,8 +39,11 @@ Refer to the screenshots below for a teaser of  what it can do.
 - [[#feedback][Feedback]]
 - [[#license][License]]
 - [[#marginalia-for-org-marginaliael][Marginalia for org-marginalia.el]]
-  - [[#org-marginalia-next][org-marginalia-next]]
-  - [[#org-marginalia-mark][org-marginalia-mark]]
+  - [[#deleted-notes][Deleted Notes]]
+  - [[#deleted-notes-on-jit-lock-register][Deleted Notes on jit-lock-register]]
+  - [[#org-marginalia-load][org-marginalia-load]]
+  - [[#set-buffer-modified-p][set-buffer-modified-p]]
+- [[#local-variables][Local Variables]]
 :END:
 
 * Installation
@@ -242,23 +245,13 @@ This work is licensed under a GPLv3 license. For a full copy of the licese, refe
 :END:
 This section is used as a demonstration and a collection of my ideas for this package.
 
-** org-marginalia-next
-:PROPERTIES:
-:marginalia-id: 0dba860c
-:marginalia-source-beg: 17029
-:marginalia-source-end: 17048
-:END:
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+** Deleted Notes
 
 I need to think it through.
 Do I want to reveal invisible elments to move, or keep it hidden.
 At the moment, ~om/list-highlights-positions~ has been changed to return beginning points of visible ones only -- this can be changed to make it opsitonal arg. For example, if I want to list *all*, including the hidden ones, do I want to just visible ones?
 
-** org-marginalia-mark
-:PROPERTIES:
-:marginalia-id: b3c8f14e
-:marginalia-source-beg: 9873
-:marginalia-source-end: 9892
+** Deleted Notes on jit-lock-register
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
@@ -295,9 +288,28 @@ jit-lock-register
         (font-lock-unfontify-region beg end))))
 #+end_src
 
+** org-marginalia-load
+:PROPERTIES:
+:marginalia-id: 3ed4316a
+:marginalia-source-beg: 14275
+:marginalia-source-end: 14294
+:END:
+[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
 
-* COMMENT Local Variables
+** set-buffer-modified-p
+:PROPERTIES:
+:marginalia-id: 275b8a06
+:marginalia-source-beg: 14183
+:marginalia-source-end: 14204
+:END:
+[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+
+Adding overlay does not set the buffer modified.
+It's more fluid with save operation.
+You cannot use `undo' to undo highlighter.
+
+* Local Variables
 
 # Local Variables:
 # eval: (require 'org-make-toc)
