@@ -350,7 +350,12 @@ and `org-marginalia-prev'."
      ;; `set-marker-insertion-type' to
      ;; set the type t is necessary to move the cursor in sync with the
      ;; font-lock-face property of the text property.
-     (push ov org-marginalia-highlights)))
+     (push ov org-marginalia-highlights)
+     ;; Adding overlay does not set the buffer modified.
+     ;; It's more fluid with save operation.
+     ;; You cannot use `undo' to undo highlighter.
+     (deactivate-mark)
+     (unless (buffer-modified-p) (set-buffer-modified-p t))))
   (org-marginalia-sort-highlights-list))
 
 ;;;###autoload
@@ -395,7 +400,7 @@ Load is automatically done when you activate the minor mode."
 				  (org-entry-get (point)
 						 "marginalia-source-beg")))
                             (end (string-to-number
-				  (org-entry-get (point)
+				  (org-entry-get (point)
 						 "marginalia-source-end"))))
                    (push (cons id (cons beg end)) highlights)))))))
 	;; Back to the current buffer
