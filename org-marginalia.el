@@ -380,10 +380,10 @@ in the current buffer. Each highlight is represented by this data structure:
 		     (file-name-nondirectory (buffer-file-name))))))
     (org-marginalia-housekeep)
     (org-marginalia-sort-highlights-list)
-    (dolist (highlight org-marginalia-highlights)
+    (dolist (h org-marginalia-highlights)
       (let ((orgid (and org-marginalia-use-org-id
-		     (org-id-get (overlay-start highlight)))))
-	(org-marginalia-save-single-highlight highlight title source-path orgid)))
+			(org-entry-get (overlay-start h) "ID" 'INHERIT))))
+	(org-marginalia-save-single-highlight h title source-path orgid)))
     ;; Tracking
     (when org-marginalia-files-tracked
       (add-to-list 'org-marginalia-files-tracked
@@ -672,7 +672,7 @@ notes of the entry."
 (defun org-marginalia-housekeep ()
   "Housekeep the internal variable `org-marginalia-highlights'.
 
-Case 1. Both start and end of an overlay are 1
+Case 1. Both start and end of an overlay are identical
 
         This should not happen when you manually mark a text
         region. A typical cause of this case is when you delete a
@@ -685,12 +685,11 @@ Case 2. The overlay points to no buffer
   
   (interactive)
   (dolist (ov org-marginalia-highlights)
-    ;; Both start and end of an overlay is 1 should not happen when you manually
-    ;; mark a text region. A typical cause of this case is when you delete a
-    ;; region that contains a highlight overlay.
+    ;; Both start and end of an overlay are indentical; this should not happen
+    ;; when you manually mark a text region. A typical cause of this case is
+    ;; when you delete a region that contains a highlight overlay.
     (when (and (overlay-buffer ov)
-	       (= 1 (overlay-start ov))
-	       (= 1 (overlay-end ov)))
+	       (= (overlay-start ov) (overlay-end ov)))
       (org-marginalia-remove-marginalia (overlay-get ov 'org-marginalia-id))
       (delete-overlay ov))
     (unless (overlay-buffer ov)

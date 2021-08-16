@@ -43,6 +43,7 @@ Refer to the screenshots below for a teaser of  what it can do.
   - [[#deleted-notes-on-jit-lock-register][Deleted Notes on jit-lock-register]]
   - [[#org-marginalia-load][org-marginalia-load]]
   - [[#set-buffer-modified-p][set-buffer-modified-p]]
+  - [[#overlay-put][overlay-put]]
 - [[#local-variables][Local Variables]]
 :END:
 
@@ -309,6 +310,17 @@ Adding overlay does not set the buffer modified.
 It's more fluid with save operation.
 You cannot use `undo' to undo highlighter.
 
+** overlay-put
+:PROPERTIES:
+:marginalia-id: 44c310d9
+:marginalia-source-beg: 11551
+:marginalia-source-end: 11562
+:END:
+[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
+
+Do not add the =evaporate t= property for the highlight's overlay. By remaining in the buffer, =undo= puts overlays in their original location when text regions get killed and subsequently the kill gets undone.
+
+Using overlays instead of text-properties has an advantage of easy composition of faces; e.g. when marking on a comment line in =emacs-lisp-mode=, the highlighters face won't be composed onto the underlying syntax face for comments. Overlay can make it easy to add an additional face to comments and other syntactically font-locked regions.
 * Local Variables
 
 # Local Variables:
