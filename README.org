@@ -291,8 +291,8 @@ jit-lock-register
 ** org-marginalia-load
 :PROPERTIES:
 :marginalia-id: 3ed4316a
-:marginalia-source-beg: 12170
-:marginalia-source-end: 12189
+:marginalia-source-beg: 12353
+:marginalia-source-end: 12372
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
@@ -300,8 +300,8 @@ jit-lock-register
 ** set-buffer-modified-p
 :PROPERTIES:
 :marginalia-id: 275b8a06
-:marginalia-source-beg: 12078
-:marginalia-source-end: 12099
+:marginalia-source-beg: 12232
+:marginalia-source-end: 12253
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
