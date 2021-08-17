@@ -46,8 +46,13 @@ activates `org-marginalia-mode' locally for the file opened."
     (remove-hook 'find-file-hook #'org-marginalia-tracking-auto-on)
     (remove-hook 'kill-emacs-hook #'org-marginalia-tracking-save))))
 
+;;;; Private Functions
+
 (defun org-marginalia-tracking-auto-on ()
-  "."
+  "Activate `org-marginalia-mode' when file is being tracked.
+The files being tracked are loaded on to
+`org-marginalia-files-tracked'.  Refer to
+`org-marginalia-tracking-load'."
   (when (and org-marginalia-files-tracked
 	     (member (abbreviate-file-name (buffer-file-name))
 		     org-marginalia-files-tracked))
@@ -55,9 +60,11 @@ activates `org-marginalia-mode' locally for the file opened."
     (org-marginalia-mode +1)))
 
 (defun org-marginalia-tracking-load ()
-  ".
-Each line.  It loads regardless of `org-marginalia-tracking-file';
-if already loaded this function reloads."
+  "Load files being tracked from `org-marginalia-tracking-file'.
+It has one filename each line (separated by "\n"). The filename
+is obtrained `abbreviated-file-names'.  This function reloads the
+content of the file regardless if it is already done in this
+Emacs session or not."
   (with-temp-buffer
     (condition-case nil
 	(progn
@@ -67,7 +74,9 @@ if already loaded this function reloads."
           (setq org-marginalia-tracking-file-loaded t)))))
 
 (defun org-marginalia-tracking-save ()
-  "."
+  "Save files being tracked in `org-marginalia-tracking-file'.
+Files with marginal notes are tracked with variable
+`org-marginalia-files-tracked'."
   (interactive)
   (when org-marginalia-files-tracked
     (with-temp-file org-marginalia-tracking-file
