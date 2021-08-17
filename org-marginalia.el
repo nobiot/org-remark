@@ -253,7 +253,8 @@ the mode, `toggle' toggles the state.
      (org-marginalia-mode
       ;; Activate
       (org-marginalia-load)
-      (add-hook 'after-save-hook #'org-marginalia-save nil t))
+      (add-hook 'after-save-hook #'org-marginalia-save nil t)
+      (add-hook 'kill-buffer-hook #'org-marginalia-tracking-save nil t))
      (t
       ;; Deactivate
       (when org-marginalia-highlights
@@ -261,7 +262,8 @@ the mode, `toggle' toggles the state.
 	  (delete-overlay highlight)))
       (setq org-marginalia-highlights nil)
       (setq org-marginalia-loaded nil)
-      (remove-hook 'after-save-hook #'org-marginalia-save t))))
+      (remove-hook 'after-save-hook #'org-marginalia-save t)
+      (remove-hook 'kill-buffer-hook #'org-marginalia-tracking-save t))))
 
 ;;;###autoload
 (defun org-marginalia-mark (beg end &optional id)
@@ -678,6 +680,8 @@ notes of the entry."
 
 (defun org-marginalia-housekeep ()
   "Housekeep the internal variable `org-marginalia-highlights'.
+This is a private function; housekeep is automatically done on
+save.
 
 Case 1. Both start and end of an overlay are identical
 
@@ -689,8 +693,6 @@ Case 2. The overlay points to no buffer
 
         This case happens when overlay is deleted by
         `overlay-delete' but the variable not cleared."
-  
-  (interactive)
   (dolist (ov org-marginalia-highlights)
     ;; Both start and end of an overlay are indentical; this should not happen
     ;; when you manually mark a text region. A typical cause of this case is
