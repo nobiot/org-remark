@@ -18,8 +18,8 @@ Refer to the screenshots below for a teaser of  what it can do.
 [[./resources/images/2020-12-22T141331-OM-screen-shot-01.png]]
 *Figure 2*. Left: main note with some text highlighted in green; Right: margin notes in a marginalia file
 
-[[./resources/images/2020-12-22T141331-OM-screen-shot-02.png]]
-*Figure 3*. It automatically adds the standard Org Mode link to margin notes, so it works well with Org-roam's backlinks
+[[./resources/images/2021-08-17T220032.png]]
+*Figure 3*. It can automatically add links with Org-ID from marginal notes back to the main file. This works well with Org-roam's backlink (V2)
 
 [[./resources/images/2020-12-22T141331-OM-screen-shot-03.png]]
 *Figure 4*. Main note can be any text files. Left: an ~.el~ file with a highlight; Right: marginalia file
@@ -61,24 +61,52 @@ Ensure to have Org Mode 9.4 or later (tested on 9.4.2). This package uses ~org-c
 Store =org-marginalia.el= in your load-path, and put this in your init file:
 
 #+BEGIN_SRC emacs-lisp
-(require 'org-marginalia)
+  (add-to-list 'load-path "~/local-repos/org-marginalia/")
+  (require 'org-marginalia-global-tracking)
+  (require 'org-marginalia)
 #+END_SRC
 
-For example, I use this in my init file. Org-marginalia is a local minor mode. As I want to activate it automatically for all my text-mode files (Org and Markdown), I also put ~org-marginalia-mode 1~ in ~text-mode-hook~ like this below.
+By loading =org-marginalia=, it also pulls in Org mode. You might like to defer loading of Org. As of version 0.0.6, you can do so with load only =org-marginalia-global-tracking=, which does not load =org= automatically.
+
+For example, I use this in my init file. 
 
 #+begin_src emacs-lisp
-(add-hook 'after-init-hook (lambda()
-                             (add-to-list 'load-path "~/local-repos/org-marginalia/")
-                             (require 'org-marginalia)
-                             (add-hook 'text-mode-hook #'org-marginalia-mode 1)))
+  ;; Set `load-path'
+  (add-to-list 'load-path "~/local-repos/org-marginalia")
+
+  ;; Load only `org-marginalia-global-tracking'
+  ;; and turn it on for automatic loading of highlights
+  ;; for the files tracked
+  (load-library "org-marginalia-global-tracking")
+  (org-marginalia-global-tracking-mode 1)
+
+  ;; Set keybindings
+  ;; `org-marginalia-mark' is bound to global-map so that you can call it globally
+  ;; before the library is loaded; it has autoload cookie
+  (define-key global-map (kbd "C-c m") #'org-marginalia-mark)
+  ;; The rest of keybidings are done only on loading `org-marginalia'
+  (with-eval-after-load 'org-marginalia
+    (define-key org-marginalia-mode-map (kbd "C-c n o") #'org-marginalia-open)
+    (define-key org-marginalia-mode-map (kbd "C-c n ]") #'org-marginalia-next)
+    (define-key org-marginalia-mode-map (kbd "C-c n [") #'org-marginalia-prev)
+    (define-key org-marginalia-mode-map (kbd "C-c n r") #'org-marginalia-remove))
 #+end_src
   
 * Usage
 :PROPERTIES:
 :TOC:      :depth 0
 :END:
-
 ** Commands
+
+- =org-marginalia-global-tracking-mode= ::
+A new global minor mode to save and track files that have marginal notes.
+When active, automatically visiting a file being tracked automatically turns on =org-marginalia-mode=, thus it automatically highlights previously saved ones.
+
+The files being tracked are saved in =org-marginalia-tracking-file=, which is a
+customizing variable for you to customize. The default is named
+=.org-marginalia-tracking= in your Emacs configuration directory
+(=user-emacs-directory=).
+
 - =org-marginalia-mode= ::
 Org-marginalia is a local minor mode. Toggle it on/off with using =org-marginalia-mode=. On activating, it loads your saved highlights from the marginalia file (defined by =org-marginalia-notes-file-path=), and enables automatic saving of highlights. The automatic saving is achieved via function =org-marginalia-save= added to =after-save-hook=.
 
@@ -170,6 +198,11 @@ I will try to incorporate these into the package when I have more time to focus 
 - You can customize settings in the =org-marginalia= group.
 - Highlight's face can be changed via =org-marginalia-highlighter=
 - Marginalia file is defined by =org-marginalia-notes-file-path=
+- Your files with marginal notes are saved and tracked in
+  =org-marginalia-tracking-file= (when tracking is turned on via the global
+  minor mode =org-marginalia-global-tracking-mode=)
+- You can use Org-ID to create links from marginal notes back to their main
+  notes when =org-marginalia-use-org-id= is on (default is on)
 
 * Text-properties, Not Overlays
 
@@ -189,8 +222,24 @@ Personally I have never experienced such performance issues with overlays; never
 :TOC:      :depth 0
 :END:
 
-** Curent; WIP
-- fix: Add highlighter face def for termianl
+** 0.0.6
+
+Feature:
+- feat: Add =org-marginalia-global-tracking-mode= with a separate .el file
+- feat: Use Org-ID to create a link from the marginal notes back to the main file
+  Add Customizable variable =org-marginalia-use-org-id=; default is =t=
+
+Change:
+- chg: Highlights are now overlay; no longer text-properties
+  
+Improvement to existing functions
+- add: Deactivate mark after highlighting
+- add: org-marginalia-remove can take C-u to delete
+
+Fix & Internal Refactor
+- intrnl: Add housekeeping for =org-marginalia-highlights= variable
+- fix: org-id-uuid is not found
+- fix: Add highlighter face def for terminal
 
 ** 0.0.5
 - break: Replace the prefix "om/" in the source code with "org-marginalia"
