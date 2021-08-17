@@ -1,6 +1,6 @@
+;;; org-marginalia-global-tracking.el --- Track files with marginal notes -*- lexical-binding: t; -*-
 ;;; Commentary:
-
-;;; Code
+;;; Code:
 
 (declare-function org-marginalia-mode 'org-marginalia)
 
@@ -61,10 +61,10 @@ The files being tracked are loaded on to
 
 (defun org-marginalia-tracking-load ()
   "Load files being tracked from `org-marginalia-tracking-file'.
-It has one filename each line (separated by "\n"). The filename
-is obtrained `abbreviated-file-names'.  This function reloads the
-content of the file regardless if it is already done in this
-Emacs session or not."
+It has one filename each line.  The filename is obtrained
+`abbreviated-file-names'.  This function reloads the content of
+the file regardless if it is already done in this Emacs session
+or not."
   (with-temp-buffer
     (condition-case nil
 	(progn
