@@ -195,7 +195,7 @@ separate Org file"
   "Specify the file path for the marginalia.org file.
 The default is \"./marginalia.org\", thus one marginalia file per directory.
 Ensure that it is an Org file."
-  :type 'string
+  :type 'file
   :group 'org-marginalia)
 
 (defcustom org-marginalia-use-org-id t
