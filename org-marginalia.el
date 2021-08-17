@@ -105,22 +105,22 @@
 
 ;;   C-c n ] ] ] ]
 
-;; If you have the same prefix for `org-marginalia-prev', you can combine it in the
-;; sequence like so:
+;; If you have the same prefix for `org-marginalia-prev', you can combine it in
+;; the sequence like so:
 
 ;;  C-c n ] ] [ [
 ;;  This lets your cursor back to where you started (next next prev prev)
 
-;; - `org-marginalia-prev' (C-c n [ by default) :: Move to the previous highlight if any.
-;; If there is none above the cursor, and there is a highlight below, loop
-;; back to the bottom one. This function enables transient map. See `org-marginalia-next'
-;; for detail.
+;; - `org-marginalia-prev' (C-c n [ by default) ::
+;; Move to the previous highlight if any. If there is none above the cursor, and
+;; there is a highlight below, loop back to the bottom one. This function
+;; enables transient map. See `org-marginalia-next' for detail.
 
 ;; - `org-marginalia-toggle' ::
-;; Toggle showing/hiding of highlighters in current buffer. It only affects
-;; the display of the highlighters. When hidden, highlights' locations are
-;; still kept tracked; thus, upon buffer-save the correct locations are still
-;; recorded in the marginalia file.
+;; Toggle showing/hiding of highlighters in current buffer. It only affects the
+;; display of the highlighters. When hidden, highlights' locations are still
+;; kept tracked; thus, upon buffer-save the correct locations are still recorded
+;; in the marginalia file.
 
 ;;;; Customizing
 
@@ -403,7 +403,8 @@ tracking it."
     (kill-buffer org-marginalia-last-notes-buffer))
   (when-let ((id (get-char-property point 'org-marginalia-id))
              (ibuf (make-indirect-buffer
-                   (find-file-noselect org-marginalia-notes-file-path) "*marginalia*" 'clone)))
+                    (find-file-noselect org-marginalia-notes-file-path)
+		    "*marginalia*" 'clone)))
     (setq org-marginalia-last-notes-buffer ibuf)
     (org-switch-to-buffer-other-window ibuf)
     (widen)(goto-char (point-min))
@@ -534,7 +535,8 @@ creat a new headline at the end of the buffer."
     ;; TODO Want to add a check if save is applicable here.
     (with-current-buffer (find-file-noselect org-marginalia-notes-file-path)
       (org-with-wide-buffer
-       (let ((file-headline (org-find-property org-marginalia-prop-source-file source-path))
+       (let ((file-headline (org-find-property
+			     org-marginalia-prop-source-file source-path))
              (id-headline (org-find-property org-marginalia-prop-id id)))
          (unless file-headline
            ;; If file-headline does not exist, create one at the bottom
@@ -547,10 +549,13 @@ creat a new headline at the end of the buffer."
                 (goto-char id-headline)
                 ;; Update the existing headline and position properties
                 (org-edit-headline text)
-                (org-set-property org-marginalia-prop-source-beg (number-to-string beg))
-                (org-set-property org-marginalia-prop-source-end (number-to-string end)))
+                (org-set-property org-marginalia-prop-source-beg
+				  (number-to-string beg))
+                (org-set-property org-marginalia-prop-source-end
+				  (number-to-string end)))
                (t ;; No headline with the ID property. Create one
-                (when-let ((p (org-find-property org-marginalia-prop-source-file source-path)))
+                (when-let ((p (org-find-property
+			       org-marginalia-prop-source-file source-path)))
                   (goto-char p))
                 (org-narrow-to-subtree)
                 (goto-char (point-max))
@@ -560,8 +565,10 @@ creat a new headline at the end of the buffer."
                 ;; Add a properties
                 (insert (concat "** " text "\n"))
                 (org-set-property org-marginalia-prop-id id)
-                (org-set-property org-marginalia-prop-source-beg (number-to-string beg))
-                (org-set-property org-marginalia-prop-source-end (number-to-string end))
+                (org-set-property org-marginalia-prop-source-beg
+				  (number-to-string beg))
+                (org-set-property org-marginalia-prop-source-end
+				  (number-to-string end))
 		(if (and org-marginalia-use-org-id orgid)
 		    (insert (concat "[[id:" orgid "]" "[" title "]]"))
 		  (insert (concat "[[file:" source-path "]" "[" title "]]")))))))
