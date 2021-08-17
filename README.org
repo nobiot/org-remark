@@ -342,8 +342,8 @@ jit-lock-register
 ** org-marginalia-load
 :PROPERTIES:
 :marginalia-id: 3ed4316a
-:marginalia-source-beg: 12370
-:marginalia-source-end: 12389
+:marginalia-source-beg: 12513
+:marginalia-source-end: 12532
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
@@ -351,8 +351,8 @@ jit-lock-register
 ** set-buffer-modified-p
 :PROPERTIES:
 :marginalia-id: 275b8a06
-:marginalia-source-beg: 12249
-:marginalia-source-end: 12270
+:marginalia-source-beg: 12392
+:marginalia-source-end: 12413
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
@@ -363,8 +363,8 @@ You cannot use `undo' to undo highlighter.
 ** overlay-put
 :PROPERTIES:
 :marginalia-id: 44c310d9
-:marginalia-source-beg: 11568
-:marginalia-source-end: 11579
+:marginalia-source-beg: 11711
+:marginalia-source-end: 11722
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
@@ -374,8 +374,8 @@ Using overlays instead of text-properties has an advantage of easy composition o
 ** (make-overlay beg end nil 'FRONT-ADVANCE)
 :PROPERTIES:
 :marginalia-id: 3ec6b5e6
-:marginalia-source-beg: 11518
-:marginalia-source-end: 11559
+:marginalia-source-beg: 11661
+:marginalia-source-end: 11702
 :END:
 [[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
 
