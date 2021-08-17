@@ -4,8 +4,8 @@
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-marginalia
-;; Version: 0.0.5
-;; Last Modified: 2021-01-05
+;; Version: 0.0.6
+;; Last Modified: 2021-08-17
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, margin-notes
 
@@ -287,7 +287,7 @@ and `org-marginalia-prev'."
   (when (not id) (setq id (substring (org-id-uuid) 0 8)))
   ;; Add highlight to the text
   (org-with-wide-buffer
-   (let ((ov (make-overlay beg end)))
+   (let ((ov (make-overlay beg end nil 'FRONT-ADVANCE)))
      (overlay-put ov 'face 'org-marginalia-highlighter)
      (overlay-put ov 'org-marginalia-id id)
      ;; Keep track in a local variable It's a list overlays, guranteed to
