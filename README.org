@@ -41,7 +41,7 @@ non-nil, Org-marginalia will add an ID property to the file level. This is mainl
 
 ** Use of Overlays, no longer Text-Properties
 
-This makes easier to add highlighter overlay on top of text regions that already have faces (e.g. syntax-highlighted part of source code)
+This makes easier to add a highlighter overlay on top of text regions that already have faces (e.g. syntax-highlighted part of source code)
 
 ** Removing limitations
 
