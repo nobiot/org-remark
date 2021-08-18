@@ -34,7 +34,7 @@ As of 0.0.6, seamless workflow with Org-roam has been added by generating ID lin
 
 If user option =org-marginalia-use-org-id= is non-nil (default) and Org ID is available in the main note, Org-marginalia will create a link back to the source note with using an Org-ID link instead of a normal file link.
 
-The Org-marginalia looks at property inheritance for the ID property. When immediate headline where a highlight belongs does not have an ID, the ID of a higher headline or file property is used when available. When none, Org-marginalia falls back to a normal file link.
+Org-marginalia looks at property inheritance for ID properties. When the immediate headline where a highlight belongs does not have an ID, the ID of a higher headline or file property is used when available. When none is available, Org-marginalia falls back to a normal file link.
 
 When a new marginalia file is created and =org-marginalia-use-org-id= is
 non-nil, Org-marginalia will add an ID property to the file level. This is mainly to support Org-roam's backlink feature for marginalia files.
