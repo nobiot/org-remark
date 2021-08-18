@@ -1,5 +1,32 @@
 ;;; org-marginalia-global-tracking.el --- Track files with marginal notes -*- lexical-binding: t; -*-
+
+;; Copyright (C) 2020 Noboru Ota
+
+;; Author: Noboru Ota <me@nobiot.com>
+;; URL: https://github.com/nobiot/org-marginalia
+;; Version: 0.0.6
+;; Last Modified: 2021-08-18
+;; Package-Requires: ((emacs "27.1") (org "9.4"))
+;; Keywords: org-mode, annotation, writing, note-taking, margin-notes
+
+;; This file is not part of GNU Emacs.
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 ;;; Commentary:
+;;  This file is part of Org-marginalia
+
 ;;; Code:
 
 (declare-function org-marginalia-mode 'org-marginalia)
@@ -40,7 +67,7 @@ activates `org-marginalia-mode' locally for the file opened."
     (add-hook 'find-file-hook #'org-marginalia-tracking-auto-on)
     (add-hook 'kill-emacs-hook #'org-marginalia-tracking-save))
    (t
-    ;; dactivate
+    ;; Deactivate
     (setq org-marginalia-files-tracked nil)
     (setq org-marginalia-tracking-file-loaded nil)
     (remove-hook 'find-file-hook #'org-marginalia-tracking-auto-on)
