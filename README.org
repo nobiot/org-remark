@@ -19,7 +19,7 @@ Refer to the screenshots below for a teaser of  what it can do.
 *Figure 2*. Left: main note with some text highlighted in green; Right: margin notes in a marginalia file
 
 [[./resources/images/2021-08-17T220032.png]]
-*Figure 3*. It can automatically add links with Org-ID from marginal notes back to the main file. This works well with Org-roam's backlink (V2)
+*Figure 3*. Left: =org-roam-buffer= showing backlinks from the marginal notes; Right: main Org note. Org-marinalia can automatically add links with Org-ID from marginal notes back to the main file. This works well with Org-roam's backlink (V2)
 
 [[./resources/images/2020-12-22T141331-OM-screen-shot-03.png]]
 *Figure 4*. Main note can be any text files. Left: an ~.el~ file with a highlight; Right: marginalia file
@@ -28,10 +28,13 @@ Refer to the screenshots below for a teaser of  what it can do.
 
 ** Support for Org ID and Org-roam
 
+This is only applicable when the main source note is an Org file.
+
 As of 0.0.6, seamless workflow with Org-roam has been added by generating ID links automatically.
 
-If user option =org-marginalia-use-org-id= is non-nil (default), Org-marginalia will create a link back to the source note with using an Org-ID link instead of a
-normal file link.
+If user option =org-marginalia-use-org-id= is non-nil (default) and Org ID is available in the main note, Org-marginalia will create a link back to the source note with using an Org-ID link instead of a normal file link.
+
+The Org-marginalia looks at property inheritance for the ID property. When immediate headline where a highlight belongs does not have an ID, the ID of a higher headline or file property is used when available. When none, Org-marginalia falls back to a normal file link.
 
 When a new marginalia file is created and =org-marginalia-use-org-id= is
 non-nil, Org-marginalia will add an ID property to the file level. This is mainly to support Org-roam's backlink feature for marginalia files.
