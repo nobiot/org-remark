@@ -9,7 +9,7 @@
 Org-marginalia lets you highlight text, and write margin notes (marginalia) for any text file in a separate Org file. 
 
 [[./resources/images/2020-12-24T101116_Title.png]]
-*Figure 1*. Left: Org-mode with text enlarged; Right marginalia file with the inline image display on.  
+*Figure 1*. Left: Org-mode with text enlarged; Right marginalia file with the inline image display on
 
 * Screenshots
 
@@ -26,26 +26,26 @@ Refer to the screenshots below for a teaser of  what it can do.
 
 * News
 
-** Support for Org ID and Org-roam
+** New Features
 
-This is only applicable when the main source note is an Org file.
+- Auto-activation of Org-marginalia Mode when Opening Files with Marginal Notes ::
+  A new global minor mode =org-marginalia-global-tracking-mode= has been introduced as of 0.0.6. It saves and tracks files that have marginal notes. When it is active, visiting a file being tracked automatically turns on =org-marginalia-mode=, loading highlights previously saved in the marginalia file.
+  The files being tracked are saved in =org-marginalia-tracking-file=, which you can customize. The default file is named =.org-marginalia-tracking= in your Emacs configuration directory (=user-emacs-directory=).
 
-As of 0.0.6, seamless workflow with Org-roam has been added by generating ID links automatically.
-
-If user option =org-marginalia-use-org-id= is non-nil (default) and Org ID is available in the main note, Org-marginalia will create a link back to the source note with using an Org-ID link instead of a normal file link.
-
-Org-marginalia looks at property inheritance for ID properties. When the immediate headline where a highlight belongs does not have an ID, the ID of a higher headline or file property is used when available. When none is available, Org-marginalia falls back to a normal file link.
-
-When a new marginalia file is created and =org-marginalia-use-org-id= is
+- Support for Org ID and Org-roam ::
+  This is only applicable when the main source note is an Org file.
+  As of 0.0.6, seamless workflow with Org-roam has been added by generating ID links automatically.
+  If user option =org-marginalia-use-org-id= is non-nil (default) and Org ID is available in the main note, Org-marginalia will create a link back to the source note with using an Org-ID link instead of a normal file link.
+  Org-marginalia looks at property inheritance for ID properties. When the immediate headline where a highlight belongs does not have an ID, the ID of a higher headline or file property is used when available. When none is available, Org-marginalia falls back to a normal file link.
+  When a new marginalia file is created and =org-marginalia-use-org-id= is
 non-nil, Org-marginalia will add an ID property to the file level. This is mainly to support Org-roam's backlink feature for marginalia files.
-
-** Use of Overlays, no longer Text-Properties
-
-This makes easier to add a highlighter overlay on top of text regions that already have faces (e.g. syntax-highlighted part of source code)
 
 ** Removing limitations
 
-- Now turning off minor mode will turn off the highlights
+- Use of Overlays, no longer Text-Properties ::
+  This makes easier to add a highlighter overlay on top of text regions that already have faces (e.g. syntax-highlighted part of source code).
+
+- Now turning off minor mode will turn off the highlights ::
   It is still recommended to use =org-marginalia-toggle= to temporarily hide/show highlights. This is because turning off =org-marginalia-mode= will stop tracking of the locations of highlights in the current buffer. **Any** (however minor) change will likely result in mismatching the locations of saved highlights and the current buffer's text content.
 
 * Contents                                                         :noexport:
