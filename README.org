@@ -62,12 +62,6 @@ non-nil, Org-marginalia will add an ID property to the file level. This is mainl
 - [[#feedback][Feedback]]
 - [[#license][License]]
 - [[#marginalia-for-org-marginaliael][Marginalia for org-marginalia.el]]
-  - [[#deleted-notes][Deleted Notes]]
-  - [[#deleted-notes-on-jit-lock-register][Deleted Notes on jit-lock-register]]
-  - [[#org-marginalia-load][org-marginalia-load]]
-  - [[#set-buffer-modified-p][set-buffer-modified-p]]
-  - [[#overlay-put][overlay-put]]
-  - [[#make-overlay-beg-end-nil-front-advance][(make-overlay beg end nil 'FRONT-ADVANCE)]]
 - [[#local-variables][Local Variables]]
 :END:
 
@@ -315,6 +309,8 @@ This work is licensed under a GPLv3 license. For a full copy of the licese, refe
 * Marginalia for ~org-marginalia.el~
 :PROPERTIES:
 :marginalia-source-file: ~/local-repos/org-marginalia/org-marginalia.el
+:marginalia-source-file: ~/src/org-marginalia/org-marginalia.el
+:TOC:      :depth 0
 :END:
 This section is used as a demonstration and a collection of my ideas for this package.
 

@@ -247,6 +247,10 @@ buffer or quit Emacs. When you re-launch Emacs, ensure to turn on
 		(beg (car (cdr highlight)))
 		(end (cdr (cdr highlight))))
             (org-marginalia-mark beg end id)))))
+    ;; Tracking
+    (when org-marginalia-global-tracking-mode
+      (add-to-list 'org-marginalia-files-tracked
+		   (abbreviate-file-name (buffer-file-name))))
     (setq org-marginalia-loaded t)))
 
 (defun org-marginalia-save ()
@@ -273,7 +277,7 @@ in the current buffer. Each highlight is represented by an overlay."
 			(org-entry-get (overlay-start h) "ID" 'INHERIT))))
 	(org-marginalia-save-single-highlight h title source-path orgid)))
     ;; Tracking
-    (when org-marginalia-files-tracked
+    (when org-marginalia-global-tracking-mode
       (add-to-list 'org-marginalia-files-tracked
 		   (abbreviate-file-name (buffer-file-name))))))
 
