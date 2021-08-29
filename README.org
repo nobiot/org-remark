@@ -69,7 +69,6 @@ non-nil, Org-marginalia will add an ID property to the file level. This is mainl
 :PROPERTIES:
 :TOC:      :depth 0
 :END:
-
 ** Manual
 This package is not available on MELPA. Manual installation is required.
 
@@ -97,9 +96,12 @@ For example, I use this in my init file.
   (load-library "org-marginalia-global-tracking")
   (org-marginalia-global-tracking-mode 1)
 
-  ;; Set keybindings
-  ;; `org-marginalia-mark' is bound to global-map so that you can call it globally
-  ;; before the library is loaded; it has autoload cookie
+  ;; Set keybindings `org-marginalia-mark' is bound to global-map so that you can
+  ;; call it globally before the library is loaded.  In order to make
+  ;; `org-marginalia-mark' and `org-marginalia-mode' callable, use `autoload'.
+  ;; When this package is available in MELPA, `autoload' should not be required.
+  (autoload #'org-marginalia-mark "org-marginalia" nil t)
+  (autoload #'org-marginalia-mode "org-marginalia" nil t)
   (define-key global-map (kbd "C-c m") #'org-marginalia-mark)
   ;; The rest of keybidings are done only on loading `org-marginalia'
   (with-eval-after-load 'org-marginalia
