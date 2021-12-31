@@ -283,21 +283,26 @@ buffer or quit Emacs. When you re-launch Emacs, ensure to turn on
                ;; H1: File
                ;; H2: Higlighted region (each one has a dedicated H2 subtree)
                (while (not (org-next-visible-heading 1))
-		 (when-let ((id (org-entry-get (point) "marginalia-id"))
-                            (beg (string-to-number
-				  (org-entry-get (point)
-						 "marginalia-source-beg")))
-                            (end (string-to-number
-				  (org-entry-get (point)
-						 "marginalia-source-end"))))
-                   (push (cons id (cons beg end)) highlights)))))))
+		 (let ((id (org-entry-get (point) "marginalia-id"))
+                       (beg (string-to-number
+			     (org-entry-get (point)
+					    "marginalia-source-beg")))
+                       (end (string-to-number
+			     (org-entry-get (point)
+					    "marginalia-source-end")))
+                       (label (org-entry-get (point)
+                                             "org-marginalia-label")))
+                   (when id (push (list id (cons beg end) label) highlights))))))))
 	;; Back to the current buffer
 	;; Look highilights and add highlights to the current buffer
 	(dolist (highlight highlights)
           (let ((id (car highlight))
-		(beg (car (cdr highlight)))
-		(end (cdr (cdr highlight))))
-            (org-marginalia-mark beg end id)))))
+		(beg (caadr highlight))
+		(end (cdadr highlight))
+                (label (caddr highlight)))
+            (let ((fn (intern (concat "org-marginalia-mark-" label))))
+              (unless (functionp fn) (setq fn #'org-marginalia-mark))
+              (funcall fn beg end id))))))
     ;; Tracking
     (when org-marginalia-global-tracking-mode
       (add-to-list 'org-marginalia-files-tracked
