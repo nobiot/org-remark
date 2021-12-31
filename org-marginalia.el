@@ -94,7 +94,7 @@ It is meant to exist only one of these in each Emacs session.")
 (defconst org-marginalia-prop-source-end "marginalia-source-end")
 
 ;;; Macros
-(defmacro org-marginalia-make-pen (label face &rest properties)
+(defmacro org-marginalia-make-pen (label face &optional properties)
   "Create a user-defined highlight function.
 LABEL is the name of the highlight. The function will be called
 `ov-highlight-LABEL', and it will apply FACE to the selected
@@ -112,13 +112,16 @@ no arguments."
      ;; Add highlight to the text
      (org-with-wide-buffer
       (let ((face ,face)
-	    (properties (quote ,properties))
+	    (properties ,properties)
             (ov (make-overlay beg end nil 'FRONT-ADVANCE)))
         (overlay-put ov 'face face)
         (while properties
-	  (setq prop (pop properties)
-		val (pop properties))
+	  (setq prop (pop properties))
+	  (setq val (pop properties))
 	  (overlay-put ov prop val))
+
+        (overlay-put ov 'org-marginalia-label ,label)
+
         (overlay-put ov 'org-marginalia-id id)
         ;; Keep track it in a local variable. It's a list overlays, guranteed to
         ;; contain only marginalia overlays as opposed to the one returned by
@@ -136,7 +139,10 @@ no arguments."
      (org-marginalia-housekeep)
      (org-marginalia-sort-highlights-list)))
 
-(org-marginalia-make-pen "yellow" '(:background "Yellow") "category" "important" "org-marginalia-label" "yellow")
+;; Don't use category (symbol) as a property -- it's a special one of text
+;; properties. If you use it, the value also need to be a symbol; otherwise, you
+;; will get an error. You can use CATEGORY (symbol and all uppercase).
+(org-marginalia-make-pen "yellow" '(:background "Yellow") '(CATEGORY "important"))
 
 ;;;; Commands
 
@@ -372,6 +378,7 @@ buffer"
     (org-marginalia-sort-highlights-list)
     ;; Update the marginalia note file accordingly
     (org-marginalia-remove-marginalia id arg)
+    (org-marginalia-housekeep)
     t))
 
 (defun org-marginalia-next ()
@@ -485,15 +492,6 @@ backlink feature for marginalia files."
          (text (org-with-wide-buffer (buffer-substring-no-properties beg end)))
          (props (overlay-properties highlight))
          (note-props nil))
-    (while props
-      (let ((p (pop props))
-            (v (pop props)))
-        (when (and (stringp p)
-                   (or (string-equal "category" (downcase p))
-                       (and (>= (length p) 15)
-                            (string-equal "org-marginalia-" (downcase (substring p 0 15))))))
-          (push v note-props)
-          (push p note-props))))
     ;; TODO Want to add a check if save is applicable here.
     (with-current-buffer (find-file-noselect org-marginalia-notes-file-path)
       ;; If it is a new empty marginalia file
@@ -514,7 +512,7 @@ backlink feature for marginalia files."
                 (goto-char id-headline)
                 ;; Update the existing headline and position properties
                 (org-edit-headline text)
-                (org-marginalia-notes-set-properties nil beg end note-props)
+                (org-marginalia-notes-set-properties nil beg end props)
                 (org-set-property org-marginalia-prop-source-beg
 				  (number-to-string beg))
                 (org-set-property org-marginalia-prop-source-end
@@ -530,7 +528,7 @@ backlink feature for marginalia files."
                 ;; Create a headline
                 ;; Add a properties
                 (insert (concat "** " text "\n"))
-                (org-marginalia-notes-set-properties id beg end note-props)
+                (org-marginalia-notes-set-properties id beg end props)
 		(if (and org-marginalia-use-org-id orgid)
 		    (insert (concat "[[id:" orgid "]" "[" title "]]"))
 		  (insert (concat "[[file:" path "]" "[" title "]]")))))))
@@ -544,11 +542,13 @@ backlink feature for marginalia files."
   (org-set-property org-marginalia-prop-source-end
 		    (number-to-string end))
   (while props
-    ;; Upcase for the property names for Org It seems CATEGORY needs to be
-    ;; uppercase for sparse tree search to work properly.
-    (let ((p (upcase (pop props)))
+    (let ((p (pop props))
           (v (pop props)))
-      (org-set-property p v))))
+      (when (symbolp p) (setq p (symbol-name p)))
+      (when (or (string-equal "CATEGORY" (upcase p))
+                (and (>= (length p) 15)
+                     (string-equal "org-marginalia-" (downcase (substring p 0 15)))))
+        (org-set-property p v)))))
 
 (defun org-marginalia-list-highlights-positions (&optional reverse)
   "Return list of beg points of highlights in this buffer.
