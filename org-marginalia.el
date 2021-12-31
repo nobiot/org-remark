@@ -93,6 +93,51 @@ It is meant to exist only one of these in each Emacs session.")
 (defconst org-marginalia-prop-source-beg "marginalia-source-beg")
 (defconst org-marginalia-prop-source-end "marginalia-source-end")
 
+;;; Macros
+(defmacro org-marginalia-make-pen (label face &rest properties)
+  "Create a user-defined highlight function.
+LABEL is the name of the highlight. The function will be called
+`ov-highlight-LABEL', and it will apply FACE to the selected
+region. FACE can be an anonymous face, or a function that returns
+one. PROPERTIES is a list of symbols and properties. If the
+property is a function, it will be evaluated. The function takes
+no arguments."
+  `(defun ,(intern (format "org-marginalia-mark-%s" label)) (beg end &optional id)
+     ,(format "Apply the face %S to the region selected by BEG and END" face)
+     (interactive "r")
+     ;; (flyspell-delete-region-overlays beg end)
+     (unless org-marginalia-mode (org-marginalia-mode +1))
+     ;; UUID is too long; does not have to be the full length
+     (when (not id) (setq id (substring (org-id-uuid) 0 8)))
+     ;; Add highlight to the text
+     (org-with-wide-buffer
+      (let ((face ,face)
+	    (properties (quote ,properties))
+            (ov (make-overlay beg end nil 'FRONT-ADVANCE)))
+        (overlay-put ov 'face face)
+        (while properties
+	  (setq prop (pop properties)
+		val (pop properties))
+	  (overlay-put ov prop val))
+        (overlay-put ov 'org-marginalia-id id)
+        ;; Keep track it in a local variable. It's a list overlays, guranteed to
+        ;; contain only marginalia overlays as opposed to the one returned by
+        ;; `overlay-lists'
+        ;; TODO Do we need to consider this for overlay?
+        ;; `set-marker-insertion-type' to
+        ;; set the type t is necessary to move the cursor in sync with the
+        ;; font-lock-face property of the text property.
+        (push ov org-marginalia-highlights)
+        ;; Adding overlay does not set the buffer modified.
+        ;; It's more fluid with save operation.
+        ;; You cannot use `undo' to undo highlighter.
+        (deactivate-mark)
+        (unless (buffer-modified-p) (set-buffer-modified-p t))))
+     (org-marginalia-housekeep)
+     (org-marginalia-sort-highlights-list)))
+
+(org-marginalia-make-pen "yellow" '(:background "Yellow") "category" "important" "org-marginalia-label" "yellow")
+
 ;;;; Commands
 
 ;;;###autoload
@@ -417,9 +462,9 @@ are still recorded in the marginalia file."
 
 ;;;;; Private
 
-(defun org-marginalia-save-single-highlight (highlight title source-path orgid)
+(defun org-marginalia-save-single-highlight (highlight title path orgid)
   "Save a single HIGHLIGHT in the marginalia file with properties.
-The marginalia file is specified by SOURCE-PATH. If headline with
+The marginalia file is specified by PATH. If headline with
 the same ID already exists, update it based on the new highlight
 position and highlighted text as TITLE. If it is a new highlight,
 create a new headline at the end of the buffer.
@@ -437,7 +482,18 @@ backlink feature for marginalia files."
          (end (overlay-end highlight))
 	 (id (overlay-get highlight 'org-marginalia-id))
          ;;`org-with-wide-buffer is a macro that should work for non-Org file'
-         (text (org-with-wide-buffer (buffer-substring-no-properties beg end))))
+         (text (org-with-wide-buffer (buffer-substring-no-properties beg end)))
+         (props (overlay-properties highlight))
+         (note-props nil))
+    (while props
+      (let ((p (pop props))
+            (v (pop props)))
+        (when (and (stringp p)
+                   (or (string-equal "category" (downcase p))
+                       (and (>= (length p) 15)
+                            (string-equal "org-marginalia-" (downcase (substring p 0 15))))))
+          (push v note-props)
+          (push p note-props))))
     ;; TODO Want to add a check if save is applicable here.
     (with-current-buffer (find-file-noselect org-marginalia-notes-file-path)
       ;; If it is a new empty marginalia file
@@ -445,7 +501,7 @@ backlink feature for marginalia files."
 	(org-id-get-create))
       (org-with-wide-buffer
        (let ((file-headline (org-find-property
-			     org-marginalia-prop-source-file source-path))
+			     org-marginalia-prop-source-file path))
              (id-headline (org-find-property org-marginalia-prop-id id)))
          (unless file-headline
            ;; If file-headline does not exist, create one at the bottom
@@ -453,18 +509,19 @@ backlink feature for marginalia files."
            ;; Ensure to be in the beginning of line to add a new headline
            (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
            (insert (concat "* " title "\n"))
-           (org-set-property org-marginalia-prop-source-file source-path))
+           (org-set-property org-marginalia-prop-source-file path))
          (cond (id-headline
                 (goto-char id-headline)
                 ;; Update the existing headline and position properties
                 (org-edit-headline text)
+                (org-marginalia-notes-set-properties nil beg end note-props)
                 (org-set-property org-marginalia-prop-source-beg
 				  (number-to-string beg))
                 (org-set-property org-marginalia-prop-source-end
 				  (number-to-string end)))
                (t ;; No headline with the ID property. Create one
                 (when-let ((p (org-find-property
-			       org-marginalia-prop-source-file source-path)))
+			       org-marginalia-prop-source-file path)))
                   (goto-char p))
                 (org-narrow-to-subtree)
                 (goto-char (point-max))
@@ -473,15 +530,25 @@ backlink feature for marginalia files."
                 ;; Create a headline
                 ;; Add a properties
                 (insert (concat "** " text "\n"))
-                (org-set-property org-marginalia-prop-id id)
-                (org-set-property org-marginalia-prop-source-beg
-				  (number-to-string beg))
-                (org-set-property org-marginalia-prop-source-end
-				  (number-to-string end))
+                (org-marginalia-notes-set-properties id beg end note-props)
 		(if (and org-marginalia-use-org-id orgid)
 		    (insert (concat "[[id:" orgid "]" "[" title "]]"))
-		  (insert (concat "[[file:" source-path "]" "[" title "]]")))))))
+		  (insert (concat "[[file:" path "]" "[" title "]]")))))))
       (when (buffer-modified-p) (save-buffer) t))))
+
+(defun org-marginalia-notes-set-properties (id beg end &optional props)
+  "."
+  (when id (org-set-property org-marginalia-prop-id id))
+  (org-set-property org-marginalia-prop-source-beg
+		    (number-to-string beg))
+  (org-set-property org-marginalia-prop-source-end
+		    (number-to-string end))
+  (while props
+    ;; Upcase for the property names for Org It seems CATEGORY needs to be
+    ;; uppercase for sparse tree search to work properly.
+    (let ((p (upcase (pop props)))
+          (v (pop props)))
+      (org-set-property p v))))
 
 (defun org-marginalia-list-highlights-positions (&optional reverse)
   "Return list of beg points of highlights in this buffer.
