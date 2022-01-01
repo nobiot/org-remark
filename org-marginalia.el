@@ -1,6 +1,6 @@
 ;;; org-marginalia.el --- Highlight & Annotate Any Text File in Org -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2020 Noboru Ota
+;; Copyright (C) 2020-2022 Noboru Ota
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-marginalia
