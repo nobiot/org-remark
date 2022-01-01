@@ -1,11 +1,11 @@
-;;; org-marginalia.el --- highlight & annotate       -*- lexical-binding: t; -*-
+;;; org-marginalia.el --- Highlight & Annotate Any Text File in Org -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020 Noboru Ota
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-marginalia
 ;; Version: 0.0.6
-;; Last Modified: 2021-08-18
+;; Last Modified: 2022-01-01
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, margin-notes
 
@@ -38,13 +38,12 @@
 (require 'org)
 (require 'org-id)
 (require 'org-marginalia-global-tracking)
-(declare-function org-collect-keywords 'org)
+(declare-function org-collect-keywords "org")
 
 ;;;; Customization
 
 (defgroup org-marginalia nil
-  "Write margin notes (marginalia) for any text file in a
-separate Org file"
+  "Write marginal notes for any text file in a separate Org file"
   :group 'org
   :prefix "org-marginalia-"
   :link '(url-link :tag "Github" "https://github.com/nobiot/org-marginalia"))
@@ -56,20 +55,17 @@ separate Org file"
      :underline "#00422a" :background "#001904")
     (t
      :inherit highlight))
-  "Face for highlighters."
-  :group 'org-marginalia)
+  "Face for highlighters.")
 
 (defcustom org-marginalia-notes-file-path "marginalia.org"
   "Specify the file path for the marginalia.org file.
 The default is \"./marginalia.org\", thus one marginalia file per directory.
 Ensure that it is an Org file."
-  :type 'file
-  :group 'org-marginalia)
+  :type 'file)
 
 (defcustom org-marginalia-use-org-id t
   "Define if Org-marginalia use Org-ID to link back to the main note."
-  :type 'boolean
-  :group 'org-marginalia)
+  :type 'boolean)
 
 ;;;; Variables
 
@@ -94,7 +90,7 @@ It is meant to exist only one of these in each Emacs session.")
 (defconst org-marginalia-prop-source-end "marginalia-source-end")
 
 ;;; Macros
-(defmacro org-marginalia-make-pen (label face &optional properties)
+(defmacro org-marginalia-make-pen (&optional label face properties)
   "Create a user-defined highlight function.
 LABEL is the name of the highlight. The function will be called
 `ov-highlight-LABEL', and it will apply FACE to the selected
@@ -102,47 +98,19 @@ region. FACE can be an anonymous face, or a function that returns
 one. PROPERTIES is a list of symbols and properties. If the
 property is a function, it will be evaluated. The function takes
 no arguments."
-  `(defun ,(intern (format "org-marginalia-mark-%s" label)) (beg end &optional id)
+  `(defun ,(intern (or (when label (format "org-marginalia-mark-%s" label))
+                       "org-marginalia-mark"))
+       (beg end &optional id)
      ,(format "Apply the face %S to the region selected by BEG and END" face)
      (interactive "r")
      ;; (flyspell-delete-region-overlays beg end)
-     (unless org-marginalia-mode (org-marginalia-mode +1))
-     ;; UUID is too long; does not have to be the full length
-     (when (not id) (setq id (substring (org-id-uuid) 0 8)))
-     ;; Add highlight to the text
-     (org-with-wide-buffer
-      (let ((face ,face)
-	    (properties ,properties)
-            (ov (make-overlay beg end nil 'FRONT-ADVANCE)))
-        (overlay-put ov 'face face)
-        (while properties
-	  (setq prop (pop properties))
-	  (setq val (pop properties))
-	  (overlay-put ov prop val))
-
-        (overlay-put ov 'org-marginalia-label ,label)
-
-        (overlay-put ov 'org-marginalia-id id)
-        ;; Keep track it in a local variable. It's a list overlays, guranteed to
-        ;; contain only marginalia overlays as opposed to the one returned by
-        ;; `overlay-lists'
-        ;; TODO Do we need to consider this for overlay?
-        ;; `set-marker-insertion-type' to
-        ;; set the type t is necessary to move the cursor in sync with the
-        ;; font-lock-face property of the text property.
-        (push ov org-marginalia-highlights)
-        ;; Adding overlay does not set the buffer modified.
-        ;; It's more fluid with save operation.
-        ;; You cannot use `undo' to undo highlighter.
-        (deactivate-mark)
-        (unless (buffer-modified-p) (set-buffer-modified-p t))))
-     (org-marginalia-housekeep)
-     (org-marginalia-sort-highlights-list)))
+     (org-marginalia-mark-1 beg end ,label ,face ,properties id)))
 
 ;; Don't use category (symbol) as a property -- it's a special one of text
 ;; properties. If you use it, the value also need to be a symbol; otherwise, you
 ;; will get an error. You can use CATEGORY (symbol and all uppercase).
 (org-marginalia-make-pen "yellow" '(:background "Yellow") '(CATEGORY "important"))
+(org-marginalia-make-pen)
 
 ;;;; Commands
 
@@ -201,7 +169,7 @@ file. `org-marginalia-global-tracking-mode' can automate this.
       (remove-hook 'kill-buffer-hook #'org-marginalia-tracking-save t))))
 
 ;;;###autoload
-(defun org-marginalia-mark (beg end &optional id)
+(defun org-marginalia-mark-1 (beg end label face properties &optional id)
   "Highlight the selected region (BEG and END).
 When used interactively. it will generate a new ID, always
 assuming it is a new highlighted text region, and start tracking
@@ -218,7 +186,6 @@ Every highlighted text region in the current buffer is tracked by
 local variable `org-marginalia-highlights'. The highlights are
 sorted in the ascending order; this is a property of the variable
 used for `org-marginalia-next' and `org-marginalia-prev'."
-  (interactive "r")
   ;; Ensure to turn on the local minor mode
   (unless org-marginalia-mode (org-marginalia-mode +1))
   ;; UUID is too long; does not have to be the full length
@@ -226,7 +193,12 @@ used for `org-marginalia-next' and `org-marginalia-prev'."
   ;; Add highlight to the text
   (org-with-wide-buffer
    (let ((ov (make-overlay beg end nil 'FRONT-ADVANCE)))
-     (overlay-put ov 'face 'org-marginalia-highlighter)
+     (overlay-put ov 'face (if face face 'org-marginalia-highlighter))
+     (while properties
+       (let ((prop (pop properties))
+             (val (pop properties)))
+         (overlay-put ov prop val)))
+     (when label (overlay-put ov 'org-marginalia-label label))
      (overlay-put ov 'org-marginalia-id id)
      ;; Keep track it in a local variable. It's a list overlays, guranteed to
      ;; contain only marginalia overlays as opposed to the one returned by
@@ -242,7 +214,7 @@ used for `org-marginalia-next' and `org-marginalia-prev'."
      ;; You cannot use `undo' to undo highlighter.
      (deactivate-mark)
      (unless (buffer-modified-p) (set-buffer-modified-p t))))
-  (org-marginalia-housekeep)
+  
   (org-marginalia-sort-highlights-list))
 
 ;;;###autoload
@@ -380,10 +352,10 @@ buffer"
       (when (overlay-get ov 'org-marginalia-id)
 	(delete ov org-marginalia-highlights)
 	(delete-overlay ov)))
+    (org-marginalia-housekeep)
     (org-marginalia-sort-highlights-list)
     ;; Update the marginalia note file accordingly
     (org-marginalia-remove-marginalia id arg)
-    (org-marginalia-housekeep)
     t))
 
 (defun org-marginalia-next ()
@@ -660,7 +632,7 @@ notes of the entry."
 (defun org-marginalia-housekeep ()
   "Housekeep the internal variable `org-marginalia-highlights'.
 This is a private function; housekeep is automatically done on
-save.
+mark, save, and remove -- before sort-highlights.
 
 Case 1. Both start and end of an overlay are identical
 
