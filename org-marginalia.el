@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-marginalia
 ;; Version: 0.0.7
-;; Last modified: 2022-01-02T115811
+;; Last modified: 02 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, margin-notes
 
@@ -93,15 +93,15 @@ It is meant to exist only one of these in each Emacs session.")
 (defmacro org-marginalia-create-pen (&optional label face properties)
   "Create a user-defined highlight function.
 LABEL is the name of the highlight. The function will be called
-`ov-highlight-LABEL', and it will apply FACE to the selected
+`org-marginalia-mark-LABEL', and it will apply FACE to the selected
 region. FACE can be an anonymous face, or a function that returns
-one. PROPERTIES is a list of symbols and properties. If the
-property is a function, it will be evaluated. The function takes
-no arguments."
+one. PROPERTIES is a list of symbols and properties."
   `(defun ,(intern (or (when label (format "org-marginalia-mark-%s" label))
                        "org-marginalia-mark"))
        (beg end &optional id)
-     ,(format "Apply the face %S to the region selected by BEG and END" face)
+     ,(format "Apply the face %s to the region selected by BEG and END.
+Following properties are also added:
+%S" (or face "`org-marginalia-highlight'") properties)
      (interactive "r")
      ;; (flyspell-delete-region-overlays beg end)
      (org-marginalia-mark-1 beg end ,label ,face ,properties id)))
@@ -109,11 +109,13 @@ no arguments."
 ;; Don't use category (symbol) as a property -- it's a special one of text
 ;; properties. If you use it, the value also need to be a symbol; otherwise, you
 ;; will get an error. You can use CATEGORY (symbol and all uppercase).
-(org-marginalia-create-pen)
+
+(org-marginalia-create-pen) ;; create the default mark function
 (org-marginalia-create-pen "orange"
                            '(:underline (:color "dark red" :style wave) :background "coral" :weight bold)                                        
                            '(CATEGORY "must"))
-(org-marginalia-create-pen "yellow" '(:underline "gold" :background "lemon chiffon") '(CATEGORY "important"))
+(org-marginalia-create-pen "yellow"
+                           '(:underline "gold" :background "lemon chiffon") '(CATEGORY "important"))
 
 ;;;; Commands
 
@@ -171,7 +173,6 @@ file. `org-marginalia-global-tracking-mode' can automate this.
       (remove-hook 'after-save-hook #'org-marginalia-save t)
       (remove-hook 'kill-buffer-hook #'org-marginalia-tracking-save t))))
 
-;;;###autoload
 (defun org-marginalia-mark-1 (beg end label face properties &optional id)
   "Highlight the selected region (BEG and END).
 When used interactively. it will generate a new ID, always
@@ -478,41 +479,44 @@ backlink feature for marginalia files."
       (when (and (org-marginalia-empty-buffer-p) org-marginalia-use-org-id)
 	(org-id-get-create))
       (org-with-wide-buffer
-       (let ((file-headline (org-find-property
-			     org-marginalia-prop-source-file path))
+       (let ((file-headline (or (org-find-property
+			         org-marginalia-prop-source-file path)
+                                (progn
+                                  ;; If file-headline does not exist, create one at the bottom
+                                  (goto-char (point-max))
+                                  ;; Ensure to be in the beginning of line to add a new headline
+                                  (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
+                                  (insert (concat "* " title "\n"))
+                                  (org-set-property org-marginalia-prop-source-file path)
+                                  (org-up-heading-safe) (point))))
              (id-headline (org-find-property org-marginalia-prop-id id)))
-         (unless file-headline
-           ;; If file-headline does not exist, create one at the bottom
-           (goto-char (point-max))
-           ;; Ensure to be in the beginning of line to add a new headline
-           (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
-           (insert (concat "* " title "\n"))
-           (org-set-property org-marginalia-prop-source-file path)
-           (setq file-headline (progn (org-up-heading-safe) (point))))
-         (cond (id-headline
-                (goto-char id-headline)
+         (if id-headline
+             (progn
+               (goto-char id-headline)
                 ;; Update the existing headline and position properties
                 ;; Don't update the headline text when it already exists
                 ;; Let the user decide how to manage the headlines
                 ;; (org-edit-headline text)
-                (org-marginalia-notes-set-properties nil beg end props))
-               (t ;; No headline with the marginal notes ID property. Create a new one
-                (goto-char file-headline)
-                (org-narrow-to-subtree)
-                (goto-char (point-max))
-                ;; Ensure to be in the beginning of line to add a new headline
-                (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
-                ;; Create a headline
-                ;; Add a properties
-                (insert (concat "** " text "\n"))
-                (org-marginalia-notes-set-properties id beg end props)
-		(if (and org-marginalia-use-org-id orgid)
-		    (insert (concat "[[id:" orgid "]" "[" title "]]"))
-		  (insert (concat "[[file:" path "]" "[" title "]]")))))))
+               (org-marginalia-notes-set-properties nil beg end props))
+           ;; No headline with the marginal notes ID property. Create a new one
+           ;; at the end of the file's entry
+           (goto-char file-headline)
+           (org-narrow-to-subtree)
+           (goto-char (point-max))
+           ;; Ensure to be in the beginning of line to add a new headline
+           (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
+           ;; Create a headline
+           ;; Add a properties
+           (insert (concat "** " text "\n"))
+           (org-marginalia-notes-set-properties id beg end props)
+	   (if (and org-marginalia-use-org-id orgid)
+	       (insert (concat "[[id:" orgid "]" "[" title "]]"))
+	     (insert (concat "[[file:" path "]" "[" title "]]"))))))
       (when (buffer-modified-p) (save-buffer) t))))
 
 (defun org-marginalia-notes-set-properties (id beg end &optional props)
-  "."
+  ".
+Return t"
   (when id (org-set-property org-marginalia-prop-id id))
   (org-set-property org-marginalia-prop-source-beg
 		    (number-to-string beg))
@@ -525,7 +529,8 @@ backlink feature for marginalia files."
       (when (or (string-equal "CATEGORY" (upcase p))
                 (and (>= (length p) 15)
                      (string-equal "org-marginalia-" (downcase (substring p 0 15)))))
-        (org-set-property p v)))))
+        (org-set-property p v))))
+  t)
 
 (defun org-marginalia-list-highlights-positions (&optional reverse)
   "Return list of beg points of highlights in this buffer.
