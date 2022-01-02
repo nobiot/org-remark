@@ -4,8 +4,8 @@
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-marginalia
-;; Version: 0.0.6
-;; Last Modified: 2022-01-01
+;; Version: 0.0.7
+;; Last modified: 2022-01-02T115811
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, margin-notes
 
@@ -55,7 +55,7 @@
      :underline "#00422a" :background "#001904")
     (t
      :inherit highlight))
-  "Face for highlighters.")
+  "Face for the default highlighter pen.")
 
 (defcustom org-marginalia-notes-file-path "marginalia.org"
   "Specify the file path for the marginalia.org file.
@@ -90,7 +90,7 @@ It is meant to exist only one of these in each Emacs session.")
 (defconst org-marginalia-prop-source-end "marginalia-source-end")
 
 ;;; Macros
-(defmacro org-marginalia-make-pen (&optional label face properties)
+(defmacro org-marginalia-create-pen (&optional label face properties)
   "Create a user-defined highlight function.
 LABEL is the name of the highlight. The function will be called
 `ov-highlight-LABEL', and it will apply FACE to the selected
@@ -109,8 +109,11 @@ no arguments."
 ;; Don't use category (symbol) as a property -- it's a special one of text
 ;; properties. If you use it, the value also need to be a symbol; otherwise, you
 ;; will get an error. You can use CATEGORY (symbol and all uppercase).
-(org-marginalia-make-pen "yellow" '(:background "Yellow") '(CATEGORY "important"))
-(org-marginalia-make-pen)
+(org-marginalia-create-pen)
+(org-marginalia-create-pen "orange"
+                           '(:underline (:color "dark red" :style wave) :background "coral" :weight bold)                                        
+                           '(CATEGORY "must"))
+(org-marginalia-create-pen "yellow" '(:underline "gold" :background "lemon chiffon") '(CATEGORY "important"))
 
 ;;;; Commands
 
@@ -255,16 +258,17 @@ buffer or quit Emacs. When you re-launch Emacs, ensure to turn on
                ;; H1: File
                ;; H2: Higlighted region (each one has a dedicated H2 subtree)
                (while (not (org-next-visible-heading 1))
-		 (let ((id (org-entry-get (point) "marginalia-id"))
-                       (beg (string-to-number
-			     (org-entry-get (point)
-					    "marginalia-source-beg")))
-                       (end (string-to-number
-			     (org-entry-get (point)
-					    "marginalia-source-end")))
-                       (label (org-entry-get (point)
-                                             "org-marginalia-label")))
-                   (when id (push (list id (cons beg end) label) highlights))))))))
+		 (when-let ((id (org-entry-get (point) org-marginalia-prop-id))
+                             (beg (string-to-number
+			           (org-entry-get (point)
+					          org-marginalia-prop-source-beg)))
+                             (end (string-to-number
+			           (org-entry-get (point)
+					          org-marginalia-prop-source-end))))
+                   (push (list id
+                               (cons beg end)
+                               (org-entry-get (point) "org-marginalia-label"))
+                         highlights)))))))
 	;; Back to the current buffer
 	;; Look highilights and add highlights to the current buffer
 	(dolist (highlight highlights)
@@ -467,8 +471,7 @@ backlink feature for marginalia files."
 	 (id (overlay-get highlight 'org-marginalia-id))
          ;;`org-with-wide-buffer is a macro that should work for non-Org file'
          (text (org-with-wide-buffer (buffer-substring-no-properties beg end)))
-         (props (overlay-properties highlight))
-         (note-props nil))
+         (props (overlay-properties highlight)))
     ;; TODO Want to add a check if save is applicable here.
     (with-current-buffer (find-file-noselect org-marginalia-notes-file-path)
       ;; If it is a new empty marginalia file
@@ -484,20 +487,17 @@ backlink feature for marginalia files."
            ;; Ensure to be in the beginning of line to add a new headline
            (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
            (insert (concat "* " title "\n"))
-           (org-set-property org-marginalia-prop-source-file path))
+           (org-set-property org-marginalia-prop-source-file path)
+           (setq file-headline (progn (org-up-heading-safe) (point))))
          (cond (id-headline
                 (goto-char id-headline)
                 ;; Update the existing headline and position properties
-                (org-edit-headline text)
-                (org-marginalia-notes-set-properties nil beg end props)
-                (org-set-property org-marginalia-prop-source-beg
-				  (number-to-string beg))
-                (org-set-property org-marginalia-prop-source-end
-				  (number-to-string end)))
-               (t ;; No headline with the ID property. Create one
-                (when-let ((p (org-find-property
-			       org-marginalia-prop-source-file path)))
-                  (goto-char p))
+                ;; Don't update the headline text when it already exists
+                ;; Let the user decide how to manage the headlines
+                ;; (org-edit-headline text)
+                (org-marginalia-notes-set-properties nil beg end props))
+               (t ;; No headline with the marginal notes ID property. Create a new one
+                (goto-char file-headline)
                 (org-narrow-to-subtree)
                 (goto-char (point-max))
                 ;; Ensure to be in the beginning of line to add a new headline
@@ -619,6 +619,10 @@ notes of the entry."
        (when-let ((id-headline (org-find-property org-marginalia-prop-id id)))
          (goto-char id-headline)
 	 (org-narrow-to-subtree)
+         (dolist (prop (org-entry-properties))
+           (when (string-prefix-p "org-marginalia-" (downcase (car prop)))
+             (org-delete-property (car prop))))
+         ;; Backward compatible
          (org-delete-property org-marginalia-prop-id)
          (org-delete-property org-marginalia-prop-source-beg)
          (org-delete-property org-marginalia-prop-source-end)
@@ -669,9 +673,5 @@ Case 2. The overlay points to no buffer
 ;;; org-marginalia.el ends here
 
 ;; Local Variables:
-;; coding: utf-8
-;; fill-column: 80
-;; require-final-newline: t
-;; sentence-end-double-space: nil
 ;; eval: (setq-local org-marginalia-notes-file-path "README.org")
 ;; End:

@@ -1,0 +1,7 @@
+
+
+- Changes ::
+
+  - When updating the existing headline and position properties, don't update
+    the headline text when it already exists. Let the user decide how to manage
+    headlines.
