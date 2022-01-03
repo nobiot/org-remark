@@ -48,7 +48,6 @@ saved in `org-remark-tracking-file' automatically loads highlights."
 When opening any of them, automatically activates `org-remark-mode'
 locally for the file opened."
   :init-value nil
-  :group 'org-remark
   :lighter " ormk-auto"
   :global t
   (cond

@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 0.0.7
-;; Last modified: 2022-01-03T200655
+;; Last modified: 03 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -155,7 +155,7 @@ LABEL is the name of the highlighter.  The function will be called
 
 The highlighter function will apply FACE to the selected region.
 FACE can be an anonymous face.  When it is nil, this macro uses
-the default face `org-remark-highlight'.
+the default face `org-remark-highlighter'.
 
 PROPERTIES is a list of pairs of a symbol and value.  Each
 highlighted text region will have a corresponding Org headline in
@@ -197,8 +197,8 @@ used for `org-remark-next' and `org-remark-prev'."
 
 (org-remark-create-pen) ;; create the default mark function with default face
                       ;; `org-remark-highlight' with no properties.
-(org-remark-create-pen "orange"
-                           '(:underline (:color "dark red" :style wave) :weight bold)
+(org-remark-create-pen "fix-this"
+                           '(:underline (:color "dark red" :style wave) :background "#f2eff3")
                            '(CATEGORY "correction" help-echo "Fix this"))
 (org-remark-create-pen "yellow"
                            '(:underline "gold" :background "lemon chiffon") '(CATEGORY "important"))
