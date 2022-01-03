@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-hana
 ;; Version: 0.0.7
-;; Last modified: 02 January 2022
+;; Last modified: 03 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -55,7 +55,7 @@
      :inherit highlight))
   "Face for the default highlighter pen.")
 
-(defcustom org-hana-notes-file-path "margin-notes.org"
+(defcustom org-hana-notes-file-path "marginalia.org"
   "Specify the file path to store the location of highlights and annotations.
 The default is one file per directory.  Ensure that it is an Org
 file."
@@ -198,8 +198,8 @@ used for `org-hana-next' and `org-hana-prev'."
 (org-hana-create-pen) ;; create the default mark function with default face
                       ;; `org-hana-highlight' with no properties.
 (org-hana-create-pen "orange"
-                           '(:underline (:color "dark red" :style wave) :background "coral" :weight bold)
-                           '(CATEGORY "must"))
+                           '(:underline (:color "dark red" :style wave) :weight bold)
+                           '(CATEGORY "must" help-echo "high impact"))
 (org-hana-create-pen "yellow"
                            '(:underline "gold" :background "lemon chiffon") '(CATEGORY "important"))
 
@@ -580,10 +580,10 @@ Minimal properties are:
 - org-hana-source-beg :: BEG
 - org-hana-source-end :: END
 
-For PROPS, if the property name is CATEGORY \(case-sENsiTive\) or
+For PROPS, if the property name is CATEGORY \(case-sensitive\) or
 prefixed with org-hana- set them to to headline's property
 drawer."
-  (when id (org-set-property org-hana-prop-id id))
+  ;;(when id (org-set-property org-hana-prop-id id))
   (org-set-property org-hana-prop-source-beg
 		    (number-to-string beg))
   (org-set-property org-hana-prop-source-end
@@ -593,8 +593,8 @@ drawer."
           (v (pop props)))
       (when (symbolp p) (setq p (symbol-name p)))
       (when (or (string-equal "CATEGORY" (upcase p))
-                (and (>= (length p) 15)
-                     (string-equal "org-hana-" (downcase (substring p 0 15)))))
+                (and (> (length p) 9)
+                     (string-equal "org-hana-" (downcase (substring p 0 9)))))
         (org-set-property p v))))
   t)
 
