@@ -12,9 +12,9 @@
 
 Happy 2022!
 
-I am finalizing the the name of the package and GitHub repo. See [[https://github.com/nobiot/org-marginalia/pull/10][PR #10]]. It's probably going to be "*Org-remark*". The =dev/name-change= branch contains all the changes pertaining to the name change along some additional features -- most notably, different highlighter pen colors and capability for you to create different pens (an idea borrowed from John Kitchin's [[https://github.com/jkitchin/ov-highlight][Ov-highlight]]).
+I am finalizing the the name of the package and GitHub repo. See [[https://github.com/nobiot/org-marginalia/pull/10][PR #10]]. It's probably going to be "*Org-remark*". The =dev/name-change= branch contains all the changes pertaining to the name change along some additional features -- most notably, different highlighter pen colors and capability to let you create different pens (an idea borrowed from John Kitchin's [[https://github.com/jkitchin/ov-highlight][Ov-highlight]]).
 
-There will be some minor breaking changes, which I am going through right now in my own usage. I will document the ways to bridge the breakages; nothing really major and I'm also trying to make the new version as backward compatible as possible from my lessons learnt.
+There will be some minor breaking changes, which I am going through right now in my own machine. I will document the ways to bridge the breakages; nothing really major and I'm also trying to make the new version as backward compatible as possible from my lessons learnt.
 
 After the change, I will propose the package to be added to ELPA.
 
