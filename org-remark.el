@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 0.0.7
-;; Last modified: 2022-01-03T191527
+;; Last modified: 2022-01-03T200655
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -189,7 +189,7 @@ sorted in the ascending order; this is a property of the variable
 used for `org-remark-next' and `org-remark-prev'."
               (or face "`org-remark-highlight'") properties)
      (interactive "r")
-     (org-remark-highlight beg end ,label ,face ,properties id)))
+     (org-remark-single-highlight-mark beg end ,label ,face ,properties id)))
 
 ;; Don't use category (symbol) as a property -- it's a special one of text
 ;; properties. If you use it, the value also need to be a symbol; otherwise, you
@@ -257,11 +257,11 @@ in the current buffer.  Each highlight is represented by an overlay."
                     (file-name-sans-extension
 		     (file-name-nondirectory (buffer-file-name))))))
     (org-remark-housekeep)
-    (org-remark-sort-highlights-list)
+    (org-remark-highlights-sort)
     (dolist (h org-remark-highlights)
       (let ((orgid (and org-remark-use-org-id
 			(org-entry-get (overlay-start h) "ID" 'INHERIT))))
-	(org-remark-save-single-highlight h title source-path orgid)))
+	(org-remark-single-highlight-save h title source-path orgid)))
     ;; Tracking
     (when org-remark-global-tracking-mode
       (add-to-list 'org-remark-files-tracked
@@ -312,9 +312,9 @@ are not part of the undo tree."
 	(delete ov org-remark-highlights)
 	(delete-overlay ov)))
     (org-remark-housekeep)
-    (org-remark-sort-highlights-list)
+    (org-remark-highlights-sort)
     ;; Update the notes file accordingly
-    (org-remark-remove-single-highlight id arg)
+    (org-remark-single-highlight-remove id arg)
     t))
 
 (defun org-remark-next ()
@@ -406,7 +406,8 @@ are still recorded in the marginalia file."
 ;;;;; Private
 
 
-(defun org-remark-highlight (beg end label face properties &optional id)
+(defun org-remark-single-highlight-mark
+    (beg end label face properties &optional id)
   "Highlight the selected region between BEG and END.
 This function performs the main work for the command created via
 `org-remark-create-pen'.
@@ -451,9 +452,9 @@ passed. If so, no new ID gets generated."
      (deactivate-mark)
      (unless (buffer-modified-p) (restore-buffer-modified-p t))))
   (org-remark-housekeep)
-  (org-remark-sort-highlights-list))
+  (org-remark-highlights-sort))
 
-(defun org-remark-save-single-highlight (highlight title path orgid)
+(defun org-remark-single-highlight-save (highlight title path orgid)
   "Save a single HIGHLIGHT in the notes file with properties.
 The notes file is specified by PATH.
 
@@ -523,6 +524,30 @@ feature."
 	       (insert (concat "[[id:" orgid "]" "[" title "]]"))
 	     (insert (concat "[[file:" path "]" "[" title "]]"))))))
       (when (buffer-modified-p) (save-buffer) t))))
+
+(defun org-remark-single-highlight-remove (id &optional delete-notes)
+  "Remove the highlight entry for ID for current buffer.
+By default, it deletes only the properties of the entry keeping
+the headline intact.  You can pass DELETE-NOTES and delete the
+all notes of the entry."
+  (with-current-buffer (find-file-noselect org-remark-notes-file-path)
+      (org-with-wide-buffer
+       (when-let ((id-headline (org-find-property org-remark-prop-id id)))
+         (goto-char id-headline)
+	 (org-narrow-to-subtree)
+         (dolist (prop (org-entry-properties))
+           (when (string-prefix-p "org-remark-" (downcase (car prop)))
+             (org-delete-property (car prop))))
+         ;; Backward compatible
+         (org-delete-property org-remark-prop-id)
+         (org-delete-property org-remark-prop-source-beg)
+         (org-delete-property org-remark-prop-source-end)
+         (when delete-notes
+           ;; TODO I would love to add the y-n prompt if there is any notes written
+           (delete-region (point-min)(point-max))
+           (message "Deleted the marginal notes."))
+	 (when (buffer-modified-p) (save-buffer))))
+      t))
 
 (defun org-remark-notes-set-properties (id beg end &optional props)
   "Set properties for the headline in the notes file.
@@ -602,7 +627,7 @@ Each highlight is a list in the following structure:
                        highlights))))
            highlights))))))
 
-(defun org-remark-list-highlights-positions (&optional reverse)
+(defun org-remark-highlights-get-positions (&optional reverse)
   "Return list of beg points of highlights in this buffer.
 By default, the list is in ascending order.
 If REVERSE is non-nil, return list in the descending order.
@@ -629,8 +654,8 @@ If none, return nil."
       (when list
         (if reverse (reverse list) list)))))
 
-(defun org-remark-sort-highlights-list ()
-  "Utility function to sort `org-remark-sort-highlights'.
+(defun org-remark-highlights-sort ()
+  "Utility function to sort `org-remark-highlights'.
 It checks if there is any element exists for `org-remark-highlights'.
 Instead of receiving it as an arg, it assumes its existence.  It
 also distructively updates `org-remark-highlights'.
@@ -645,7 +670,7 @@ It returns t when sorting is done."
 (defun org-remark-find-next-highlight ()
   "Return the beg point of the next highlight.
 Look through `org-remark-highlights' list."
-  (when-let ((points (org-remark-list-highlights-positions)))
+  (when-let ((points (org-remark-highlights-get-positions)))
       ;; Find the first occurance of p > (point). If none, this means all the
       ;; points occur before the current point. Take the first one. Assume
       ;; `org-remark-highlights' is sorted in the ascending order (it is).
@@ -654,7 +679,7 @@ Look through `org-remark-highlights' list."
 (defun org-remark-find-prev-highlight ()
   "Return the beg point of the previous highlight.
 Look through `org-remark-highlights' list (in descending order)."
-  (when-let ((points (org-remark-list-highlights-positions 'reverse)))
+  (when-let ((points (org-remark-highlights-get-positions 'reverse)))
       ;; Find the first occurance of p < (point). If none, this means all the
       ;; points occur before the current point. Take the first one. Assume
       ;; `org-remark-highlights' is sorted in the descending order .
@@ -687,30 +712,6 @@ the show/hide state."
       (overlay-put highlight 'face (overlay-get highlight 'org-remark-face)))
     t))
 
-(defun org-remark-remove-single-highlight (id &optional delete-notes)
-  "Remove the highlight entry for ID for current buffer.
-By default, it deletes only the properties of the entry keeping
-the headline intact.  You can pass DELETE-NOTES and delete the
-all notes of the entry."
-  (with-current-buffer (find-file-noselect org-remark-notes-file-path)
-      (org-with-wide-buffer
-       (when-let ((id-headline (org-find-property org-remark-prop-id id)))
-         (goto-char id-headline)
-	 (org-narrow-to-subtree)
-         (dolist (prop (org-entry-properties))
-           (when (string-prefix-p "org-remark-" (downcase (car prop)))
-             (org-delete-property (car prop))))
-         ;; Backward compatible
-         (org-delete-property org-remark-prop-id)
-         (org-delete-property org-remark-prop-source-beg)
-         (org-delete-property org-remark-prop-source-end)
-         (when delete-notes
-           ;; TODO I would love to add the y-n prompt if there is any notes written
-           (delete-region (point-min)(point-max))
-           (message "Deleted the marginal notes."))
-	 (when (buffer-modified-p) (save-buffer))))
-      t))
-
 (defun org-remark-housekeep ()
   "Housekeep the internal variable `org-remark-highlights'.
 This is a private function; housekeep is automatically done on
@@ -732,7 +733,7 @@ Case 2. The overlay points to no buffer
     ;; when you delete a region that contains a highlight overlay.
     (when (and (overlay-buffer ov)
 	       (= (overlay-start ov) (overlay-end ov)))
-      (org-remark-remove-single-highlight (overlay-get ov 'org-remark-id))
+      (org-remark-single-highlight-remove (overlay-get ov 'org-remark-id))
       (delete-overlay ov))
     (unless (overlay-buffer ov)
       (setq org-remark-highlights (delete ov org-remark-highlights))))
