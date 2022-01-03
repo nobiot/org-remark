@@ -1,12 +1,12 @@
 [[file:https://img.shields.io/badge/License-GPLv3-blue.svg]]
 
-#+TITLE: Org-marginalia
+#+TITLE: Org-remark
 
 #+PROPERTY: LOGGING nil
 
 # Note: I use the readme template that alphapapa shares on his GitHub repo <https://github.com/alphapapa/emacs-package-dev-handbook#template>. It works with the org-make-toc <https://github.com/alphapapa/org-make-toc> package, which automatically updates the table of contents.
 
-Org-marginalia lets you highlight text, and write margin notes (marginalia) for any text file in a separate Org file. 
+Org-remark lets you highlight and annote any text file with using Org mode.
 
 [[./resources/images/2020-12-24T101116_Title.png]]
 *Figure 1*. Left: Org-mode with text enlarged; Right marginalia file with the inline image display on
@@ -61,7 +61,6 @@ non-nil, Org-marginalia will add an ID property to the file level. This is mainl
 - [[#credits][Credits]]
 - [[#feedback][Feedback]]
 - [[#license][License]]
-- [[#marginalia-for-org-marginaliael][Marginalia for org-marginalia.el]]
 - [[#local-variables][Local Variables]]
 :END:
 
@@ -308,112 +307,6 @@ I am aiming to keep this package to be small and focused. I plan to add the foll
 
 This work is licensed under a GPLv3 license. For a full copy of the licese, refer to [[./LICENSE][LICENSE]].
 
-* Marginalia for ~org-marginalia.el~
-:PROPERTIES:
-:marginalia-source-file: ~/local-repos/org-marginalia/org-marginalia.el
-:marginalia-source-file: ~/src/org-marginalia/org-marginalia.el
-:TOC:      :depth 0
-:END:
-This section is used as a demonstration and a collection of my ideas for this package.
-
-** Deleted Notes
-
-I need to think it through.
-Do I want to reveal invisible elments to move, or keep it hidden.
-At the moment, ~om/list-highlights-positions~ has been changed to return beginning points of visible ones only -- this can be changed to make it opsitonal arg. For example, if I want to list *all*, including the hidden ones, do I want to just visible ones?
-
-** Deleted Notes on jit-lock-register
-:END:
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
-
-Some syntactic elements keep their faces descpite being marked.
-It appears to be the way font-lock-mode works. Experimenting.
-This might also lead to a way for copy and paste (need to deal with duplicate IDs)
-#+begin_src 
-;; Comment dddd
-;; This is considered
-;; Comment
-
-;;Comment  dd
-jit-lock-register
-
-(defun)
-
-(jit-lock-register #'my/font-lock-fn)
-(font-lock-unfontify-buffer)
-(jit-lock-refontify)
-(font-lock-fontify-buffer)
-
-(point);; comment
-;; Comment 
-(my/font-lock-fn 155 160)
-
-(let ((beg 1)
-      (end 10))
-  (list beg end))
-
-(defun my/font-lock-fn (beg end &optional context)
-  (unless context
-    (list beg)
-    (if (get-char-property beg 'om/id)
-        (font-lock-unfontify-region beg end))))
-#+end_src
-
-** org-marginalia-load
-:PROPERTIES:
-:marginalia-id: 3ed4316a
-:marginalia-source-beg: 7324
-:marginalia-source-end: 7343
-:END:
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
-
-
-** set-buffer-modified-p
-:PROPERTIES:
-:marginalia-id: 275b8a06
-:marginalia-source-beg: 7203
-:marginalia-source-end: 7224
-:END:
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
-
-Adding overlay does not set the buffer modified.
-It's more fluid with save operation.
-You cannot use `undo' to undo highlighter.
-
-** overlay-put
-:PROPERTIES:
-:marginalia-id: 44c310d9
-:marginalia-source-beg: 6461
-:marginalia-source-end: 6472
-:END:
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
-
-Do not add the =evaporate t= property for the highlight's overlay. By remaining in the buffer, =undo= puts overlays in their original location when text regions get killed and subsequently the kill gets undone.
-
-Using overlays instead of text-properties has an advantage of easy composition of faces; e.g. when marking on a comment line in =emacs-lisp-mode=, the highlighters face won't be composed onto the underlying syntax face for comments. Overlay can make it easy to add an additional face to comments and other syntactically font-locked regions.
-** (make-overlay beg end nil 'FRONT-ADVANCE)
-:PROPERTIES:
-:marginalia-id: 3ec6b5e6
-:marginalia-source-beg: 6411
-:marginalia-source-end: 6452
-:END:
-[[file:~/local-repos/org-marginalia/org-marginalia.el][org-marginalia]]
-
-It's more intuitive if editing the text both on the beg and end points of the highlight overlay does not extend it. Pass FRONT-ADVANCE; keep REAR-ADVANCE as default.
-
-#+ref: Manual (elisp)Manging Overlays
-#+begin_quote
-     The arguments FRONT-ADVANCE and REAR-ADVANCE specify the marker
-     insertion type for the start of the overlay and for the end of the
-     overlay, respectively.  *Note Marker Insertion Types::.  If they
-     are both ‘nil’, the default, then the overlay extends to include
-     any text inserted at the beginning, but not text inserted at the
-     end.  If FRONT-ADVANCE is non-‘nil’, text inserted at the beginning
-     of the overlay is excluded from the overlay.  If REAR-ADVANCE is
-     non-‘nil’, text inserted at the end of the overlay is included in
-     the overlay.
-#+end_quote
-
 * Local Variables
 
 # Local Variables:
@@ -423,3 +316,5 @@ It's more intuitive if editing the text both on the beg and end points of the hi
 # org-export-with-title: t
 # line-spacing: 4
 # End:
+
+

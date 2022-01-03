@@ -1,6 +1,10 @@
-
-
 - Changes ::
+
+  - Removing all use of "marginalia"
+
+    + The default value of org-remark-notes-file-path is changed from
+      "marginalia.org" to "marginal-notes.org". Adjust the filenames or change
+      the value.
 
   - When updating the existing headline and position properties, don't update
     the headline text when it already exists. Let the user decide how to manage
