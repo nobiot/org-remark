@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 0.0.7
-;; Last modified: 03 January 2022
+;; Last modified: 05 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -483,6 +483,7 @@ feature."
 	 (id (overlay-get highlight 'org-remark-id))
          ;;`org-with-wide-buffer is a macro that should work for non-Org file'
          (text (org-with-wide-buffer (buffer-substring-no-properties beg end)))
+         (line-num (unless (and orgid org-remark-use-org-id) (org-current-line)))
          (props (overlay-properties highlight)))
     ;; TODO Want to add a check if save is applicable here.
     (with-current-buffer (find-file-noselect org-remark-notes-file-path)
@@ -520,9 +521,11 @@ feature."
            ;; Add a properties
            (insert (concat "** " text "\n"))
            (org-remark-notes-set-properties id beg end props)
-	   (if (and org-remark-use-org-id orgid)
+	   (if (and orgid org-remark-use-org-id)
 	       (insert (concat "[[id:" orgid "]" "[" title "]]"))
-	     (insert (concat "[[file:" path "]" "[" title "]]"))))))
+	     (insert (concat "[[file:" path
+                             (when line-num (format "::%d" line-num))
+                             "][" title "]]"))))))
       (when (buffer-modified-p) (save-buffer) t))))
 
 (defun org-remark-single-highlight-remove (id &optional delete-notes)
