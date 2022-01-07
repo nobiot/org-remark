@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 0.0.7
-;; Last modified: 05 January 2022
+;; Last modified: 07 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -82,6 +82,8 @@ On `save-buffer' each highlight will be save in the notes file at
   "Stores the cloned indirect buffer visting the notes file.
 It is meant to exist only one of these in each Emacs session.")
 
+(defvar org-remark-available-pens nil)
+
 ;; Const for the names of properties in Org Mode
 ;; Kept for backward compatiblity reasons
 (defconst org-remark-prop-id "org-remark-id")
@@ -137,8 +139,8 @@ file.  `org-remark-global-tracking-mode' can automate this.
      (t
       ;; Deactivate
       (when org-remark-highlights
-	(dolist (highlight org-remark-highlights)
-	  (delete-overlay highlight)))
+        (dolist (highlight org-remark-highlights)
+          (delete-overlay highlight)))
       (setq org-remark-highlights nil)
       (setq org-remark-loaded nil)
       (org-remark-tracking-save)
@@ -147,7 +149,7 @@ file.  `org-remark-global-tracking-mode' can automate this.
 
 ;;; `org-remark-create-pen' macro lets you create commands for different highlighter pens
 ;;; Org-remark provides three default ones. See below after `org-remark-create-pen'
-(defmacro org-remark-create-pen (&optional label face properties)
+(defmacro org-remark-pen-factory (&optional label face properties)
   "Create a user-defined highlighter function.
 LABEL is the name of the highlighter.  The function will be called
 `org-remark-mark-LABEL', or, when LABEL is nil, the default
@@ -191,17 +193,25 @@ used for `org-remark-next' and `org-remark-prev'."
      (interactive "r")
      (org-remark-single-highlight-mark beg end ,label ,face ,properties id)))
 
+(defmacro org-remark-create (&optional label face properties)
+  "."
+  `(progn
+     (add-to-list 'org-remark-available-pens
+                  (intern (or (when ,label (format "org-remark-mark-%s" ,label))
+                              "org-remark-mark")))
+     (org-remark-pen-factory ,label ,face ,properties)))
+
 ;; Don't use category (symbol) as a property -- it's a special one of text
 ;; properties. If you use it, the value also need to be a symbol; otherwise, you
 ;; will get an error. You can use CATEGORY (symbol and all uppercase).
 
-(org-remark-create-pen) ;; create the default mark function with default face
-                      ;; `org-remark-highlight' with no properties.
-(org-remark-create-pen "fix-this"
-                           '(:underline (:color "dark red" :style wave) :background "#f2eff3")
-                           '(CATEGORY "correction" help-echo "Fix this"))
-(org-remark-create-pen "yellow"
-                           '(:underline "gold" :background "lemon chiffon") '(CATEGORY "important"))
+(org-remark-create) ;; create the default mark function with default face
+                    ;; `org-remark-highlight' with no properties.
+(org-remark-create "fix-this"
+                   '(:underline (:color "dark red" :style wave) :background "#f2eff3")
+                   '(CATEGORY "correction" help-echo "Fix this"))
+(org-remark-create "yellow"
+                   '(:underline "gold" :background "lemon chiffon") '(CATEGORY "important"))
 
 ;;;###autoload
 (defun org-remark-load ()
@@ -212,7 +222,7 @@ output a message in the echo.
 Highlights tracked locally by variable `org-remark-highlights'
 cannot persist when you kill current buffer or quit Emacs.  It is
 recommended to set `org-remark-global-tracking-mode' in your
-configuration.  It automatically turns on `org-remark-mode', which
+configuration.  It automatically turns on `org-remark-mode', whichq
 runs `org-remark-load' for current buffer.
 
 Otherwise, do not forget to turn on `org-remark-mode' manually to
@@ -223,8 +233,8 @@ load the highlights"
     ;; Loop highilights and add them to the current buffer
     (dolist (highlight (org-remark-highlights-get))
       (let ((id (car highlight))
-	    (beg (caadr highlight))
-	    (end (cdadr highlight))
+            (beg (caadr highlight))
+            (end (cdadr highlight))
             (label (caddr highlight)))
         (let ((fn (intern (concat "org-remark-mark-" label))))
           (unless (functionp fn) (setq fn #'org-remark-mark))
@@ -232,7 +242,7 @@ load the highlights"
   ;; Tracking
   (when org-remark-global-tracking-mode
     (add-to-list 'org-remark-files-tracked
-	         (abbreviate-file-name (buffer-file-name))))
+                 (abbreviate-file-name (buffer-file-name))))
   (setq org-remark-loaded t))
 
 (defun org-remark-save ()
@@ -255,17 +265,17 @@ in the current buffer.  Each highlight is represented by an overlay."
          (source-path (abbreviate-file-name filename))
          (title (or (cadr (assoc "TITLE" (org-collect-keywords '("TITLE"))))
                     (file-name-sans-extension
-		     (file-name-nondirectory (buffer-file-name))))))
+                     (file-name-nondirectory (buffer-file-name))))))
     (org-remark-housekeep)
     (org-remark-highlights-sort)
     (dolist (h org-remark-highlights)
       (let ((orgid (and org-remark-use-org-id
-			(org-entry-get (overlay-start h) "ID" 'INHERIT))))
-	(org-remark-single-highlight-save h title source-path orgid)))
+                        (org-entry-get (overlay-start h) "ID" 'INHERIT))))
+        (org-remark-single-highlight-save h title source-path orgid)))
     ;; Tracking
     (when org-remark-global-tracking-mode
       (add-to-list 'org-remark-files-tracked
-		   (abbreviate-file-name (buffer-file-name))))))
+                   (abbreviate-file-name (buffer-file-name))))))
 
 (defun org-remark-open (point)
   "Open hightlight and annocation at POINT, narrowed to the relevant headline.
@@ -282,7 +292,7 @@ notes file by tracking it."
   (when-let ((id (get-char-property point 'org-remark-id))
              (ibuf (make-indirect-buffer
                     (find-file-noselect org-remark-notes-file-path)
-		    "*marginal notes*" 'clone)))
+                    "*marginal notes*" 'clone)))
     (setq org-remark-last-notes-buffer ibuf)
     (org-switch-to-buffer-other-window ibuf)
     (widen)(goto-char (point-min))
@@ -309,8 +319,8 @@ are not part of the undo tree."
     (dolist (ov (overlays-at (point)))
       ;; Remove the element in the variable org-remark-highlights
       (when (overlay-get ov 'org-remark-id)
-	(delete ov org-remark-highlights)
-	(delete-overlay ov)))
+        (delete ov org-remark-highlights)
+        (delete-overlay ov)))
     (org-remark-housekeep)
     (org-remark-highlights-sort)
     ;; Update the notes file accordingly
@@ -401,10 +411,36 @@ are still recorded in the marginalia file."
       (org-remark-hide))
     t))
 
+(defun org-remark-change (&optional pen)
+  "Change the hightlight at point to PEN."
+  (interactive)
+  (when-let* ((ov (org-remark-overlay-find))
+              (id (overlay-get ov 'org-remark-id))
+              (beg (overlay-start ov))
+              (end (overlay-end ov)))
+    ;; FIXME read list of pens
+    ;; when create, add to list
+    (let ((new-pen (if pen pen
+                     (intern
+                      (completing-read "Which pen?:" org-remark-available-pens)))))
+      (delete-overlay ov)
+      (funcall new-pen beg end id))))
+
 ;;;; Functions
 
 ;;;;; Private
 
+(defun org-remark-overlay-find ()
+  "Return one org-remark overlay at point.
+If there are more than one, returns CAR of the list"
+  (let ((overlays (overlays-at (point)))
+        found)
+    (while overlays
+      (let ((overlay (car overlays)))
+        (if (overlay-get overlay 'org-remark-id)
+            (setq found (cons overlay found))))
+      (setq overlays (cdr overlays)))
+    (car found)))
 
 (defun org-remark-single-highlight-mark
     (beg end label face properties &optional id)
@@ -480,7 +516,7 @@ can be helpful with other packages such as Org-roam's backlink
 feature."
   (let* ((beg (overlay-start highlight))
          (end (overlay-end highlight))
-	 (id (overlay-get highlight 'org-remark-id))
+         (id (overlay-get highlight 'org-remark-id))
          ;;`org-with-wide-buffer is a macro that should work for non-Org file'
          (text (org-with-wide-buffer (buffer-substring-no-properties beg end)))
          (line-num (unless (and orgid org-remark-use-org-id) (org-current-line)))
@@ -489,10 +525,10 @@ feature."
     (with-current-buffer (find-file-noselect org-remark-notes-file-path)
       ;; If it is a new empty marginalia file
       (when (and (org-remark-empty-buffer-p) org-remark-use-org-id)
-	(org-id-get-create))
+        (org-id-get-create))
       (org-with-wide-buffer
        (let ((file-headline (or (org-find-property
-			         org-remark-prop-source-file path)
+                                 org-remark-prop-source-file path)
                                 (progn
                                   ;; If file-headline does not exist, create one at the bottom
                                   (goto-char (point-max))
@@ -521,9 +557,9 @@ feature."
            ;; Add a properties
            (insert (concat "** " text "\n"))
            (org-remark-notes-set-properties id beg end props)
-	   (if (and orgid org-remark-use-org-id)
-	       (insert (concat "[[id:" orgid "]" "[" title "]]"))
-	     (insert (concat "[[file:" path
+           (if (and orgid org-remark-use-org-id)
+               (insert (concat "[[id:" orgid "]" "[" title "]]"))
+             (insert (concat "[[file:" path
                              (when line-num (format "::%d" line-num))
                              "][" title "]]"))))))
       (when (buffer-modified-p) (save-buffer) t))))
@@ -537,7 +573,7 @@ all notes of the entry."
       (org-with-wide-buffer
        (when-let ((id-headline (org-find-property org-remark-prop-id id)))
          (goto-char id-headline)
-	 (org-narrow-to-subtree)
+         (org-narrow-to-subtree)
          (dolist (prop (org-entry-properties))
            (when (string-prefix-p "org-remark-" (downcase (car prop)))
              (org-delete-property (car prop))))
@@ -549,7 +585,7 @@ all notes of the entry."
            ;; TODO I would love to add the y-n prompt if there is any notes written
            (delete-region (point-min)(point-max))
            (message "Deleted the marginal notes."))
-	 (when (buffer-modified-p) (save-buffer))))
+         (when (buffer-modified-p) (save-buffer))))
       t))
 
 (defun org-remark-notes-set-properties (id beg end &optional props)
@@ -567,9 +603,9 @@ prefixed with org-remark- set them to to headline's property
 drawer."
   ;;(when id (org-set-property org-remark-prop-id id))
   (org-set-property org-remark-prop-source-beg
-		    (number-to-string beg))
+                    (number-to-string beg))
   (org-set-property org-remark-prop-source-end
-		    (number-to-string end))
+                    (number-to-string end))
   (while props
     (let ((p (pop props))
           (v (pop props)))
@@ -583,9 +619,9 @@ drawer."
 (defun org-remark-highlights-get ()
   "Return a list of highlights from `org-remark-notes-file-path'.
 Each highlight is a list in the following structure:
-    (id (beg . end) label)"  
+    (id (beg . end) label)"
   (when-let ((notes-buf (find-file-noselect org-remark-notes-file-path))
-	     (source-path (abbreviate-file-name (buffer-file-name))))
+             (source-path (abbreviate-file-name (buffer-file-name))))
     ;; TODO check if there is any relevant notes for the current file
     (let ((highlights))
       (with-current-buffer notes-buf
@@ -593,11 +629,11 @@ Each highlight is a list in the following structure:
          ;; The `or' for backward compatibility.
          ;; "marginalia-xx" is no longer used in the current version
          (let ((heading (or (org-find-property
-			     org-remark-prop-source-file source-path)
+                             org-remark-prop-source-file source-path)
                             (org-find-property
-			     "marginalia-source-file" source-path))))
+                             "marginalia-source-file" source-path))))
            (if (not heading)
-	       (message "No highlights or annotations found for %s."
+               (message "No highlights or annotations found for %s."
                         source-path)
              (goto-char heading)
              ;; Narrow to only subtree for a single file.  `org-find-property'
@@ -609,21 +645,21 @@ Each highlight is a list in the following structure:
              (while (not (org-next-visible-heading 1))
                ;; The `or' for backward compatibility.  "marginalia-xx" is no
                ;; longer used in the current version
-	       (when-let ((id (or
+               (when-let ((id (or
                                (org-entry-get (point) org-remark-prop-id)
                                (org-entry-get (point) "marginalia-id")))
                           (beg (string-to-number
                                 (or
                                  (org-entry-get (point)
-					        org-remark-prop-source-beg)
-			         (org-entry-get (point)
-					        "marginalia-source-beg"))))
+                                                org-remark-prop-source-beg)
+                                 (org-entry-get (point)
+                                                "marginalia-source-beg"))))
                           (end (string-to-number
                                 (or
                                  (org-entry-get (point)
-					        org-remark-prop-source-end)
-			         (org-entry-get (point)
-					        "marginalia-source-end")))))
+                                                org-remark-prop-source-end)
+                                 (org-entry-get (point)
+                                                "marginalia-source-end")))))
                  (push (list id
                              (cons beg end)
                              (org-entry-get (point) "org-remark-label"))
@@ -665,9 +701,9 @@ also distructively updates `org-remark-highlights'.
 It returns t when sorting is done."
   (when org-remark-highlights
     (setq org-remark-highlights
-	  (seq-sort-by (lambda (ov) (overlay-start ov))
-		       #'<
-		       org-remark-highlights))
+          (seq-sort-by (lambda (ov) (overlay-start ov))
+                       #'<
+                       org-remark-highlights))
     t))
 
 (defun org-remark-find-next-highlight ()
@@ -735,7 +771,7 @@ Case 2. The overlay points to no buffer
     ;; when you manually mark a text region. A typical cause of this case is
     ;; when you delete a region that contains a highlight overlay.
     (when (and (overlay-buffer ov)
-	       (= (overlay-start ov) (overlay-end ov)))
+               (= (overlay-start ov) (overlay-end ov)))
       (org-remark-single-highlight-remove (overlay-get ov 'org-remark-id))
       (delete-overlay ov))
     (unless (overlay-buffer ov)
