@@ -65,6 +65,15 @@ file."
   "Define if Org-remark use Org-ID to link back to the main note."
   :type 'boolean)
 
+
+(defcustom org-remark-notes-buffer-alist
+  `((display-buffer-in-side-window)
+    (side . left)
+    (slot . 1)
+    (dedicated . t))
+  "."
+  :type display-buffer--action-custom-type)
+
 ;;;; Variables
 
 (defvar-local org-remark-loaded nil
@@ -301,18 +310,15 @@ notes file by tracking it."
                     (find-file-noselect org-remark-notes-file-path)
                     "*marginal notes*" 'clone)))
     (setq org-remark-last-notes-buffer ibuf)
-    (display-buffer ibuf
-                    '((display-buffer-in-side-window)
-                      (side . left)
-                      (slot . 1)
-                      (dedicated . t)))
+    (display-buffer ibuf org-remark-notes-buffer-alist)
     ;; Assuming the marginal-notes buffer is in another window
     (switch-to-buffer-other-window ibuf)
     (widen)(goto-char (point-min))
     (when-let (p (or (org-find-property org-remark-prop-id id)
                      (org-find-property "marginalia-id" id)))
       (goto-char p)(org-narrow-to-subtree))
-    (unless arg (switch-to-buffer cbuf))))
+    ;; Assuming the marginal-notes buffer is in another window
+    (unless arg (switch-to-buffer-other-window cbuf))))
 
 (defun org-remark-visit (point)
   "Visit notes for hightlight and annocation at POINT.
