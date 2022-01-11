@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 0.0.7
-;; Last modified: 07 January 2022
+;; Last modified: 10 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -55,7 +55,7 @@
      :inherit highlight))
   "Face for the default highlighter pen.")
 
-(defcustom org-remark-notes-file-path "marginal-notes.org"
+(defcustom org-remark-notes-file-path "marginalia.org"
   "Specify the file path to store the location of highlights and annotations.
 The default is one file per directory.  Ensure that it is an Org
 file."
@@ -170,7 +170,7 @@ pen.  To do this, prefix property names with \"org-remark-\" or use
      ,(format "Apply the following face to the region selected by BEG and END.
 %s
 
-Following properties are also added to the notes file:
+Following properties will be added to the highlighted text region:
 %S
 
 When this function is used interactively. it will generate a new
@@ -178,7 +178,7 @@ ID, always assuming it is a new highlighted text region, and
 start tracking the highlight's location, so that you can edit the
 text around.
 
-It will not create a marginalia entry yet. Save the current
+It will not create a marginal notes entry yet. Save the current
 buffer or call `org-remark-save' to create a new entry (it is
 automatic with `after-save-hook').
 
@@ -196,10 +196,10 @@ used for `org-remark-next' and `org-remark-prev'."
 (defmacro org-remark-create (&optional label face properties)
   "."
   `(progn
+     (org-remark-pen-factory ,label ,face ,properties)
      (add-to-list 'org-remark-available-pens
                   (intern (or (when ,label (format "org-remark-mark-%s" ,label))
-                              "org-remark-mark")))
-     (org-remark-pen-factory ,label ,face ,properties)))
+                              "org-remark-mark")))))
 
 ;; Don't use category (symbol) as a property -- it's a special one of text
 ;; properties. If you use it, the value also need to be a symbol; otherwise, you
@@ -207,9 +207,9 @@ used for `org-remark-next' and `org-remark-prev'."
 
 (org-remark-create) ;; create the default mark function with default face
                     ;; `org-remark-highlight' with no properties.
-(org-remark-create "fix-this"
-                   '(:underline (:color "dark red" :style wave) :background "#f2eff3")
-                   '(CATEGORY "correction" help-echo "Fix this"))
+(org-remark-create "red-line"
+                   '(:underline (:color "dark red" :style wave))
+                   '(CATEGORY "review" help-echo "Review this"))
 (org-remark-create "yellow"
                    '(:underline "gold" :background "lemon chiffon") '(CATEGORY "important"))
 
