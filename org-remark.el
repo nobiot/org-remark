@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 0.0.7
-;; Last modified: 10 January 2022
+;; Last modified: 11 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -155,7 +155,7 @@ LABEL is the name of the highlighter.  The function will be called
 `org-remark-mark-LABEL', or, when LABEL is nil, the default
 `org-remark-mark'.
 
-The highlighter function will apply FACE to the selected region.
+The highlighter pen function will apply FACE to the selected region.
 FACE can be an anonymous face.  When it is nil, this macro uses
 the default face `org-remark-highlighter'.
 
@@ -228,7 +228,7 @@ runs `org-remark-load' for current buffer.
 Otherwise, do not forget to turn on `org-remark-mode' manually to
 load the highlights"
   (interactive)
-  (unless org-remark-mode (org-remark-mode 1+1))
+  (unless org-remark-mode (org-remark-mode +1))
   (unless org-remark-loaded
     ;; Loop highilights and add them to the current buffer
     (dolist (highlight (org-remark-highlights-get))
@@ -277,28 +277,48 @@ in the current buffer.  Each highlight is represented by an overlay."
       (add-to-list 'org-remark-files-tracked
                    (abbreviate-file-name (buffer-file-name))))))
 
-(defun org-remark-open (point)
+(defun org-remark-open (point &optional arg)
   "Open hightlight and annocation at POINT, narrowed to the relevant headline.
 It creates a cloned indirect buffer of the notes file
 \(`org-remark-notes-file-path'\).  You can edit notes file as a in
 a normal Org file.  Once you have done editing, you can simply
 save and kill the buffer.
 
+You will stay in the current buffer.
+
+You can visit the notes buffer opend for furhter editing when ARG
+is non-nil (e.g. by passing a universal argument with
+\\[universal-argument] \(ARG\).
+
 This package ensures that there is only one cloned buffer for
 notes file by tracking it."
-  (interactive "d")
+  (interactive "d\nP")
   (when (buffer-live-p org-remark-last-notes-buffer)
     (kill-buffer org-remark-last-notes-buffer))
   (when-let ((id (get-char-property point 'org-remark-id))
+             (cbuf (current-buffer))
              (ibuf (make-indirect-buffer
                     (find-file-noselect org-remark-notes-file-path)
                     "*marginal notes*" 'clone)))
     (setq org-remark-last-notes-buffer ibuf)
-    (org-switch-to-buffer-other-window ibuf)
+    (display-buffer ibuf
+                    '((display-buffer-in-side-window)
+                      (side . left)
+                      (slot . 1)
+                      (dedicated . t)))
+    ;; Assuming the marginal-notes buffer is in another window
+    (switch-to-buffer-other-window ibuf)
     (widen)(goto-char (point-min))
     (when-let (p (or (org-find-property org-remark-prop-id id)
                      (org-find-property "marginalia-id" id)))
-      (goto-char p)(org-narrow-to-subtree))))
+      (goto-char p)(org-narrow-to-subtree))
+    (unless arg (switch-to-buffer cbuf))))
+
+(defun org-remark-visit (point)
+  "Visit notes for hightlight and annocation at POINT.
+The notes file get narrowed to the relevant headline."
+  (interactive "d")
+  (org-remark-open point 'visit))
 
 (defun org-remark-remove (point &optional arg)
   "Remove the highlight at POINT.
@@ -307,11 +327,11 @@ marginalia, but will keep the headline and notes.  This is to
 ensure to keep any notes you might have written intact.
 
 You can let this command delete the entire heading subtree for
-the highlight, along with the annotations you have written, pass
-a universal argument with \\[universal-argument] \(ARG\).  If you
-have done so by error, you could still `undo' it in the notes
-buffer, but not in the current buffer as adding and removing overlays
-are not part of the undo tree."
+the highlight, along with the annotations you have written, by
+passing a universal argument with \\[universal-argument] \(ARG\).
+If you have done so by error, you could still `undo' it in the
+notes buffer, but not in the current buffer as adding and
+removing overlays are not part of the undo tree."
   (interactive "d\nP")
   ;; TODO There may be multiple overlays
   (when-let* ((id (get-char-property point 'org-remark-id)))
@@ -334,7 +354,7 @@ buffer, cycle back to the first one.
 
 After the point has moved to the next highlight, this command
 lets you move further by re-entering only the last letter like
-this example:
+this example:v
 
    C-n \] \] \] \] \] \(assuming this command is bound to C-n \]\)
 
@@ -395,9 +415,19 @@ the sequence like so:
               t)
         (message "Nothing done. No more visible highlights exist") nil))))
 
+(defun org-remark-browse-next ()
+  "."
+  (interactive)
+  (org-remark-next)(org-remark-open (point)))
+
+(defun org-remark-browse-prev ()
+  "."
+  (interactive)
+  (org-remark-prev)(org-remark-open (point)))
+
 (defun org-remark-toggle ()
-  "Toggle showing/hiding of highlighters in current buffer.
-It only affects the display of the highlighters.  Their locations
+  "Toggle showing/hiding of highlights in current buffer.
+It only affects the display of the highlights.  Their locations
 are still kept tracked; upon buffer-save the correct locations
 are still recorded in the marginalia file."
   (interactive)
@@ -448,12 +478,12 @@ If there are more than one, returns CAR of the list"
 This function performs the main work for the command created via
 `org-remark-create-pen'.
 
-Create a user-defined highlighter function.
-LABEL is the name of the highlighter.  The function will be called
+Create a user-defined highlighter pen function.
+LABEL is the name of the highlighter pen.  The function will be called
 `org-remark-mark-LABEL', or, when LABEL is nil, the default
 `org-remark-mark'.
 
-The highlighter function will apply FACE to the selected
+The highlighter pen function will apply FACE to the selected
 region.  FACE can be an anonymous face.  When it is nil, this
 macro uses the default face `org-remark-highlight'.
 
@@ -484,7 +514,7 @@ passed. If so, no new ID gets generated."
      ;; returned by `overlay-lists' that lists any overlays.
      (push ov org-remark-highlights)
      ;; Adding overlay to the buffer does not set the buffer modified. You
-     ;; cannot use `undo' to undo highlighter, either.
+     ;; cannot use `undo' to undo highlights, either.
      (deactivate-mark)
      (unless (buffer-modified-p) (restore-buffer-modified-p t))))
   (org-remark-housekeep)
