@@ -74,6 +74,10 @@ file."
   "."
   :type display-buffer--action-custom-type)
 
+(defcustom org-remark-convert-legacy 't
+  "."
+  :type 'boolean)
+
 
 ;;;; Variables
 
@@ -311,8 +315,7 @@ notes file by tracking it."
                     "*marginal notes*" 'clone)))
     (setq org-remark-last-notes-buffer ibuf)
     (with-current-buffer ibuf
-      (when-let (p (or (org-find-property org-remark-prop-id id)
-                       (org-find-property "marginalia-id" id)))
+      (when-let (p (org-find-property org-remark-prop-id id))
         (widen)(goto-char p)(org-narrow-to-subtree)))
     (display-buffer ibuf org-remark-notes-display-buffer-action)
     (unless arg (select-window (get-buffer-window ibuf)))))
@@ -560,9 +563,8 @@ feature."
       (when (and (org-remark-empty-buffer-p) org-remark-use-org-id)
         (org-id-get-create))
       (org-with-wide-buffer
+       (when org-remark-convert-legacy (org-remark-convert-legacy-data path))
        (let ((file-headline (or (org-find-property
-                                 "marginalia-source-file" path) ;; backward compatiblility
-                                (org-find-property
                                  org-remark-prop-source-file path)
                                 (progn
                                   ;; If file-headline does not exist, create one at the bottom
@@ -580,7 +582,7 @@ feature."
                 ;; Don't update the headline text when it already exists
                 ;; Let the user decide how to manage the headlines
                 ;; (org-edit-headline text)
-               (org-remark-notes-set-properties nil beg end props))
+               (org-remark-notes-set-properties beg end props))
            ;; No headline with the marginal notes ID property. Create a new one
            ;; at the end of the file's entry
            (goto-char file-headline)
@@ -591,7 +593,7 @@ feature."
            ;; Create a headline
            ;; Add a properties
            (insert (concat "** " text "\n"))
-           (org-remark-notes-set-properties id beg end props)
+           (org-remark-notes-set-properties beg end props)
            (if (and orgid org-remark-use-org-id)
                (insert (concat "[[id:" orgid "]" "[" title "]]"))
              (insert (concat "[[file:" path
@@ -623,7 +625,7 @@ all notes of the entry."
          (when (buffer-modified-p) (save-buffer))))
       t))
 
-(defun org-remark-notes-set-properties (id beg end &optional props)
+(defun org-remark-notes-set-properties (beg end &optional props)
   "Set properties for the headline in the notes file.
 Return t.
 
@@ -636,7 +638,6 @@ Minimal properties are:
 For PROPS, if the property name is CATEGORY \(case-sensitive\) or
 prefixed with org-remark- set them to to headline's property
 drawer."
-  ;;(when id (org-set-property org-remark-prop-id id))
   (org-set-property org-remark-prop-source-beg
                     (number-to-string beg))
   (org-set-property org-remark-prop-source-end
@@ -661,12 +662,10 @@ Each highlight is a list in the following structure:
     (let ((highlights))
       (with-current-buffer notes-buf
         (org-with-wide-buffer
-         ;; The `or' for backward compatibility.
-         ;; "marginalia-xx" is no longer used in the current version
-         (let ((heading (or (org-find-property
-                             "marginalia-source-file" source-path)
-                            (org-find-property
-                             org-remark-prop-source-file source-path))))
+         (when org-remark-convert-legacy
+           (org-remark-convert-legacy-data source-path))
+         (let ((heading (org-find-property
+                         org-remark-prop-source-file source-path)))
            (if (not heading)
                (message "No highlights or annotations found for %s."
                         source-path)
@@ -678,23 +677,13 @@ Each highlight is a list in the following structure:
              ;; H1: File
              ;; H2: Higlighted region (each one has a dedicated H2 subtree)
              (while (not (org-next-visible-heading 1))
-               ;; The `or' for backward compatibility.  "marginalia-xx" is no
-               ;; longer used in the current version
-               (when-let ((id (or
-                               (org-entry-get (point) org-remark-prop-id)
-                               (org-entry-get (point) "marginalia-id")))
+               (when-let ((id (org-entry-get (point) org-remark-prop-id))
                           (beg (string-to-number
-                                (or
-                                 (org-entry-get (point)
-                                                org-remark-prop-source-beg)
-                                 (org-entry-get (point)
-                                                "marginalia-source-beg"))))
+                                (org-entry-get (point)
+                                               org-remark-prop-source-beg)))
                           (end (string-to-number
-                                (or
-                                 (org-entry-get (point)
-                                                org-remark-prop-source-end)
-                                 (org-entry-get (point)
-                                                "marginalia-source-end")))))
+                                (org-entry-get (point)
+                                               org-remark-prop-source-end))))
                  (push (list id
                              (cons beg end)
                              (org-entry-get (point) "org-remark-label"))
@@ -819,11 +808,46 @@ Case 2. The overlay points to no buffer
     (goto-char (point-max))
     (= 1 (point))))
 
+
+;;;; Legacy data conversion from Org-marginalia
+
+(defun org-remark-convert-legacy-data (source-path)
+  "."
+  ;; Check that there is at least one legacy entry
+  (when-let (fheading
+             (org-find-property
+              "marginalia-source-file" source-path))
+    ;; Create a backup copy
+    (write-region (point-min) (point-max) (concat (buffer-file-name) ".archive"))
+    (message (format "org-remark: created backup file %s" (concat (buffer-file-name) ".archive")))
+    ;; Scan the whole marginal notes file
+    (goto-char (point-min))
+    (while (not (org-next-visible-heading 1))
+      (when-let (source-file (org-entry-get (point) "marginalia-source-file"))
+        (org-delete-property "marginalia-source-file")
+        (org-set-property org-remark-prop-source-file source-file))
+      
+      (when-let ((id (org-entry-get (point) "marginalia-id"))
+                 (beg (string-to-number
+                       (org-entry-get (point)
+                                      "marginalia-source-beg")))
+                 (end (string-to-number
+                       (org-entry-get (point)
+                                      "marginalia-source-end"))))
+        (org-delete-property "marginalia-id")
+        (org-delete-property "marginalia-source-beg")
+        (org-delete-property "marginalia-source-end")
+        (org-set-property org-remark-prop-id id)
+        (org-remark-notes-set-properties beg end)))
+    (goto-char (point-min))
+    (message (format "org-remark: Legacy \"miarginalia-*\" properties updated for %s" source-path))
+    t))
+
+
 ;;;; Footer
 
 (provide 'org-remark)
 
-
 ;;; org-remark.el ends here
 
 ;; Local Variables:
