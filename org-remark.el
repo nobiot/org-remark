@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 0.0.7
-;; Last modified: 11 January 2022
+;; Last modified: 12 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -38,6 +38,7 @@
 (require 'org-remark-global-tracking)
 (declare-function org-collect-keywords "org")
 
+
 ;;;; Customization
 
 (defgroup org-remark nil
@@ -65,8 +66,7 @@ file."
   "Define if Org-remark use Org-ID to link back to the main note."
   :type 'boolean)
 
-
-(defcustom org-remark-notes-buffer-alist
+(defcustom org-remark-notes-display-buffer-action
   `((display-buffer-in-side-window)
     (side . left)
     (slot . 1)
@@ -74,6 +74,7 @@ file."
   "."
   :type display-buffer--action-custom-type)
 
+
 ;;;; Variables
 
 (defvar-local org-remark-loaded nil
@@ -100,6 +101,7 @@ It is meant to exist only one of these in each Emacs session.")
 (defconst org-remark-prop-source-beg "org-remark-beg")
 (defconst org-remark-prop-source-end "org-remark-end")
 
+
 ;;;; Commands
 
 ;;;###autoload
@@ -289,42 +291,38 @@ in the current buffer.  Each highlight is represented by an overlay."
 (defun org-remark-open (point &optional arg)
   "Open hightlight and annocation at POINT, narrowed to the relevant headline.
 It creates a cloned indirect buffer of the notes file
-\(`org-remark-notes-file-path'\).  You can edit notes file as a in
-a normal Org file.  Once you have done editing, you can simply
-save and kill the buffer.
+\(`org-remark-notes-file-path'\).  You can edit notes file as a
+normal Org file.  Once you have done editing, you can simply save
+and kill the buffer.
 
-You will stay in the current buffer.
-
-You can visit the notes buffer opend for furhter editing when ARG
-is non-nil (e.g. by passing a universal argument with
-\\[universal-argument] \(ARG\).
+By default, the cursor will go to the notes buffer for furhter
+editing.  When ARG is non-nil \(e.g. by passing a universal
+argument with \\[universal-argument]\), you can simply display
+the notes buffer and remain in the current buffer.
 
 This package ensures that there is only one cloned buffer for
 notes file by tracking it."
   (interactive "d\nP")
   (when (buffer-live-p org-remark-last-notes-buffer)
-    (kill-buffer org-remark-last-notes-buffer))
+      (kill-buffer org-remark-last-notes-buffer))
   (when-let ((id (get-char-property point 'org-remark-id))
-             (cbuf (current-buffer))
              (ibuf (make-indirect-buffer
                     (find-file-noselect org-remark-notes-file-path)
                     "*marginal notes*" 'clone)))
     (setq org-remark-last-notes-buffer ibuf)
-    (display-buffer ibuf org-remark-notes-buffer-alist)
-    ;; Assuming the marginal-notes buffer is in another window
-    (switch-to-buffer-other-window ibuf)
-    (widen)(goto-char (point-min))
-    (when-let (p (or (org-find-property org-remark-prop-id id)
-                     (org-find-property "marginalia-id" id)))
-      (goto-char p)(org-narrow-to-subtree))
-    ;; Assuming the marginal-notes buffer is in another window
-    (unless arg (switch-to-buffer-other-window cbuf))))
+    (with-current-buffer ibuf
+      (when-let (p (or (org-find-property org-remark-prop-id id)
+                       (org-find-property "marginalia-id" id)))
+        (widen)(goto-char p)(org-narrow-to-subtree)))
+    (display-buffer ibuf org-remark-notes-display-buffer-action)
+    (unless arg (select-window (get-buffer-window ibuf)))))
 
-(defun org-remark-visit (point)
-  "Visit notes for hightlight and annocation at POINT.
-The notes file get narrowed to the relevant headline."
+(defun org-remark-view (point)
+  "View notes for hightlight and annocation at POINT.
+The notes file get narrowed to the relevant headline.  The cursor
+remains in the current buffer."
   (interactive "d")
-  (org-remark-open point 'visit))
+  (org-remark-open point 'view))
 
 (defun org-remark-remove (point &optional arg)
   "Remove the highlight at POINT.
@@ -421,15 +419,15 @@ the sequence like so:
               t)
         (message "Nothing done. No more visible highlights exist") nil))))
 
-(defun org-remark-browse-next ()
+(defun org-remark-view-next ()
   "."
   (interactive)
-  (org-remark-next)(org-remark-open (point)))
+  (org-remark-next)(org-remark-view (point)))
 
-(defun org-remark-browse-prev ()
+(defun org-remark-view-prev ()
   "."
   (interactive)
-  (org-remark-prev)(org-remark-open (point)))
+  (org-remark-prev)(org-remark-view (point)))
 
 (defun org-remark-toggle ()
   "Toggle showing/hiding of highlights in current buffer.
@@ -462,9 +460,8 @@ are still recorded in the marginalia file."
       (delete-overlay ov)
       (funcall new-pen beg end id))))
 
-;;;; Functions
-
-;;;;; Private
+
+;;;; Internal Functions
 
 (defun org-remark-overlay-find ()
   "Return one org-remark overlay at point.
@@ -564,6 +561,8 @@ feature."
         (org-id-get-create))
       (org-with-wide-buffer
        (let ((file-headline (or (org-find-property
+                                 "marginalia-source-file" path) ;; backward compatiblility
+                                (org-find-property
                                  org-remark-prop-source-file path)
                                 (progn
                                   ;; If file-headline does not exist, create one at the bottom
@@ -665,9 +664,9 @@ Each highlight is a list in the following structure:
          ;; The `or' for backward compatibility.
          ;; "marginalia-xx" is no longer used in the current version
          (let ((heading (or (org-find-property
-                             org-remark-prop-source-file source-path)
+                             "marginalia-source-file" source-path)
                             (org-find-property
-                             "marginalia-source-file" source-path))))
+                             org-remark-prop-source-file source-path))))
            (if (not heading)
                (message "No highlights or annotations found for %s."
                         source-path)
@@ -824,6 +823,7 @@ Case 2. The overlay points to no buffer
 
 (provide 'org-remark)
 
+
 ;;; org-remark.el ends here
 
 ;; Local Variables:
