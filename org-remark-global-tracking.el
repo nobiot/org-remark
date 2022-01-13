@@ -1,4 +1,4 @@
-;;; org-remark-global-tracking.el --- Track files with highlights & annotations -*- lexical-binding: t; -*-
+;;; org-remark-global-tracking.el --- Track files and auto-activate Org-remark -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020 Noboru Ota
 
@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Last modified: 13 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
-;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
+;; Keywords: org-mode, annotation, writing, note-taking, marginal notes
 
 ;; This file is not part of GNU Emacs.
 
@@ -39,15 +39,7 @@ saved in `org-remark-tracking-file' automatically loads highlights."
   :group 'org-remark
   :type 'file)
 
-(defvar org-remark-tracking-file-loaded nil)
-
 (defvar org-remark-files-tracked nil)
-
-(defun org-remark-legacy-tracking-file-get ()
-  "."
-  (abbreviate-file-name (expand-file-name
-                         ".org-marginalia-tracking"
-                         user-emacs-directory)))
 
 ;;;###autoload
 (define-minor-mode org-remark-global-tracking-mode
@@ -57,19 +49,26 @@ locally for the file opened."
   :init-value nil
   :lighter " ormk-auto"
   :global t
+  :group 'org-remark
   (cond
    (org-remark-global-tracking-mode
     ;; Activate
-    (when (and (not org-remark-tracking-file-loaded)
-	       (or (file-exists-p org-remark-tracking-file)
-                   (file-exists-p (org-remark-legacy-tracking-file-get))))
-      (org-remark-tracking-load))
+    ;; Prioritise the new `org-remark-tracking-file' over the legacy one
+    (when-let ((tracking-file (or (when (file-exists-p
+                                    org-remark-tracking-file)
+                               org-remark-tracking-file)
+                             (when (file-exists-p
+                                    (org-remark-legacy-tracking-file-get))
+                               (org-remark-legacy-tracking-file-get)))))
+      (org-remark-tracking-load tracking-file))
+    ;; `org-remark-tracking-save' should be added to kill hook even when no
+    ;; tracking file existed before -- this would indicate first time use of
+    ;; tracking; the files tracked in the memory needs to persist in the file.
     (add-hook 'find-file-hook #'org-remark-tracking-auto-on)
     (add-hook 'kill-emacs-hook #'org-remark-tracking-save))
    (t
     ;; Deactivate
     (setq org-remark-files-tracked nil)
-    (setq org-remark-tracking-file-loaded nil)
     (remove-hook 'find-file-hook #'org-remark-tracking-auto-on)
     (remove-hook 'kill-emacs-hook #'org-remark-tracking-save))))
 
@@ -81,26 +80,23 @@ The files being tracked are loaded on to
 `org-remark-files-tracked'.  Refer to
 `org-remark-tracking-load'."
   (when (and org-remark-files-tracked
-	     (member (abbreviate-file-name (buffer-file-name))
-		     org-remark-files-tracked))
+             (member (abbreviate-file-name (buffer-file-name))
+                     org-remark-files-tracked))
     (unless (featurep 'org-remark) (require 'org-remark))
     (org-remark-mode +1)))
 
-(defun org-remark-tracking-load ()
-  "Load files being tracked from `org-remark-tracking-file'.
-It has one filename each line.  The filename is obtrained
+(defun org-remark-tracking-load (tracking-file)
+  "Load files being tracked from TRACKING-FILE.
+It has one filename each line.  The filename is obtrained with
 `abbreviated-file-names'.  This function reloads the content of
 the file regardless if it is already done in this Emacs session
 or not."
   (with-temp-buffer
     (condition-case nil
-	(let ((file (or (when (file-exists-p org-remark-tracking-file)
-                          org-remark-tracking-file)
-                        (org-remark-legacy-tracking-file-get))))
-	  (insert-file-contents file)
-	  (setq org-remark-files-tracked
-		(split-string (buffer-string) "\n"))
-          (setq org-remark-tracking-file-loaded t)))))
+        (progn
+          (insert-file-contents tracking-file)
+          (setq org-remark-files-tracked
+                (split-string (buffer-string) "\n"))))))
 
 (defun org-remark-tracking-save ()
   "Save files being tracked in `org-remark-tracking-file'.
@@ -108,10 +104,23 @@ Files with marginal notes are tracked with variable
 `org-remark-files-tracked'."
   (interactive)
   (when org-remark-files-tracked
-    ;; Save to the new Org-remark tracking file
-    ;; No need to keep the old file any longer
+    ;; Save to the new Org-remark tracking file No need to keep the old file any
+    ;; longer, ignore the legacy file path.
     (with-temp-file org-remark-tracking-file
       (insert (mapconcat 'identity org-remark-files-tracked "\n")))))
+
+(defun org-remark-legacy-tracking-file-get ()
+  "Return the path to the legacy tracking file.
+This function is used to automate conversion from the legacy
+Org-marginalia to the new Org-remark.  For this purpose, this
+function assumes the user has not customised the default tracking
+file name \".org-marginalia-tracking\" placed their
+`user-emacs-directory'.  If personalized, it is reasonable to
+expect the user is able to to also customize
+`org-remark-tracking-file'."
+  (abbreviate-file-name (expand-file-name
+                         ".org-marginalia-tracking"
+                         user-emacs-directory)))
 
 (provide 'org-remark-global-tracking)
 
