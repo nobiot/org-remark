@@ -75,7 +75,14 @@ file."
   :type display-buffer--action-custom-type)
 
 (defcustom org-remark-convert-legacy 't
-  "."
+  "Specify whether or not automatically performs data conversion.
+The conversion is done via function
+`org-remark-covert-legacy-data'.  Set to nil if you do not have a
+marginalia file from the Org-marginalia package (it's the
+previous name of Org-remark).
+
+It is safe to keep it with minimal performance overhead but
+recommended to turn it off if not required."
   :type 'boolean)
 
 
@@ -463,6 +470,62 @@ are still recorded in the marginalia file."
       (delete-overlay ov)
       (funcall new-pen beg end id))))
 
+;;;; Legacy data conversion from Org-marginalia
+
+(defun org-remark-convert-legacy-data ()
+  "Convert the legacy Org-marginalia properties to those for Org-remark.
+
+This function works on the current buffer.  It also gets
+autoamtically triggered when you save or load Org-remark marginal
+notes file if `org-remark-convert-legacy' user option is non-nil.
+
+This function checks whether or not there is at least one legacy entry with
+property \"marginalia-source-file\" in the current buffer.
+
+If one found, this function will:
+
+1. Create a backup copy with the filename \"<current-file-name>_archive\"
+2. Convert all \"marginalia-*\" properties to \"org-remark-*\" equvalents
+
+- marginalia-source-file -> org-remark-file
+- marginalia-id          -> org-remark-id
+- marginalia-source-beg  -> org-remark-beg
+- marginalia-source-end  -> org-remark-end
+
+This assumes that all the \"marginalia-*\" properties were used
+solely by Org-marginalia."
+  (interactive)
+  (org-with-wide-buffer
+   ;; Check that there is at least one legacy entry in the current buffer
+   (goto-char (point-min))
+   (when (save-excursion (org-find-property "marginalia-source-file"))
+     ;; Do the process only when there is at least one entry
+     ;; Create a backup copy
+     (let ((filename (abbreviate-file-name
+                      (concat (buffer-file-name) "_archive"))))
+       (write-region (point-min) (point-max) filename)
+       (message (format "org-remark: created backup file %s" filename)))
+     ;; Scan the whole marginal notes file
+     (while (not (org-next-visible-heading 1))
+       (when-let (source-file (org-entry-get (point) "marginalia-source-file"))
+         (org-delete-property "marginalia-source-file")
+         (org-set-property org-remark-prop-source-file source-file))
+       (when-let ((id (org-entry-get (point) "marginalia-id"))
+                  (beg (string-to-number
+                        (org-entry-get (point)
+                                       "marginalia-source-beg")))
+                  (end (string-to-number
+                        (org-entry-get (point)
+                                       "marginalia-source-end"))))
+         (org-delete-property "marginalia-id")
+         (org-delete-property "marginalia-source-beg")
+         (org-delete-property "marginalia-source-end")
+         (org-set-property org-remark-prop-id id)
+         (org-remark-notes-set-properties beg end)))
+     (goto-char (point-min))
+     (message (format "org-remark: Legacy \"miarginalia-*\" properties updated for %s"
+                      (abbreviate-file-name (buffer-file-name))))
+     t)))
 
 ;;;; Internal Functions
 
@@ -562,8 +625,8 @@ feature."
       ;; If it is a new empty marginalia file
       (when (and (org-remark-empty-buffer-p) org-remark-use-org-id)
         (org-id-get-create))
+      (when org-remark-convert-legacy (org-remark-convert-legacy-data))
       (org-with-wide-buffer
-       (when org-remark-convert-legacy (org-remark-convert-legacy-data path))
        (let ((file-headline (or (org-find-property
                                  org-remark-prop-source-file path)
                                 (progn
@@ -661,9 +724,9 @@ Each highlight is a list in the following structure:
     ;; TODO check if there is any relevant notes for the current file
     (let ((highlights))
       (with-current-buffer notes-buf
+        (when org-remark-convert-legacy
+          (org-remark-convert-legacy-data))
         (org-with-wide-buffer
-         (when org-remark-convert-legacy
-           (org-remark-convert-legacy-data source-path))
          (let ((heading (org-find-property
                          org-remark-prop-source-file source-path)))
            (if (not heading)
@@ -804,42 +867,7 @@ Case 2. The overlay points to no buffer
 
 (defun org-remark-empty-buffer-p ()
   "Return non-nil when the current buffer is empty."
-  (when (= 0 (buffer-size))))
-
-
-;;;; Legacy data conversion from Org-marginalia
-
-(defun org-remark-convert-legacy-data (source-path)
-  "."
-  ;; Check that there is at least one legacy entry
-  (when-let (fheading
-             (org-find-property
-              "marginalia-source-file" source-path))
-    ;; Create a backup copy
-    (write-region (point-min) (point-max) (concat (buffer-file-name) ".archive"))
-    (message (format "org-remark: created backup file %s" (concat (buffer-file-name) ".archive")))
-    ;; Scan the whole marginal notes file
-    (goto-char (point-min))
-    (while (not (org-next-visible-heading 1))
-      (when-let (source-file (org-entry-get (point) "marginalia-source-file"))
-        (org-delete-property "marginalia-source-file")
-        (org-set-property org-remark-prop-source-file source-file))
-      
-      (when-let ((id (org-entry-get (point) "marginalia-id"))
-                 (beg (string-to-number
-                       (org-entry-get (point)
-                                      "marginalia-source-beg")))
-                 (end (string-to-number
-                       (org-entry-get (point)
-                                      "marginalia-source-end"))))
-        (org-delete-property "marginalia-id")
-        (org-delete-property "marginalia-source-beg")
-        (org-delete-property "marginalia-source-end")
-        (org-set-property org-remark-prop-id id)
-        (org-remark-notes-set-properties beg end)))
-    (goto-char (point-min))
-    (message (format "org-remark: Legacy \"miarginalia-*\" properties updated for %s" source-path))
-    t))
+  (when (= 0 (buffer-size)) t))
 
 
 ;;;; Footer
