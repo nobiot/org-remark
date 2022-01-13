@@ -4,7 +4,7 @@
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
-;; Last modified: 03 January 2022
+;; Last modified: 13 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -31,7 +31,8 @@
 (declare-function org-remark-mode "org-remark")
 
 (defcustom org-remark-tracking-file
-  (locate-user-emacs-file ".org-remark-tracking" nil)
+  (abbreviate-file-name
+   (expand-file-name ".org-remark-tracking" user-emacs-directory))
   "File name where the files `org-remark' tracks is saved.
 When `org-remark-global-tracking-mode' is active, opening a file
 saved in `org-remark-tracking-file' automatically loads highlights."
@@ -41,6 +42,12 @@ saved in `org-remark-tracking-file' automatically loads highlights."
 (defvar org-remark-tracking-file-loaded nil)
 
 (defvar org-remark-files-tracked nil)
+
+(defun org-remark-legacy-tracking-file-get ()
+  "."
+  (abbreviate-file-name (expand-file-name
+                         ".org-marginalia-tracking"
+                         user-emacs-directory)))
 
 ;;;###autoload
 (define-minor-mode org-remark-global-tracking-mode
@@ -54,7 +61,8 @@ locally for the file opened."
    (org-remark-global-tracking-mode
     ;; Activate
     (when (and (not org-remark-tracking-file-loaded)
-	       (file-exists-p org-remark-tracking-file))
+	       (or (file-exists-p org-remark-tracking-file)
+                   (file-exists-p (org-remark-legacy-tracking-file-get))))
       (org-remark-tracking-load))
     (add-hook 'find-file-hook #'org-remark-tracking-auto-on)
     (add-hook 'kill-emacs-hook #'org-remark-tracking-save))
@@ -86,8 +94,10 @@ the file regardless if it is already done in this Emacs session
 or not."
   (with-temp-buffer
     (condition-case nil
-	(progn
-	  (insert-file-contents org-remark-tracking-file)
+	(let ((file (or (when (file-exists-p org-remark-tracking-file)
+                          org-remark-tracking-file)
+                        (org-remark-legacy-tracking-file-get))))
+	  (insert-file-contents file)
 	  (setq org-remark-files-tracked
 		(split-string (buffer-string) "\n"))
           (setq org-remark-tracking-file-loaded t)))))
@@ -98,6 +108,8 @@ Files with marginal notes are tracked with variable
 `org-remark-files-tracked'."
   (interactive)
   (when org-remark-files-tracked
+    ;; Save to the new Org-remark tracking file
+    ;; No need to keep the old file any longer
     (with-temp-file org-remark-tracking-file
       (insert (mapconcat 'identity org-remark-files-tracked "\n")))))
 
