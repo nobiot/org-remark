@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 0.0.7
-;; Last modified: 12 January 2022
+;; Last modified: 13 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -804,9 +804,7 @@ Case 2. The overlay points to no buffer
 
 (defun org-remark-empty-buffer-p ()
   "Return non-nil when the current buffer is empty."
-  (save-excursion
-    (goto-char (point-max))
-    (= 1 (point))))
+  (when (= 0 (buffer-size))))
 
 
 ;;;; Legacy data conversion from Org-marginalia
