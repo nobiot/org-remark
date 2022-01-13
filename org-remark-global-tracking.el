@@ -54,12 +54,12 @@ locally for the file opened."
    (org-remark-global-tracking-mode
     ;; Activate
     ;; Prioritise the new `org-remark-tracking-file' over the legacy one
-    (when-let ((tracking-file (or (when (file-exists-p
+    (when-let (tracking-file (or (when (file-exists-p
                                     org-remark-tracking-file)
                                org-remark-tracking-file)
                              (when (file-exists-p
                                     (org-remark-legacy-tracking-file-get))
-                               (org-remark-legacy-tracking-file-get)))))
+                               (org-remark-legacy-tracking-file-get))))
       (org-remark-tracking-load tracking-file))
     ;; `org-remark-tracking-save' should be added to kill hook even when no
     ;; tracking file existed before -- this would indicate first time use of
