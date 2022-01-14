@@ -104,7 +104,7 @@ Files with marginal notes are tracked with variable
 `org-remark-files-tracked'."
   (interactive)
   (when org-remark-files-tracked
-    ;; Save to the new Org-remark tracking file No need to keep the old file any
+    ;; Save to the new Org-remark tracking file. No need to keep the old file any
     ;; longer, ignore the legacy file path.
     (with-temp-file org-remark-tracking-file
       (insert (mapconcat 'identity org-remark-files-tracked "\n")))))

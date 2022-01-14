@@ -1,7 +1,7 @@
 #+title: Org-remark User Manual
 #+author: Noboru Ota <me@nobiot.com>
 #+macro: version 0.0.7
-#+macro: modified 03 January 2022
+#+macro: modified 14 January 2022
 
 #+language: en
 #+export_file_name: org-remark.texi
@@ -30,7 +30,7 @@ Org-remark lets you highlight and annote any text file with using Org mode.
 :COPYING: t
 :END:
 
-Copyright (C) 2021  Free Software Foundation, Inc.
+Copyright \copy 2021  Free Software Foundation, Inc.
 
 #+begin_quote
 Permission is granted to copy, distribute and/or modify this document
@@ -95,6 +95,25 @@ For example, I use this in my init file.
 * Getting Started
 
 To be added
+
+;;; `org-remark-create-pen' macro lets you create commands for different
+;;; highlighter pens Org-remark provides three default ones. See below after
+;;; `org-remark-create-pen'
+
+;; Don't use category (symbol) as a property -- it's a special one of text
+;; properties. If you use it, the value also need to be a symbol; otherwise, you
+;; will get an error. You can use CATEGORY (symbol and all uppercase).
+
+  ;; Create default pen set.
+  ;; They are rather meant to be a starter pack and examples
+  ;; They can be overridden, or set `org-remark-create-default-pen-set' to nil
+  ;; so that Org-remark will not create them.
+
+
+Every highlighted text region in the current buffer is tracked by
+local variable `org-remark-highlights'.  The highlights are
+sorted in the ascending order; this is a characteristic of the
+variable used for `org-remark-next' and `org-remark-prev'.
 
 * Usage
 :PROPERTIES:

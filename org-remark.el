@@ -1,11 +1,12 @@
 ;;; org-remark.el --- Highlight & annotate text file -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2020-2022 Noboru Ota
+;; Copyright (C) 2020-2022 Free Software Foundation, Inc.
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
-;; Version: 0.0.7
-;; Last modified: 13 January 2022
+;; Version: 1.0.0-rc
+;; Created: 22 December 2020
+;; Last modified: 14 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -26,8 +27,8 @@
 
 ;;; Commentary:
 
-;; This package lets you highlight and annote any text file with using Org mode.
-;; Refer to README.org and docstring for detail.
+;; This package lets you highlight and annotate any text file with using Org
+;; mode.  Refer to README.org and docstring for detail.
 
 ;;; Code:
 
@@ -42,10 +43,10 @@
 ;;;; Customization
 
 (defgroup org-remark nil
-  "Highlight and annote any text file in a separate Org file."
+  "Highlight and annotate any text file with using Org mode."
   :group 'org
   :prefix "org-remark-"
-  :link '(url-link :tag "Github" "https://github.com/nobiot/org-remark"))
+  :link '(url-link :tag "GitHub" "https://github.com/nobiot/org-remark"))
 
 (defface org-remark-highlighter
   '((((class color) (min-colors 88) (background light))
@@ -56,26 +57,41 @@
      :inherit highlight))
   "Face for the default highlighter pen.")
 
+(defcustom org-remark-create-default-pen-set t
+  "When non-nil, Org-remark creates default pen set.
+Set to nil if you prefer for it not to.
+`org-remark-mark' is always created as a fall-back"
+  :type 'boolean)
+
 (defcustom org-remark-notes-file-path "marginalia.org"
-  "Specify the file path to store the location of highlights and annotations.
+  "Specify the file path to store the location of highlights and write annotations.
 The default is one file per directory.  Ensure that it is an Org
 file."
   :type 'file)
-
-(defcustom org-remark-use-org-id t
-  "Define if Org-remark use Org-ID to link back to the main note."
-  :type 'boolean)
 
 (defcustom org-remark-notes-display-buffer-action
   `((display-buffer-in-side-window)
     (side . left)
     (slot . 1)
     (dedicated . t))
-  "."
+  "Define how Org-remark opens the notes buffer.
+The default is to use a dedicated side-window on the left.  It is
+an action list for `display-buffer'.  Refer to its documentation
+for more detail and expected elements of the list."
   :type display-buffer--action-custom-type)
 
-(defcustom org-remark-convert-legacy 't
-  "Specify whether or not automatically performs data conversion.
+(defcustom org-remark-notes-buffer-name "*marginal notes*"
+  "Define the buffer name of the marginal notes.
+`org-remark-open' creates an indirect clone buffer with this
+name."
+  :type 'string)
+
+(defcustom org-remark-use-org-id t
+  "Define if Org-remark use Org-ID to link back to the main note."
+  :type 'boolean)
+
+(defcustom org-remark-convert-legacy t
+  "Specify whether or not Org-remark automatically performs data conversion.
 The conversion is done via function
 `org-remark-covert-legacy-data'.  Set to nil if you do not have a
 marginalia file from the Org-marginalia package (it's the
@@ -89,7 +105,7 @@ recommended to turn it off if not required."
 ;;;; Variables
 
 (defvar-local org-remark-loaded nil
-  "Indicate if hightlights have been loaded onto current buffer.")
+  "Indicate if highlights have been loaded onto current buffer.")
 
 (defvar-local org-remark-highlights '()
   "Keep track of all the highlights in current buffer.
@@ -100,28 +116,115 @@ On `save-buffer' each highlight will be save in the notes file at
 `org-remark-notes-file-path'.")
 
 (defvar org-remark-last-notes-buffer nil
-  "Stores the cloned indirect buffer visting the notes file.
+  "Stores the cloned indirect buffer visiting the notes file.
 It is meant to exist only one of these in each Emacs session.")
 
 (defvar org-remark-available-pens nil)
 
 ;; Const for the names of properties in Org Mode
-;; Kept for backward compatiblity reasons
 (defconst org-remark-prop-id "org-remark-id")
 (defconst org-remark-prop-source-file "org-remark-file")
 (defconst org-remark-prop-source-beg "org-remark-beg")
 (defconst org-remark-prop-source-end "org-remark-end")
 
 
+;;;; Macros to create user-defined highlighter pen functions
+
+(defmacro org-remark-pen-factory (&optional label face properties)
+  "Create a user-defined highlighter pen function.
+LABEL is the name of the highlighter.  The function will be called
+`org-remark-mark-LABEL' or, when LABEL is nil, the default
+`org-remark-mark'.
+
+Use `org-remark-create' to create and register the new pen
+instead of this \"factory\" macro.
+
+The highlighter pen function will apply FACE to the selected region.
+FACE can be an anonymous face.  When FACE is nil, this macro uses
+the default face `org-remark-highlighter'.
+
+PROPERTIES is a list of pairs of a symbol and value.  Each
+highlighted text region will have a corresponding Org headline in
+the notes file, and it can have properties from the highlighter
+pen.  To do this, prefix property names with \"org-remark-\" or use
+\"CATEGORY\"."
+  `(defun ,(intern (or (when label (format "org-remark-mark-%s" label))
+                       "org-remark-mark"))
+       (beg end &optional id)
+     ,(format "Apply the following face to the region selected by BEG and END.
+%s
+
+Following overlay properties will be added to the highlighted
+text region: %S
+
+When this function is used interactively, it will generate a new
+ID, always assuming it is a new highlighted text region, and
+Org-remark will start tracking the highlight's location in the
+current buffer.
+
+It will not create a marginal notes entry yet. Save the current
+buffer or call `org-remark-save' to create a new entry in the
+notes file.
+
+When this function is called from Elisp, ID can be optionally
+passed. If so, no new ID gets generated."
+              (or face "`org-remark-highlight'") properties)
+     (interactive "r")
+     (org-remark-single-highlight-mark beg end ,label ,face ,properties id)))
+
+(defmacro org-remark-create (&optional label face properties)
+  "Create and register new highlighter pen functions.
+LABEL is the name of the highlighter.  The function will be called
+`org-remark-mark-LABEL' or, when LABEL is nil, the default
+`org-remark-mark'.
+
+The highlighter pen function will apply FACE to the selected region.
+FACE can be an anonymous face.  When FACE is nil, this macro uses
+the default face `org-remark-highlighter'.
+
+PROPERTIES is a list of pairs of a symbol and value.  Each
+highlighted text region will have a corresponding Org headline in
+the notes file, and it can have properties from the highlighter
+pen.  To do this, prefix property names with \"org-remark-\" or use
+\"CATEGORY\".
+
+The newly created pen functions are registered to variable
+`org-remark-available-pens'.  It is used by `org-remark-change'
+as a selection list."
+  `(progn
+     (org-remark-pen-factory ,label ,face ,properties)
+     (add-to-list 'org-remark-available-pens
+                  (intern (or (when ,label (format "org-remark-mark-%s" ,label))
+                              "org-remark-mark")))))
+
+;; Don't use category (symbol) as a property -- it's a special one of text
+;; properties. If you use it, the value also need to be a symbol; otherwise, you
+;; will get an error. You can use CATEGORY (symbol and all uppercase).
+
+;; Create the default mark function with default face
+;; `org-remark-highlight' with no properties.
+(org-remark-create)
+(when org-remark-create-default-pen-set
+  ;; Create default pen set.
+  ;; They are rather meant to be a starter pack and examples
+  ;; They can be overridden, or set `org-remark-create-default-pen-set' to nil
+  ;; so that Org-remark will not create them.
+  (org-remark-create "red-line"
+                     '(:underline (:color "dark red" :style wave))
+                     '(CATEGORY "review" help-echo "Review this"))
+  (org-remark-create "yellow"
+                     '(:underline "gold" :background "lemon chiffon") '(CATEGORY "important")))
+
+
 ;;;; Commands
 
 ;;;###autoload
 (define-minor-mode org-remark-mode
-    "Highlight and annote any text file with using Org mode.
+    "Highlight and annotate any text file with using Org mode.
 This is a local minor-mode.
 
-On activation, it loads your saved highlights from the marginalia
-file and enables automatic saving of highlights.
+On activation, it loads your saved highlights from the notes file
+and enables automatic saving of highlights thereafter.
 
 The automatic saving is achieved via function
 `org-remark-save' added to `after-save-hook'.
@@ -144,7 +247,8 @@ Highlights tracked by variable `org-remark-highlights' cannot
 persist when you kill the buffer or quit Emacs.  When you
 re-launch Emacs and visit the same file, ensure to turn on
 `org-remark-mode' to load the highlights from the marginalia
-file.  `org-remark-global-tracking-mode' can automate this.
+file.  `org-remark-global-tracking-mode' automates this.  It is
+recommended to turn it on as part of Emacs initialization.
 
 \\{org-remark-mode-map}"
     :init-value nil
@@ -169,90 +273,24 @@ file.  `org-remark-global-tracking-mode' can automate this.
       (remove-hook 'after-save-hook #'org-remark-save t)
       (remove-hook 'kill-buffer-hook #'org-remark-tracking-save t))))
 
-;;; `org-remark-create-pen' macro lets you create commands for different highlighter pens
-;;; Org-remark provides three default ones. See below after `org-remark-create-pen'
-(defmacro org-remark-pen-factory (&optional label face properties)
-  "Create a user-defined highlighter function.
-LABEL is the name of the highlighter.  The function will be called
-`org-remark-mark-LABEL', or, when LABEL is nil, the default
-`org-remark-mark'.
-
-The highlighter pen function will apply FACE to the selected region.
-FACE can be an anonymous face.  When it is nil, this macro uses
-the default face `org-remark-highlighter'.
-
-PROPERTIES is a list of pairs of a symbol and value.  Each
-highlighted text region will have a corresponding Org headline in
-the notes file, and it can have properties from the highlighter
-pen.  To do this, prefix property names with \"org-remark-\" or use
-\"CATEGORY\"."
-  `(defun ,(intern (or (when label (format "org-remark-mark-%s" label))
-                       "org-remark-mark"))
-       (beg end &optional id)
-     ,(format "Apply the following face to the region selected by BEG and END.
-%s
-
-Following properties will be added to the highlighted text region:
-%S
-
-When this function is used interactively. it will generate a new
-ID, always assuming it is a new highlighted text region, and
-start tracking the highlight's location, so that you can edit the
-text around.
-
-It will not create a marginal notes entry yet. Save the current
-buffer or call `org-remark-save' to create a new entry (it is
-automatic with `after-save-hook').
-
-When this function is called from Elisp, ID can be optionally
-passed. If so, no new ID gets generated.
-
-Every highlighted text region in the current buffer is tracked by
-local variable `org-remark-highlights'. The highlights are
-sorted in the ascending order; this is a property of the variable
-used for `org-remark-next' and `org-remark-prev'."
-              (or face "`org-remark-highlight'") properties)
-     (interactive "r")
-     (org-remark-single-highlight-mark beg end ,label ,face ,properties id)))
-
-(defmacro org-remark-create (&optional label face properties)
-  "."
-  `(progn
-     (org-remark-pen-factory ,label ,face ,properties)
-     (add-to-list 'org-remark-available-pens
-                  (intern (or (when ,label (format "org-remark-mark-%s" ,label))
-                              "org-remark-mark")))))
-
-;; Don't use category (symbol) as a property -- it's a special one of text
-;; properties. If you use it, the value also need to be a symbol; otherwise, you
-;; will get an error. You can use CATEGORY (symbol and all uppercase).
-
-(org-remark-create) ;; create the default mark function with default face
-                    ;; `org-remark-highlight' with no properties.
-(org-remark-create "red-line"
-                   '(:underline (:color "dark red" :style wave))
-                   '(CATEGORY "review" help-echo "Review this"))
-(org-remark-create "yellow"
-                   '(:underline "gold" :background "lemon chiffon") '(CATEGORY "important"))
-
 ;;;###autoload
 (defun org-remark-load ()
   "Visit `org-remark-notes-file' & load the saved highlights onto current buffer.
-If there is no highligths or annotations for current buffer,
+If there is no highlights or annotations for current buffer,
 output a message in the echo.
 
 Highlights tracked locally by variable `org-remark-highlights'
 cannot persist when you kill current buffer or quit Emacs.  It is
 recommended to set `org-remark-global-tracking-mode' in your
-configuration.  It automatically turns on `org-remark-mode', whichq
-runs `org-remark-load' for current buffer.
+configuration.  It automatically turns on `org-remark-mode', which
+runs `org-remark-load' for current buffer when you open it.
 
 Otherwise, do not forget to turn on `org-remark-mode' manually to
 load the highlights"
   (interactive)
   (unless org-remark-mode (org-remark-mode +1))
   (unless org-remark-loaded
-    ;; Loop highilights and add them to the current buffer
+    ;; Loop highlights and add them to the current buffer
     (dolist (highlight (org-remark-highlights-get))
       (let ((id (car highlight))
             (beg (caadr highlight))
@@ -271,9 +309,8 @@ load the highlights"
   "Save all the highlights tracked in current buffer to notes file.
 Variable`org-remark-notes-file-path' defines the file path.
 
-This funcion is automatically called when you save the current
-buffer via `after-save-hook'.  This function is added to it by
-function `org-remark-mode' when you activate the minor mode.
+This function is automatically called when you save the current
+buffer via `after-save-hook'.
 
 When `org-remark-global-tracking-mode' is on, this function also
 adds current buffer to variable `org-remark-files-tracked' so that
@@ -298,68 +335,6 @@ in the current buffer.  Each highlight is represented by an overlay."
     (when org-remark-global-tracking-mode
       (add-to-list 'org-remark-files-tracked
                    (abbreviate-file-name (buffer-file-name))))))
-
-(defun org-remark-open (point &optional arg)
-  "Open hightlight and annocation at POINT, narrowed to the relevant headline.
-It creates a cloned indirect buffer of the notes file
-\(`org-remark-notes-file-path'\).  You can edit notes file as a
-normal Org file.  Once you have done editing, you can simply save
-and kill the buffer.
-
-By default, the cursor will go to the notes buffer for furhter
-editing.  When ARG is non-nil \(e.g. by passing a universal
-argument with \\[universal-argument]\), you can simply display
-the notes buffer and remain in the current buffer.
-
-This package ensures that there is only one cloned buffer for
-notes file by tracking it."
-  (interactive "d\nP")
-  (when (buffer-live-p org-remark-last-notes-buffer)
-      (kill-buffer org-remark-last-notes-buffer))
-  (when-let ((id (get-char-property point 'org-remark-id))
-             (ibuf (make-indirect-buffer
-                    (find-file-noselect org-remark-notes-file-path)
-                    "*marginal notes*" 'clone)))
-    (setq org-remark-last-notes-buffer ibuf)
-    (with-current-buffer ibuf
-      (when-let (p (org-find-property org-remark-prop-id id))
-        (widen)(goto-char p)(org-narrow-to-subtree)))
-    (display-buffer ibuf org-remark-notes-display-buffer-action)
-    (unless arg (select-window (get-buffer-window ibuf)))))
-
-(defun org-remark-view (point)
-  "View notes for hightlight and annocation at POINT.
-The notes file get narrowed to the relevant headline.  The cursor
-remains in the current buffer."
-  (interactive "d")
-  (org-remark-open point 'view))
-
-(defun org-remark-remove (point &optional arg)
-  "Remove the highlight at POINT.
-It will remove the highlight and the properties from the
-marginalia, but will keep the headline and notes.  This is to
-ensure to keep any notes you might have written intact.
-
-You can let this command delete the entire heading subtree for
-the highlight, along with the annotations you have written, by
-passing a universal argument with \\[universal-argument] \(ARG\).
-If you have done so by error, you could still `undo' it in the
-notes buffer, but not in the current buffer as adding and
-removing overlays are not part of the undo tree."
-  (interactive "d\nP")
-  ;; TODO There may be multiple overlays
-  (when-let* ((id (get-char-property point 'org-remark-id)))
-    ;; Remove the highlight overlay and id
-    (dolist (ov (overlays-at (point)))
-      ;; Remove the element in the variable org-remark-highlights
-      (when (overlay-get ov 'org-remark-id)
-        (delete ov org-remark-highlights)
-        (delete-overlay ov)))
-    (org-remark-housekeep)
-    (org-remark-highlights-sort)
-    ;; Update the notes file accordingly
-    (org-remark-single-highlight-remove id arg)
-    t))
 
 (defun org-remark-next ()
   "Move to the next highlight, if any.
@@ -429,21 +404,76 @@ the sequence like so:
               t)
         (message "Nothing done. No more visible highlights exist") nil))))
 
+(defun org-remark-open (point &optional arg)
+  "Open marginal notes file for highlight at POINT.
+The marginal notes will be narrowed to the relevant headline to
+show only the highlight at point.
+
+This function creates a cloned indirect buffer of the marginal
+notes file \(`org-remark-notes-file-path'\).  You can edit
+marginal notes file as a normal Org file.  Once you have done
+editing, you can simply save and kill the buffer or keep it
+around.
+
+The marginal notes file gets displayed by the action defined by
+`org-remark-notes-display-buffer-action' (by default in a side
+window in the left of the current frame), narrowed to the
+relevant headline.
+
+You can customize the name of the marginal notes buffer with
+`org-remark-notes-buffer-name'.
+
+By default, the cursor will go to the marginal notes buffer for
+further editing.  When ARG is non-nil \(e.g. by passing a
+universal argument with \\[universal-argument]\), you can display
+the marginal notes buffer with the cursour remaining in the
+current buffer.
+
+This function ensures that there is only one cloned buffer for
+notes file by tracking it."
+  (interactive "d\nP")
+  (when (buffer-live-p org-remark-last-notes-buffer)
+      (kill-buffer org-remark-last-notes-buffer))
+  (when-let ((id (get-char-property point 'org-remark-id))
+             (ibuf (make-indirect-buffer
+                    (find-file-noselect org-remark-notes-file-path)
+                    org-remark-notes-buffer-name 'clone)))
+    (setq org-remark-last-notes-buffer ibuf)
+    (with-current-buffer ibuf
+      (when-let (p (org-find-property org-remark-prop-id id))
+        (widen)(goto-char p)(org-narrow-to-subtree)))
+    (display-buffer ibuf org-remark-notes-display-buffer-action)
+    (unless arg (select-window (get-buffer-window ibuf)))))
+
+(defun org-remark-view (point)
+  "View marginal notes for highlight at POINT.
+The marginal notes file gets displayed by the action defined by
+`org-remark-notes-display-buffer-action' (by default in a side
+window in the left of the current frame), narrowed to the
+relevant headline.  The cursor remains in the current buffer.
+
+Also see the documentation of `org-remark-open'."
+  (interactive "d")
+  (org-remark-open point 'view))
+
 (defun org-remark-view-next ()
-  "."
+  "Move the cursor to the next highlight and view its marginal notes."
   (interactive)
   (org-remark-next)(org-remark-view (point)))
 
 (defun org-remark-view-prev ()
-  "."
+  "Move the cursor to the previous highlight and view its marginal notes."
   (interactive)
   (org-remark-prev)(org-remark-view (point)))
 
 (defun org-remark-toggle ()
   "Toggle showing/hiding of highlights in current buffer.
-It only affects the display of the highlights.  Their locations
-are still kept tracked; upon buffer-save the correct locations
-are still recorded in the marginalia file."
+This function only affects the display of the highlights.  Their
+locations are still kept tracked.  On buffer-save the correct
+locations are to be saved in the marginal notes file when the
+highlights are hidden, thus it is recommended to use this
+function, instead of `org-remark-mode', if you would just like to
+hide the highlights."
   (interactive)
   (when-let ((highlights org-remark-highlights))
     ;; Check the first highlight in the buffer
@@ -456,7 +486,9 @@ are still recorded in the marginalia file."
     t))
 
 (defun org-remark-change (&optional pen)
-  "Change the hightlight at point to PEN."
+  "Change the highlight at point to PEN.
+This function will show you a list of available pens to choose
+from."
   (interactive)
   (when-let* ((ov (org-remark-overlay-find))
               (id (overlay-get ov 'org-remark-id))
@@ -470,14 +502,42 @@ are still recorded in the marginalia file."
       (delete-overlay ov)
       (funcall new-pen beg end id))))
 
+(defun org-remark-remove (point &optional arg)
+  "Remove the highlight at POINT.
+It will remove the highlight and the properties from the
+marginalia, but will keep the headline and annotations.  This is
+to ensure to keep any notes you might have written intact.
+
+You can let this command delete the entire heading subtree for
+the highlight, along with the annotations you have written, by
+passing a universal argument with \\[universal-argument] \(ARG\).
+If you have done so by error, you could still `undo' it in the
+marginal notes buffer, but not in the current buffer as adding
+and removing overlays are not part of the undo tree."
+  (interactive "d\nP")
+  ;; TODO There may be multiple overlays
+  (when-let* ((id (get-char-property point 'org-remark-id)))
+    ;; Remove the highlight overlay and id
+    (dolist (ov (overlays-at (point)))
+      ;; Remove the element in the variable org-remark-highlights
+      (when (overlay-get ov 'org-remark-id)
+        (delete ov org-remark-highlights)
+        (delete-overlay ov)))
+    (org-remark-housekeep)
+    (org-remark-highlights-sort)
+    ;; Update the notes file accordingly
+    (org-remark-single-highlight-remove id arg)
+    t))
+
 ;;;; Legacy data conversion from Org-marginalia
 
 (defun org-remark-convert-legacy-data ()
   "Convert the legacy Org-marginalia properties to those for Org-remark.
 
-This function works on the current buffer.  It also gets
-autoamtically triggered when you save or load Org-remark marginal
-notes file if `org-remark-convert-legacy' user option is non-nil.
+You can call this function interactively to convert the current
+buffer.  It also gets automatically triggered when you save or
+load Org-remark marginal notes file if
+`org-remark-convert-legacy' user option is non-nil.
 
 This function checks whether or not there is at least one legacy entry with
 property \"marginalia-source-file\" in the current buffer.
@@ -485,7 +545,7 @@ property \"marginalia-source-file\" in the current buffer.
 If one found, this function will:
 
 1. Create a backup copy with the filename \"<current-file-name>_archive\"
-2. Convert all \"marginalia-*\" properties to \"org-remark-*\" equvalents
+2. Convert all \"marginalia-*\" properties to \"org-remark-*\" equivalents
 
 - marginalia-source-file -> org-remark-file
 - marginalia-id          -> org-remark-id
@@ -523,15 +583,16 @@ solely by Org-marginalia."
          (org-set-property org-remark-prop-id id)
          (org-remark-notes-set-properties beg end)))
      (goto-char (point-min))
-     (message (format "org-remark: Legacy \"miarginalia-*\" properties updated for %s"
+     (message (format "org-remark: Legacy \"marginalia-*\" properties updated for %s"
                       (abbreviate-file-name (buffer-file-name))))
      t)))
+
 
 ;;;; Internal Functions
 
 (defun org-remark-overlay-find ()
   "Return one org-remark overlay at point.
-If there are more than one, returns CAR of the list"
+If there are more than one, return CAR of the list."
   (let ((overlays (overlays-at (point)))
         found)
     (while overlays
@@ -552,18 +613,14 @@ LABEL is the name of the highlighter pen.  The function will be called
 `org-remark-mark-LABEL', or, when LABEL is nil, the default
 `org-remark-mark'.
 
-The highlighter pen function will apply FACE to the selected
-region.  FACE can be an anonymous face.  When it is nil, this
-macro uses the default face `org-remark-highlight'.
+This function will apply FACE to the selected region.  When it is
+nil, this macro uses the default face `org-remark-highlight'.
 
-PROPERTIES is a list of pairs of a symbol and value.  Each
-highlighted text region will have a corresponding Org headline in
-the notes file, and it can have properties from the highlighter
-pen.  To do this, prefix property names with \"org-remark-\" or use
-\"CATEGORY\".
+PROPERTIES is a list of pairs of a symbol and value.  This
+function adds them as overlay properties.
 
 When this function is called from Elisp, ID can be optionally
-passed. If so, no new ID gets generated."
+passed.  If so, no new ID gets generated."
   ;; Ensure to turn on the local minor mode
   (unless org-remark-mode (org-remark-mode +1))
   ;; UUID is too long; does not have to be the full length
@@ -579,7 +636,7 @@ passed. If so, no new ID gets generated."
      (when label (overlay-put ov 'org-remark-label label))
      (overlay-put ov 'org-remark-id id)
      ;; Keep track of the overlay in a local variable. It's a list that is
-     ;; guranteed to contain only org-remark overlays as opposed to the one
+     ;; guaranteed to contain only org-remark overlays as opposed to the one
      ;; returned by `overlay-lists' that lists any overlays.
      (push ov org-remark-highlights)
      ;; Adding overlay to the buffer does not set the buffer modified. You
@@ -590,29 +647,38 @@ passed. If so, no new ID gets generated."
   (org-remark-highlights-sort))
 
 (defun org-remark-single-highlight-save (highlight title path orgid)
-  "Save a single HIGHLIGHT in the notes file with properties.
-The notes file is specified by PATH.
+  "Save a single HIGHLIGHT in the marginal notes file.
+The marginal notes file is specified by PATH.
 
-For the first highlight for current buffer, it will create a new
-H1 headline for it.
+Return t.
 
-If it is a new highlight, create a new H2 headline with the TITLE
-as its headline text at the end of the H1 headline for the
-current buffer.
+For the first highlight for the current buffer, this function
+will create a new H1 headline for it at the bottom of the
+marginal notes buffer.
 
-If headline with the same ID already exists, update its position,
-while keep the headline text intact, because the user might have
+If it is a new highlight, this function will create a new H2
+headline with the TITLE as its headline text at the end of the H1
+headline for the current buffer.
+
+If headline with the same ID already exists, update its position
+and other \"org-remark-*\" properties (CATEGORY is the exception
+and gets updated as well) from the highlight overlay.  The
+headline text will be kept intact, because the user might have
 changed it to their needs.
+
+This function will also add a normal file link in the H2 headline
+entry back to the current buffer with serach option
+\"::line-number\".
 
 ORGID can be passed to this function.  If user option
 `org-remark-use-org-id' is non-nil, this function will create a
 link back to the source via an Org-ID link with using ORGID
 instead of the normal file link.
 
-When a new notes file is created and `org-remark-use-org-id' is
-non-nil, this function adds ID property to the file level.  This
-can be helpful with other packages such as Org-roam's backlink
-feature."
+When a new marginal notes file is created and
+`org-remark-use-org-id' is non-nil, this function adds ID
+property to the file level.  This can be helpful with other
+packages such as Org-roam's backlink feature."
   (let* ((beg (overlay-start highlight))
          (end (overlay-end highlight))
          (id (overlay-get highlight 'org-remark-id))
@@ -662,13 +728,16 @@ feature."
              (insert (concat "[[file:" path
                              (when line-num (format "::%d" line-num))
                              "][" title "]]"))))))
-      (when (buffer-modified-p) (save-buffer) t))))
+      (when (buffer-modified-p) (save-buffer))
+      t)))
 
 (defun org-remark-single-highlight-remove (id &optional delete-notes)
   "Remove the highlight entry for ID for current buffer.
 By default, it deletes only the properties of the entry keeping
 the headline intact.  You can pass DELETE-NOTES and delete the
-all notes of the entry."
+all notes of the entry.
+
+Return t if an entry is removed or deleted."
   (with-current-buffer (find-file-noselect org-remark-notes-file-path)
       (org-with-wide-buffer
        (when-let ((id-headline (org-find-property org-remark-prop-id id)))
@@ -738,7 +807,7 @@ Each highlight is a list in the following structure:
              (org-narrow-to-subtree)
              ;; It's important that the headline levels are fixed
              ;; H1: File
-             ;; H2: Higlighted region (each one has a dedicated H2 subtree)
+             ;; H2: Highlighted region (each one has a dedicated H2 subtree)
              (while (not (org-next-visible-heading 1))
                (when-let ((id (org-entry-get (point) org-remark-prop-id))
                           (beg (string-to-number
@@ -754,12 +823,12 @@ Each highlight is a list in the following structure:
            highlights))))))
 
 (defun org-remark-highlights-get-positions (&optional reverse)
-  "Return list of beg points of highlights in this buffer.
-By default, the list is in ascending order.
-If REVERSE is non-nil, return list in the descending order.
+  "Return list of the beggining point of all visible highlights in this buffer.
+By default, the list is in ascending order.  If REVERSE is
+non-nil, return list in the descending order.
 
-It also checks if the position is visible or not.  Return only
-visible ones.
+This function also checks if the position is visible or not.
+Return only visible ones.
 
 If none, return nil."
   (when org-remark-highlights
@@ -771,7 +840,7 @@ If none, return nil."
                       (if (or
                            (> p (point-max))
                            (< p (point-min))
-                           ;; When the highlight is wihtin a visible folded
+                           ;; When the highlight is within a visible folded
                            ;; area, this function returns 'outline
                            (org-invisible-p p))
                           nil p)))
@@ -784,7 +853,7 @@ If none, return nil."
   "Utility function to sort `org-remark-highlights'.
 It checks if there is any element exists for `org-remark-highlights'.
 Instead of receiving it as an arg, it assumes its existence.  It
-also distructively updates `org-remark-highlights'.
+also destructively updates `org-remark-highlights'.
 It returns t when sorting is done."
   (when org-remark-highlights
     (setq org-remark-highlights
@@ -797,7 +866,7 @@ It returns t when sorting is done."
   "Return the beg point of the next highlight.
 Look through `org-remark-highlights' list."
   (when-let ((points (org-remark-highlights-get-positions)))
-      ;; Find the first occurance of p > (point). If none, this means all the
+      ;; Find the first occurrence of p > (point). If none, this means all the
       ;; points occur before the current point. Take the first one. Assume
       ;; `org-remark-highlights' is sorted in the ascending order (it is).
     (seq-find (lambda (p) (> p (point))) points (nth 0 points))))
@@ -806,7 +875,7 @@ Look through `org-remark-highlights' list."
   "Return the beg point of the previous highlight.
 Look through `org-remark-highlights' list (in descending order)."
   (when-let ((points (org-remark-highlights-get-positions 'reverse)))
-      ;; Find the first occurance of p < (point). If none, this means all the
+      ;; Find the first occurrence of p < (point). If none, this means all the
       ;; points occur before the current point. Take the first one. Assume
       ;; `org-remark-highlights' is sorted in the descending order .
     (seq-find (lambda (p) (< p (point))) points (nth 0 points))))
@@ -834,12 +903,15 @@ the show/hide state."
   (when-let ((highlights org-remark-highlights))
     (dolist (highlight highlights)
       (overlay-put highlight 'org-remark-hidden nil)
-      ;; TODO it does not work wtih new pens
+      ;; TODO it does not work with new pens
       (overlay-put highlight 'face (overlay-get highlight 'org-remark-face)))
     t))
 
 (defun org-remark-housekeep ()
   "Housekeep the internal variable `org-remark-highlights'.
+
+Return t.
+
 This is a private function; housekeep is automatically done on
 mark, save, and remove -- before sort-highlights.
 
@@ -854,7 +926,7 @@ Case 2. The overlay points to no buffer
         This case happens when overlay is deleted by
         `overlay-delete' but the variable not cleared."
   (dolist (ov org-remark-highlights)
-    ;; Both start and end of an overlay are indentical; this should not happen
+    ;; Both start and end of an overlay are identical; this should not happen
     ;; when you manually mark a text region. A typical cause of this case is
     ;; when you delete a region that contains a highlight overlay.
     (when (and (overlay-buffer ov)
@@ -866,7 +938,7 @@ Case 2. The overlay points to no buffer
   t)
 
 (defun org-remark-empty-buffer-p ()
-  "Return non-nil when the current buffer is empty."
+  "Return t when the current buffer is empty."
   (when (= 0 (buffer-size)) t))
 
 
@@ -879,3 +951,9 @@ Case 2. The overlay points to no buffer
 ;; Local Variables:
 ;; eval: (setq-local org-remark-notes-file-path "README.org")
 ;; End:
+
+; LocalWords:  ecf Const ormk keymap cond dolist caadr cdadr caddr fn concat nP
+; LocalWords:  functionp funcall cadr nondirectory housekeep orgid ibuf goto ov
+; LocalWords:  noselect TODO substring cdr mapc assq keymapp defgroup url aecf
+; LocalWords:  defface defcustom boolean defvar defconst defmacro defun progn
+; LocalWords:  FIXME roam's num eolp downcase symbolp upcase buf mapcar
