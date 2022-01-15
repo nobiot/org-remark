@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.0.0-rc
 ;; Created: 22 December 2020
-;; Last modified: 14 January 2022
+;; Last modified: 15 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -162,9 +162,9 @@ ID, always assuming it is a new highlighted text region, and
 Org-remark will start tracking the highlight's location in the
 current buffer.
 
-It will not create a marginal notes entry yet. Save the current
-buffer or call `org-remark-save' to create a new entry in the
-notes file.
+The entry for the highlght will be created in the marginal notes
+file specified by `org-remark-notes-file-path'.  If the file does
+not exist yet, it will be created.
 
 When this function is called from Elisp, ID can be optionally
 passed. If so, no new ID gets generated."
@@ -322,14 +322,11 @@ in the current buffer.  Each highlight is represented by an overlay."
   (interactive)
   (let* ((filename (buffer-file-name))
          (source-path (abbreviate-file-name filename))
-         (title (or (cadr (assoc "TITLE" (org-collect-keywords '("TITLE"))))
-                    (file-name-sans-extension
-                     (file-name-nondirectory (buffer-file-name))))))
+         (title (org-remark-single-highlight-get-title)))
     (org-remark-housekeep)
     (org-remark-highlights-sort)
     (dolist (h org-remark-highlights)
-      (let ((orgid (and org-remark-use-org-id
-                        (org-entry-get (overlay-start h) "ID" 'INHERIT))))
+      (let ((orgid (org-remark-single-highlight-get-org-id h)))
         (org-remark-single-highlight-save h title source-path orgid)))
     ;; Tracking
     (when org-remark-global-tracking-mode
@@ -606,7 +603,7 @@ If there are more than one, return CAR of the list."
     (beg end label face properties &optional id)
   "Highlight the selected region between BEG and END.
 This function performs the main work for the command created via
-`org-remark-create-pen'.
+`org-remark-create'.
 
 Create a user-defined highlighter pen function.
 LABEL is the name of the highlighter pen.  The function will be called
@@ -618,6 +615,10 @@ nil, this macro uses the default face `org-remark-highlight'.
 
 PROPERTIES is a list of pairs of a symbol and value.  This
 function adds them as overlay properties.
+
+This function also saves the entry for the highlght in the
+marginal notes file specified by `org-remark-notes-file-path'.
+If the file does not exist yet, it will be created.
 
 When this function is called from Elisp, ID can be optionally
 passed.  If so, no new ID gets generated."
@@ -641,10 +642,25 @@ passed.  If so, no new ID gets generated."
      (push ov org-remark-highlights)
      ;; Adding overlay to the buffer does not set the buffer modified. You
      ;; cannot use `undo' to undo highlights, either.
-     (deactivate-mark)
-     (unless (buffer-modified-p) (restore-buffer-modified-p t))))
+     (org-remark-single-highlight-save ov
+                                       (org-remark-single-highlight-get-title)
+                                       (abbreviate-file-name (buffer-file-name))
+                                       (org-remark-single-highlight-get-org-id ov))
+     (deactivate-mark)))
   (org-remark-housekeep)
   (org-remark-highlights-sort))
+
+(defun org-remark-single-highlight-get-title ()
+  "Return the title of the current buffer.
+Utility function to work with a single highlight overlay."
+  (or (cadr (assoc "TITLE" (org-collect-keywords '("TITLE"))))
+                    (file-name-sans-extension
+                     (file-name-nondirectory (buffer-file-name)))))
+
+(defun org-remark-single-highlight-get-org-id (highlight)
+  "."
+  (and org-remark-use-org-id
+       (org-entry-get (overlay-start highlight) "ID" 'INHERIT)))
 
 (defun org-remark-single-highlight-save (highlight title path orgid)
   "Save a single HIGHLIGHT in the marginal notes file.
