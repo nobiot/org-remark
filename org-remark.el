@@ -322,15 +322,15 @@ in the current buffer.  Each highlight is represented by an overlay."
   (interactive)
   (org-remark-housekeep)
   (org-remark-highlights-sort)
-  (dolist (h org-remark-highlights)
-    (let ((beg (overlay-start h))
-          (end (overlay-end h))
-          (props (overlay-properties h)))
-      (org-remark-single-highlight-save beg end props)))
-  ;; Tracking
-  (when org-remark-global-tracking-mode
-    (add-to-list 'org-remark-files-tracked
-                 (abbreviate-file-name (buffer-file-name)))))
+  (let ((path (abbreviate-file-name (buffer-file-name))))
+    (dolist (h org-remark-highlights)
+      (let ((beg (overlay-start h))
+            (end (overlay-end h))
+            (props (overlay-properties h)))
+        (org-remark-single-highlight-save path beg end props)))
+    ;; Tracking
+    (when org-remark-global-tracking-mode
+      (add-to-list 'org-remark-files-tracked path))))
 
 (defun org-remark-next ()
   "Move to the next highlight, if any.
@@ -643,9 +643,10 @@ passed.  If so, no new ID gets generated."
      ;; Adding overlay to the buffer does not set the buffer modified. You
      ;; cannot use `undo' to undo highlights, either.
      (unless load-only
-       (org-remark-single-highlight-save beg end (overlay-properties ov)
-                                         (org-remark-single-highlight-get-title)
-                                         (abbreviate-file-name (buffer-file-name))))
+       (org-remark-single-highlight-save (abbreviate-file-name (buffer-file-name))
+                                         beg end
+                                         (overlay-properties ov)
+                                         (org-remark-single-highlight-get-title)))
      (deactivate-mark)))
   (org-remark-housekeep)
   (org-remark-highlights-sort))
@@ -664,7 +665,7 @@ non-nil.  Returns nil otherwise, or when no Org-ID is found."
   (and org-remark-use-org-id
        (org-entry-get point "ID" 'INHERIT)))
 
-(defun org-remark-single-highlight-save (beg end props &optional title path)
+(defun org-remark-single-highlight-save (path beg end props &optional title)
   "Save a single HIGHLIGHT in the marginal notes file.
 The marginal notes file is specified by PATH.
 
@@ -704,8 +705,7 @@ packages such as Org-roam's backlink feature."
          (text (org-with-wide-buffer (buffer-substring-no-properties beg end)))
          (orgid (org-remark-single-highlight-get-org-id beg))
          ;; FIXME current-line - it's not always at point
-         (line-num (unless (and orgid org-remark-use-org-id)
-                     (org-current-line beg))))
+         (line-num (org-current-line beg)))
     ;; TODO Want to add a check if save is applicable here.
     (with-current-buffer (find-file-noselect org-remark-notes-file-path)
       ;; If it is a new empty marginalia file
@@ -724,6 +724,12 @@ packages such as Org-roam's backlink feature."
                                   (org-set-property org-remark-prop-source-file path)
                                   (org-up-heading-safe) (point))))
              (id-headline (org-find-property org-remark-prop-id id)))
+         ;; Add org-remark-link with updated line-num as a property
+         (plist-put props "org-remark-link" (concat
+                                             "[[file:"
+                                             path
+                                             (when line-num (format "::%d" line-num))
+                                             "]]"))
          (if id-headline
              (progn
                (goto-char id-headline)
@@ -744,12 +750,8 @@ packages such as Org-roam's backlink feature."
            ;; Add a properties
            (insert (concat "** " text "\n"))
            (org-remark-notes-set-properties beg end props)
-           ;; FIXME lin-num only gets creatd and never updated
-           (if (and orgid org-remark-use-org-id)
-               (insert (concat "[[id:" orgid "]" "[" title "]]"))
-             (insert (concat "[[file:" path
-                             (when line-num (format "::%d" line-num))
-                             "][" title "]]"))))))
+           (when (and orgid org-remark-use-org-id)
+               (insert (concat "[[id:" orgid "]" "[" title "]]"))))))
       (when (buffer-modified-p) (save-buffer))
       t)))
 
