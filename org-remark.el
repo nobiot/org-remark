@@ -150,7 +150,7 @@ pen.  To do this, prefix property names with \"org-remark-\" or use
 \"CATEGORY\"."
   `(defun ,(intern (or (when label (format "org-remark-mark-%s" label))
                        "org-remark-mark"))
-       (beg end &optional id)
+       (beg end &optional id load-only)
      ,(format "Apply the following face to the region selected by BEG and END.
 %s
 
@@ -170,7 +170,7 @@ When this function is called from Elisp, ID can be optionally
 passed. If so, no new ID gets generated."
               (or face "`org-remark-highlight'") properties)
      (interactive "r")
-     (org-remark-single-highlight-mark beg end ,label ,face ,properties id)))
+     (org-remark-single-highlight-mark beg end ,label ,face ,properties id load-only)))
 
 (defmacro org-remark-create (&optional label face properties)
   "Create and register new highlighter pen functions.
@@ -298,7 +298,7 @@ load the highlights"
             (label (caddr highlight)))
         (let ((fn (intern (concat "org-remark-mark-" label))))
           (unless (functionp fn) (setq fn #'org-remark-mark))
-          (funcall fn beg end id)))))
+          (funcall fn beg end id 'load-only)))))
   ;; Tracking
   (when org-remark-global-tracking-mode
     (add-to-list 'org-remark-files-tracked
@@ -320,18 +320,17 @@ automatically turned on to load the highlights.
 `org-remark-highlights' is the local variable that tracks every highlight
 in the current buffer.  Each highlight is represented by an overlay."
   (interactive)
-  (let* ((filename (buffer-file-name))
-         (source-path (abbreviate-file-name filename))
-         (title (org-remark-single-highlight-get-title)))
-    (org-remark-housekeep)
-    (org-remark-highlights-sort)
-    (dolist (h org-remark-highlights)
-      (let ((orgid (org-remark-single-highlight-get-org-id h)))
-        (org-remark-single-highlight-save h title source-path orgid)))
-    ;; Tracking
-    (when org-remark-global-tracking-mode
-      (add-to-list 'org-remark-files-tracked
-                   (abbreviate-file-name (buffer-file-name))))))
+  (org-remark-housekeep)
+  (org-remark-highlights-sort)
+  (dolist (h org-remark-highlights)
+    (let ((beg (overlay-start h))
+          (end (overlay-end h))
+          (props (overlay-properties h)))
+      (org-remark-single-highlight-save beg end props)))
+  ;; Tracking
+  (when org-remark-global-tracking-mode
+    (add-to-list 'org-remark-files-tracked
+                 (abbreviate-file-name (buffer-file-name)))))
 
 (defun org-remark-next ()
   "Move to the next highlight, if any.
@@ -600,7 +599,7 @@ If there are more than one, return CAR of the list."
     (car found)))
 
 (defun org-remark-single-highlight-mark
-    (beg end label face properties &optional id)
+    (beg end label face properties &optional id load-only)
   "Highlight the selected region between BEG and END.
 This function performs the main work for the command created via
 `org-remark-create'.
@@ -616,9 +615,10 @@ nil, this macro uses the default face `org-remark-highlight'.
 PROPERTIES is a list of pairs of a symbol and value.  This
 function adds them as overlay properties.
 
-This function also saves the entry for the highlght in the
-marginal notes file specified by `org-remark-notes-file-path'.
-If the file does not exist yet, it will be created.
+When LOAD-ONLY is nil, this function also saves the entry for the
+highlght in the marginal notes file specified by
+`org-remark-notes-file-path'.  If the file does not exist yet, it
+will be created.
 
 When this function is called from Elisp, ID can be optionally
 passed.  If so, no new ID gets generated."
@@ -642,10 +642,11 @@ passed.  If so, no new ID gets generated."
      (push ov org-remark-highlights)
      ;; Adding overlay to the buffer does not set the buffer modified. You
      ;; cannot use `undo' to undo highlights, either.
-     (org-remark-single-highlight-save ov
-                                       (org-remark-single-highlight-get-title)
-                                       (abbreviate-file-name (buffer-file-name))
-                                       (org-remark-single-highlight-get-org-id ov))
+     (unless load-only
+       (org-remark-single-highlight-save beg end
+                                         (org-remark-single-highlight-get-title)
+                                         (abbreviate-file-name (buffer-file-name))
+                                         (overlay-properties ov)))
      (deactivate-mark)))
   (org-remark-housekeep)
   (org-remark-highlights-sort))
@@ -657,14 +658,18 @@ Utility function to work with a single highlight overlay."
                     (file-name-sans-extension
                      (file-name-nondirectory (buffer-file-name)))))
 
-(defun org-remark-single-highlight-get-org-id (highlight)
-  "."
+(defun org-remark-single-highlight-get-org-id (point)
+  "Return Org-ID closest to POINT.
+This function does this only when `org-remark-use-org-id' is
+non-nil.  Returns nil otherwise, or when no Org-ID is found."
   (and org-remark-use-org-id
-       (org-entry-get (overlay-start highlight) "ID" 'INHERIT)))
+       (org-entry-get point "ID" 'INHERIT)))
 
-(defun org-remark-single-highlight-save (highlight title path orgid)
+(defun org-remark-single-highlight-save (beg end props &optional title path)
   "Save a single HIGHLIGHT in the marginal notes file.
 The marginal notes file is specified by PATH.
+
+BEG . END . PROPS
 
 Return t.
 
@@ -695,13 +700,13 @@ When a new marginal notes file is created and
 `org-remark-use-org-id' is non-nil, this function adds ID
 property to the file level.  This can be helpful with other
 packages such as Org-roam's backlink feature."
-  (let* ((beg (overlay-start highlight))
-         (end (overlay-end highlight))
-         (id (overlay-get highlight 'org-remark-id))
-         ;;`org-with-wide-buffer is a macro that should work for non-Org file'
+  ;;`org-with-wide-buffer is a macro that should work for non-Org file'
+  (let* ((id (plist-get props 'org-remark-id))
          (text (org-with-wide-buffer (buffer-substring-no-properties beg end)))
-         (line-num (unless (and orgid org-remark-use-org-id) (org-current-line)))
-         (props (overlay-properties highlight)))
+         (orgid (org-remark-single-highlight-get-org-id beg))
+         ;; FIXME current-line - it's not always at point
+         (line-num (unless (and orgid org-remark-use-org-id)
+                     (org-current-line beg))))
     ;; TODO Want to add a check if save is applicable here.
     (with-current-buffer (find-file-noselect org-remark-notes-file-path)
       ;; If it is a new empty marginalia file
@@ -723,10 +728,11 @@ packages such as Org-roam's backlink feature."
          (if id-headline
              (progn
                (goto-char id-headline)
-                ;; Update the existing headline and position properties
-                ;; Don't update the headline text when it already exists
-                ;; Let the user decide how to manage the headlines
-                ;; (org-edit-headline text)
+               ;; Update the existing headline and position properties
+               ;; Don't update the headline text when it already exists
+               ;; Let the user decide how to manage the headlines
+               ;; (org-edit-headline text)
+               ;; FIXME update the line-num in a normal link if any
                (org-remark-notes-set-properties beg end props))
            ;; No headline with the marginal notes ID property. Create a new one
            ;; at the end of the file's entry
@@ -739,6 +745,7 @@ packages such as Org-roam's backlink feature."
            ;; Add a properties
            (insert (concat "** " text "\n"))
            (org-remark-notes-set-properties beg end props)
+           ;; FIXME lin-num only gets creatd and never updated
            (if (and orgid org-remark-use-org-id)
                (insert (concat "[[id:" orgid "]" "[" title "]]"))
              (insert (concat "[[file:" path
@@ -967,9 +974,3 @@ Case 2. The overlay points to no buffer
 ;; Local Variables:
 ;; eval: (setq-local org-remark-notes-file-path "README.org")
 ;; End:
-
-; LocalWords:  ecf Const ormk keymap cond dolist caadr cdadr caddr fn concat nP
-; LocalWords:  functionp funcall cadr nondirectory housekeep orgid ibuf goto ov
-; LocalWords:  noselect TODO substring cdr mapc assq keymapp defgroup url aecf
-; LocalWords:  defface defcustom boolean defvar defconst defmacro defun progn
-; LocalWords:  FIXME roam's num eolp downcase symbolp upcase buf mapcar
