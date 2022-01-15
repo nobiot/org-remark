@@ -643,10 +643,9 @@ passed.  If so, no new ID gets generated."
      ;; Adding overlay to the buffer does not set the buffer modified. You
      ;; cannot use `undo' to undo highlights, either.
      (unless load-only
-       (org-remark-single-highlight-save beg end
+       (org-remark-single-highlight-save beg end (overlay-properties ov)
                                          (org-remark-single-highlight-get-title)
-                                         (abbreviate-file-name (buffer-file-name))
-                                         (overlay-properties ov)))
+                                         (abbreviate-file-name (buffer-file-name))))
      (deactivate-mark)))
   (org-remark-housekeep)
   (org-remark-highlights-sort))
