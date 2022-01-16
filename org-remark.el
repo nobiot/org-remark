@@ -209,6 +209,7 @@ as a selection list."
 
 ;; Definining `org-remark-mark', the default "pen" function explicitly.
 ;; This is so that autoload cookie can be assigned to it.
+(add-to-list 'org-remark-available-pens #'org-remark-mark)
 ;;;###autoload
 (defun org-remark-mark (beg end &optional id load-only)
   "Apply the following face to the region selected by BEG and END.
