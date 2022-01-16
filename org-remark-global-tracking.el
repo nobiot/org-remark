@@ -1,9 +1,10 @@
 ;;; org-remark-global-tracking.el --- Track files and auto-activate Org-remark -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2020 Noboru Ota
+;; Copyright (C) 2021-2022 Free Software Foundation, Inc.
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
+;; Created: 15 August 2021
 ;; Last modified: 16 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal notes

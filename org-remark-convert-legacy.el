@@ -1,6 +1,6 @@
 ;;; org-remark-convert-legacy.el --- Convert legacy Org-marginalia files to Org-remark -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2022 Noboru Ota
+;; Copyright (C) 2022 Free Software Foundation, Inc.
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
