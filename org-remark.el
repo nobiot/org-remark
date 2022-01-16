@@ -345,74 +345,6 @@ in the current buffer.  Each highlight is represented by an overlay."
     ;; Tracking
     (org-remark-notes-track-file path)))
 
-(defun org-remark-next ()
-  "Move to the next highlight, if any.
-If there is none below the point but there is a highlight in the
-buffer, cycle back to the first one.
-
-After the point has moved to the next highlight, this command
-lets you move further by re-entering only the last letter like
-this example:v
-
-   C-n \] \] \] \] \] \(assuming this command is bound to C-n \]\)
-
-This is achieved by transient map with `set-transient-map'.
-
-If you have the same prefix for `org-remark-prev', you can combine it in
-the sequence like so:
-
-   C-n \] \] \] \[ \["
-  (interactive)
-  (if (not org-remark-highlights)
-      (progn (message "No highlights present in this buffer.") nil)
-    (let ((p (org-remark-find-next-highlight)))
-      (if p (progn
-              (goto-char p)
-              ;; Setup the overriding keymap.
-              (unless overriding-terminal-local-map
-                (let ((prefix-keys (substring (this-single-command-keys) 0 -1))
-                      (map (cdr org-remark-mode-map)))
-                  (when (< 0 (length prefix-keys))
-                    (mapc (lambda (k) (setq map (assq k map))) prefix-keys)
-                    (setq map (cdr-safe map))
-                    (when (keymapp map) (set-transient-map map t)))))
-              t)
-        (message "Nothing done. No more visible highlights exist") nil))))
-
-(defun org-remark-prev ()
-  "Move to the previous highlight, if any.
-If there is none above the point, but there is a highlight in the
-buffer, cycle back to the last one.
-
-After the point has moved to the previous highlight, this command
-lets you move further by re-entering only the last letter like
-this example:
-
-   C-n \[ \[ \[ \[ \[ \(assuming this command is bound to C-n \[\)
-
-This is achieved by transient map with `set-transient-map'.
-
-If you have the same prefix for `org-remark-next', you can combine it in
-the sequence like so:
-
-   C-n \] \] \] \[ \["
-  (interactive)
-  (if (not org-remark-highlights)
-      (progn (message "No highlights present in this buffer.") nil)
-    (let ((p (org-remark-find-prev-highlight)))
-      (if p (progn
-              (goto-char p)
-              ;; Setup the overriding keymap.
-              (unless overriding-terminal-local-map
-                (let ((prefix-keys (substring (this-single-command-keys) 0 -1))
-                      (map (cdr org-remark-mode-map)))
-                  (when (< 0 (length prefix-keys))
-                    (mapc (lambda (k) (setq map (assq k map))) prefix-keys)
-                    (setq map (cdr-safe map))
-                    (when (keymapp map) (set-transient-map map t)))))
-              t)
-        (message "Nothing done. No more visible highlights exist") nil))))
-
 (defun org-remark-open (point &optional arg)
   "Open marginal notes file for highlight at POINT.
 The marginal notes will be narrowed to the relevant headline to
@@ -464,6 +396,46 @@ relevant headline.  The cursor remains in the current buffer.
 Also see the documentation of `org-remark-open'."
   (interactive "d")
   (org-remark-open point 'view))
+
+(defun org-remark-next ()
+  "Move to the next highlight, if any.
+If there is none below the point but there is a highlight in the
+buffer, cycle back to the first one.
+
+After the point has moved to the next highlight, this command
+lets you move further by re-entering only the last letter like
+this example:v
+
+   C-n \] \] \] \] \] \(assuming this command is bound to C-n \]\)
+
+This is achieved by transient map with `set-transient-map'.
+
+If you have the same prefix for `org-remark-prev', you can combine it in
+the sequence like so:
+
+   C-n \] \] \] \[ \["
+  (interactive)
+  (org-remark-next-or-prev :next))
+
+(defun org-remark-prev ()
+  "Move to the previous highlight, if any.
+If there is none above the point, but there is a highlight in the
+buffer, cycle back to the last one.
+
+After the point has moved to the previous highlight, this command
+lets you move further by re-entering only the last letter like
+this example:
+
+   C-n \[ \[ \[ \[ \[ \(assuming this command is bound to C-n \[\)
+
+This is achieved by transient map with `set-transient-map'.
+
+If you have the same prefix for `org-remark-next', you can combine it in
+the sequence like so:
+
+   C-n \] \] \] \[ \["
+  (interactive)
+  (org-remark-next-or-prev nil))
 
 (defun org-remark-view-next ()
   "Move the cursor to the next highlight and view its marginal notes."
@@ -540,6 +512,34 @@ and removing overlays are not part of the undo tree."
 
 
 ;;;; Internal Functions
+
+(defun org-remark-next-or-prev (next)
+  "Move cursor to the next or previous highlight if any.
+NEXT must be either non-nil or nil.
+When non-nil it's for the next; for nil, prev.
+
+This function is internal only and meant to be used by interctive
+commands such as `org-remark-next' and `org-remark-prev'.
+
+Return t if the cursor has moved to next/prev.
+Return nil if not after a message."
+  (if (not org-remark-highlights)
+      (progn (message "No highlights present in the buffer") nil)
+    (let ((p (if next (org-remark-find-next-highlight)
+               (org-remark-find-prev-highlight))))
+      (if p (progn
+              (goto-char p)
+              ;; Setup the overriding keymap.
+              (unless overriding-terminal-local-map
+                (let ((prefix-keys (substring (this-single-command-keys) 0 -1))
+                      (map (cdr org-remark-mode-map)))
+                  (when (< 0 (length prefix-keys))
+                    (mapc (lambda (k) (setq map (assq k map))) prefix-keys)
+                    (setq map (cdr-safe map))
+                    (when (keymapp map) (set-transient-map map t)))))
+              t)
+        (message "No visible highlights present in the buffer")
+        nil))))
 
 (defun org-remark-overlay-find ()
   "Return one org-remark overlay at point.
@@ -933,7 +933,7 @@ path."
   ;; A place holder for enhancemnet after the release of v1.0.0
   ;; Potentially support relative path.
   ;; No capacity to test this properly at the moment.
-  ;; 
+  ;;
   ;; (if org-remark-notes-relative-directory
   ;;     (funcall org-remark-notes-path-function path org-remark-notes-relative-directory)
   ;;   (funcall org-remark-notes-path-function path)))
