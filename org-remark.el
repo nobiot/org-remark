@@ -4,7 +4,7 @@
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
-;; Version: 1.0.0-rc
+;; Version: 0.1.0
 ;; Created: 22 December 2020
 ;; Last modified: 16 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
@@ -86,7 +86,7 @@ for more detail and expected elements of the list."
 name."
   :type 'string)
 
-(defcustom org-remark-use-org-id t
+(defcustom org-remark-use-org-id nil
   "Define if Org-remark use Org-ID to link back to the main note."
   :type 'boolean)
 
@@ -289,9 +289,7 @@ load the highlights"
           (unless (functionp fn) (setq fn #'org-remark-mark))
           (funcall fn beg end id 'load-only)))))
   ;; Tracking
-  (when org-remark-global-tracking-mode
-    (add-to-list 'org-remark-files-tracked
-                 (abbreviate-file-name (buffer-file-name))))
+  (org-remark-notes-track-file (buffer-file-name))
   (setq org-remark-loaded t))
 
 (defun org-remark-save ()
@@ -311,15 +309,14 @@ in the current buffer.  Each highlight is represented by an overlay."
   (interactive)
   (org-remark-housekeep)
   (org-remark-highlights-sort)
-  (let ((path (abbreviate-file-name (buffer-file-name))))
+  (let ((path (buffer-file-name)))
     (dolist (h org-remark-highlights)
       (let ((beg (overlay-start h))
             (end (overlay-end h))
             (props (overlay-properties h)))
         (org-remark-single-highlight-save path beg end props)))
     ;; Tracking
-    (when org-remark-global-tracking-mode
-      (add-to-list 'org-remark-files-tracked path))))
+    (org-remark-notes-track-file path)))
 
 (defun org-remark-next ()
   "Move to the next highlight, if any.
@@ -574,7 +571,7 @@ passed.  If so, no new ID gets generated."
      ;; Adding overlay to the buffer does not set the buffer modified. You
      ;; cannot use `undo' to undo highlights, either.
      (unless load-only
-       (org-remark-single-highlight-save (abbreviate-file-name (buffer-file-name))
+       (org-remark-single-highlight-save (buffer-file-name)
                                          beg end
                                          (overlay-properties ov)
                                          (org-remark-single-highlight-get-title)))
@@ -598,41 +595,49 @@ non-nil.  Returns nil otherwise, or when no Org-ID is found."
 
 (defun org-remark-single-highlight-save (path beg end props &optional title)
   "Save a single HIGHLIGHT in the marginal notes file.
-The marginal notes file is specified by PATH.
-
-BEG . END . PROPS
 
 Return t.
 
-For the first highlight for the current buffer, this function
-will create a new H1 headline for it at the bottom of the
-marginal notes buffer.
+PATH specifies the source/main file with which the marginal notes
+file is associated.
+
+BEG and END specify the range of the highlight being saved.  It
+is the highlight overlay's start and end.
+
+PROPS are the highlight overlay's properties.  Not all the
+properties will be added as headline properties.  Refer to
+`org-remark-notes-set-properties'.
+
+For the first highlight of the current buffer, this function will
+create a new H1 headline for it at the bottom of the marginal
+notes buffer with TITLE as its headline text.
 
 If it is a new highlight, this function will create a new H2
-headline with the TITLE as its headline text at the end of the H1
-headline for the current buffer.
+headline with the highlighted text as its headline text at the
+end of the H1 headline for the current buffer.
 
 If headline with the same ID already exists, update its position
 and other \"org-remark-*\" properties (CATEGORY is the exception
-and gets updated as well) from the highlight overlay.  The
-headline text will be kept intact, because the user might have
-changed it to their needs.
+and gets updated as well) from the highlight overlay.  For
+update, the headline text will be kept intact, because the user
+might have changed it to their needs.
 
-This function will also add a normal file link in the H2 headline
-entry back to the current buffer with serach option
-\"::line-number\".
+This function will also add a normal file link as property
+\"org-remark-lilnk\" of the H2 headline entry back to the current
+buffer with serach option \"::line-number\".
 
 ORGID can be passed to this function.  If user option
-`org-remark-use-org-id' is non-nil, this function will create a
-link back to the source via an Org-ID link with using ORGID
-instead of the normal file link.
+`org-remark-use-org-id' is non-nil, this function will add an
+Org-ID link in the body text of the headline, linking back to the
+source with using ORGID.
 
-When a new marginal notes file is created and
-`org-remark-use-org-id' is non-nil, this function adds ID
-property to the file level.  This can be helpful with other
-packages such as Org-roam's backlink feature."
+When a new marginal notes file is to be created and
+`org-remark-use-org-id' is non-nil, this function will also add
+an Org-ID property to the file level.  This can be helpful with
+other packages such as Org-roam's backlink feature."
   ;;`org-with-wide-buffer is a macro that should work for non-Org file'
-  (let* ((id (plist-get props 'org-remark-id))
+  (let* ((path (org-remark-source-path path))
+         (id (plist-get props 'org-remark-id))
          (text (org-with-wide-buffer (buffer-substring-no-properties beg end)))
          (orgid (org-remark-single-highlight-get-org-id beg))
          ;; FIXME current-line - it's not always at point
@@ -723,7 +728,7 @@ Minimal properties are:
 - org-remark-source-end :: END
 
 For PROPS, if the property name is CATEGORY \(case-sensitive\) or
-prefixed with org-remark- set them to to headline's property
+prefixed with \"org-remark-\" set them to to headline's property
 drawer."
   (org-set-property org-remark-prop-source-beg
                     (number-to-string beg))
@@ -744,7 +749,7 @@ drawer."
 Each highlight is a list in the following structure:
     (id (beg . end) label)"
   (when-let ((notes-buf (find-file-noselect org-remark-notes-file-path))
-             (source-path (abbreviate-file-name (buffer-file-name))))
+             (source-path (org-remark-source-path (buffer-file-name))))
     ;; TODO check if there is any relevant notes for the current file
     (let ((highlights))
       (with-current-buffer notes-buf
@@ -891,6 +896,29 @@ Case 2. The overlay points to no buffer
     (unless (overlay-buffer ov)
       (setq org-remark-highlights (delete ov org-remark-highlights))))
   t)
+
+(defun org-remark-source-path (path)
+  "Covert PATH either to absolute or relative for marginal notes files.
+Returns the standardized path.  Currently, it's only a place
+holder and uses `abbreviate-file-name' to return an absolute
+path."
+  ;; TODO
+  ;; A place holder for enhancemnet after the release of v1.0.0
+  ;; Potentially support relative path.
+  ;; No capacity to test this properly at the moment.
+  ;; 
+  ;; (if org-remark-notes-relative-directory
+  ;;     (funcall org-remark-notes-path-function path org-remark-notes-relative-directory)
+  ;;   (funcall org-remark-notes-path-function path)))
+  (abbreviate-file-name path))
+
+(defun org-remark-notes-track-file (path)
+  "Add PATH to `org-remark-files-tracked' when relevant.
+It works only when `org-remark-global-tracking-mode' is on.  For
+the global tracking purpose, the path must be an absolute path."
+  (when org-remark-global-tracking-mode
+    (add-to-list 'org-remark-files-tracked
+                 (abbreviate-file-name path))))
 
 (defun org-remark-empty-buffer-p ()
   "Return t when the current buffer is empty."

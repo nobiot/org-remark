@@ -99,4 +99,3 @@ solely by Org-marginalia."
 (provide 'org-remark-convert-legacy)
 
 ;;; org-remark-convert-legacy.el ends here
-
