@@ -4,7 +4,7 @@
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
-;; Last modified: 13 January 2022
+;; Last modified: 16 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal notes
 
@@ -39,7 +39,8 @@ saved in `org-remark-tracking-file' automatically loads highlights."
   :group 'org-remark
   :type 'file)
 
-(defvar org-remark-files-tracked nil)
+(defvar org-remark-files-tracked nil
+  "List of files being tracked by `org-remark-global-tracking-mode'.")
 
 ;;;###autoload
 (define-minor-mode org-remark-global-tracking-mode
@@ -55,11 +56,11 @@ locally for the file opened."
     ;; Activate
     ;; Prioritise the new `org-remark-tracking-file' over the legacy one
     (when-let (tracking-file (or (when (file-exists-p
-                                    org-remark-tracking-file)
-                               org-remark-tracking-file)
-                             (when (file-exists-p
-                                    (org-remark-legacy-tracking-file-get))
-                               (org-remark-legacy-tracking-file-get))))
+                                        org-remark-tracking-file)
+                                   org-remark-tracking-file)
+                                 (when (file-exists-p
+                                        (org-remark-legacy-tracking-file-get))
+                                   (org-remark-legacy-tracking-file-get))))
       (org-remark-tracking-load tracking-file))
     ;; `org-remark-tracking-save' should be added to kill hook even when no
     ;; tracking file existed before -- this would indicate first time use of

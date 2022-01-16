@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.0.0-rc
 ;; Created: 22 December 2020
-;; Last modified: 15 January 2022
+;; Last modified: 16 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -37,7 +37,7 @@
 (require 'org)
 (require 'org-id)
 (require 'org-remark-global-tracking)
-(declare-function org-collect-keywords "org")
+(declare-function org-remark-convert-legacy-data "org-remark-convert-legacy")
 
 
 ;;;; Customization
@@ -88,17 +88,6 @@ name."
 
 (defcustom org-remark-use-org-id t
   "Define if Org-remark use Org-ID to link back to the main note."
-  :type 'boolean)
-
-(defcustom org-remark-convert-legacy t
-  "Specify whether or not Org-remark automatically performs data conversion.
-The conversion is done via function
-`org-remark-covert-legacy-data'.  Set to nil if you do not have a
-marginalia file from the Org-marginalia package (it's the
-previous name of Org-remark).
-
-It is safe to keep it with minimal performance overhead but
-recommended to turn it off if not required."
   :type 'boolean)
 
 
@@ -525,64 +514,6 @@ and removing overlays are not part of the undo tree."
     (org-remark-single-highlight-remove id arg)
     t))
 
-;;;; Legacy data conversion from Org-marginalia
-
-(defun org-remark-convert-legacy-data ()
-  "Convert the legacy Org-marginalia properties to those for Org-remark.
-
-You can call this function interactively to convert the current
-buffer.  It also gets automatically triggered when you save or
-load Org-remark marginal notes file if
-`org-remark-convert-legacy' user option is non-nil.
-
-This function checks whether or not there is at least one legacy entry with
-property \"marginalia-source-file\" in the current buffer.
-
-If one found, this function will:
-
-1. Create a backup copy with the filename \"<current-file-name>_archive\"
-2. Convert all \"marginalia-*\" properties to \"org-remark-*\" equivalents
-
-- marginalia-source-file -> org-remark-file
-- marginalia-id          -> org-remark-id
-- marginalia-source-beg  -> org-remark-beg
-- marginalia-source-end  -> org-remark-end
-
-This assumes that all the \"marginalia-*\" properties were used
-solely by Org-marginalia."
-  (interactive)
-  (org-with-wide-buffer
-   ;; Check that there is at least one legacy entry in the current buffer
-   (goto-char (point-min))
-   (when (save-excursion (org-find-property "marginalia-source-file"))
-     ;; Do the process only when there is at least one entry
-     ;; Create a backup copy
-     (let ((filename (abbreviate-file-name
-                      (concat (buffer-file-name) "_archive"))))
-       (write-region (point-min) (point-max) filename)
-       (message (format "org-remark: created backup file %s" filename)))
-     ;; Scan the whole marginal notes file
-     (while (not (org-next-visible-heading 1))
-       (when-let (source-file (org-entry-get (point) "marginalia-source-file"))
-         (org-delete-property "marginalia-source-file")
-         (org-set-property org-remark-prop-source-file source-file))
-       (when-let ((id (org-entry-get (point) "marginalia-id"))
-                  (beg (string-to-number
-                        (org-entry-get (point)
-                                       "marginalia-source-beg")))
-                  (end (string-to-number
-                        (org-entry-get (point)
-                                       "marginalia-source-end"))))
-         (org-delete-property "marginalia-id")
-         (org-delete-property "marginalia-source-beg")
-         (org-delete-property "marginalia-source-end")
-         (org-set-property org-remark-prop-id id)
-         (org-remark-notes-set-properties beg end)))
-     (goto-char (point-min))
-     (message (format "org-remark: Legacy \"marginalia-*\" properties updated for %s"
-                      (abbreviate-file-name (buffer-file-name))))
-     t)))
-
 
 ;;;; Internal Functions
 
@@ -711,7 +642,7 @@ packages such as Org-roam's backlink feature."
       ;; If it is a new empty marginalia file
       (when (and (org-remark-empty-buffer-p) org-remark-use-org-id)
         (org-id-get-create))
-      (when org-remark-convert-legacy (org-remark-convert-legacy-data))
+      (when (featurep 'org-remark-convert-legacy) (org-remark-convert-legacy-data))
       (org-with-wide-buffer
        (let ((file-headline (or (org-find-property
                                  org-remark-prop-source-file path)
@@ -817,7 +748,7 @@ Each highlight is a list in the following structure:
     ;; TODO check if there is any relevant notes for the current file
     (let ((highlights))
       (with-current-buffer notes-buf
-        (when org-remark-convert-legacy
+        (when (featurep 'org-remark-convert-legacy)
           (org-remark-convert-legacy-data))
         (org-with-wide-buffer
          (let ((heading (org-find-property
