@@ -1,7 +1,7 @@
 #+title: Org-remark User Manual
 #+author: Noboru Ota <me@nobiot.com>
-#+macro: version 0.0.7
-#+macro: modified 14 January 2022
+#+macro: version 1.0.x
+#+macro: modified 16 January 2022
 
 #+language: en
 #+export_file_name: org-remark.texi
@@ -30,7 +30,7 @@ Org-remark lets you highlight and annote any text file with using Org mode.
 :COPYING: t
 :END:
 
-Copyright \copy 2021  Free Software Foundation, Inc.
+Copyright \copy 2021-2022  Free Software Foundation, Inc.
 
 #+begin_quote
 Permission is granted to copy, distribute and/or modify this document
@@ -49,13 +49,12 @@ modify this GNU manual.”
 :TOC:      :depth 0
 :END:
 
-** Manual
-
 This package is not available on ELPA or MELPA yet. Manual installation is required.
 
 Ensure to have Org Mode 9.4 or later (tested on 9.4.2). This package uses ~org-collect-keywords~, which does not exist in an earlier version.
 
-Store both of the =.el= files in the repo in your load-path, and put this in your init file:
+Store both of the =.el= files in the repo in your load-path and put this in your
+init file:
 
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'load-path "~/local-repos/org-remark/")
@@ -68,52 +67,103 @@ By loading =org-remark=, it will also pull in Org mode. You might like to defer 
 For example, I use this in my init file. 
 
 #+begin_src emacs-lisp
-  ;; Set `load-path'
+  ;; Set `load-path' , load `org-remark-global-tracking', and turn it on for
+  ;; automatic loading of highlights for the files tracked
   (add-to-list 'load-path "~/local-repos/org-remark")
+  (require 'org-remark-global-tracking)
+  (org-remark-global-tracking-mode +1)
+#+end_src
 
-  ;; Load only `org-remark-global-tracking'
-  ;; and turn it on for automatic loading of highlights
-  ;; for the files tracked
-  (load-library "org-remark-global-tracking")
-  (org-remark-global-tracking-mode 1)
+Below are example keybindings you might like to consider:
 
-  ;; Set keybindings `org-remark-mark' is bound to global-map so that you can
-  ;; call it globally before the library is loaded.  In order to make
-  ;; `org-remark-mark' and `org-remark-mode' callable, use `autoload'.
-  ;; When this package is available in MELPA, `autoload' should not be required.
+#+begin_src emacs-lisp
+  ;; Key-bind `org-remark-mark' to global-map so that you can call it globally
+  ;; before the library is loaded.  In order to make `org-remark-mark' and
+  ;; `org-remark-mode' callable, use `autoload'.
   (autoload #'org-remark-mark "org-remark" nil t)
   (autoload #'org-remark-mode "org-remark" nil t)
   (define-key global-map (kbd "C-c n m") #'org-remark-mark)
+
   ;; The rest of keybidings are done only on loading `org-remark'
   (with-eval-after-load 'org-remark
     (define-key org-remark-mode-map (kbd "C-c n o") #'org-remark-open)
-    (define-key org-remark-mode-map (kbd "C-c n ]") #'org-remark-next)
-    (define-key org-remark-mode-map (kbd "C-c n [") #'org-remark-prev)
+    (define-key org-remark-mode-map (kbd "C-c n ]") #'org-remark-view-next)
+    (define-key org-remark-mode-map (kbd "C-c n [") #'org-remark-view-prev)
     (define-key org-remark-mode-map (kbd "C-c n r") #'org-remark-remove))
+
 #+end_src
-  
+
 * Getting Started
+** Highlighting and Annotating
 
-To be added
+#+findex: org-remark-mark
+#+findex: org-remark-open
+#+findex: org-remark-view
+#+cindex: Marginal notes file
+#+cindex: Org-remark properties for highlights
 
-;;; `org-remark-create-pen' macro lets you create commands for different
-;;; highlighter pens Org-remark provides three default ones. See below after
-;;; `org-remark-create-pen'
+To highlight a part of text, simply select one[fn:1] and call =M-x
+org-remark-mark=. You will see the selected text gets highlighted. At the same time Org-remark will automatically create a *marginal notes file*. [[#customizing][By default]], it will be named =marginalia.org= and created in the same directory as the file you are editing.
 
-;; Don't use category (symbol) as a property -- it's a special one of text
-;; properties. If you use it, the value also need to be a symbol; otherwise, you
-;; will get an error. You can use CATEGORY (symbol and all uppercase).
+To display the marginal notes for the highlight you have marked, place your cursor on the highlight and use =M-x org-remark-open= or =M-x org-remark-view=. [[#customizing][By default]], it will display a new buffer to the left of the current buffer you are editing. The =open= command takes the cursor to the marginal notes buffer to edit notes; whereas the =view= command keeps the cursor in the current buffer only to display the marginal notes. Both commands narrow the marginal notes file to the entry for the highlight under the cursor.  The marginal notes file is a normal Org file. Edit your notes just as you would do with any other Org files, and save the buffer.
 
-  ;; Create default pen set.
-  ;; They are rather meant to be a starter pack and examples
-  ;; They can be overridden, or set `org-remark-create-default-pen-set' to nil
-  ;; so that Org-remark will not create them.
+You do not need to add any notes. In this case, the entry in marginal notes simply saves the location of the highlighted text. After you quit Emacs,  re-start it, and visit the same main file, Org-remark uses this information to highlight the text. You can also directly edit the marginal notes file as a normal Org file.
 
+The important thing to note is that Org-remark uses following properties in the property drawer of the headline to remember the highlights:
 
-Every highlighted text region in the current buffer is tracked by
-local variable `org-remark-highlights'.  The highlights are
-sorted in the ascending order; this is a characteristic of the
-variable used for `org-remark-next' and `org-remark-prev'.
+- :org-remark-beg:
+- :org-remark-end:
+- :org-remark-id:
+- :org-remark-label:
+
+Essentially, the marginal notes file is a database in the plain text with using Org mode. As a plain text database, you can easily edit these properties manually if necessary.
+
+[fn:1] Set a mark and activate a region in Emacs terminology.
+
+** Automatically Load Highlights after Re-starting Emacs
+
+#+findex: org-remark-global-tracking-mode
+#+findex: org-remark-mode
+#+vindex: org-remark-tracking-file
+
+It is recommended that =org-remark-global-tracking-mode= be turned on as part of your Emacs initalization. This should be done before you start adding hightlights in any file. 
+
+Once you have added highlights to some files, quit Emacs, and re-start it, active =org-remark-global-tracking-mode= will automatically turn on =org-remark-mode= and load the highlights from your previous sessions for the files being globally tracked.
+
+When activated, =org-remark-global-tracking-mode= will also start remembering and tracking the files to which you add highlights and annotations. When you quit Emacs, it will save the tracked files in a file in your Emacs config directory (=user-emacs-directory=). [[#customizing][By default]], this file is named =.org-remark-tracking=.
+
+Without this global minor mode, you would need to remember to activate =org-remark-mode= for each file where you add highlihgts and annotation. This is often unpractical. 
+
+** Create Your Own Custom Highlighter Pen
+
+#+vindex: org-remark-create-default-pen-set
+#+findex: org-remark-mark
+#+findex: org-remark-mark-yellow
+#+findex: org-remark-mark-red-line
+#+findex: org-remark-create
+
+Org-remark has a default highlighter pen function, and comes with a set of two additional pens [[#customizing][by default]]:
+
+- =org-remark-mark= : default highlighter pen
+- =org-remark-mark-yellow=
+- =org-remark-mark-red-line=
+
+Org-remark lets you create your own custom pen functions with =org-remark-create=. See how "red-line" and "yellow" pens are created. They are meant to be a starter pack and examples. 
+
+#+begin_src elisp
+  (org-remark-create "red-line"
+                     '(:underline (:color "dark red" :style wave))
+                     '(CATEGORY "review" help-echo "Review this"))
+  (org-remark-create "yellow"
+                     '(:underline "gold" :background "lemon chiffon")
+                     '(CATEGORY "important"))
+#+end_src
+
+#+ATTR_TEXINFO: :tag CAUTION
+#+begin_quote
+Don't use category (symbol) as a property -- it's a special one of text properties. If you use it, the value also need to be a symbol; otherwise, you will get an error. You can use CATEGORY (symbol and all uppercase), which will result in CATEGORY in the property drawer in marginal notes Org files.
+#+end_quote
+
 
 * Usage
 :PROPERTIES:
@@ -221,6 +271,9 @@ I will try to incorporate these into the package when I have more time to focus 
 #+end_src
 
 * Customizing
+:PROPERTIES:
+:CUSTOM_ID: customizing
+:END:
 
 - You can customize settings in the =org-remark= group.
 - Highlight's face can be changed via =org-remark-highlighter=
