@@ -156,8 +156,12 @@ file specified by `org-remark-notes-file-path'.  If the file does
 not exist yet, it will be created.
 
 When this function is called from Elisp, ID can be optionally
-passed. If so, no new ID gets generated."
-              (or face "`org-remark-highlight'") properties)
+passed.  If so, no new ID gets generated.
+
+When LOAD-ONLY is non-nil, this function does not save the
+highlight in the marginal notes file.  This is meant to be for
+`org-remark-load'."
+              (or face "`org-remark-highlighter'") properties)
      (interactive "r")
      (org-remark-single-highlight-mark beg end ,label ,face ,properties id load-only)))
 
@@ -189,10 +193,6 @@ as a selection list."
 ;; Don't use category (symbol) as a property -- it's a special one of text
 ;; properties. If you use it, the value also need to be a symbol; otherwise, you
 ;; will get an error. You can use CATEGORY (symbol and all uppercase).
-
-;; Create the default mark function with default face
-;; `org-remark-highlight' with no properties.
-(org-remark-create)
 (when org-remark-create-default-pen-set
   ;; Create default pen set.
   ;; They are rather meant to be a starter pack and examples
@@ -206,6 +206,34 @@ as a selection list."
 
 
 ;;;; Commands
+
+;; Definining `org-remark-mark', the default "pen" function explicitly.
+;; This is so that autoload cookie can be assigned to it.
+;;;###autoload
+(defun org-remark-mark (beg end &optional id load-only)
+  "Apply the following face to the region selected by BEG and END.
+%s
+
+Following overlay properties will be added to the highlighted
+text region: %S
+
+When this function is used interactively, it will generate a new
+ID, always assuming it is a new highlighted text region, and
+Org-remark will start tracking the highlight's location in the
+current buffer.
+
+The entry for the highlght will be created in the marginal notes
+file specified by `org-remark-notes-file-path'.  If the file does
+not exist yet, it will be created.
+
+When this function is called from Elisp, ID can be optionally
+passed.  If so, no new ID gets generated.
+
+When LOAD-ONLY is non-nil, this function does not save the
+highlight in the marginal notes file.  This is meant to be for
+`org-remark-load'."
+  (interactive "r")
+  (org-remark-single-highlight-mark beg end nil nil nil id load-only))
 
 ;;;###autoload
 (define-minor-mode org-remark-mode
@@ -262,7 +290,6 @@ recommended to turn it on as part of Emacs initialization.
       (remove-hook 'after-save-hook #'org-remark-save t)
       (remove-hook 'kill-buffer-hook #'org-remark-tracking-save t))))
 
-;;;###autoload
 (defun org-remark-load ()
   "Visit `org-remark-notes-file' & load the saved highlights onto current buffer.
 If there is no highlights or annotations for current buffer,
