@@ -127,7 +127,7 @@ Org-remark has a default highlighter pen function, and comes with a set of two a
 - =org-remark-mark-yellow=    :: yellow highlight with "important" category in the marginal notes entry
 - =org-remark-mark-red-line=  :: wavy red underline with "review" category in the marginal notes entry and "Review this" in tool-tips
 
-Org-remark does not stop there; it lets you create your own custom pen functions with =org-remark-create=. Use the yellow and red line pens as examples, and create your own. Refer to [[#create-custom-pens][Create Your Own Custom Pens]] for how to do it. 
+Org-remark does not stop there; it lets you create your own custom pen functions with =org-remark-create=. Use the yellow and red line pens as examples, and create your own. Refer to [[#pens][Create Your Own Custom Pens]] for how to do it. 
 
 This is it. It's all to get you started. For more detail, refer to the rest of this user manual, especially the [[#usage][Usage]] and [[#customizing][Customizing]] sections. There is more detail to the commands introduced in this section and more ways in which you can customize Org-remark. 
 
@@ -138,7 +138,7 @@ This is it. It's all to get you started. For more detail, refer to the rest of t
 
 ** Create Your Own Custom Highlighter Pen
 :PROPERTIES:
-:CUSTOM_ID: create-custom-pens
+:CUSTOM_ID: pens
 :END:
 
 #+cindex: user-defined custom highlighter pen functions
