@@ -168,7 +168,7 @@ highlight in the marginal notes file.  This is meant to be for
 `org-remark-load'."
                   (or face "`org-remark-highlighter'") properties)
          (interactive "r")
-         (org-remark-mark beg end ,label ,face ,properties id load-only)))))
+         (org-remark-mark beg end id load-only ,label ,face ,properties)))))
 
 ;; Don't use category (symbol) as a property -- it's a special one of text
 ;; properties. If you use it, the value also need to be a symbol; otherwise, you
@@ -244,7 +244,7 @@ recommended to turn it on as part of Emacs initialization.
 
 (add-to-list 'org-remark-available-pens #'org-remark-mark)
 ;;;###autoload
-(defun org-remark-mark (beg end &optional label face properties id load-only)
+(defun org-remark-mark (beg end &optional id load-only label face properties)
   "Apply the FACE to the region selected by BEG and END.
 
 This function will apply FACE to the selected region.  When it is
@@ -323,10 +323,10 @@ load the highlights"
             (label (caddr highlight)))
         (let ((fn (intern (concat "org-remark-mark-" label))))
           (unless (functionp fn) (setq fn #'org-remark-mark))
-          (funcall fn beg end id 'load-only)))))
+          (funcall fn beg end id 'load-only))))
+    (setq org-remark-loaded t))
   ;; Tracking
-  (org-remark-notes-track-file (buffer-file-name))
-  (setq org-remark-loaded t))
+  (org-remark-notes-track-file (buffer-file-name)))
 
 (defun org-remark-save ()
   "Save all the highlights tracked in current buffer to notes file.
