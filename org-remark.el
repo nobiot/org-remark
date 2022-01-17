@@ -142,7 +142,7 @@ property names with \"org-remark-\" or use \"CATEGORY\"."
        (add-to-list 'org-remark-available-pens
                     (intern (format "org-remark-mark-%s" ,label)))
        (defun ,(intern (format "org-remark-mark-%s" label))
-           (beg end &optional id load-only)
+           (beg end &optional id)
          ,(format "Apply the following face to the region selected by BEG and END.
 
 %s
@@ -159,15 +159,11 @@ location in the current buffer.
 
 When this function is called from Elisp, ID can be optionally
 passed, indicating to Org-remark that it is an existing
-highlight.  In this case, no new ID gets generated.
-
-When LOAD-ONLY is non-nil, this function does not save the
-highlight in the marginal notes file.  This is meant to be for
-`org-remark-load'."
+highlight.  In this case, no new ID gets generated."
                   (or face "`org-remark-highlighter'") properties)
-         (interactive "r")
+         (interactive (org-remark-region-or-word))
          (org-remark-single-highlight-mark
-          beg end id load-only ,label ,face ,properties)))))
+          beg end id ,label ,face ,properties)))))
 
 ;; Don't use category (symbol) as a property -- it's a special one of text
 ;; properties. If you use it, the value also need to be a symbol; otherwise, you
@@ -181,7 +177,8 @@ highlight in the marginal notes file.  This is meant to be for
                      '(:underline (:color "dark red" :style wave))
                      '(CATEGORY "review" help-echo "Review this"))
   (org-remark-create "yellow"
-                     '(:underline "gold" :background "lemon chiffon") '(CATEGORY "important")))
+                     '(:underline "gold" :background "lemon chiffon")
+                     '(CATEGORY "important")))
 
 
 ;;;; Commands
@@ -243,7 +240,7 @@ recommended to turn it on as part of Emacs initialization.
 
 (add-to-list 'org-remark-available-pens #'org-remark-mark)
 ;;;###autoload
-(defun org-remark-mark (beg end &optional id load-only)
+(defun org-remark-mark (beg end &optional id)
   "Apply the FACE to the region selected by BEG and END.
 
 This function will apply face `org-remark-highlighter' to the selected region.
@@ -254,20 +251,19 @@ region, and Org-remark will start tracking the highlight's
 location in the current buffer.
 
 A Org headline entry for the highlght will be created in the
-marginal notes file specified by `org-remark-notes-file-path'. If
-the file does not exist yet, it will be created.
+marginal notes file specified by `org-remark-notes-file-path'.
+If the file does not exist yet, it will be created.
 
-When this function is called from Elisp, ID and LOAD-ONLY can be
-optionally passed.  When ID is passed, it indicates to Org-remark
-that it is an existing highlight.  In this case, no new ID gets
-generated.  When LOAD-ONLY is non-nil, this function will not
-save the highlight in the marginal notes file.  This is meant to
-be for `org-remark-load'."
-  (interactive "r")
+When this function is called from Elisp, ID can be optionally
+passed, indicating to Org-remark that it is to load an existing
+highlight.  In this case, no new ID gets generated and the
+highlight saved again, avoiding the unnecessary round-trip back
+to the database."
+  (interactive (org-remark-region-or-word))
   ;; FIXME
   ;; Adding "nil" is different to removing a prop
   ;; This will do for now
-  (org-remark-single-highlight-mark beg end id load-only nil nil
+  (org-remark-single-highlight-mark beg end id nil nil
                                     (list "org-remark-label" "nil")))
 
 (defun org-remark-load ()
@@ -294,7 +290,7 @@ load the highlights"
             (label (caddr highlight)))
         (let ((fn (intern (concat "org-remark-mark-" label))))
           (unless (functionp fn) (setq fn #'org-remark-mark))
-          (funcall fn beg end id 'load-only))))
+          (funcall fn beg end id))))
     (setq org-remark-loaded t))
   ;; Tracking
   (org-remark-notes-track-file (buffer-file-name)))
@@ -455,23 +451,21 @@ from."
               (id (overlay-get ov 'org-remark-id))
               (beg (overlay-start ov))
               (end (overlay-end ov)))
-    ;; FIXME read list of pens
-    ;; when create, add to list
     (let ((new-pen (if pen pen
                      (intern
                       (completing-read "Which pen?:" org-remark-available-pens)))))
       (delete-overlay ov)
       (funcall new-pen beg end id))))
 
-(defun org-remark-remove (point &optional arg)
+(defun org-remark-remove (point &optional delete)
   "Remove the highlight at POINT.
 It will remove the highlight and the properties from the
 marginalia, but will keep the headline and annotations.  This is
 to ensure to keep any notes you might have written intact.
 
-You can let this command delete the entire heading subtree for
+You can let this command DELETE the entire heading subtree for
 the highlight, along with the annotations you have written, by
-passing a universal argument with \\[universal-argument] \(ARG\).
+passing a universal argument with \\[universal-argument].
 If you have done so by error, you could still `undo' it in the
 marginal notes buffer, but not in the current buffer as adding
 and removing overlays are not part of the undo tree."
@@ -487,7 +481,7 @@ and removing overlays are not part of the undo tree."
     (org-remark-housekeep)
     (org-remark-highlights-sort)
     ;; Update the notes file accordingly
-    (org-remark-single-highlight-remove id arg)
+    (org-remark-single-highlight-remove id delete)
     t))
 
 
@@ -533,64 +527,59 @@ If there are more than one, return CAR of the list."
       (setq overlays (cdr overlays)))
     (car found)))
 
-(defun org-remark-single-highlight-mark (beg end &optional id load-only label face properties)
+(defun org-remark-single-highlight-mark
+    (beg end &optional id label face properties)
   "Apply the FACE to the region selected by BEG and END.
 
 This function will apply FACE to the selected region.  When it is
 nil, this function will use the default face `org-remark-highlighter'
 
 This function will add LABEL and PROPERTIES as overlay
-properties. PROPERTIES is a plist of pairs of a symbol and value.
+properties.  PROPERTIES is a plist of pairs of a symbol and value.
 
 When this function is used interactively, it will generate a new
 ID, always assuming it is working on a new highlighted text
 region, and Org-remark will start tracking the highlight's
 location in the current buffer.
 
-When this function is called from Elisp, ID can be optionally
-passed, indicating to Org-remark that it is an existing
-highlight.  In this case, no new ID gets generated.
-
 A Org headline entry for the highlght will be created in the
-marginal notes file specified by `org-remark-notes-file-path'. If
-the file does not exist yet, it will be created.
+marginal notes file specified by `org-remark-notes-file-path'.
+If the file does not exist yet, it will be created.
 
-When LOAD-ONLY is non-nil, this function will not save the
-highlight in the marginal notes file.  This is meant to be for
-`org-remark-load'."
+When this function is called from Elisp, ID can be optionally
+passed, indicating to Org-remark that it is to load an existing
+highlight.  In this case, no new ID gets generated and the
+highlight saved again, avoiding the unnecessary round-trip back
+to the database."
   ;; BEG and END are not selected and in the interactive call
   ;; not Elisp call
-  (when (and (not load-only) (not mark-active))
-    (let ((bound (bounds-of-thing-at-point 'word)))
-      (setq beg (car bound) end (cdr bound))))
-  ;; Ensure to turn on the local minor mode
-  (unless org-remark-mode (org-remark-mode +1))
-  ;; UUID is too long; does not have to be the full length
-  (when (not id) (setq id (substring (org-id-uuid) 0 8)))
-  ;; Add highlight to the text
-  (org-with-wide-buffer
-   (let ((ov (make-overlay beg end nil 'FRONT-ADVANCE)))
-     (overlay-put ov 'face (if face face 'org-remark-highlighter))
-     (while properties
-       (let ((prop (pop properties))
-             (val (pop properties)))
-         (overlay-put ov prop val)))
-     (when label (overlay-put ov 'org-remark-label label))
-     (overlay-put ov 'org-remark-id id)
-     ;; Keep track of the overlay in a local variable. It's a list that is
-     ;; guaranteed to contain only org-remark overlays as opposed to the one
-     ;; returned by `overlay-lists' that lists any overlays.
-     (push ov org-remark-highlights)
-     ;; Adding overlay to the buffer does not set the buffer modified. You
-     ;; cannot use `undo' to undo highlights, either.
-     (unless load-only
-       (org-remark-single-highlight-save (buffer-file-name)
-                                         beg end
-                                         (overlay-properties ov)
-                                         (org-remark-single-highlight-get-title)))
-     (deactivate-mark)))
-  (org-remark-housekeep)
-  (org-remark-highlights-sort))
+  (let* ((load-only (when id t))
+         ;; UUID is too long; does not have to be the full length
+         (id (if id id (substring (org-id-uuid) 0 8))))
+    ;; Ensure to turn on the local minor mode
+    (unless org-remark-mode (org-remark-mode +1))
+    ;; Add highlight to the text
+    (org-with-wide-buffer
+     (let ((ov (make-overlay beg end nil :front-advance)))
+       (overlay-put ov 'face (if face face 'org-remark-highlighter))
+       (while properties
+         (let ((prop (pop properties))
+               (val (pop properties)))
+           (overlay-put ov prop val)))
+       (when label (overlay-put ov 'org-remark-label label))
+       (overlay-put ov 'org-remark-id id)
+       ;; Keep track of the overlay in a local variable. It's a list that is
+       ;; guaranteed to contain only org-remark overlays as opposed to the one
+       ;; returned by `overlay-lists' that lists any overlays.
+       (push ov org-remark-highlights)
+       (unless load-only
+         (org-remark-single-highlight-save (buffer-file-name)
+                                           beg end
+                                           (overlay-properties ov)
+                                           (org-remark-single-highlight-get-title)))
+       (deactivate-mark)))
+    (org-remark-housekeep)
+    (org-remark-highlights-sort)))
 
 (defun org-remark-single-highlight-get-title ()
   "Return the title of the current buffer.
@@ -704,11 +693,11 @@ other packages such as Org-roam's backlink feature."
       (when (buffer-modified-p) (save-buffer))
       t)))
 
-(defun org-remark-single-highlight-remove (id &optional delete-notes)
+(defun org-remark-single-highlight-remove (id &optional delete)
   "Remove the highlight entry for ID for current buffer.
 By default, it deletes only the properties of the entry keeping
-the headline intact.  You can pass DELETE-NOTES and delete the
-all notes of the entry.
+the headline intact.  You can pass DELETE and delete the all
+notes of the entry.
 
 Return t if an entry is removed or deleted."
   (with-current-buffer (find-file-noselect org-remark-notes-file-path)
@@ -723,7 +712,7 @@ Return t if an entry is removed or deleted."
          (org-delete-property org-remark-prop-id)
          (org-delete-property org-remark-prop-source-beg)
          (org-delete-property org-remark-prop-source-end)
-         (when delete-notes
+         (when delete
            ;; TODO I would love to add the y-n prompt if there is any notes written
            (delete-region (point-min)(point-max))
            (message "Deleted the marginal notes entry"))
@@ -936,6 +925,23 @@ the global tracking purpose, the path must be an absolute path."
 (defun org-remark-empty-buffer-p ()
   "Return t when the current buffer is empty."
   (when (= 0 (buffer-size)) t))
+
+(defun org-remark-region-or-word ()
+  "Return beg and end of the active region or of the word at point.
+It is meant to be used within `interactive' in place for \"r\"
+key.  The \"r\" key outputs an error when no mark is set. This
+function extends the behavior and looks for the word at point"
+  (let ((beg (mark))
+        (end (point))
+        (word (bounds-of-thing-at-point 'word)))
+    ;; Use word's bounds when there is no active mark or one of beg/end is
+    ;; missing. The latter can happen when there is no mark is set yet.
+    (unless mark-active (setq beg (car word) end (cdr word)))
+    ;; Check beg end is required as the cursor may be on an empty point with no
+    ;; word under it.
+    (if (and beg end)
+        (list beg end)
+      (user-error "No region selected and the cursor is not on a word"))))
 
 
 ;;;; Footer
