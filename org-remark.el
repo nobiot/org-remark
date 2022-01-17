@@ -59,8 +59,7 @@
 
 (defcustom org-remark-create-default-pen-set t
   "When non-nil, Org-remark creates default pen set.
-Set to nil if you prefer for it not to.
-`org-remark-mark' is always created as a fall-back"
+Set to nil if you prefer for it not to."
   :type 'boolean)
 
 (defcustom org-remark-notes-file-path "marginalia.org"
@@ -141,8 +140,7 @@ property names with \"org-remark-\" or use \"CATEGORY\"."
   (if (not label) `(user-error "org-remark-create: Label is missing")
     `(progn
        (add-to-list 'org-remark-available-pens
-                    (intern (or (when ,label (format "org-remark-mark-%s" ,label))
-                                "org-remark-mark")))
+                    (intern (format "org-remark-mark-%s" ,label)))
        (defun ,(intern (format "org-remark-mark-%s" label))
            (beg end &optional id load-only)
          ,(format "Apply the following face to the region selected by BEG and END.
@@ -168,7 +166,8 @@ highlight in the marginal notes file.  This is meant to be for
 `org-remark-load'."
                   (or face "`org-remark-highlighter'") properties)
          (interactive "r")
-         (org-remark-mark beg end id load-only ,label ,face ,properties)))))
+         (org-remark-single-highlight-mark
+          beg end id load-only ,label ,face ,properties)))))
 
 ;; Don't use category (symbol) as a property -- it's a special one of text
 ;; properties. If you use it, the value also need to be a symbol; otherwise, you
@@ -244,60 +243,32 @@ recommended to turn it on as part of Emacs initialization.
 
 (add-to-list 'org-remark-available-pens #'org-remark-mark)
 ;;;###autoload
-(defun org-remark-mark (beg end &optional id load-only label face properties)
+(defun org-remark-mark (beg end &optional id load-only)
   "Apply the FACE to the region selected by BEG and END.
 
-This function will apply FACE to the selected region.  When it is
-nil, this function will use the default face `org-remark-highlighter'
-
-This function will add LABEL and PROPERTIES as overlay
-properties. PROPERTIES is a plist of pairs of a symbol and value.
+This function will apply face `org-remark-highlighter' to the selected region.
 
 When this function is used interactively, it will generate a new
 ID, always assuming it is working on a new highlighted text
 region, and Org-remark will start tracking the highlight's
 location in the current buffer.
 
-When this function is called from Elisp, ID can be optionally
-passed, indicating to Org-remark that it is an existing
-highlight.  In this case, no new ID gets generated.
-
 A Org headline entry for the highlght will be created in the
 marginal notes file specified by `org-remark-notes-file-path'. If
 the file does not exist yet, it will be created.
 
-When LOAD-ONLY is non-nil, this function will not save the
-highlight in the marginal notes file.  This is meant to be for
-`org-remark-load'."
+When this function is called from Elisp, ID and LOAD-ONLY can be
+optionally passed.  When ID is passed, it indicates to Org-remark
+that it is an existing highlight.  In this case, no new ID gets
+generated.  When LOAD-ONLY is non-nil, this function will not
+save the highlight in the marginal notes file.  This is meant to
+be for `org-remark-load'."
   (interactive "r")
-  ;; Ensure to turn on the local minor mode
-  (unless org-remark-mode (org-remark-mode +1))
-  ;; UUID is too long; does not have to be the full length
-  (when (not id) (setq id (substring (org-id-uuid) 0 8)))
-  ;; Add highlight to the text
-  (org-with-wide-buffer
-   (let ((ov (make-overlay beg end nil 'FRONT-ADVANCE)))
-     (overlay-put ov 'face (if face face 'org-remark-highlighter))
-     (while properties
-       (let ((prop (pop properties))
-             (val (pop properties)))
-         (overlay-put ov prop val)))
-     (when label (overlay-put ov 'org-remark-label label))
-     (overlay-put ov 'org-remark-id id)
-     ;; Keep track of the overlay in a local variable. It's a list that is
-     ;; guaranteed to contain only org-remark overlays as opposed to the one
-     ;; returned by `overlay-lists' that lists any overlays.
-     (push ov org-remark-highlights)
-     ;; Adding overlay to the buffer does not set the buffer modified. You
-     ;; cannot use `undo' to undo highlights, either.
-     (unless load-only
-       (org-remark-single-highlight-save (buffer-file-name)
-                                         beg end
-                                         (overlay-properties ov)
-                                         (org-remark-single-highlight-get-title)))
-     (deactivate-mark)))
-  (org-remark-housekeep)
-  (org-remark-highlights-sort))
+  ;; FIXME
+  ;; Adding "nil" is different to removing a prop
+  ;; This will do for now
+  (org-remark-single-highlight-mark beg end id load-only nil nil
+                                    (list "org-remark-label" "nil")))
 
 (defun org-remark-load ()
   "Visit `org-remark-notes-file' & load the saved highlights onto current buffer.
@@ -561,6 +532,65 @@ If there are more than one, return CAR of the list."
             (setq found (cons overlay found))))
       (setq overlays (cdr overlays)))
     (car found)))
+
+(defun org-remark-single-highlight-mark (beg end &optional id load-only label face properties)
+  "Apply the FACE to the region selected by BEG and END.
+
+This function will apply FACE to the selected region.  When it is
+nil, this function will use the default face `org-remark-highlighter'
+
+This function will add LABEL and PROPERTIES as overlay
+properties. PROPERTIES is a plist of pairs of a symbol and value.
+
+When this function is used interactively, it will generate a new
+ID, always assuming it is working on a new highlighted text
+region, and Org-remark will start tracking the highlight's
+location in the current buffer.
+
+When this function is called from Elisp, ID can be optionally
+passed, indicating to Org-remark that it is an existing
+highlight.  In this case, no new ID gets generated.
+
+A Org headline entry for the highlght will be created in the
+marginal notes file specified by `org-remark-notes-file-path'. If
+the file does not exist yet, it will be created.
+
+When LOAD-ONLY is non-nil, this function will not save the
+highlight in the marginal notes file.  This is meant to be for
+`org-remark-load'."
+  ;; BEG and END are not selected and in the interactive call
+  ;; not Elisp call
+  (when (and (not load-only) (not mark-active))
+    (let ((bound (bounds-of-thing-at-point 'word)))
+      (setq beg (car bound) end (cdr bound))))
+  ;; Ensure to turn on the local minor mode
+  (unless org-remark-mode (org-remark-mode +1))
+  ;; UUID is too long; does not have to be the full length
+  (when (not id) (setq id (substring (org-id-uuid) 0 8)))
+  ;; Add highlight to the text
+  (org-with-wide-buffer
+   (let ((ov (make-overlay beg end nil 'FRONT-ADVANCE)))
+     (overlay-put ov 'face (if face face 'org-remark-highlighter))
+     (while properties
+       (let ((prop (pop properties))
+             (val (pop properties)))
+         (overlay-put ov prop val)))
+     (when label (overlay-put ov 'org-remark-label label))
+     (overlay-put ov 'org-remark-id id)
+     ;; Keep track of the overlay in a local variable. It's a list that is
+     ;; guaranteed to contain only org-remark overlays as opposed to the one
+     ;; returned by `overlay-lists' that lists any overlays.
+     (push ov org-remark-highlights)
+     ;; Adding overlay to the buffer does not set the buffer modified. You
+     ;; cannot use `undo' to undo highlights, either.
+     (unless load-only
+       (org-remark-single-highlight-save (buffer-file-name)
+                                         beg end
+                                         (overlay-properties ov)
+                                         (org-remark-single-highlight-get-title)))
+     (deactivate-mark)))
+  (org-remark-housekeep)
+  (org-remark-highlights-sort))
 
 (defun org-remark-single-highlight-get-title ()
   "Return the title of the current buffer.
