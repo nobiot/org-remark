@@ -14,7 +14,7 @@
 
 #+ATTR_TEXINFO: :tag CAUTION
 #+begin_quote
-This manual is still in a draft version and missing some key information relevant to the version being described.
+This manual is still in a draft version.
 #+end_quote
 
 This manual is for Org-remark version {{{version}}}.
