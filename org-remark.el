@@ -63,7 +63,7 @@ Set to nil if you prefer for it not to."
   :type 'boolean)
 
 (defcustom org-remark-notes-file-path "marginalia.org"
-  "Specify the file path to store the location of highlights and write annotations.
+  "Define the file path to store the location of highlights and write annotations.
 The default is one file per directory.  Ensure that it is an Org
 file."
   :type 'file)
@@ -125,7 +125,7 @@ The newly created pen function will be registered to variable
 `org-remark-available-pens'.  It is used by `org-remark-change'
 as a selection list.
 
-LABEL is the name of the highlighter and mandatoryy.  The function
+LABEL is the name of the highlighter and mandatory.  The function
 will be named `org-remark-mark-LABEL'.
 
 The highlighter pen function will apply FACE to the selected region.

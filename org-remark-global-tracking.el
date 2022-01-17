@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 15 August 2021
-;; Last modified: 16 January 2022
+;; Last modified: 17 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal notes
 
@@ -34,7 +34,7 @@
 (defcustom org-remark-tracking-file
   (abbreviate-file-name
    (expand-file-name ".org-remark-tracking" user-emacs-directory))
-  "File name where the files `org-remark' tracks is saved.
+  "Define file path to save the files `org-remark' tracks.
 When `org-remark-global-tracking-mode' is active, opening a file
 saved in `org-remark-tracking-file' automatically loads highlights."
   :group 'org-remark
