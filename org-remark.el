@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 0.1.0
 ;; Created: 22 December 2020
-;; Last modified: 16 January 2022
+;; Last modified: 17 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -119,17 +119,33 @@ It is meant to exist only one of these in each Emacs session.")
 
 ;;;; Macros to create user-defined highlighter pen functions
 
-(defmacro org-remark-pen-factory (&optional label face properties)
-  "Create a user-defined highlighter pen function.
+(defmacro org-remark-create (label &optional face properties)
+  "Create and register new highlighter pen functions.
 
-Use `org-remark-create' to create and register the new pen
-instead of this \"factory\" macro.
+The newly created pen function will be registered to variable
+`org-remark-available-pens'.  It is used by `org-remark-change'
+as a selection list.
 
-For LABEL, FACE, and PROPERTIES, refer to the docstring of `org-remark-create'."
-  `(defun ,(intern (or (when label (format "org-remark-mark-%s" label))
-                       "org-remark-mark"))
-       (beg end &optional id load-only)
-     ,(format "Apply the following face to the region selected by BEG and END.
+LABEL is the name of the highlighter and mandatoryy.  The function
+will be named `org-remark-mark-LABEL'.
+
+The highlighter pen function will apply FACE to the selected region.
+FACE can be an anonymous face.  When FACE is nil, this macro uses
+the default face `org-remark-highlighter'.
+
+PROPERTIES is a plist of pairs of a symbol and value.  Each
+highlighted text region will have a corresponding Org headline in
+the notes file, and it can have additional properties in the
+property drawer from the highlighter pen.  To do this, prefix
+property names with \"org-remark-\" or use \"CATEGORY\"."
+  (if (not label) `(user-error "org-remark-create: Label is missing")
+    `(progn
+       (add-to-list 'org-remark-available-pens
+                    (intern (or (when ,label (format "org-remark-mark-%s" ,label))
+                                "org-remark-mark")))
+       (defun ,(intern (format "org-remark-mark-%s" label))
+           (beg end &optional id load-only)
+         ,(format "Apply the following face to the region selected by BEG and END.
 
 %s
 
@@ -139,48 +155,20 @@ text region:
 %S
 
 When this function is used interactively, it will generate a new
-ID, always assuming it is a new highlighted text region, and
-Org-remark will start tracking the highlight's location in the
-current buffer.
-
-The entry for the highlght will be created in the marginal notes
-file specified by `org-remark-notes-file-path'.  If the file does
-not exist yet, it will be created.
+ID, always assuming it is working on a new highlighted text
+region, and Org-remark will start tracking the highlight's
+location in the current buffer.
 
 When this function is called from Elisp, ID can be optionally
-passed.  If so, no new ID gets generated.
+passed, indicating to Org-remark that it is an existing
+highlight.  In this case, no new ID gets generated.
 
 When LOAD-ONLY is non-nil, this function does not save the
 highlight in the marginal notes file.  This is meant to be for
 `org-remark-load'."
-              (or face "`org-remark-highlighter'") properties)
-     (interactive "r")
-     (org-remark-mark beg end ,label ,face ,properties id load-only)))
-
-(defmacro org-remark-create (&optional label face properties)
-  "Create and register new highlighter pen functions.
-LABEL is the name of the highlighter.  The function will be called
-`org-remark-mark-LABEL' or, when LABEL is nil, the default
-`org-remark-mark'.
-
-The highlighter pen function will apply FACE to the selected region.
-FACE can be an anonymous face.  When FACE is nil, this macro uses
-the default face `org-remark-highlighter'.
-
-PROPERTIES is a list of pairs of a symbol and value.  Each
-highlighted text region will have a corresponding Org headline in
-the notes file, and it can have properties from the highlighter
-pen.  To do this, prefix property names with \"org-remark-\" or use
-\"CATEGORY\".
-
-The newly created pen functions are registered to variable
-`org-remark-available-pens'.  It is used by `org-remark-change'
-as a selection list."
-  `(progn
-     (org-remark-pen-factory ,label ,face ,properties)
-     (add-to-list 'org-remark-available-pens
-                  (intern (or (when ,label (format "org-remark-mark-%s" ,label))
-                              "org-remark-mark")))))
+                  (or face "`org-remark-highlighter'") properties)
+         (interactive "r")
+         (org-remark-mark beg end ,label ,face ,properties id load-only)))))
 
 ;; Don't use category (symbol) as a property -- it's a special one of text
 ;; properties. If you use it, the value also need to be a symbol; otherwise, you
@@ -257,29 +245,28 @@ recommended to turn it on as part of Emacs initialization.
 (add-to-list 'org-remark-available-pens #'org-remark-mark)
 ;;;###autoload
 (defun org-remark-mark (beg end &optional label face properties id load-only)
-  "Apply the following face to the region selected by BEG and END.
-
-LABEL
+  "Apply the FACE to the region selected by BEG and END.
 
 This function will apply FACE to the selected region.  When it is
-nil, this function uses the default face `org-remark-highlighter'
+nil, this function will use the default face `org-remark-highlighter'
 
-PROPERTIES is a plist of pairs of a symbol and value.  This
-function adds them as overlay properties.
+This function will add LABEL and PROPERTIES as overlay
+properties. PROPERTIES is a plist of pairs of a symbol and value.
 
 When this function is used interactively, it will generate a new
-ID, always assuming it is a new highlighted text region, and
-Org-remark will start tracking the highlight's location in the
-current buffer.
+ID, always assuming it is working on a new highlighted text
+region, and Org-remark will start tracking the highlight's
+location in the current buffer.
 
 When this function is called from Elisp, ID can be optionally
-passed.  If so, no new ID gets generated.
+passed, indicating to Org-remark that it is an existing
+highlight.  In this case, no new ID gets generated.
 
-The entry for the highlght will be created in the marginal notes
-file specified by `org-remark-notes-file-path'.  If the file does
-not exist yet, it will be created.
+A Org headline entry for the highlght will be created in the
+marginal notes file specified by `org-remark-notes-file-path'. If
+the file does not exist yet, it will be created.
 
-When LOAD-ONLY is non-nil, this function does not save the
+When LOAD-ONLY is non-nil, this function will not save the
 highlight in the marginal notes file.  This is meant to be for
 `org-remark-load'."
   (interactive "r")
@@ -709,7 +696,7 @@ Return t if an entry is removed or deleted."
          (when delete-notes
            ;; TODO I would love to add the y-n prompt if there is any notes written
            (delete-region (point-min)(point-max))
-           (message "Deleted the marginal notes."))
+           (message "Deleted the marginal notes entry"))
          (when (buffer-modified-p) (save-buffer))))
       t))
 
