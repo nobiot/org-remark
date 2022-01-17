@@ -1,5 +1,8 @@
 - Changes ::
 
+  - Visit and open: for open you will stay in the current buffer. For further
+    edititing, use visit.
+
   - Removing all use of "marginalia"
 
     + The default value of org-remark-notes-file-path is changed from

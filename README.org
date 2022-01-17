@@ -62,6 +62,8 @@ non-nil, Org-marginalia will add an ID property to the file level. This is mainl
 - [[#feedback][Feedback]]
 - [[#license][License]]
 - [[#local-variables][Local Variables]]
+- [[#org-remark][org-remark]]
+  - [[#defun][defun]]
 :END:
 
 * Installation
@@ -318,3 +320,14 @@ This work is licensed under a GPLv3 license. For a full copy of the licese, refe
 # End:
 
 
+
+* org-remark
+:PROPERTIES:
+:org-remark-file: ~/src/org-remark/org-remark.el
+:END:
+
+** defun
+:PROPERTIES:
+:CATEGORY: correction
+:END:
+[[file:~/src/org-remark/org-remark.el::211][org-remark]]
