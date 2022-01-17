@@ -1,11 +1,12 @@
 [[file:https://img.shields.io/badge/License-GPLv3-blue.svg]]
 
-#+TITLE: Org-marginalia
+#+TITLE: Org-remark
 
 #+PROPERTY: LOGGING nil
 
 # Note: I use the readme template that alphapapa shares on his GitHub repo <https://github.com/alphapapa/emacs-package-dev-handbook#template>. It works with the org-make-toc <https://github.com/alphapapa/org-make-toc> package, which automatically updates the table of contents.
 
+<<<<<<< HEAD
 * ❦❦❦ IMPORTANT NOTICE ❦❦❦
 
 [This notice written on 3 January 2022]
@@ -78,6 +79,8 @@ non-nil, Org-marginalia will add an ID property to the file level. This is mainl
 - [[#feedback][Feedback]]
 - [[#license][License]]
 - [[#local-variables][Local Variables]]
+- [[#org-remark][org-remark]]
+  - [[#defun][defun]]
 :END:
 
 * Installation
@@ -332,3 +335,16 @@ This work is licensed under a GPLv3 license. For a full copy of the licese, refe
 # org-export-with-title: t
 # line-spacing: 4
 # End:
+
+
+
+* org-remark
+:PROPERTIES:
+:org-remark-file: ~/src/org-remark/org-remark.el
+:END:
+
+** defun
+:PROPERTIES:
+:CATEGORY: correction
+:END:
+[[file:~/src/org-remark/org-remark.el::211][org-remark]]

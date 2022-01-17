@@ -1,0 +1,28 @@
+name: GH-Page AutoGen
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    continue-on-error: false
+    steps:
+    - uses: actions/checkout@v2
+    - uses: purcell/setup-emacs@master
+      with:
+        version: '27.2'
+    - name: Install dependencies
+      run: sudo apt-get install texinfo
+    - name: Run docs/make gh-html
+      run: |
+        cd docs
+        make gh-html
+    - name: Deploy 🚀
+      uses: JamesIves/github-pages-deploy-action@4.1.7
+      with:
+        branch: gh-pages # The branch the action should deploy to.
+        folder: docs # The folder the action should deploy.
