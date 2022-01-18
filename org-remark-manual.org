@@ -236,7 +236,7 @@ Org-remark's user options are available in the ~org-remark~ group.
 - Face: ~org-remark-highlighter~ ::
   Default face for ~org-remark-mark~
 
-- Customizable variable: org-remark-create-default-pen-set ::
+- Customizable variable: ~org-remark-create-default-pen-set~ ::
   When non-nil, Org-remark creates default pen set. Set to nil if you prefer for it not to.
   
 - Customizable variable: ~org-remark-notes-file-path~ ::
@@ -259,8 +259,8 @@ name.
   Define if Org-remark use Org-ID to link back to the main note.
 
 - Customizable variable: ~org-remark-tracking-file~ ::
-  Define file path to save the files `org-remark' tracks.
-When `org-remark-global-tracking-mode' is active, opening a file
+  Define file path to save the files ~org-remark~ tracks.
+When ~org-remark-global-tracking-mode~ is active, opening a file
 saved in ~org-remark-tracking-file~ automatically loads highlights.
 
 * Known Limitations
