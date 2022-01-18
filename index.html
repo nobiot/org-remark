@@ -321,15 +321,14 @@ Next: <a href="#Tracking-to-Automatically-Load-Highlights-after-Re_002dstarting-
 <dt>Macro: org-remark-create label &amp;optional face properties</dt>
 <dd><p>Create and register new highlighter pen functions. The newly created pen function will be registered to variable <code>org-remark-available-pens</code>.  It is used by <code>org-remark-change</code> as a selection list.
 </p>
-<p>LABEL is the name of the highlighter and mandatory.  The function
-</p></dd>
-</dl>
-<p>will be named <code>org-remark-mark-LABEL</code>.
+<p>LABEL is the name of the highlighter and mandatory.  The function will be named <code>org-remark-mark-LABEL</code>.
 </p>
 <p>The highlighter pen function will apply FACE to the selected region. FACE can be an anonymous face.  When FACE is nil, this macro uses the default face <code>org-remark-highlighter</code>.
 </p>
 <p>PROPERTIES is a plist of pairs of a symbol and value. Each highlighted text region will have a corresponding Org headline in the notes file, and it can have additional properties in the property drawer from the highlighter pen.  To do this, prefix property names with &ldquo;&lsquo;<samp>org-remark-</samp>&rsquo;&rdquo; or use &ldquo;&lsquo;<samp>CATEGORY</samp>&rsquo;&rdquo;.
-</p>
+</p></dd>
+</dl>
+
 <blockquote>
 <p><b>NOTE:</b> Don&rsquo;t use &lsquo;<samp>category</samp>&rsquo; (all lowercase, symbol) as a property &ndash; it&rsquo;s a special one for text properties. If you use it, the value also need to be a symbol; otherwise, you will get an error. You can use &lsquo;<samp>CATEGORY</samp>&rsquo; (all uppercase, symbol), which will result in adding &lsquo;<samp>CATEGORY</samp>&rsquo; with the value in the property drawer in marginal notes Org files.
 </p>
