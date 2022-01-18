@@ -1,314 +1,95 @@
 [[file:https://img.shields.io/badge/License-GPLv3-blue.svg]]
 
-#+TITLE: Org-remark
+#+title: README: Org-remark
 
-#+PROPERTY: LOGGING nil
-
-# Note: I use the readme template that alphapapa shares on his GitHub repo <https://github.com/alphapapa/emacs-package-dev-handbook#template>. It works with the org-make-toc <https://github.com/alphapapa/org-make-toc> package, which automatically updates the table of contents.
-
-<<<<<<< HEAD
 * ❦❦❦ IMPORTANT NOTICE ❦❦❦
 
-[This notice written on 3 January 2022]
+[This notice written on 18 January 2022]
 
 Happy 2022!
 
-I am finalizing the the name of the package and GitHub repo. See [[https://github.com/nobiot/org-marginalia/pull/10][PR #10]]. It's probably going to be "*Org-remark*". The =dev/name-change= branch contains all the changes pertaining to the name change along some additional features -- most notably, different highlighter pen colors and capability to let you create different pens (an idea borrowed from John Kitchin's [[https://github.com/jkitchin/ov-highlight][Ov-highlight]]).
+I have changed the name of the project and package to "*Org-remark*" from Org-marginalia. 
 
-There will be some minor breaking changes, which I am going through right now in my own machine. I will document the ways to bridge the breakages; nothing really major and I'm also trying to make the new version as backward compatible as possible from my lessons learnt.
+If you are using Org-marginalia now, there are breaking changes. This package includes the feature that automatically converts the old Org-marginalia data into the new Org-remark data. Add ~org-remark-convert-legacy~ feature like this:
 
-After the change, I will propose the package to be added to ELPA.
+#+begin_src elisp
+  (require 'org-remark-convert-legacy)
+#+end_src
 
-I would appreciate any feedback or comment via [[https://github.com/nobiot/org-marginalia/pull/10][PR #10]], Org-roam discourse, or direct email (probably not Slack or Reddit as I'm really not present on these media).
+This feature is designed to work automatically and transparently to you, meaning you should not have to do anything, as long as you did not customize ~org-marginala-notes-file-path~. If you did, you also need to customize ~org-remark-notes-file-path~. You can also manually do data conversion if you wish. For more detail, refer to the docstring of function ~org-remark-convert-legacy-data~. 
 
 * Intorduction
 
-Org-marginalia lets you highlight text, and write margin notes (marginalia) for any text file in a separate Org file. 
+Org-remark lets you highlight and annotate any text file with using Org mode.
+
+A complete [[https://nobiot.github.io/org-remark/][user manual]] is available online (Info file will be added when Org-remark is added to ELPA/MELPA).
+
+For installation and minimum configuration, refer to [[#installation][Installation]] below or the corresponding section in the user manual.
+
+[[https://nobiot.github.io/org-remark/#getting-started][Getting Started]] in the user manual will get you started in 5 minutes.
 
 [[./resources/images/2020-12-24T101116_Title.png]]
-*Figure 1*. Left: Org-mode with text enlarged; Right marginalia file with the inline image display on
+*Figure 1*. Left: Org-mode with text enlarged; Right marginal notes with the inline image display on
 
 * Screenshots
 
 Refer to the screenshots below for a teaser of  what it can do.
 
+#+begin_quote
+The screen shots are from the old Org-marginalia. They are still relevant but new screen shots are on their way.
+#+end_quote
+
 [[./resources/images/2020-12-22T141331-OM-screen-shot-01.png]]
-*Figure 2*. Left: main note with some text highlighted in green; Right: margin notes in a marginalia file
+*Figure 2*. Left: main note with some text highlighted in green; Right: marginal notes in a marginalia file
 
 [[./resources/images/2021-08-17T220032.png]]
-*Figure 3*. Left: =org-roam-buffer= showing backlinks from the marginal notes; Right: main Org note. Org-marinalia can automatically add links with Org-ID from marginal notes back to the main file. This works well with Org-roam's backlink (V2)
+*Figure 3*. Left: ~org-roam-buffer~ showing backlinks from the marginal notes; Right: main Org note. Org-remark can automatically add links with Org-ID from marginal notes back to the main file. This works well with Org-roam's backlinks
 
 [[./resources/images/2020-12-22T141331-OM-screen-shot-03.png]]
-*Figure 4*. Main note can be any text files. Left: an ~.el~ file with a highlight; Right: marginalia file
-
-* News
-
-** New Features
-
-- Auto-activation of Org-marginalia Mode when Opening Files with Marginal Notes ::
-  A new global minor mode =org-marginalia-global-tracking-mode= has been introduced as of 0.0.6. It saves and tracks files that have marginal notes. When it is active, visiting a file being tracked automatically turns on =org-marginalia-mode=, loading highlights previously saved in the marginalia file.
-  The files being tracked are saved in =org-marginalia-tracking-file=, which you can customize. The default file is named =.org-marginalia-tracking= in your Emacs configuration directory (=user-emacs-directory=).
-
-- Support for Org ID and Org-roam ::
-  This is only applicable when the main source note is an Org file.
-  As of 0.0.6, seamless workflow with Org-roam has been added by generating ID links automatically.
-  If user option =org-marginalia-use-org-id= is non-nil (default) and Org ID is available in the main note, Org-marginalia will create a link back to the source note with using an Org-ID link instead of a normal file link.
-  Org-marginalia looks at property inheritance for ID properties. When the immediate headline where a highlight belongs does not have an ID, the ID of a higher headline or file property is used when available. When none is available, Org-marginalia falls back to a normal file link.
-  When a new marginalia file is created and =org-marginalia-use-org-id= is
-non-nil, Org-marginalia will add an ID property to the file level. This is mainly to support Org-roam's backlink feature for marginalia files.
-
-** Removing limitations
-
-- Use of Overlays, no longer Text-Properties ::
-  This makes easier to add a highlighter overlay on top of text regions that already have faces (e.g. syntax-highlighted part of source code).
-
-- Now turning off minor mode will turn off the highlights ::
-  It is still recommended to use =org-marginalia-toggle= to temporarily hide/show highlights. This is because turning off =org-marginalia-mode= will stop tracking of the locations of highlights in the current buffer. **Any** (however minor) change will likely result in mismatching the locations of saved highlights and the current buffer's text content.
-
-* Contents                                                         :noexport:
-:PROPERTIES:
-:TOC:      :include siblings
-:END:
-:CONTENTS:
-- [[#installation][Installation]]
-- [[#usage][Usage]]
-- [[#customizing][Customizing]]
-- [[#known-limitations][Known Limitations]]
-- [[#changelog][Changelog]]
-- [[#credits][Credits]]
-- [[#feedback][Feedback]]
-- [[#license][License]]
-- [[#local-variables][Local Variables]]
-- [[#org-remark][org-remark]]
-  - [[#defun][defun]]
-:END:
+*Figure 4*. Main note can be any text files. Left: an ~.el~ file with a highlight; Right: marginal notes file
 
 * Installation
 :PROPERTIES:
-:TOC:      :depth 0
+:CUSTOM_ID: installation
 :END:
-** Manual
-This package is not available on MELPA. Manual installation is required.
+
+This package is not available on ELPA or MELPA yet. Manual installation is required.
 
 Ensure to have Org Mode 9.4 or later (tested on 9.4.2). This package uses ~org-collect-keywords~, which does not exist in an earlier version.
 
-Store both of the =.el= files in the repo in your load-path, and put this in your init file:
-
-#+BEGIN_SRC emacs-lisp
-  (add-to-list 'load-path "~/local-repos/org-marginalia/")
-  (require 'org-marginalia-global-tracking)
-  (require 'org-marginalia)
-#+END_SRC
-
-By loading =org-marginalia=, it will also pull in Org mode. You might like to defer loading of Org as it might take long time. As of version 0.0.6, you can do so with loading only =org-marginalia-global-tracking=, which does not load =org= automatically.
-
-For example, I use this in my init file. 
+Store all the =.el= files in the repo in your load-path and put this in your
+init file:
 
 #+begin_src emacs-lisp
-  ;; Set `load-path'
-  (add-to-list 'load-path "~/local-repos/org-marginalia")
-
-  ;; Load only `org-marginalia-global-tracking'
-  ;; and turn it on for automatic loading of highlights
-  ;; for the files tracked
-  (load-library "org-marginalia-global-tracking")
-  (org-marginalia-global-tracking-mode 1)
-
-  ;; Set keybindings `org-marginalia-mark' is bound to global-map so that you can
-  ;; call it globally before the library is loaded.  In order to make
-  ;; `org-marginalia-mark' and `org-marginalia-mode' callable, use `autoload'.
-  ;; When this package is available in MELPA, `autoload' should not be required.
-  (autoload #'org-marginalia-mark "org-marginalia" nil t)
-  (autoload #'org-marginalia-mode "org-marginalia" nil t)
-  (define-key global-map (kbd "C-c m") #'org-marginalia-mark)
-  ;; The rest of keybidings are done only on loading `org-marginalia'
-  (with-eval-after-load 'org-marginalia
-    (define-key org-marginalia-mode-map (kbd "C-c n o") #'org-marginalia-open)
-    (define-key org-marginalia-mode-map (kbd "C-c n ]") #'org-marginalia-next)
-    (define-key org-marginalia-mode-map (kbd "C-c n [") #'org-marginalia-prev)
-    (define-key org-marginalia-mode-map (kbd "C-c n r") #'org-marginalia-remove))
+  ;; Set `load-path' , load `org-remark-global-tracking', and turn it on for
+  ;; automatic loading of highlights for the files tracked
+  (add-to-list 'load-path "~/local-repos/org-remark")
+  (require 'org-remark-global-tracking)
+  (org-remark-global-tracking-mode +1)
 #+end_src
-  
-* Usage
-:PROPERTIES:
-:TOC:      :depth 0
-:END:
-** Commands
 
-- =org-marginalia-global-tracking-mode= ::
-A global minor mode to save and track files that have marginal notes.
-When active, visiting a file being tracked automatically turns on =org-marginalia-mode=, which loads highlights previously saved in the marginalia file.
+Unless you explicitly load =org= during Emacs initialization, I suggest to defer loading =org-remark= (thus there is no =(require 'org-remark)= in the example above). This is because it will also pull in =org=, which can slow down initialization. By autoloading some commands in similar ways as the example keybindings below, you can control the timing of loading =org-remark=. 
 
-The files being tracked are saved in =org-marginalia-tracking-file=, which you can customize. The default file is named =.org-marginalia-tracking= in your Emacs configuration directory (=user-emacs-directory=).
-
-- =org-marginalia-mode= ::
-Org-marginalia is a local minor mode. Toggle it on/off with using =org-marginalia-mode=. On activating, it loads your saved highlights from the marginalia file (defined by =org-marginalia-notes-file-path=), and enables automatic saving of highlights. The automatic saving is achieved via function =org-marginalia-save= added to =after-save-hook=.
-
-- =org-marginalia-mark= ::
-Select a region of text, and call =org-marginalia-mark= to highlight the region. It will generate a new ID, and start tracking the location -- so you can edit text around the highlighted text. Do not cut, copy and paste as the highlight will disappear (you can immediately =undo= to recover the text region along the highlights). To create a new marginal note entry in the marginalia file, save the buffer.
-
-- =org-marginalia-save= ::
-By default, Org-marginalia automatically creates or updates corresponding entries in the marginalia file with location and text of highlights on saving the buffer. Nevertheless, you can manually call =org-marginalia-save= to do so (automatic process also call this command).
-
-If user option =org-marginalia-use-org-id= is non-nil, Org-marginalia will
-create a link back to the source note with using an Org-ID link instead of a
-normal file link.
-
-When a new marginalia file is created and =org-marginalia-use-org-id= is
-non-nil, Org-marginalia will add an ID property to the file level. This is mainly to support Org-roam's backlink feature for marginalia files.
-
-- =org-marginalia-open= ::
-Move your cursor on the highlighted text, and call =org-marginalia-open= to open the relevant margin notes in a separate window. Your cursor will move to the marginalia buffer narrowed to the relevant margin notes entry. You can edit the marginalia buffer as a normal Org buffer. Once you have done editing, you may simply save and close the it (kill it or close the window) as per your normal workflow. Technically, the marginalia buffer is a cloned indirect buffer of the marginalia file. 
-
-- =org-marginalia-load= ::
-This command visits the marginalia file and loads the saved highlights onto the current buffer. If there is no margin notes for it, it will output a message in the echo. Highlights tracked locally by Org-marginalia cannot persist when you kill the buffer, or quit Emacs. When you re-launch Emacs, ensure to turn on =org-marginalia-mode= to load the highlights. Loading is automatically done when you activate the minor mode.
-
-- =org-marginalia-remove= ::
-This command removes the highlight at point. It will remove the highlight, and remove the properties from the marginalia, but will keep the headline and notes in tact.
-
-You can pass a universal argument (=C-u= by default). If this is the case, the command additionally deletes the entire heading subtree, along with the notes you have written, for the highlight.
-
-- =org-marginalia-next= ::
-Move to the next highlight if any. If there is none below the cursor, and there is a highlight above, loop back to the top one.
-If the point has moved to the next highlight, this function enables transient map with `set-transient-map'. You don't have to press the keybinding prefix again to move further to the next. That is, you can do a key sequence like this:
-
-   =C-c n ] ] ] ]=
-
-If you have the same prefix for `org-marginalia-prev', you can combine it in
-the sequence like so:
-
-  =C-c n ] ] [ [=
-  This lets your cursor back to where you started (next next prev prev)
-
-- =org-marginalia-prev= ::
-Move to the previous highlight if any. If there is none above the cursor, and there is a highlight below, loop back to the bottom one. This function enables transient map. See =org-marginalia-next= for detail.
-
-- =org-marginalia-toggle= ::
-Toggle showing/hiding of highlighters in current buffer. It only affects the display of the highlighters. When hidden, highlights' locations are still kept tracked; thus, upon buffer-save the correct locations are still recorded in the marginalia file.
-
-** Keybindings Examples
-
-`Org-marginalia` only provides its mode map, and does not bind any keys to it. As an example, you coud do something like this below.
+Below are example keybindings you might like to consider:
 
 #+begin_src emacs-lisp
-(define-key org-marginalia-mode-map (kbd "C-c n o") #'org-marginalia-open)
-(define-key org-marginalia-mode-map (kbd "C-c m") #'org-marginalia-mark)
-(define-key org-marginalia-mode-map (kbd "C-c n ]") #'org-marginalia-next)
-(define-key org-marginalia-mode-map (kbd "C-c n [") #'org-marginalia-prev)
+  ;; Key-bind `org-remark-mark' to global-map so that you can call it globally
+  ;; before the library is loaded.  In order to make `org-remark-mark' and
+  ;; `org-remark-mode' callable, use `autoload'.
+  (autoload #'org-remark-mark "org-remark" nil t)
+  (autoload #'org-remark-mode "org-remark" nil t)
+  (define-key global-map (kbd "C-c n m") #'org-remark-mark)
+
+  ;; The rest of keybidings are done only on loading `org-remark'
+  (with-eval-after-load 'org-remark
+    (define-key org-remark-mode-map (kbd "C-c n o") #'org-remark-open)
+    (define-key org-remark-mode-map (kbd "C-c n ]") #'org-remark-view-next)
+    (define-key org-remark-mode-map (kbd "C-c n [") #'org-remark-view-prev)
+    (define-key org-remark-mode-map (kbd "C-c n r") #'org-remark-remove))
 #+end_src
 
-** Composing Personal Workflow
-
-Currently only "elementary" functions are defined in the package; for example,  =mark= , =save=, and =open= are all separate functions. You can string these together to compose a more fluid operation to suite your own workflow. A very useful set of such chained commands have been suggesetd by holtzermann17 in [[https://org-roam.discourse.group/t/prototype-org-marginalia-write-margin-notes-with-org-mode/1080/10][Org-roam's Discourse discussion]] (adjusted to reflect the change of the prefix from =om/= to =org-marginalia-=) .
-
-I will try to incorporate these into the package when I have more time to focus on it -- I find them useful, but there are some plans I have had, and want to think of how I can incoprate these suggestions better with my ideas. 
-
-#+begin_src emacs-lisp
-  (defun org-marginalia-make-annotation ()
-    (interactive)
-    (let ((mark-end (region-end)))
-      (org-marginalia-mark (region-beginning) (region-end))
-      (org-marginalia-save)
-      (org-marginalia-open (1- mark-end))
-      (end-of-buffer)))
-
-  (define-key org-marginalia-mode-map (kbd "C-c M")
-    #'org-marginalia-make-annotation)
-
-  (defun org-marginalia-browse-forward ()
-    (interactive)
-    (let ((buf (current-buffer)))
-      (org-marginalia-next) (org-marginalia-open (point))
-      (pop-to-buffer buf nil t)))
-
-  (define-key org-marginalia-mode-map (kbd "C-c n }")
-    #'org-marginalia-browse-forward)
-
-  (defun org-marginalia-browse-backward ()
-    (interactive)
-    (let ((buf (current-buffer)))
-      (org-marginalia-prev) (org-marginalia-open (point))
-      (pop-to-buffer buf nil t)))
-
-  (define-key org-marginalia-mode-map (kbd "C-c n {")
-    #'org-marginalia-browse-backward)
-#+end_src
-
-* Customizing
-
-- You can customize settings in the =org-marginalia= group.
-- Highlight's face can be changed via =org-marginalia-highlighter=
-- Marginalia file is defined by =org-marginalia-notes-file-path=
-- Your files with marginal notes are saved and tracked in
-  =org-marginalia-tracking-file= (when tracking is turned on via the global
-  minor mode =org-marginalia-global-tracking-mode=)
-- You can use Org-ID to create links from marginal notes back to their main
-  notes when =org-marginalia-use-org-id= is on (default is on). This option also enables Org-marginalia to add an ID property when a new marginalia file is being created. This is to support seamless workflow with [[https://orgroam.com][Org-roam]].
-
-* Known Limitations
-
-- Copy & pasting loses highlights :: Overlays are not part of the kill; thus cannot be yanked.
-  
-- Undo highlight does not undo it :: Overlays are not part of the undo list; you cannot undo highlighting. Use =org-marginalia-remove= command instead.
-  
-- Moving source files and marginalia file :: Move your files and marginalia file to another directory does not update the source path recorded in the marginalia file. It will be confusing. Try not to do this.
-
-* Changelog
-:PROPERTIES:
-:TOC:      :depth 0
-:END:
-
-** 0.0.6
-
-Feature:
-- feat: Add =org-marginalia-global-tracking-mode= with a separate .el file
-- feat: Use Org-ID to create a link from the marginal notes back to the main file
-  Add Customizable variable =org-marginalia-use-org-id=; default is =t=
-
-Change:
-- chg: Highlights are now overlay; no longer text-properties
-  
-Improvement to existing functions
-- add: Deactivate mark after highlighting
-- add: org-marginalia-remove can take C-u to delete
-
-Fix & Internal Refactor
-- intrnl: Add housekeeping for =org-marginalia-highlights= variable
-- fix: org-id-uuid is not found
-- fix: Add highlighter face def for terminal
-
-** 0.0.5
-- break: Replace the prefix "om/" in the source code with "org-marginalia"
-- break: Remove default keybindings; add examples in readme instead. Addresses [#3](https://github.com/nobiot/org-marginalia/issues/3)
-
-** 0.0.4
-- feat: Add transient navigation to next/prev
-  See [[*Credits][§ Credits]] for the piece of code to achieve the transient map I used.
-
-** 0.0.3
-- feat: Add om/toggle for show/hide highlighters
-
-** 0.0.2
-- feat: Add om/next and /prev
-- break: Change om/open-at-point to org-marginalia-open
-- break: Change om/save-all to org-marginalia-save
-
-** 0.0.1
-Initial alpha release. I consider it to be the minimal viable scope. 
-
-* Credits
-
-To create this package, I was inspired by the following packages. I did not copy any part of them, but borrowed some ideas from them -- e.g. saving the margin notes in a separate file.
-
-- [[https://github.com/jkitchin/ov-highlight][Ov-highlight]] :: John Kitchin's (author of Org-ref). Great UX for markers with hydra. Saves the marker info and comments directly within the Org file as Base64 encoded string. It uses overlays with using `ov` package.
-  
-- [[https://github.com/bastibe/annotate.el][Annotate.el]] :: Bastian Bechtold's (author of Org-journal). Unique display of annotations right next to (or on top of) the text. It seems to be designed for very short annotations, and perhaps for code review (programming practice); I have seen recent issues reported when used with variable-pitch fonts (prose).
-  
-- [[https://github.com/tkf/org-mode/blob/master/contrib/lisp/org-annotate-file.el][Org-annotate-file]] :: Part of Org's contrib library. It seems to be designed to annotate a whole file in a separate Org file, rather than specific text items.
-  
-- [[https://github.com/IdoMagal/ipa.el][InPlaceAnnotations (ipa-mode)]] :: It looks similar to Annotate.el above.
-  
-- Transient navigation feature :: To implement the transient navigation feature, I liberally copied the relevant code from a wonderful Emacs package, [[https://github.com/rnkn/binder/blob/24d55db236fea2b405d4bdc69b4c33d0f066059c/binder.el#L658-L665][Binder]] by Paul W. Rankin (GitHub user [[https://github.com/rnkn][rnkn]]). 
+* Contributing
+To be added
 
 * Feedback
 
@@ -335,8 +116,6 @@ This work is licensed under a GPLv3 license. For a full copy of the licese, refe
 # org-export-with-title: t
 # line-spacing: 4
 # End:
-
-
 
 * org-remark
 :PROPERTIES:
