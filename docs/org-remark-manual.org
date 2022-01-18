@@ -163,7 +163,7 @@ This is it. It's all to get you started. For more detail, refer to the rest of t
                      '(CATEGORY "important"))
 #+end_src
 
-- Macro: org-remark-create label &optional face properties ::
+- Macro: ~org-remark-create~ label &optional face properties ::
   Create and register new highlighter pen functions. The newly created pen function will be registered to variable ~org-remark-available-pens~.  It is used by ~org-remark-change~ as a selection list.
 
   LABEL is the name of the highlighter and mandatory.  The function will be named ~org-remark-mark-LABEL~.
@@ -233,32 +233,32 @@ Org-remark displays the marginal notes buffer narrowed to the highlight the curs
 
 Org-remark's user options are available in the ~org-remark~ group.
 
-- Face: org-remark-highlighter ::
+- Face: ~org-remark-highlighter~ ::
   Default face for ~org-remark-mark~
 
 - Customizable variable: org-remark-create-default-pen-set ::
   When non-nil, Org-remark creates default pen set. Set to nil if you prefer for it not to.
   
-- Customizable variable: org-remark-notes-file-path ::
+- Customizable variable: ~org-remark-notes-file-path~ ::
   Define the file path to store the location of highlights and write annotations.
 The default is one file per directory.  Ensure that it is an Org
 file.
 
-- Customizable variable: org-remark-notes-display-buffer-action ::
+- Customizable variable: ~org-remark-notes-display-buffer-action~ ::
   Define how Org-remark opens the notes buffer.
 The default is to use a dedicated side-window on the left.  It is
 an action list for ~display-buffer~.  Refer to its documentation
 for more detail and expected elements of the list.
 
-- Customizable variable: org-remark-notes-buffer-name ::
+- Customizable variable: ~org-remark-notes-buffer-name~ ::
   Define the buffer name of the marginal notes.
 ~org-remark-open~ creates an indirect clone buffer with this
 name.
 
-- Customizable variable: org-remark-use-org-id ::
+- Customizable variable: ~org-remark-use-org-id~ ::
   Define if Org-remark use Org-ID to link back to the main note.
 
-- Customizable variable: org-remark-tracking-file ::
+- Customizable variable: ~org-remark-tracking-file~ ::
   Define file path to save the files `org-remark' tracks.
 When `org-remark-global-tracking-mode' is active, opening a file
 saved in ~org-remark-tracking-file~ automatically loads highlights.
