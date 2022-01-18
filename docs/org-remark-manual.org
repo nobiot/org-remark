@@ -166,8 +166,7 @@ This is it. It's all to get you started. For more detail, refer to the rest of t
 - Macro: org-remark-create label &optional face properties ::
   Create and register new highlighter pen functions. The newly created pen function will be registered to variable ~org-remark-available-pens~.  It is used by ~org-remark-change~ as a selection list.
 
-  LABEL is the name of the highlighter and mandatory.  The function
-will be named ~org-remark-mark-LABEL~.
+  LABEL is the name of the highlighter and mandatory.  The function will be named ~org-remark-mark-LABEL~.
 
   The highlighter pen function will apply FACE to the selected region. FACE can be an anonymous face.  When FACE is nil, this macro uses the default face ~org-remark-highlighter~.
 
