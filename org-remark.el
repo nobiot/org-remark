@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 0.1.0
 ;; Created: 22 December 2020
-;; Last modified: 17 January 2022
+;; Last modified: 19 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -139,8 +139,7 @@ property drawer from the highlighter pen.  To do this, prefix
 property names with \"org-remark-\" or use \"CATEGORY\"."
   (if (not label) `(user-error "org-remark-create: Label is missing")
     `(progn
-       (add-to-list 'org-remark-available-pens
-                    (intern (format "org-remark-mark-%s" ,label)))
+       ;; Define custom pen function
        (defun ,(intern (format "org-remark-mark-%s" label))
            (beg end &optional id)
          ,(format "Apply the following face to the region selected by BEG and END.
@@ -163,22 +162,16 @@ highlight.  In this case, no new ID gets generated."
                   (or face "`org-remark-highlighter'") properties)
          (interactive (org-remark-region-or-word))
          (org-remark-single-highlight-mark
-          beg end id ,label ,face ,properties)))))
+          beg end id ,label ,face ,properties))
 
-;; Don't use category (symbol) as a property -- it's a special one of text
-;; properties. If you use it, the value also need to be a symbol; otherwise, you
-;; will get an error. You can use CATEGORY (symbol and all uppercase).
-(when org-remark-create-default-pen-set
-  ;; Create default pen set.
-  ;; They are rather meant to be a starter pack and examples
-  ;; They can be overridden, or set `org-remark-create-default-pen-set' to nil
-  ;; so that Org-remark will not create them.
-  (org-remark-create "red-line"
-                     '(:underline (:color "dark red" :style wave))
-                     '(CATEGORY "review" help-echo "Review this"))
-  (org-remark-create "yellow"
-                     '(:underline "gold" :background "lemon chiffon")
-                     '(CATEGORY "important")))
+       ;; Register to `org-remark-available-pens'
+       (add-to-list 'org-remark-available-pens
+                    (intern (format "org-remark-mark-%s" ,label)))
+
+       ;; Add custom pens to the minor-mode menu
+       (define-key-after org-remark-mode-map
+         [menu-bar org-remark Highlight ,(format "mark-%s" label)]
+         '(,(format "%s pen" label) . ,(intern (format "org-remark-mark-%s" label)))))))
 
 
 ;;;; Commands
@@ -238,6 +231,32 @@ recommended to turn it on as part of Emacs initialization.
       (remove-hook 'after-save-hook #'org-remark-save t)
       (remove-hook 'kill-buffer-hook #'org-remark-tracking-save t))))
 
+
+;;;; Org-remark Menu
+(easy-menu-define org-remark-menu org-remark-mode-map "Org-remark menu."
+  `("Org-remark"
+    ("Highlight"
+     ["default pen" org-remark-mark])))
+
+(define-key-after org-remark-mode-map
+  [menu-bar org-remark open]
+  '("Open" . org-remark-open))
+
+(define-key-after org-remark-mode-map
+  [menu-bar org-remark view]
+  '("View" . org-remark-view))
+
+(define-key-after org-remark-mode-map
+  [menu-bar org-remark change]
+  '("Change" . org-remark-change))
+
+(define-key-after org-remark-mode-map
+  [menu-bar org-remark remove]
+  '("Remove" . org-remark-remove))
+
+
+;;;; Other Commands
+
 (add-to-list 'org-remark-available-pens #'org-remark-mark)
 ;;;###autoload
 (defun org-remark-mark (beg end &optional id)
@@ -265,6 +284,15 @@ to the database."
   ;; This will do for now
   (org-remark-single-highlight-mark beg end id nil nil
                                     (list "org-remark-label" "nil")))
+
+(when org-remark-create-default-pen-set
+  ;; Create default pen set.
+  (org-remark-create "red-line"
+                     '(:underline (:color "dark red" :style wave))
+                     '(CATEGORY "review" help-echo "Review this"))
+  (org-remark-create "yellow"
+                     '(:underline "gold" :background "lemon chiffon")
+                     '(CATEGORY "important")))
 
 (defun org-remark-load ()
   "Visit `org-remark-notes-file' & load the saved highlights onto current buffer.
