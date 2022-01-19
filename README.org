@@ -1,8 +1,9 @@
-[[file:https://img.shields.io/badge/License-GPLv3-blue.svg]]
+#+title: README – Org-remark
 
-#+title: README: Org-remark
+#+html: <a href="https://www.gnu.org/software/emacs/"><img alt="GNU Emacs" src="https://img.shields.io/static/v1?logo=gnuemacs&logoColor=fafafa&label=Made%20for&message=GNU%20Emacs&color=7F5AB6&style=flat"/></a>
+#+html: <img alt="GPLv3" src="https://img.shields.io/badge/License-GPLv3-blue.svg">
 
-* ❦❦❦ IMPORTANT NOTICE ❦❦❦
+* ❦❦❦ IMPORTANT NOTICE ❦❦❦ :noexport:
 
 [This notice written on 18 January 2022]
 
@@ -22,18 +23,18 @@ This feature is designed to work automatically and transparently to you, meaning
 
 Org-remark lets you highlight and annotate any text file with using Org mode.
 
-A complete [[https://nobiot.github.io/org-remark/][user manual]] is available online (Info file will be added when Org-remark is added to ELPA/MELPA).
+A complete [[https://nobiot.github.io/org-remark/][user manual]] is available online (Info file will be available when Org-remark is added to ELPA/MELPA).
 
 For installation and minimum configuration, refer to [[#installation][Installation]] below or the corresponding section in the user manual.
 
 [[https://nobiot.github.io/org-remark/#getting-started][Getting Started]] in the user manual will get you started in 5 minutes.
 
+* Screenshots :noexport:
+
 [[./resources/images/2020-12-24T101116_Title.png]]
 *Figure 1*. Left: Org-mode with text enlarged; Right marginal notes with the inline image display on
 
-* Screenshots
-
-Refer to the screenshots below for a teaser of  what it can do.
+Refer to the screenshots below for a teaser of what it can do.
 
 #+begin_quote
 The screen shots are from the old Org-marginalia. They are still relevant but new screen shots are on their way.
@@ -88,26 +89,21 @@ Below are example keybindings you might like to consider:
     (define-key org-remark-mode-map (kbd "C-c n r") #'org-remark-remove))
 #+end_src
 
-* Contributing
-To be added
+* Contributing and Feedback
 
-* Feedback
+Create issues, discussion, and/or pull requests in the GitHub repository. All welcome.
 
-Feedback welcome in this repo, or in [[https://org-roam.discourse.group/t/prototype-org-marginalia-write-margin-notes-with-org-mode/1080][Org-roam Discourse forum]]. 
+Feedback is also welcome in [[https://org-roam.discourse.group/t/prototype-org-marginalia-write-margin-notes-with-org-mode/1080][Org-roam Discourse forum]]. 
 
-*Edit*: Now the features 1 & 2 have been implemented... I want to add a little more, to attend to the known limitations to see if I can remove some of them.
+Org-transclusion is part of GNU ELPA and thus copyrighted by the [[http://fsf.org][Free Software Foundation]] (FSF). This means that anyone who is making a substantive code contribution will need to "assign the copyright for your contributions to the FSF so that they can be included in GNU Emacs" ([[https://orgmode.org/contribute.html#copyright][Org Mode website]]).
 
-I am aiming to keep this package to be small and focused. I plan to add the following features, and probably consider it to be feature complete for my purposes.
-
-1. DONE v0.0.3  =om/toggle= to toggle show/hide of highlights without losing them
-2. DONE =om/next= and =om/prev= to easily navigate highlighted regions in the buffer
-     This is done (v0.0.2), but I would like to try a transient (don't want to repeat the prefix everytime): transient done with v0.0.4.
+Thank you.
    
 * License
 
 This work is licensed under a GPLv3 license. For a full copy of the licese, refer to [[./LICENSE][LICENSE]].
 
-* Local Variables
+* Local Variables :noexport:
 
 # Local Variables:
 # eval: (require 'org-make-toc)
@@ -117,7 +113,7 @@ This work is licensed under a GPLv3 license. For a full copy of the licese, refe
 # line-spacing: 4
 # End:
 
-* org-remark
+* org-remark :noexport:
 :PROPERTIES:
 :org-remark-file: ~/src/org-remark/org-remark.el
 :END:
