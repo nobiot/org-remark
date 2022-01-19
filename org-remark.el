@@ -141,7 +141,7 @@ property names with \"org-remark-\" or use \"CATEGORY\"."
     `(progn
        ;; Define custom pen function
        (defun ,(intern (format "org-remark-mark-%s" label))
-           (beg end &optional id)
+           (beg end &optional id mode)
          ,(format "Apply the following face to the region selected by BEG and END.
 
 %s
@@ -162,7 +162,7 @@ highlight.  In this case, no new ID gets generated."
                   (or face "`org-remark-highlighter'") properties)
          (interactive (org-remark-region-or-word))
          (org-remark-single-highlight-mark
-          beg end id ,label ,face ,properties))
+          beg end id mode ,label ,face ,properties))
 
        ;; Register to `org-remark-available-pens'
        (add-to-list 'org-remark-available-pens
@@ -259,7 +259,7 @@ recommended to turn it on as part of Emacs initialization.
 
 (add-to-list 'org-remark-available-pens #'org-remark-mark)
 ;;;###autoload
-(defun org-remark-mark (beg end &optional id)
+(defun org-remark-mark (beg end &optional id mode)
   "Apply the FACE to the region selected by BEG and END.
 
 This function will apply face `org-remark-highlighter' to the selected region.
@@ -282,7 +282,8 @@ to the database."
   ;; FIXME
   ;; Adding "nil" is different to removing a prop
   ;; This will do for now
-  (org-remark-single-highlight-mark beg end id nil nil
+  (org-remark-single-highlight-mark beg end id mode
+                                    nil nil
                                     (list "org-remark-label" "nil")))
 
 (when org-remark-create-default-pen-set
@@ -318,7 +319,7 @@ load the highlights"
             (label (caddr highlight)))
         (let ((fn (intern (concat "org-remark-mark-" label))))
           (unless (functionp fn) (setq fn #'org-remark-mark))
-          (funcall fn beg end id))))
+          (funcall fn beg end id :load))))
     (setq org-remark-loaded t))
   ;; Tracking
   (org-remark-notes-track-file (buffer-file-name)))
@@ -483,7 +484,7 @@ from."
                      (intern
                       (completing-read "Which pen?:" org-remark-available-pens)))))
       (delete-overlay ov)
-      (funcall new-pen beg end id))))
+      (funcall new-pen beg end id :change))))
 
 (defun org-remark-remove (point &optional delete)
   "Remove the highlight at POINT.
@@ -556,7 +557,7 @@ If there are more than one, return CAR of the list."
     (car found)))
 
 (defun org-remark-single-highlight-mark
-    (beg end &optional id label face properties)
+    (beg end &optional id mode label face properties)
   "Apply the FACE to the region selected by BEG and END.
 
 This function will apply FACE to the selected region.  When it is
@@ -570,6 +571,10 @@ ID, always assuming it is working on a new highlighted text
 region, and Org-remark will start tracking the highlight's
 location in the current buffer.
 
+MODE determines whether or not highlight is to be saved in the
+marginal notes file. The expected values are nil, :load and
+:change.
+
 A Org headline entry for the highlght will be created in the
 marginal notes file specified by `org-remark-notes-file-path'.
 If the file does not exist yet, it will be created.
@@ -579,35 +584,35 @@ passed, indicating to Org-remark that it is to load an existing
 highlight.  In this case, no new ID gets generated and the
 highlight saved again, avoiding the unnecessary round-trip back
 to the database."
-  ;; BEG and END are not selected and in the interactive call
-  ;; not Elisp call
-  (let* ((load-only (when id t))
-         ;; UUID is too long; does not have to be the full length
+  ;; UUID is too long; does not have to be the full length
+
+  ;; Ensure to turn on the local minor mode
+  (unless org-remark-mode (org-remark-mode +1))
+  ;; Add highlight to the text
+  (org-with-wide-buffer
+   (let ((ov (make-overlay beg end nil :front-advance))
          (id (if id id (substring (org-id-uuid) 0 8))))
-    ;; Ensure to turn on the local minor mode
-    (unless org-remark-mode (org-remark-mode +1))
-    ;; Add highlight to the text
-    (org-with-wide-buffer
-     (let ((ov (make-overlay beg end nil :front-advance)))
-       (overlay-put ov 'face (if face face 'org-remark-highlighter))
-       (while properties
-         (let ((prop (pop properties))
-               (val (pop properties)))
-           (overlay-put ov prop val)))
-       (when label (overlay-put ov 'org-remark-label label))
-       (overlay-put ov 'org-remark-id id)
-       ;; Keep track of the overlay in a local variable. It's a list that is
-       ;; guaranteed to contain only org-remark overlays as opposed to the one
-       ;; returned by `overlay-lists' that lists any overlays.
-       (push ov org-remark-highlights)
-       (unless load-only
-         (org-remark-single-highlight-save (buffer-file-name)
-                                           beg end
-                                           (overlay-properties ov)
-                                           (org-remark-single-highlight-get-title)))
-       (deactivate-mark)))
-    (org-remark-housekeep)
-    (org-remark-highlights-sort)))
+     (overlay-put ov 'face (if face face 'org-remark-highlighter))
+     (while properties
+       (let ((prop (pop properties))
+             (val (pop properties)))
+         (overlay-put ov prop val)))
+     (when label (overlay-put ov 'org-remark-label label))
+     (overlay-put ov 'org-remark-id id)
+     ;; Keep track of the overlay in a local variable. It's a list that is
+     ;; guaranteed to contain only org-remark overlays as opposed to the one
+     ;; returned by `overlay-lists' that lists any overlays.
+     (push ov org-remark-highlights)
+     ;; for mode, nil and :change result in saving the highlight.  :load
+     ;; bypasses save.
+     (unless (eq mode :load)
+       (org-remark-single-highlight-save (buffer-file-name)
+                                         beg end
+                                         (overlay-properties ov)
+                                         (org-remark-single-highlight-get-title)))))
+  (deactivate-mark)
+  (org-remark-housekeep)
+  (org-remark-highlights-sort))
 
 (defun org-remark-single-highlight-get-title ()
   "Return the title of the current buffer.
