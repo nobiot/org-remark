@@ -26,8 +26,11 @@
 
 * Changes
 
+  - chg: `remove' (and delete) only removes one highlight at a time instead of
+         remove all at point
+
   - chg: Save marginal notes on `mark' instead of wainting for `save'
-  
+
   - chg: define org-remark-mark explicitly for autoload cookie
 
   - chg: `org-remark-visit' and `org-remark-open'. Visit will stay in the

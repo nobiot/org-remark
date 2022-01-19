@@ -28,7 +28,7 @@
 ;;; Commentary:
 
 ;; This package lets you highlight and annotate any text file with using Org
-;; mode.  Refer to README.org and docstring for detail.
+;; mode.
 
 ;;; Code:
 
@@ -499,18 +499,25 @@ If you have done so by error, you could still `undo' it in the
 marginal notes buffer, but not in the current buffer as adding
 and removing overlays are not part of the undo tree."
   (interactive "d\nP")
-  ;; TODO There may be multiple overlays
   (when-let* ((id (get-char-property point 'org-remark-id)))
     ;; Remove the highlight overlay and id
-    (dolist (ov (overlays-at (point)))
-      ;; Remove the element in the variable org-remark-highlights
-      (when (overlay-get ov 'org-remark-id)
-        (delete ov org-remark-highlights)
-        (delete-overlay ov)))
+    ;; Where there is more than one, remove only one
+    ;; It should be last-in-first-out
+    (let ((deleted)
+          ;; reverse the order so that pop returns the last one
+          ;; for last-in-first-out
+          (ovs (reverse (overlays-at (point)))))
+      (while (not deleted)
+        (let ((ov (pop ovs)))
+          ;; Remove the element in the variable org-remark-highlights
+          (when (overlay-get ov 'org-remark-id)
+            (delete ov org-remark-highlights)
+            (delete-overlay ov)
+            ;; Update the notes file accordingly
+            (org-remark-single-highlight-remove id delete)
+            (setq deleted t)))))
     (org-remark-housekeep)
     (org-remark-highlights-sort)
-    ;; Update the notes file accordingly
-    (org-remark-single-highlight-remove id delete)
     t))
 
 
@@ -786,6 +793,7 @@ Each highlight is a list in the following structure:
   (when-let ((notes-buf (find-file-noselect org-remark-notes-file-path))
              (source-path (org-remark-source-path (buffer-file-name))))
     ;; TODO check if there is any relevant notes for the current file
+    ;; This can be used for adding icon to the highlight
     (let ((highlights))
       (with-current-buffer notes-buf
         (when (featurep 'org-remark-convert-legacy)
@@ -898,7 +906,6 @@ the show/hide state."
   (when-let ((highlights org-remark-highlights))
     (dolist (highlight highlights)
       (overlay-put highlight 'org-remark-hidden nil)
-      ;; TODO it does not work with new pens
       (overlay-put highlight 'face (overlay-get highlight 'org-remark-face)))
     t))
 
