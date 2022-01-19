@@ -1,18 +1,41 @@
-- Changes ::
+* Features & additions
 
-  - Visit and open: for open you will stay in the current buffer. For further
-    edititing, use visit.
+  - docs: comprehensive user manual (online - Info to be added on ELPA release)
 
-  - Removing all use of "marginalia"
+  - feat: org-remark-create macro to let users create their own custom pens
 
-    + The default value of org-remark-notes-file-path is changed from
-      "marginalia.org" to "marginal-notes.org". Adjust the filenames or change
-      the value.
+  - feat: minor-mode menu for menu-bar-mode
 
-  - When updating the existing headline and position properties, don't update
-    the headline text when it already exists. Let the user decide how to manage
-    headlines.
+          This works as mouse context-menu for the new context-menu-mode (>=
+          Emacs 28)
 
-- Add ::
+  - add: browse-next/prev: move and display next/prev marginal notes at the same
+         time
 
-  - add ::line-number to file line
+  - add: visit/open to display side-window by default (user option)
+
+  - add: org-remark-link property in marginal notes file with ::line-number
+         search option
+
+  - feat: org-remark-legacy-convert as a separate feature
+
+          This is for automatically converting legacy Org-marginalia file to
+          Org-remark.
+
+  - feat: Legacy data facility with org-remark-tracking
+
+* Changes
+
+  - chg: Save marginal notes on `mark' instead of wainting for `save'
+  
+  - chg: define org-remark-mark explicitly for autoload cookie
+
+  - chg: `org-remark-visit' and `org-remark-open'. Visit will stay in the
+          current main note; open will move the cursor to the marginal notes
+          buffer for further editing.
+
+  - chg: When updating the existing headline and position properties, don't
+         update the headline text when it already exists. Let the user decide
+         how to manage headlines.
+
+  - doc: copyright assignment to FSF; copyright years
