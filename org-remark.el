@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 0.1.0
 ;; Created: 22 December 2020
-;; Last modified: 19 January 2022
+;; Last modified: 20 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -92,9 +92,6 @@ name."
 
 ;;;; Variables
 
-(defvar-local org-remark-loaded nil
-  "Indicate if highlights have been loaded onto current buffer.")
-
 (defvar-local org-remark-highlights '()
   "Keep track of all the highlights in current buffer.
 It is a local variable and is a list of overlays.  Each overlay
@@ -161,8 +158,7 @@ passed, indicating to Org-remark that it is an existing
 highlight.  In this case, no new ID gets generated."
                   (or face "`org-remark-highlighter'") properties)
          (interactive (org-remark-region-or-word))
-         (org-remark-single-highlight-mark
-          beg end id mode ,label ,face ,properties))
+         (org-remark-highlight-mark beg end id mode ,label ,face ,properties))
 
        ;; Register to `org-remark-available-pens'
        (add-to-list 'org-remark-available-pens
@@ -217,16 +213,17 @@ recommended to turn it on as part of Emacs initialization.
     (cond
      (org-remark-mode
       ;; Activate
-      (org-remark-load)
+      (org-remark-highlights-load)
       (add-hook 'after-save-hook #'org-remark-save nil t)
-      (add-hook 'kill-buffer-hook #'org-remark-tracking-save nil t))
+      (add-hook 'kill-buffer-hook #'org-remark-tracking-save nil t)
+      ;; Tracking
+      (org-remafrk-notes-track-file (buffer-file-name))))
      (t
       ;; Deactivate
       (when org-remark-highlights
         (dolist (highlight org-remark-highlights)
           (delete-overlay highlight)))
       (setq org-remark-highlights nil)
-      (setq org-remark-loaded nil)
       (org-remark-tracking-save)
       (remove-hook 'after-save-hook #'org-remark-save t)
       (remove-hook 'kill-buffer-hook #'org-remark-tracking-save t))))
@@ -249,6 +246,10 @@ recommended to turn it on as part of Emacs initialization.
 (define-key-after org-remark-mode-map
   [menu-bar org-remark change]
   '("Change" . org-remark-change))
+
+(define-key-after org-remark-mode-map
+  [menu-bar org-remark toggle]
+  '("Toggle" . org-remark-toggle))
 
 (define-key-after org-remark-mode-map
   [menu-bar org-remark remove]
@@ -282,9 +283,9 @@ to the database."
   ;; FIXME
   ;; Adding "nil" is different to removing a prop
   ;; This will do for now
-  (org-remark-single-highlight-mark beg end id mode
-                                    nil nil
-                                    (list "org-remark-label" "nil")))
+  (org-remark-highlight-mark beg end id mode
+                             nil nil
+                             (list "org-remark-label" "nil")))
 
 (when org-remark-create-default-pen-set
   ;; Create default pen set.
@@ -295,34 +296,6 @@ to the database."
                      '(:underline "gold" :background "lemon chiffon")
                      '(CATEGORY "important")))
 
-(defun org-remark-load ()
-  "Visit `org-remark-notes-file' & load the saved highlights onto current buffer.
-If there is no highlights or annotations for current buffer,
-output a message in the echo.
-
-Highlights tracked locally by variable `org-remark-highlights'
-cannot persist when you kill current buffer or quit Emacs.  It is
-recommended to set `org-remark-global-tracking-mode' in your
-configuration.  It automatically turns on `org-remark-mode', which
-runs `org-remark-load' for current buffer when you open it.
-
-Otherwise, do not forget to turn on `org-remark-mode' manually to
-load the highlights"
-  (interactive)
-  (unless org-remark-mode (org-remark-mode +1))
-  (unless org-remark-loaded
-    ;; Loop highlights and add them to the current buffer
-    (dolist (highlight (org-remark-highlights-get))
-      (let ((id (car highlight))
-            (beg (caadr highlight))
-            (end (cdadr highlight))
-            (label (caddr highlight)))
-        (let ((fn (intern (concat "org-remark-mark-" label))))
-          (unless (functionp fn) (setq fn #'org-remark-mark))
-          (funcall fn beg end id :load))))
-    (setq org-remark-loaded t))
-  ;; Tracking
-  (org-remark-notes-track-file (buffer-file-name)))
 
 (defun org-remark-save ()
   "Save all the highlights tracked in current buffer to notes file.
@@ -339,14 +312,14 @@ automatically turned on to load the highlights.
 `org-remark-highlights' is the local variable that tracks every highlight
 in the current buffer.  Each highlight is represented by an overlay."
   (interactive)
-  (org-remark-housekeep)
+  (org-remark-highlights-housekeep)
   (org-remark-highlights-sort)
   (let ((path (buffer-file-name)))
     (dolist (h org-remark-highlights)
       (let ((beg (overlay-start h))
             (end (overlay-end h))
             (props (overlay-properties h)))
-        (org-remark-single-highlight-save path beg end props)))
+        (org-remark-highlight-save path beg end props)))
     ;; Tracking
     (org-remark-notes-track-file path)))
 
@@ -467,8 +440,8 @@ hide the highlights."
     ;; If not, all shown. Hide them.
     (if-let* ((beg (overlay-start (nth 0 highlights)))
               (hidden-p (get-char-property beg 'org-remark-hidden)))
-        (org-remark-show)
-      (org-remark-hide))
+        (org-remark-highlights-show)
+      (org-remark-highlights-hide))
     t))
 
 (defun org-remark-change (&optional pen)
@@ -476,7 +449,7 @@ hide the highlights."
 This function will show you a list of available pens to choose
 from."
   (interactive)
-  (when-let* ((ov (org-remark-overlay-find))
+  (when-let* ((ov (org-remark-find-overlay-at-point))
               (id (overlay-get ov 'org-remark-id))
               (beg (overlay-start ov))
               (end (overlay-end ov)))
@@ -499,29 +472,23 @@ If you have done so by error, you could still `undo' it in the
 marginal notes buffer, but not in the current buffer as adding
 and removing overlays are not part of the undo tree."
   (interactive "d\nP")
-  (when-let* ((id (get-char-property point 'org-remark-id)))
-    ;; Remove the highlight overlay and id
-    ;; Where there is more than one, remove only one
-    ;; It should be last-in-first-out
-    (let ((deleted)
-          ;; reverse the order so that pop returns the last one
-          ;; for last-in-first-out
-          (ovs (reverse (overlays-at (point)))))
-      (while (not deleted)
-        (let ((ov (pop ovs)))
-          ;; Remove the element in the variable org-remark-highlights
-          (when (overlay-get ov 'org-remark-id)
-            (delete ov org-remark-highlights)
-            (delete-overlay ov)
-            ;; Update the notes file accordingly
-            (org-remark-single-highlight-remove id delete)
-            (setq deleted t)))))
-    (org-remark-housekeep)
+  (when-let ((ov (org-remark-find-overlay-at-point)))
+    ;; Remove the highlight overlay and id Where there is more than one, remove
+    ;; only one It should be last-in-first-out in general but overlays functions
+    ;; don't guarantee it
+    (delete ov org-remark-highlights)
+    (delete-overlay ov)
+    ;; Update the notes file accordingly
+    (org-remark-notes-remove id delete)
+    (org-remark-highlights-housekeep)
     (org-remark-highlights-sort)
     t))
 
 
 ;;;; Internal Functions
+
+;;;;; org-remark-find
+;;    Find a highlight (e.g. next/prev or overlay)
 
 (defun org-remark-next-or-prev (&optional next)
   "Move cursor to the next or previous highlight if any.
@@ -551,7 +518,25 @@ Return nil if not after a message."
         (message "No visible highlights present in the buffer")
         nil))))
 
-(defun org-remark-overlay-find ()
+(defun org-remark-find-next-highlight ()
+  "Return the beg point of the next highlight.
+Look through `org-remark-highlights' list."
+  (when-let ((points (org-remark-highlights-get-positions)))
+      ;; Find the first occurrence of p > (point). If none, this means all the
+      ;; points occur before the current point. Take the first one. Assume
+      ;; `org-remark-highlights' is sorted in the ascending order (it is).
+    (seq-find (lambda (p) (> p (point))) points (nth 0 points))))
+
+(defun org-remark-find-prev-highlight ()
+  "Return the beg point of the previous highlight.
+Look through `org-remark-highlights' list (in descending order)."
+  (when-let ((points (org-remark-highlights-get-positions 'reverse)))
+      ;; Find the first occurrence of p < (point). If none, this means all the
+      ;; points occur before the current point. Take the first one. Assume
+      ;; `org-remark-highlights' is sorted in the descending order .
+    (seq-find (lambda (p) (< p (point))) points (nth 0 points))))
+
+(defun org-remark-find-overlay-at-point ()
   "Return one org-remark overlay at point.
 If there are more than one, return CAR of the list."
   (let ((overlays (overlays-at (point)))
@@ -563,7 +548,11 @@ If there are more than one, return CAR of the list."
       (setq overlays (cdr overlays)))
     (car found)))
 
-(defun org-remark-single-highlight-mark
+
+;;;; org-remark-highlight
+;;   Work on a single highlight
+
+(defun org-remark-highlight-mark
     (beg end &optional id mode label face properties)
   "Apply the FACE to the region selected by BEG and END.
 
@@ -591,13 +580,12 @@ passed, indicating to Org-remark that it is to load an existing
 highlight.  In this case, no new ID gets generated and the
 highlight saved again, avoiding the unnecessary round-trip back
 to the database."
-  ;; UUID is too long; does not have to be the full length
-
   ;; Ensure to turn on the local minor mode
   (unless org-remark-mode (org-remark-mode +1))
   ;; Add highlight to the text
   (org-with-wide-buffer
    (let ((ov (make-overlay beg end nil :front-advance))
+         ;; UUID is too long; does not have to be the full length
          (id (if id id (substring (org-id-uuid) 0 8))))
      (overlay-put ov 'face (if face face 'org-remark-highlighter))
      (while properties
@@ -613,29 +601,29 @@ to the database."
      ;; for mode, nil and :change result in saving the highlight.  :load
      ;; bypasses save.
      (unless (eq mode :load)
-       (org-remark-single-highlight-save (buffer-file-name)
-                                         beg end
-                                         (overlay-properties ov)
-                                         (org-remark-single-highlight-get-title)))))
+       (org-remark-highlight-save (buffer-file-name)
+                                  beg end
+                                  (overlay-properties ov)
+                                  (org-remark-highlight-get-title)))))
   (deactivate-mark)
-  (org-remark-housekeep)
+  (org-remark-highlights-housekeep)
   (org-remark-highlights-sort))
 
-(defun org-remark-single-highlight-get-title ()
+(defun org-remark-highlight-get-title ()
   "Return the title of the current buffer.
 Utility function to work with a single highlight overlay."
   (or (cadr (assoc "TITLE" (org-collect-keywords '("TITLE"))))
                     (file-name-sans-extension
                      (file-name-nondirectory (buffer-file-name)))))
 
-(defun org-remark-single-highlight-get-org-id (point)
+(defun org-remark-highlight-get-org-id (point)
   "Return Org-ID closest to POINT.
 This function does this only when `org-remark-use-org-id' is
 non-nil.  Returns nil otherwise, or when no Org-ID is found."
   (and org-remark-use-org-id
        (org-entry-get point "ID" :inherit)))
 
-(defun org-remark-single-highlight-save (path beg end props &optional title)
+(defun org-remark-highlight-save (path beg end props &optional title)
   "Save a single HIGHLIGHT in the marginal notes file.
 
 Return t.
@@ -681,7 +669,7 @@ other packages such as Org-roam's backlink feature."
   (let* ((path (org-remark-source-path path))
          (id (plist-get props 'org-remark-id))
          (text (org-with-wide-buffer (buffer-substring-no-properties beg end)))
-         (orgid (org-remark-single-highlight-get-org-id beg))
+         (orgid (org-remark-highlight-get-org-id beg))
          ;; FIXME current-line - it's not always at point
          (line-num (org-current-line beg)))
     ;; TODO Want to add a check if save is applicable here.
@@ -733,7 +721,11 @@ other packages such as Org-roam's backlink feature."
       (when (buffer-modified-p) (save-buffer))
       t)))
 
-(defun org-remark-single-highlight-remove (id &optional delete)
+
+;;;;; org-remark-notes
+;;    Work on marginal notes
+
+(defun org-remark-notes-remove (id &optional delete)
   "Remove the highlight entry for ID for current buffer.
 By default, it deletes only the properties of the entry keeping
 the headline intact.  You can pass DELETE and delete the all
@@ -785,6 +777,40 @@ drawer."
                      (string-equal "org-remark-" (downcase (substring p 0 11)))))
         (org-set-property p v))))
   t)
+
+(defun org-remark-notes-track-file (path)
+  "Add PATH to `org-remark-files-tracked' when relevant.
+It works only when `org-remark-global-tracking-mode' is on.  For
+the global tracking purpose, the path must be an absolute path."
+  (when org-remark-global-tracking-mode
+    (add-to-list 'org-remark-files-tracked
+                 (abbreviate-file-name path))))
+
+
+;;;;; org-remark-highlights
+;;    Work on all the highlights in the current buffer
+
+(defun org-remark-highlights-load ()
+  "Visit `org-remark-notes-file' & load the saved highlights onto current buffer.
+If there is no highlights or annotations for current buffer,
+output a message in the echo.
+
+Highlights tracked locally by variable `org-remark-highlights'
+cannot persist when you kill current buffer or quit Emacs.  It is
+recommended to set `org-remark-global-tracking-mode' in your
+configuration.  It automatically turns on `org-remark-mode'.
+
+Otherwise, do not forget to turn on `org-remark-mode' manually to
+load the highlights"
+  ;; Loop highlights and add them to the current buffer
+  (dolist (highlight (org-remark-highlights-get))
+    (let ((id (car highlight))
+          (beg (caadr highlight))
+          (end (cdadr highlight))
+          (label (caddr highlight)))
+      (let ((fn (intern (concat "org-remark-mark-" label))))
+        (unless (functionp fn) (setq fn #'org-remark-mark))
+        (funcall fn beg end id :load)))))
 
 (defun org-remark-highlights-get ()
   "Return a list of highlights from `org-remark-notes-file-path'.
@@ -865,25 +891,7 @@ It returns t when sorting is done."
                        org-remark-highlights))
     t))
 
-(defun org-remark-find-next-highlight ()
-  "Return the beg point of the next highlight.
-Look through `org-remark-highlights' list."
-  (when-let ((points (org-remark-highlights-get-positions)))
-      ;; Find the first occurrence of p > (point). If none, this means all the
-      ;; points occur before the current point. Take the first one. Assume
-      ;; `org-remark-highlights' is sorted in the ascending order (it is).
-    (seq-find (lambda (p) (> p (point))) points (nth 0 points))))
-
-(defun org-remark-find-prev-highlight ()
-  "Return the beg point of the previous highlight.
-Look through `org-remark-highlights' list (in descending order)."
-  (when-let ((points (org-remark-highlights-get-positions 'reverse)))
-      ;; Find the first occurrence of p < (point). If none, this means all the
-      ;; points occur before the current point. Take the first one. Assume
-      ;; `org-remark-highlights' is sorted in the descending order .
-    (seq-find (lambda (p) (< p (point))) points (nth 0 points))))
-
-(defun org-remark-hide ()
+(defun org-remark-highlights-hide ()
   "Hide highlights.
 This function removes the font-lock-face of all the highlights,
 and add org-remark-hidden property with value t. It does not
@@ -897,7 +905,7 @@ state."
       (overlay-put highlight 'org-remark-hidden t))
     t))
 
-(defun org-remark-show ()
+(defun org-remark-highlights-show ()
   "Show highlights.
 This function adds the font-lock-face to all the highlighted text
 regions.  It does not check the current hidden state, thus not
@@ -909,7 +917,7 @@ the show/hide state."
       (overlay-put highlight 'face (overlay-get highlight 'org-remark-face)))
     t))
 
-(defun org-remark-housekeep ()
+(defun org-remark-highlights-housekeep ()
   "Housekeep the internal variable `org-remark-highlights'.
 
 Return t.
@@ -933,11 +941,14 @@ Case 2. The overlay points to no buffer
     ;; when you delete a region that contains a highlight overlay.
     (when (and (overlay-buffer ov)
                (= (overlay-start ov) (overlay-end ov)))
-      (org-remark-single-highlight-remove (overlay-get ov 'org-remark-id))
+      (org-remark-notes-remove (overlay-get ov 'org-remark-id))
       (delete-overlay ov))
     (unless (overlay-buffer ov)
       (setq org-remark-highlights (delete ov org-remark-highlights))))
   t)
+
+
+;;;;; Other utilities
 
 (defun org-remark-source-path (path)
   "Covert PATH either to absolute or relative for marginal notes files.
@@ -953,14 +964,6 @@ path."
   ;;     (funcall org-remark-notes-path-function path org-remark-notes-relative-directory)
   ;;   (funcall org-remark-notes-path-function path)))
   (abbreviate-file-name path))
-
-(defun org-remark-notes-track-file (path)
-  "Add PATH to `org-remark-files-tracked' when relevant.
-It works only when `org-remark-global-tracking-mode' is on.  For
-the global tracking purpose, the path must be an absolute path."
-  (when org-remark-global-tracking-mode
-    (add-to-list 'org-remark-files-tracked
-                 (abbreviate-file-name path))))
 
 (defun org-remark-empty-buffer-p ()
   "Return t when the current buffer is empty."
