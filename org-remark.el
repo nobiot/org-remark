@@ -100,6 +100,9 @@ represents a highlighted text region.
 On `save-buffer' each highlight will be save in the notes file at
 `org-remark-notes-file-path'.")
 
+(defvar-local org-remark-highlights-hidden nil
+  "Keep hidden/shown state of the highlights in current buffer.")
+
 (defvar org-remark-last-notes-buffer nil
   "Stores the cloned indirect buffer visiting the notes file.
 It is meant to exist only one of these in each Emacs session.")
@@ -217,7 +220,7 @@ recommended to turn it on as part of Emacs initialization.
       (add-hook 'after-save-hook #'org-remark-save nil t)
       (add-hook 'kill-buffer-hook #'org-remark-tracking-save nil t)
       ;; Tracking
-      (org-remafrk-notes-track-file (buffer-file-name))))
+      (org-remark-notes-track-file (buffer-file-name)))
      (t
       ;; Deactivate
       (when org-remark-highlights
@@ -274,11 +277,16 @@ A Org headline entry for the highlght will be created in the
 marginal notes file specified by `org-remark-notes-file-path'.
 If the file does not exist yet, it will be created.
 
-When this function is called from Elisp, ID can be optionally
-passed, indicating to Org-remark that it is to load an existing
-highlight.  In this case, no new ID gets generated and the
-highlight saved again, avoiding the unnecessary round-trip back
-to the database."
+When this function is called from Elisp, ID can be
+optionally passed, indicating to Org-remark that it is to load an
+existing highlight.  In this case, no new ID gets generated and
+the highlight saved again, avoiding the unnecessary round-trip
+back to the database.
+
+MODE is also an argument which can be passed from Elisp.  It
+determines whether or not highlight is to be saved in the
+marginal notes file.  The expected values are nil, :load and
+:change."
   (interactive (org-remark-region-or-word))
   ;; FIXME
   ;; Adding "nil" is different to removing a prop
@@ -434,15 +442,10 @@ highlights are hidden, thus it is recommended to use this
 function, instead of `org-remark-mode', if you would just like to
 hide the highlights."
   (interactive)
-  (when-let ((highlights org-remark-highlights))
-    ;; Check the first highlight in the buffer
-    ;; If it's hidden, all hidden. Show them.
-    ;; If not, all shown. Hide them.
-    (if-let* ((beg (overlay-start (nth 0 highlights)))
-              (hidden-p (get-char-property beg 'org-remark-hidden)))
-        (org-remark-highlights-show)
-      (org-remark-highlights-hide))
-    t))
+  (if org-remark-highlights-hidden
+      (org-remark-highlights-show)
+    (org-remark-highlights-hide))
+  t)
 
 (defun org-remark-change (&optional pen)
   "Change the highlight at point to PEN.
@@ -472,7 +475,8 @@ If you have done so by error, you could still `undo' it in the
 marginal notes buffer, but not in the current buffer as adding
 and removing overlays are not part of the undo tree."
   (interactive "d\nP")
-  (when-let ((ov (org-remark-find-overlay-at-point)))
+  (when-let ((ov (org-remark-find-overlay-at-point point))
+             (id (overlay-get ov 'org-remark-id)))
     ;; Remove the highlight overlay and id Where there is more than one, remove
     ;; only one It should be last-in-first-out in general but overlays functions
     ;; don't guarantee it
@@ -536,11 +540,13 @@ Look through `org-remark-highlights' list (in descending order)."
       ;; `org-remark-highlights' is sorted in the descending order .
     (seq-find (lambda (p) (< p (point))) points (nth 0 points))))
 
-(defun org-remark-find-overlay-at-point ()
-  "Return one org-remark overlay at point.
+(defun org-remark-find-overlay-at-point (&optional point)
+  "Return one org-remark overlay at POINT.
+When point is nil, use the current point.
 If there are more than one, return CAR of the list."
-  (let ((overlays (overlays-at (point)))
-        found)
+  (let* ((pt (or point (point)))
+         (overlays (overlays-at pt))
+         found)
     (while overlays
       (let ((overlay (car overlays)))
         (if (overlay-get overlay 'org-remark-id)
@@ -568,7 +574,7 @@ region, and Org-remark will start tracking the highlight's
 location in the current buffer.
 
 MODE determines whether or not highlight is to be saved in the
-marginal notes file. The expected values are nil, :load and
+marginal notes file.  The expected values are nil, :load and
 :change.
 
 A Org headline entry for the highlght will be created in the
@@ -582,6 +588,9 @@ highlight saved again, avoiding the unnecessary round-trip back
 to the database."
   ;; Ensure to turn on the local minor mode
   (unless org-remark-mode (org-remark-mode +1))
+  ;; When highlights are toggled hidden, only the new one gets highlighted in
+  ;; the wrong toggle state.
+  (when org-remark-highlights-hidden (org-remark-highlights-show))
   ;; Add highlight to the text
   (org-with-wide-buffer
    (let ((ov (make-overlay beg end nil :front-advance))
@@ -740,12 +749,9 @@ Return t if an entry is removed or deleted."
          (dolist (prop (org-entry-properties))
            (when (string-prefix-p "org-remark-" (downcase (car prop)))
              (org-delete-property (car prop))))
-         ;; Backward compatible
-         (org-delete-property org-remark-prop-id)
-         (org-delete-property org-remark-prop-source-beg)
-         (org-delete-property org-remark-prop-source-end)
          (when delete
-           ;; TODO I would love to add the y-n prompt if there is any notes written
+           ;; TODO I would love to add the y-n prompt if there is any notes
+           ;; written
            (delete-region (point-min)(point-max))
            (message "Deleted the marginal notes entry"))
          (when (buffer-modified-p) (save-buffer))))
@@ -903,7 +909,7 @@ state."
       (overlay-put highlight 'org-remark-face (overlay-get highlight 'face))
       (overlay-put highlight 'face nil)
       (overlay-put highlight 'org-remark-hidden t))
-    t))
+    (setq org-remark-highlights-hidden t)))
 
 (defun org-remark-highlights-show ()
   "Show highlights.
@@ -915,7 +921,7 @@ the show/hide state."
     (dolist (highlight highlights)
       (overlay-put highlight 'org-remark-hidden nil)
       (overlay-put highlight 'face (overlay-get highlight 'org-remark-face)))
-    t))
+    (setq org-remark-highlights-hidden nil)))
 
 (defun org-remark-highlights-housekeep ()
   "Housekeep the internal variable `org-remark-highlights'.
