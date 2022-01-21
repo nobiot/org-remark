@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 0.1.0
 ;; Created: 22 December 2020
-;; Last modified: 20 January 2022
+;; Last modified: 21 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -168,9 +168,9 @@ highlight.  In this case, no new ID gets generated."
                     (intern (format "org-remark-mark-%s" ,label)))
 
        ;; Add custom pens to the minor-mode menu
-       (define-key-after org-remark-mode-map
-         [menu-bar org-remark Highlight ,(format "mark-%s" label)]
-         '(,(format "%s pen" label) . ,(intern (format "org-remark-mark-%s" label)))))))
+       (define-key-after org-remark-pen-map
+         [,(intern (format "org-remark-mark-%s" label))]
+         '(menu-item ,(format "%s pen" label) ,(intern (format "org-remark-mark-%s" label)))))))
 
 
 ;;;; Commands
@@ -232,31 +232,46 @@ recommended to turn it on as part of Emacs initialization.
       (remove-hook 'kill-buffer-hook #'org-remark-tracking-save t))))
 
 
-;;;; Org-remark Menu
-(easy-menu-define org-remark-menu org-remark-mode-map "Org-remark menu."
-  `("Org-remark"
-    ("Highlight"
-     ["default pen" org-remark-mark])))
+;; Org-remark Menu
+(defvar org-remark-menu-map
+  (make-sparse-keymap "Org-remark"))
 
-(define-key-after org-remark-mode-map
-  [menu-bar org-remark open]
-  '("Open" . org-remark-open))
+(define-key-after org-remark-menu-map
+  [org-remark-open]
+  '(menu-item "Open" org-remark-open))
 
-(define-key-after org-remark-mode-map
-  [menu-bar org-remark view]
-  '("View" . org-remark-view))
+(define-key-after org-remark-menu-map
+  [org-remark-view]
+  '(menu-item "View" org-remark-view))
 
-(define-key-after org-remark-mode-map
-  [menu-bar org-remark change]
-  '("Change" . org-remark-change))
+(define-key-after org-remark-menu-map
+  [org-remark-change]
+  '(menu-item "Change" org-remark-change))
 
-(define-key-after org-remark-mode-map
-  [menu-bar org-remark toggle]
-  '("Toggle" . org-remark-toggle))
+(define-key-after org-remark-menu-map
+  [org-remark-toggle]
+  '(menu-item "Toggle" org-remark-toggle))
 
-(define-key-after org-remark-mode-map
-  [menu-bar org-remark remove]
-  '("Remove" . org-remark-remove))
+(define-key-after org-remark-menu-map
+  [org-remark-remove]
+  '(menu-item "Remove" org-remark-remove))
+
+(define-key org-remark-mode-map
+            [menu-bar org-remark]
+            (list 'menu-item "Remark" org-remark-menu-map))
+
+;; Add pen functions
+(defvar org-remark-pen-map
+  (make-sparse-keymap "Org-remark-mark"))
+
+(define-key-after org-remark-pen-map
+  [org-remark-mark]
+  '(menu-item "default" org-remark-mark))
+
+(define-key org-remark-menu-map
+            [org-remark-pens]
+            (list 'menu-item "Highlight with..." org-remark-pen-map))
+
 
 
 ;;;; Other Commands
