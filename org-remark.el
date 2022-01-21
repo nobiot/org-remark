@@ -71,8 +71,7 @@ file."
 (defcustom org-remark-notes-display-buffer-action
   `((display-buffer-in-side-window)
     (side . left)
-    (slot . 1)
-    (dedicated . t))
+    (slot . 1))
   "Define how Org-remark opens the notes buffer.
 The default is to use a dedicated side-window on the left.  It is
 an action list for `display-buffer'.  Refer to its documentation
@@ -409,18 +408,31 @@ current buffer.
 This function ensures that there is only one cloned buffer for
 notes file by tracking it."
   (interactive "d\nP")
-  (when (buffer-live-p org-remark-last-notes-buffer)
-      (kill-buffer org-remark-last-notes-buffer))
-  (when-let ((id (get-char-property point 'org-remark-id))
-             (ibuf (make-indirect-buffer
-                    (find-file-noselect org-remark-notes-file-path)
-                    org-remark-notes-buffer-name 'clone)))
-    (setq org-remark-last-notes-buffer ibuf)
-    (with-current-buffer ibuf
+  ;; Check if the current point is at a org-remark highlight overlay.
+  (when-let ((id (get-char-property point 'org-remark-id)))
+    ;; If the base-bufffer of the marginal notes buffer has not changed from the
+    ;; previous, don't kill it If it's different or new, kill the last marginal
+    ;; notes buffer and create a new clone indrect buffer.  We want only one of
+    ;; the clone indirect buffer for the Emacs session at a time.
+    (unless (buffer-live-p org-remark-last-notes-buffer)
+      (setq org-remark-last-notes-buffer nil))
+    (let ((ibuf org-remark-last-notes-buffer)
+          (notes-buf (find-file-noselect org-remark-notes-file-path))
+          (cbuf (current-buffer)))
+      (when (buffer-base-buffer ibuf) notes-buf
+            ;; killed buffer is not nil
+            (kill-buffer ibuf) (setq ibuf nil))
+      ;; ibuf (marignal notes buffer) does not exist or exist but it's not for
+      ;; the current main note. Clone a new indirect buffer.
+      (unless ibuf
+        (setq ibuf (make-indirect-buffer
+                    notes-buf org-remark-notes-buffer-name :clone)))
+      (display-buffer ibuf org-remark-notes-display-buffer-action)
+      (set-buffer ibuf)(widen)
       (when-let (p (org-find-property org-remark-prop-id id))
-        (widen)(goto-char p)(org-narrow-to-subtree)))
-    (display-buffer ibuf org-remark-notes-display-buffer-action)
-    (unless view-only (select-window (get-buffer-window ibuf)))))
+        (goto-char p)(org-narrow-to-subtree))
+      (setq org-remark-last-notes-buffer ibuf)
+      (unless view-only (select-window (get-buffer-window ibuf))))))
 
 (defun org-remark-view (point)
   "View marginal notes for highlight at POINT.
