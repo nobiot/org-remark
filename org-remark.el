@@ -170,7 +170,16 @@ highlight.  In this case, no new ID gets generated."
        ;; Add custom pens to the minor-mode menu
        (define-key-after org-remark-pen-map
          [,(intern (format "org-remark-mark-%s" label))]
-         '(menu-item ,(format "%s pen" label) ,(intern (format "org-remark-mark-%s" label)))))))
+         '(menu-item ,(format "%s pen" label) ,(intern (format "org-remark-mark-%s" label))))
+
+       ;; Add custom pen change function for the minor-mode menu
+       (define-key-after org-remark-change-pen-map
+         [,(intern (format "org-remark-change-to-%s" label))]
+         '(menu-item ,(format "%s pen" label)
+                     (lambda ()
+                       (interactive)
+                       (org-remark-change
+                        #',(intern (format "org-remark-mark-%s" label)))))))))
 
 
 ;;;; Commands
@@ -237,6 +246,14 @@ recommended to turn it on as part of Emacs initialization.
   (make-sparse-keymap "Org-remark"))
 
 (define-key-after org-remark-menu-map
+  [org-remark-view-next]
+  '(menu-item "View next" org-remark-view-next))
+
+(define-key-after org-remark-menu-map
+  [org-remark-view-prev]
+  '(menu-item "View previous" org-remark-view-prev))
+
+(define-key-after org-remark-menu-map
   [org-remark-open]
   '(menu-item "Open" org-remark-open))
 
@@ -260,7 +277,7 @@ recommended to turn it on as part of Emacs initialization.
             [menu-bar org-remark]
             (list 'menu-item "Remark" org-remark-menu-map))
 
-;; Add pen functions
+;; Make pen functions menu
 (defvar org-remark-pen-map
   (make-sparse-keymap "Org-remark-mark"))
 
@@ -268,6 +285,24 @@ recommended to turn it on as part of Emacs initialization.
   [org-remark-mark]
   '(menu-item "default" org-remark-mark))
 
+;; Make change pen menu
+(defvar org-remark-change-pen-map
+  (make-sparse-keymap "Org-remark-change"))
+
+(define-key-after org-remark-change-pen-map
+  [org-remark-change]
+  '(menu-item "default" (lambda ()
+                          (interactive)
+                          (org-remark-change #'org-remark-mark))))
+
+
+;; FIXME somehow the change goes below other menu items
+;; Add change menu to the main menu
+(define-key org-remark-menu-map
+            [org-remark-change]
+            (list 'menu-item "Change pen to..." org-remark-change-pen-map))
+
+;; Add pen menu to the main menu
 (define-key org-remark-menu-map
             [org-remark-pens]
             (list 'menu-item "Highlight with..." org-remark-pen-map))
