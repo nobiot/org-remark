@@ -275,7 +275,7 @@ recommended to turn it on as part of Emacs initialization.
 
 (define-key org-remark-mode-map
             [menu-bar org-remark]
-            (list 'menu-item "Remark" org-remark-menu-map))
+            (list 'menu-item "Org-remark" org-remark-menu-map))
 
 ;; Make pen functions menu
 (defvar org-remark-pen-map
