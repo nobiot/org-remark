@@ -33,7 +33,7 @@ For customization, refer to the customization group `org-transclusion' or user m
 
 * Screenshots :noexport:
 
-[[./resources/images/2020-12-24T101116_Title.png]]
+[[./resources/images/2022-01-22-Title.png]]
 *Figure 1*. Left: Org-mode with text enlarged; Right marginal notes with the inline image display on
 
 Refer to the screenshots below for a teaser of what it can do.
@@ -42,14 +42,11 @@ Refer to the screenshots below for a teaser of what it can do.
 The screen shots are from the old Org-marginalia. They are still relevant but new screen shots are on their way.
 #+end_quote
 
-[[./resources/images/2020-12-22T141331-OM-screen-shot-01.png]]
-*Figure 2*. Left: main note with some text highlighted in green; Right: marginal notes in a marginalia file
+[[./resources/images/2022-01-22-Context-menu.png]]
+*Figure 2*. Mouse context menu with built-in ~context-menu-mode~ available with Emacs version 28 onwards
 
-[[./resources/images/2021-08-17T220032.png]]
-*Figure 3*. Left: ~org-roam-buffer~ showing backlinks from the marginal notes; Right: main Org note. Org-remark can automatically add links with Org-ID from marginal notes back to the main file. This works well with Org-roam's backlinks
-
-[[./resources/images/2020-12-22T141331-OM-screen-shot-03.png]]
-*Figure 4*. Main note can be any text files. Left: an ~.el~ file with a highlight; Right: marginal notes file
+[[./resources/images/2022-01-22-code.png]]
+*Figure 3*. Main note can be any text files. Left: marginal notes file; Right: an ~org-remark.el~ file with a highlight.
 
 * Installation
 :PROPERTIES:
@@ -119,3 +116,14 @@ This work is licensed under a GPLv3 license. For a full copy of the licese, refe
 :PROPERTIES:
 :org-remark-file: ~/src/org-remark/org-remark.el
 :END:
+
+** (defmacro org-remark-create
+:PROPERTIES:
+:org-remark-beg: 4027
+:org-remark-end: 4000
+:org-remark-id: c759f435
+:org-remark-label: nil
+:org-remark-link: [[file:~/src/org-remark/org-remark.el::120]]
+:END:
+
+This macro was inspired by [[https://github.com/jkitchin/ov-highlight][Ov-highlight]].  It's by John Kitchin (author of Org-ref). Great UX for markers with hydra. Saves the marker info and comments directly within the Org file as Base64 encoded string. It uses overlays with using ~ov~ package.

@@ -1,7 +1,8 @@
 
-   *Org-marginalia*
+   *Org-remark*
 
    Highlight text;
-   write marginalia for any
-   text file.
+   annotate for any text file.
 
+   † Name chagned from
+      Org-marginalia
