@@ -38,10 +38,6 @@ For customization, refer to the customization group `org-transclusion' or user m
 
 Refer to the screenshots below for a teaser of what it can do.
 
-#+begin_quote
-The screen shots are from the old Org-marginalia. They are still relevant but new screen shots are on their way.
-#+end_quote
-
 [[./resources/images/2022-01-22-Context-menu.png]]
 *Figure 2*. Mouse context menu with built-in ~context-menu-mode~ available with Emacs version 28 onwards
 
