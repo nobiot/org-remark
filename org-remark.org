@@ -64,7 +64,7 @@ init file:
   (org-remark-global-tracking-mode +1)
 #+end_src
 
-Unless you explicitly load ~org~ during Emacs initialization, I suggest to defer loading ~org-remark~ (thus there is no ~(require 'org-remark)~ in the example above). This is because it will also pull in ~org~, which can slow down initialization. By autoloading some commands in similar ways as the example keybindings below, you can control the timing of loading ~org-remark~. 
+Unless you explicitly load ~org~ during Emacs initialization, I suggest to defer loading ~org-remark~ (thus there is no ~(require 'org-remark)~ in the example above). This is because it will also pull in ~org~, which can slow down initialization. You can control the timing of loading ~org-remark~ by autoloading some commands in similar ways as the example keybindings below.
 
 Below are example keybindings you might like to consider:
 
@@ -98,9 +98,9 @@ Below are example keybindings you might like to consider:
 
 Once you have installed and set it up ([[#installation][Installation]]), Org-remark is simple to use. Select a part of text and call ~M-x org-remark-mark~ to highlight it. You will see the selected text gets highlighted.
 
-Menu bar "Org-remark" is available to help you discover main commands. If you use Emacs version 28 or newer, a context menu is also available by right clicking the mouse. Turn on ~context-menu-mode~ for this.
+The menu bar item "Org-remark" is available when you turn on ~org-remark-mode~. It helps you discover Org-remark's main commands. If you use Emacs version 28 or newer, a context menu is also available by right click of your mouse. Turn on the Emacs built-in ~context-menu-mode~ to enable the context menu.
 
-To add or display the marginal notes for the highlight you have just marked, place your cursor on the highlight and call ~M-x org-remark-open~ or ~M-x org-remark-view~. This will display a new buffer to the left of the current buffer you are editing. The ~open~ command takes the cursor to the marginal notes buffer to edit notes; whereas the ~view~ command keeps the cursor in the current buffer only to display the marginal notes. Both commands narrow the *marginal notes file* to the entry for the highlight under the cursor.  The marginal notes file is a normal Org file. Edit your notes just as you would do with any other Org files and save the buffer.
+To display the marginal notes for the highlight you have just marked, place your cursor on the highlight and call ~M-x org-remark-open~ or ~M-x org-remark-view~. This will display a new buffer to the left of the current buffer you are editing. The ~open~ command takes the cursor to the marginal notes buffer for you to edit notes; whereas the ~view~ command keeps the cursor in the current buffer only to display the marginal notes. Both commands narrow the *marginal notes file* to the entry for the highlight under the cursor.  The marginal notes file is a normal Org file. Edit your notes just as you would do with any other Org files and save the buffer.
 
 ** Navigating from One Highlight to Another
 
@@ -133,9 +133,9 @@ Org-remark has a default highlighter pen function, and comes with a set of two a
 - ~org-remark-mark-yellow~    :: yellow highlight with "important" category in the marginal notes entry
 - ~org-remark-mark-red-line~  :: wavy red underline with "review" category in the marginal notes entry and "Review this" in tool-tips
 
-Org-remark does not stop there; it lets you create your own custom pen functions with ~org-remark-create~. Use the yellow and red line pens as examples, and create your own. [[#create-custom-pens][Create Your Own Custom Pens]] for how to do it. 
+Org-remark let lets you create your own custom pen functions with ~org-remark-create~. Use the yellow and red line pens as examples, and create your own. [[#create-custom-pens][Create Your Own Custom Pens]] for how to do it. 
 
-This is all now to get you started. For more detail, refer to the rest of this user manual, especially [[#usage][Usage]] and [[#customizing][Customizing]] sections. There is more detail to the commands introduced in this section and more ways in which you can customize Org-remark. 
+This is all you need to started. For more detail, refer to the rest of this user manual, especially [[#usage][Usage]] and [[#customizing][Customizing]] sections. There is more detail to the commands introduced in this section and more ways in which you can customize Org-remark. 
 
 * Usage
 :PROPERTIES:
@@ -195,7 +195,7 @@ Without this global minor mode, you would need to remember to activate ~org-rema
 
 ** Marginal Notes File
 
-#+cindex: marginal notes file
+#+cindex: Marginal notes file
 #+cindex: Org-remark properties for highlights
 
 When you mark a part of text with a highlighter pen function, Org-remark will automatically create a *marginal notes file*. By default, it will be named ~marginalia.org~ and created in the same directory as the file you are editing ([[#customizing][Customizing]]).
@@ -220,6 +220,25 @@ In addition to the properties above that Org-remark reserves for itself, you can
 When you display the marginal notes with ~org-remark-view~ or ~org-remark-open~ for a given highlight, Org-remark creates a cloned indirect buffer visiting the marginal notes file. By default, it is a dedicated side-window opened to the left part of the current frame, and it is named =*marginal notes*=. You can change the behavior of ~display-buffer~ function and the name of the buffer ([[#customizing][Customizing]]).
 
 Org-remark displays the marginal notes buffer narrowed to the highlight the cursor is on. 
+
+** Other Commands
+
+#+findex: org-remark-toggle
+#+findex: org-remark-change
+#+findex: org-remark-remove
+
+- Command ~org-remark-toggle~ ::
+  Toggle showing/hiding of highlights in current buffer.
+  If you would like to hide/show the highlights in the current buffer, it is recommended to use this command instead of ~org-remark-mode~. This command only affects the display of the highlights and their locations are still kept tracked.  Toggling off ~org-remark-mode~ stops this tracking completely, which will likely result in inconsistency between the marginal notes file and the current main buffer.
+
+- Command ~org-remark-change~ ::
+  Change the highlight at point to one by another pen.
+This command will show you a list of available pens to choose from.
+
+- Command ~org-remark-remove~ ::
+  Remove the highlight at point.
+  It will remove the highlight and the properties from the marginal notes file, but will keep the headline and annotations. This is to ensure to keep any notes you might have written intact.
+  You can let this command DELETE the entire heading subtree for the highlight along with the annotations you have written, by passing a universal argument with ~C-u~. If you have done so by error, you could still ~undo~ it in the marginal notes buffer, but not from within the current buffer as adding and removing overlays are not part of the undo tree.
 
 * Customizing
 :PROPERTIES:

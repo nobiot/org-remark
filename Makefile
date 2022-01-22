@@ -18,7 +18,7 @@ index.html: org-remark.texi
 	@printf "\n\n### Generating manual .html files \n\n"
 	$(MAKEINFO) $(MANUAL_HTML_ARGS) $< -o index.html
 
-org-remark.texi: org-remark-manual.org
+org-remark.texi: org-remark.org
 	@printf "\n\n### Generating manual .texi file \n\n"
 	$(EMACS) --batch -L --file $< \
                  -f org-texinfo-export-to-texinfo

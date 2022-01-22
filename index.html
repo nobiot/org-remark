@@ -133,6 +133,8 @@ Usage
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#g_t_002amarginal_002dnotes_002a-Buffer">&lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Other-Commands">Other Commands</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
 <tr><th colspan="3" align="left" valign="top"><pre class="menu-comment">
 
 </pre></th></tr></table>
@@ -159,7 +161,7 @@ init file:
 (org-remark-global-tracking-mode +1)
 </pre></div>
 
-<p>Unless you explicitly load <code>org</code> during Emacs initialization, I suggest to defer loading <code>org-remark</code> (thus there is no <code>(require 'org-remark)</code> in the example above). This is because it will also pull in <code>org</code>, which can slow down initialization. By autoloading some commands in similar ways as the example keybindings below, you can control the timing of loading <code>org-remark</code>. 
+<p>Unless you explicitly load <code>org</code> during Emacs initialization, I suggest to defer loading <code>org-remark</code> (thus there is no <code>(require 'org-remark)</code> in the example above). This is because it will also pull in <code>org</code>, which can slow down initialization. You can control the timing of loading <code>org-remark</code> by autoloading some commands in similar ways as the example keybindings below.
 </p>
 <p>Below are example keybindings you might like to consider:
 </p>
@@ -209,9 +211,9 @@ Next: <a href="#Navigating-from-One-Highlight-to-Another" accesskey="n" rel="nex
 
 <p>Once you have installed and set it up (<a href="#Installation">Installation</a>), Org-remark is simple to use. Select a part of text and call <code>M-x org-remark-mark</code> to highlight it. You will see the selected text gets highlighted.
 </p>
-<p>Menu bar &ldquo;Org-remark&rdquo; is available to help you discover main commands. If you use Emacs version 28 or newer, a context menu is also available by right clicking the mouse. Turn on <code>context-menu-mode</code> for this.
+<p>The menu bar item &ldquo;Org-remark&rdquo; is available when you turn on <code>org-remark-mode</code>. It helps you discover Org-remark&rsquo;s main commands. If you use Emacs version 28 or newer, a context menu is also available by right click of your mouse. Turn on the Emacs built-in <code>context-menu-mode</code> to enable the context menu.
 </p>
-<p>To add or display the marginal notes for the highlight you have just marked, place your cursor on the highlight and call <code>M-x org-remark-open</code> or <code>M-x org-remark-view</code>. This will display a new buffer to the left of the current buffer you are editing. The <code>open</code> command takes the cursor to the marginal notes buffer to edit notes; whereas the <code>view</code> command keeps the cursor in the current buffer only to display the marginal notes. Both commands narrow the <strong>marginal notes file</strong> to the entry for the highlight under the cursor.  The marginal notes file is a normal Org file. Edit your notes just as you would do with any other Org files and save the buffer.
+<p>To display the marginal notes for the highlight you have just marked, place your cursor on the highlight and call <code>M-x org-remark-open</code> or <code>M-x org-remark-view</code>. This will display a new buffer to the left of the current buffer you are editing. The <code>open</code> command takes the cursor to the marginal notes buffer for you to edit notes; whereas the <code>view</code> command keeps the cursor in the current buffer only to display the marginal notes. Both commands narrow the <strong>marginal notes file</strong> to the entry for the highlight under the cursor.  The marginal notes file is a normal Org file. Edit your notes just as you would do with any other Org files and save the buffer.
 </p>
 <hr>
 <span id="Navigating-from-One-Highlight-to-Another"></span><div class="header">
@@ -272,9 +274,9 @@ Previous: <a href="#Navigating-from-One-Highlight-to-Another" accesskey="p" rel=
 </p></dd>
 </dl>
 
-<p>Org-remark does not stop there; it lets you create your own custom pen functions with <code>org-remark-create</code>. Use the yellow and red line pens as examples, and create your own. <a href="#Create-Your-Own-Custom-Highlighter-Pen">Create Your Own Custom Pens</a> for how to do it. 
+<p>Org-remark let lets you create your own custom pen functions with <code>org-remark-create</code>. Use the yellow and red line pens as examples, and create your own. <a href="#Create-Your-Own-Custom-Highlighter-Pen">Create Your Own Custom Pens</a> for how to do it. 
 </p>
-<p>This is all now to get you started. For more detail, refer to the rest of this user manual, especially <a href="#Usage">Usage</a> and <a href="#Customizing">Customizing</a> sections. There is more detail to the commands introduced in this section and more ways in which you can customize Org-remark.
+<p>This is all you need to started. For more detail, refer to the rest of this user manual, especially <a href="#Usage">Usage</a> and <a href="#Customizing">Customizing</a> sections. There is more detail to the commands introduced in this section and more ways in which you can customize Org-remark.
 </p>
 <hr>
 <span id="Usage"></span><div class="header">
@@ -291,6 +293,8 @@ Next: <a href="#Customizing" accesskey="n" rel="next">Customizing</a>, Previous:
 <tr><td align="left" valign="top">&bull; <a href="#Marginal-Notes-File" accesskey="3">Marginal Notes File</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="4">&lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Other-Commands" accesskey="5">Other Commands</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 </table>
 
@@ -362,7 +366,7 @@ Next: <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="n" rel="next"
 </div>
 <span id="Marginal-Notes-File-1"></span><h3 class="section">3.3 Marginal Notes File</h3>
 
-<span id="index-marginal-notes-file-1"></span>
+<span id="index-Marginal-notes-file"></span>
 <span id="index-Org_002dremark-properties-for-highlights-1"></span>
 
 <p>When you mark a part of text with a highlighter pen function, Org-remark will automatically create a <strong>marginal notes file</strong>. By default, it will be named <code>marginalia.org</code> and created in the same directory as the file you are editing (<a href="#Customizing">Customizing</a>).
@@ -385,7 +389,7 @@ Next: <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="n" rel="next"
 <hr>
 <span id="g_t_002amarginal_002dnotes_002a-Buffer"></span><div class="header">
 <p>
-Previous: <a href="#Marginal-Notes-File" accesskey="p" rel="prev">Marginal Notes File</a>, Up: <a href="#Usage" accesskey="u" rel="up">Usage</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#Other-Commands" accesskey="n" rel="next">Other Commands</a>, Previous: <a href="#Marginal-Notes-File" accesskey="p" rel="prev">Marginal Notes File</a>, Up: <a href="#Usage" accesskey="u" rel="up">Usage</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
 <span id="g_t_002amarginal_002dnotes_002a-Buffer-1"></span><h3 class="section">3.4 &lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</h3>
 
@@ -395,6 +399,37 @@ Previous: <a href="#Marginal-Notes-File" accesskey="p" rel="prev">Marginal Notes
 </p>
 <p>Org-remark displays the marginal notes buffer narrowed to the highlight the cursor is on.
 </p>
+<hr>
+<span id="Other-Commands"></span><div class="header">
+<p>
+Previous: <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="p" rel="prev">&lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</a>, Up: <a href="#Usage" accesskey="u" rel="up">Usage</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+</div>
+<span id="Other-Commands-1"></span><h3 class="section">3.5 Other Commands</h3>
+
+<span id="index-org_002dremark_002dtoggle"></span>
+<span id="index-org_002dremark_002dchange"></span>
+<span id="index-org_002dremark_002dremove-1"></span>
+
+<dl compact="compact">
+<dt>Command <code>org-remark-toggle</code></dt>
+<dd><p>Toggle showing/hiding of highlights in current buffer.
+If you would like to hide/show the highlights in the current buffer, it is recommended to use this command instead of <code>org-remark-mode</code>. This command only affects the display of the highlights and their locations are still kept tracked.  Toggling off <code>org-remark-mode</code> stops this tracking completely, which will likely result in inconsistency between the marginal notes file and the current main buffer.
+</p>
+</dd>
+<dt>Command <code>org-remark-change</code></dt>
+<dd><p>Change the highlight at point to one by another pen.
+</p></dd>
+</dl>
+<p>This command will show you a list of available pens to choose from.
+</p>
+<dl compact="compact">
+<dt>Command <code>org-remark-remove</code></dt>
+<dd><p>Remove the highlight at point.
+It will remove the highlight and the properties from the marginal notes file, but will keep the headline and annotations. This is to ensure to keep any notes you might have written intact.
+You can let this command DELETE the entire heading subtree for the highlight along with the annotations you have written, by passing a universal argument with <code>C-u</code>. If you have done so by error, you could still <code>undo</code> it in the marginal notes buffer, but not from within the current buffer as adding and removing overlays are not part of the undo tree.
+</p></dd>
+</dl>
+
 <hr>
 <span id="Customizing"></span><div class="header">
 <p>
@@ -547,7 +582,7 @@ Next: <a href="#Index-_002d-Commands" accesskey="n" rel="next">Index - Commands<
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index-_002d-Features_cp_letter-M">M</th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-marginal-notes-file">marginal notes file</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlighting-and-Annotating">Highlighting and Annotating</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-marginal-notes-file-1">marginal notes file</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Marginal-Notes-File">Marginal Notes File</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-Marginal-notes-file">Marginal notes file</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Marginal-Notes-File">Marginal Notes File</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Menu-in-the-menu-bar">Menu in the menu bar</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Navigating-from-One-Highlight-to-Another">Navigating from One Highlight to Another</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index-_002d-Features_cp_letter-O">O</th><td></td><td></td></tr>
@@ -585,6 +620,7 @@ Next: <a href="#Index-_002d-User-Options" accesskey="n" rel="next">Index - User 
 <tr><td></td><th align="left">Index Entry</th><td>&nbsp;</td><th align="left"> Section</th></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index-_002d-Commands_fn_letter-O">O</th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dchange"><code>org-remark-change</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Other-Commands">Other Commands</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dcreate"><code>org-remark-create</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Create-Your-Own-Custom-Highlighter-Pens">Create Your Own Custom Highlighter Pens</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dcreate-1"><code>org-remark-create</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Create-Your-Own-Custom-Highlighter-Pen">Create Your Own Custom Highlighter Pen</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dglobal_002dtracking_002dmode"><code>org-remark-global-tracking-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Automatically-Turn-on-Highlights-after-Re_002dstarting-Emacs">Automatically Turn on Highlights after Re-starting Emacs</a></td></tr>
@@ -597,6 +633,8 @@ Next: <a href="#Index-_002d-User-Options" accesskey="n" rel="next">Index - User 
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmode"><code>org-remark-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Automatically-Turn-on-Highlights-after-Re_002dstarting-Emacs">Automatically Turn on Highlights after Re-starting Emacs</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dopen"><code>org-remark-open</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlighting-and-Annotating">Highlighting and Annotating</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dremove"><code>org-remark-remove</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Navigating-from-One-Highlight-to-Another">Navigating from One Highlight to Another</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dremove-1"><code>org-remark-remove</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Other-Commands">Other Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dtoggle"><code>org-remark-toggle</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Other-Commands">Other Commands</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dview"><code>org-remark-view</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlighting-and-Annotating">Highlighting and Annotating</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dview_002dnext"><code>org-remark-view-next</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Navigating-from-One-Highlight-to-Another">Navigating from One Highlight to Another</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dview_002dprev"><code>org-remark-view-prev</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Navigating-from-One-Highlight-to-Another">Navigating from One Highlight to Another</a></td></tr>
