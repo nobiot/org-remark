@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 0.1.0
 ;; Created: 22 December 2020
-;; Last modified: 21 January 2022
+;; Last modified: 22 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -166,12 +166,12 @@ highlight.  In this case, no new ID gets generated."
        (add-to-list 'org-remark-available-pens
                     (intern (format "org-remark-mark-%s" ,label)))
 
-       ;; Add custom pens to the minor-mode menu
+       ;; Add the custom pen function to the minor-mode menu
        (define-key-after org-remark-pen-map
          [,(intern (format "org-remark-mark-%s" label))]
          '(menu-item ,(format "%s pen" label) ,(intern (format "org-remark-mark-%s" label))))
 
-       ;; Add custom pen change function for the minor-mode menu
+       ;; Add the custom pen change function to the minor-mode menu
        (define-key-after org-remark-change-pen-map
          [,(intern (format "org-remark-change-to-%s" label))]
          '(menu-item ,(format "%s pen" label)
@@ -245,14 +245,6 @@ recommended to turn it on as part of Emacs initialization.
   (make-sparse-keymap "Org-remark"))
 
 (define-key-after org-remark-menu-map
-  [org-remark-view-next]
-  '(menu-item "View next" org-remark-view-next))
-
-(define-key-after org-remark-menu-map
-  [org-remark-view-prev]
-  '(menu-item "View previous" org-remark-view-prev))
-
-(define-key-after org-remark-menu-map
   [org-remark-open]
   '(menu-item "Open" org-remark-open))
 
@@ -261,8 +253,12 @@ recommended to turn it on as part of Emacs initialization.
   '(menu-item "View" org-remark-view))
 
 (define-key-after org-remark-menu-map
-  [org-remark-change]
-  '(menu-item "Change" org-remark-change))
+  [org-remark-view-next]
+  '(menu-item "View next" org-remark-view-next))
+
+(define-key-after org-remark-menu-map
+  [org-remark-view-prev]
+  '(menu-item "View previous" org-remark-view-prev))
 
 (define-key-after org-remark-menu-map
   [org-remark-toggle]
@@ -271,10 +267,6 @@ recommended to turn it on as part of Emacs initialization.
 (define-key-after org-remark-menu-map
   [org-remark-remove]
   '(menu-item "Remove" org-remark-remove))
-
-(define-key org-remark-mode-map
-            [menu-bar org-remark]
-            (list 'menu-item "Org-remark" org-remark-menu-map))
 
 ;; Make pen functions menu
 (defvar org-remark-pen-map
@@ -294,18 +286,21 @@ recommended to turn it on as part of Emacs initialization.
                           (interactive)
                           (org-remark-change #'org-remark-mark))))
 
+;; Add change menu to the parent menu
+(define-key-after org-remark-menu-map
+  [org-remark-change-pens]
+  (list 'menu-item "Change pen to..." org-remark-change-pen-map)
+  'org-remark-toggle)
 
-;; FIXME somehow the change goes below other menu items
-;; Add change menu to the main menu
-(define-key org-remark-menu-map
-            [org-remark-change]
-            (list 'menu-item "Change pen to..." org-remark-change-pen-map))
-
-;; Add pen menu to the main menu
+;; Add pen menu to the parent menu
 (define-key org-remark-menu-map
             [org-remark-pens]
             (list 'menu-item "Highlight with..." org-remark-pen-map))
 
+;; Add all to the main menu
+(define-key org-remark-mode-map
+            [menu-bar org-remark]
+            (list 'menu-item "Org-remark" org-remark-menu-map))
 
 
 ;;;; Other Commands
@@ -815,6 +810,9 @@ Minimal properties are:
 - org-remark-id :: ID
 - org-remark-source-beg :: BEG
 - org-remark-source-end :: END
+
+And the following are also reserved for Org-remark:
+- org-remark-link
 
 For PROPS, if the property name is CATEGORY \(case-sensitive\) or
 prefixed with \"org-remark-\" set them to to headline's property

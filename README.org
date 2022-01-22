@@ -23,11 +23,13 @@ This feature is designed to work automatically and transparently to you, meaning
 
 Org-remark lets you highlight and annotate any text file with using Org mode.
 
-A complete [[https://nobiot.github.io/org-remark/][user manual]] is available online (Info file will be available when Org-remark is added to ELPA/MELPA).
+A user manual is available [[https://nobiot.github.io/org-remark/][online]] (Info node will be available when Org-remark is added to ELPA/MELPA).
 
-For installation and minimum configuration, refer to [[#installation][Installation]] below or the corresponding section in the user manual.
+For installation and minimum configuration, refer to [[#installation][Installation]] below or the user manual: [[https://nobiot.github.io/org-remark/#Installation][online]].
 
-[[https://nobiot.github.io/org-remark/#getting-started][Getting Started]] in the user manual will get you started in 5 minutes.
+Getting Started in the user manual will get you started in 5 minutes: [[https://nobiot.github.io/org-remark/#getting-started][online]].
+
+For customization, refer to the customization group `org-transclusion' or user manual: [[https://nobiot.github.io/org-remark/#Customizing][online]].
 
 * Screenshots :noexport:
 
@@ -69,7 +71,7 @@ init file:
   (org-remark-global-tracking-mode +1)
 #+end_src
 
-Unless you explicitly load =org= during Emacs initialization, I suggest to defer loading =org-remark= (thus there is no =(require 'org-remark)= in the example above). This is because it will also pull in =org=, which can slow down initialization. By autoloading some commands in similar ways as the example keybindings below, you can control the timing of loading =org-remark=. 
+Unless you explicitly load ~org~ during Emacs initialization, I suggest to defer loading ~org-remark~ (thus there is no ~(require 'org-remark)~ in the example above). This is because it will also pull in ~org~, which can slow down initialization. By autoloading some commands in similar ways as the example keybindings below, you can control the timing of loading ~org-remark~. 
 
 Below are example keybindings you might like to consider:
 
@@ -117,9 +119,3 @@ This work is licensed under a GPLv3 license. For a full copy of the licese, refe
 :PROPERTIES:
 :org-remark-file: ~/src/org-remark/org-remark.el
 :END:
-
-** defun
-:PROPERTIES:
-:CATEGORY: correction
-:END:
-[[file:~/src/org-remark/org-remark.el::211][org-remark]]
