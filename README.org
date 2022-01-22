@@ -1,5 +1,5 @@
 #+title: README – Org-remark
-#+options: toc:t cretor:nil author:nil broken-links:t
+#+options: toc:t creator:nil author:nil broken-links:t
 
 #+html: <a href="https://www.gnu.org/software/emacs/"><img alt="GNU Emacs" src="https://img.shields.io/static/v1?logo=gnuemacs&logoColor=fafafa&label=Made%20for&message=GNU%20Emacs&color=7F5AB6&style=flat"/></a>
 #+html: <img alt="GPLv3" src="https://img.shields.io/badge/License-GPLv3-blue.svg">
@@ -20,7 +20,7 @@ If you are using Org-marginalia now, there are breaking changes. This package in
 
 This feature is designed to work automatically and transparently to you, meaning you should not have to do anything, as long as you did not customize ~org-marginala-notes-file-path~. If you did, you also need to customize ~org-remark-notes-file-path~. You can also manually do data conversion if you wish. For more detail, refer to the docstring of function ~org-remark-convert-legacy-data~. 
 
-* Intorduction
+* Introduction
 
 Org-remark lets you highlight and annotate any text file with using Org mode.
 
@@ -40,7 +40,7 @@ For customization, refer to the customization group `org-transclusion' or user m
 Refer to the screenshots below for a teaser of what it can do.
 
 [[./resources/images/2022-01-22-Context-menu.png]]
-*Figure 2*. Mouse context menu with built-in ~context-menu-mode~ available with Emacs version 28 onwards
+*Figure 2*. Mouse context menu with built-in ~context-menu-mode~ available with Emacs version 28 onward
 
 [[./resources/images/2022-01-22-code.png]]
 *Figure 3*. Main note can be any text files. Left: marginal notes file; Right: an ~org-remark.el~ file with a highlight.
@@ -97,17 +97,7 @@ Thank you.
    
 * License
 
-This work is licensed under a GPLv3 license. For a full copy of the licese, refer to [[./LICENSE][LICENSE]].
-
-* Local Variables :noexport:
-
-# Local Variables:
-# eval: (require 'org-make-toc)
-# before-save-hook: org-make-toc
-# org-export-with-properties: ()
-# org-export-with-title: t
-# line-spacing: 4
-# End:
+This work is licensed under a GPLv3 license. For a full copy of the license, refer to [[./LICENSE][LICENSE]].
 
 * org-remark :noexport:
 :PROPERTIES:
