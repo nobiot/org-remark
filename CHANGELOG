@@ -1,0 +1,37 @@
+** 0.0.6
+
+Feature:
+- feat: Add =org-marginalia-global-tracking-mode= with a separate .el file
+- feat: Use Org-ID to create a link from the marginal notes back to the main file
+  Add Customizable variable =org-marginalia-use-org-id=; default is =t=
+
+Change:
+- chg: Highlights are now overlay; no longer text-properties
+
+Improvement to existing functions
+- add: Deactivate mark after highlighting
+- add: org-marginalia-remove can take C-u to delete
+
+Fix & Internal Refactor
+- intrnl: Add housekeeping for =org-marginalia-highlights= variable
+- fix: org-id-uuid is not found
+- fix: Add highlighter face def for terminal
+
+** 0.0.5
+- break: Replace the prefix "om/" in the source code with "org-marginalia"
+- break: Remove default keybindings; add examples in readme instead. Addresses [#3](https://github.com/nobiot/org-marginalia/issues/3)
+
+** 0.0.4
+- feat: Add transient navigation to next/prev
+  See [[*Credits][§ Credits]] for the piece of code to achieve the transient map I used.
+
+** 0.0.3
+- feat: Add om/toggle for show/hide highlighters
+
+** 0.0.2
+- feat: Add om/next and /prev
+- break: Change om/open-at-point to org-marginalia-open
+- break: Change om/save-all to org-marginalia-save
+
+** 0.0.1
+Initial alpha release. I consider it to be the minimal viable scope.

@@ -480,12 +480,13 @@ the sequence like so:
 
 (defun org-remark-toggle ()
   "Toggle showing/hiding of highlights in current buffer.
-This function only affects the display of the highlights.  Their
-locations are still kept tracked.  On buffer-save the correct
-locations are to be saved in the marginal notes file when the
-highlights are hidden, thus it is recommended to use this
-function, instead of `org-remark-mode', if you would just like to
-hide the highlights."
+  If you would like to hide/show the highlights in the current
+  buffer, it is recommended to use this command instead of
+  `org-remark-mode'. This command only affects the display of the
+  highlights and their locations are still kept tracked.
+  Toggling off ~org-remark-mode~ stops this tracking completely,
+  which will likely result in inconsistency between the marginal
+  notes file and the current main buffer."
   (interactive)
   (if org-remark-highlights-hidden
       (org-remark-highlights-show)

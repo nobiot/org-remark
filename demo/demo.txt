@@ -6,3 +6,41 @@
 
    † Name chagned from
       Org-marginalia
+
+---
+
+Art Nouveau
+Source: https://en.wikipedia.org/wiki/Art_Nouveau
+
+Art Nouveau (/ˌɑːrt nuːˈvoʊ, ˌɑːr/; French: [aʁ nuvo]) is an international style of art, architecture, and applied art, especially the decorative arts, known in different languages by different names: Jugendstil in German, Stile Liberty in Italian, Modernisme català in Catalan, etc. In English it is also known as the Modern Style. The style was most popular between 1890 and 1910 during the Belle Époque period that ended with the start of World War I in 1914.[1] It was a reaction against the academic art, eclecticism and historicism of 19th century architecture and decoration. It was often inspired by natural forms such as the sinuous curves of plants and flowers.[2] Other characteristics of Art Nouveau were a sense of dynamism and movement, often given by asymmetry or whiplash lines, and the use of modern materials, particularly iron, glass, ceramics and later concrete, to create unusual forms and larger open spaces.[3]
+
+One major objective of Art Nouveau was to break down the traditional distinction between fine arts (especially painting and sculpture) and applied arts. It was most widely used in interior design, graphic arts, furniture, glass art, textiles, ceramics, jewellery and metal work.
+
+The mouvement responded to Viollet le Duc’s theories on rationalism which derided from his study of medieval art :
+
+- Function should define form[4].
+
+- Unity of the arts and the abolition of any distinction between major art (architecture) and minor arts (decorative arts).[5]
+
+- Nature’s logique is the model to be used for architecture[6].
+
+- Architecture should adapt itself to man’s environment and needs.
+
+- Use of modern technologie and materials [7]. 
+
+---
+
+Custom pens
+
+Example 1
+
+| (org-remark-create "magenda"     
+|                    '(modus-themes-nuanced-magenta)) 
+
+
+Example 2
+  
+| (org-remark-create "memorize"
+|                   '(:foreground "white" :underline "black")
+|                   '(CATEGORY "exam"))
+

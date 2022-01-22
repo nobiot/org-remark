@@ -1,0 +1,22 @@
+:PROPERTIES:
+:ID:       2022-01-15T093859
+:END:
+
+* Org-remark User Manual
+:PROPERTIES:
+:org-remark-file: ~/src/org-remark/docs/org-remark.org
+:END:
+
+** TODO vindex
+:PROPERTIES:
+:CATEGORY: important
+:END:
+
+- (defcustom org-remark-create-default-pen-set t
+
+                                                             
+- [ ] #+vindex: org-remark-notes-file-path
+
+- [ ] #+vindex: org-remark-notes-display-buffer-action
+
+                                                              - (defcustom org-remark-notes-buffer-name "*marginal notes*"                                                             - (defcustom org-remark-use-org-id nil                                                              
