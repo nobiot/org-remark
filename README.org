@@ -119,8 +119,8 @@ This work is licensed under a GPLv3 license. For a full copy of the licese, refe
 
 ** (defmacro org-remark-create
 :PROPERTIES:
-:org-remark-beg: 4027
-:org-remark-end: 4000
+:org-remark-beg: 4000
+:org-remark-end: 4027
 :org-remark-id: c759f435
 :org-remark-label: nil
 :org-remark-link: [[file:~/src/org-remark/org-remark.el::120]]

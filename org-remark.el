@@ -136,7 +136,8 @@ highlighted text region will have a corresponding Org headline in
 the notes file, and it can have additional properties in the
 property drawer from the highlighter pen.  To do this, prefix
 property names with \"org-remark-\" or use \"CATEGORY\"."
-  (if (not label) `(user-error "org-remark-create: Label is missing")
+  (if (or (not label) (stringp label)
+          (user-error "org-remark-create: Label is missing or not string"))
     `(progn
        ;; Define custom pen function
        (defun ,(intern (format "org-remark-mark-%s" label))
