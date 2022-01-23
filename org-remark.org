@@ -258,6 +258,7 @@ this example:  =C-n ] ] ] ] ]= (assuming this command is bound to C-n ])
 
 #+vindex: org-remark-highlighter
 #+vindex: org-remark-create-default-pen-set
+#+vindex: org-remark-notes-file-path
 #+vindex: org-remark-notes-display-buffer-action
 #+vindex: org-remark-notes-buffer-name
 #+vindex: org-remark-use-org-id
