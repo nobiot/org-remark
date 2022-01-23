@@ -67,7 +67,7 @@ Next: <a href="#Installation" accesskey="n" rel="next">Installation</a> &nbsp; [
 
 <p>This manual is for Org-remark version 0.1.x.
 </p>
-<p>Last updated: 22 January 2022.
+<p>Last updated: 23 January 2022.
 </p>
 <p>Org-remark lets you highlight and annotate any text file with using Org mode.
 </p>
@@ -119,13 +119,13 @@ Getting Started
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#Navigating-from-One-Highlight-to-Another">Navigating from One Highlight to Another</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Create-Your-Own-Custom-Highlighter-Pens">Create Your Own Custom Highlighter Pens</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#Create-Your-Own-Highlighter-Pens">Create Your Own Highlighter Pens</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 <tr><th colspan="3" align="left" valign="top"><pre class="menu-comment">
 
 Usage
 
-</pre></th></tr><tr><td align="left" valign="top">&bull; <a href="#Create-Your-Own-Custom-Highlighter-Pen">Create Your Own Custom Highlighter Pen</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</pre></th></tr><tr><td align="left" valign="top">&bull; <a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#Automatically-Turn-on-Highlights-after-Re_002dstarting-Emacs">Automatically Turn on Highlights after Re-starting Emacs</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
@@ -161,7 +161,7 @@ init file:
 (org-remark-global-tracking-mode +1)
 </pre></div>
 
-<p>Unless you explicitly load <code>org</code> during Emacs initialization, I suggest to defer loading <code>org-remark</code> (thus there is no <code>(require 'org-remark)</code> in the example above). This is because it will also pull in <code>org</code>, which can slow down initialization. You can control the timing of loading <code>org-remark</code> by autoloading some commands in similar ways as the example keybindings below.
+<p>Unless you explicitly load <code>org</code> during Emacs initialization, I suggest to defer loading <code>org-remark</code> (thus there is no <code>(require 'org-remark)</code> in the example above). This is because it will also pull in <code>org</code>, which can slow down initialization. You can control the timing of loading <code>org-remark</code> by autoloading some commands in a similar way with the example keybindings below.
 </p>
 <p>Below are example keybindings you might like to consider:
 </p>
@@ -193,7 +193,7 @@ Next: <a href="#Usage" accesskey="n" rel="next">Usage</a>, Previous: <a href="#I
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#Navigating-from-One-Highlight-to-Another" accesskey="2">Navigating from One Highlight to Another</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Create-Your-Own-Custom-Highlighter-Pens" accesskey="3">Create Your Own Custom Highlighter Pens</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#Create-Your-Own-Highlighter-Pens" accesskey="3">Create Your Own Highlighter Pens</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 </table>
 
@@ -207,7 +207,7 @@ Next: <a href="#Navigating-from-One-Highlight-to-Another" accesskey="n" rel="nex
 <span id="index-org_002dremark_002dmark"></span>
 <span id="index-org_002dremark_002dopen"></span>
 <span id="index-org_002dremark_002dview"></span>
-<span id="index-marginal-notes-file"></span>
+<span id="index-Marginal-notes-file"></span>
 
 <p>Once you have installed and set it up (<a href="#Installation">Installation</a>), Org-remark is simple to use. Select a part of text and call <code>M-x org-remark-mark</code> to highlight it. You will see the selected text gets highlighted.
 </p>
@@ -218,47 +218,36 @@ Next: <a href="#Navigating-from-One-Highlight-to-Another" accesskey="n" rel="nex
 <hr>
 <span id="Navigating-from-One-Highlight-to-Another"></span><div class="header">
 <p>
-Next: <a href="#Create-Your-Own-Custom-Highlighter-Pens" accesskey="n" rel="next">Create Your Own Custom Highlighter Pens</a>, Previous: <a href="#Highlighting-and-Annotating" accesskey="p" rel="prev">Highlighting and Annotating</a>, Up: <a href="#Getting-Started" accesskey="u" rel="up">Getting Started</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#Create-Your-Own-Highlighter-Pens" accesskey="n" rel="next">Create Your Own Highlighter Pens</a>, Previous: <a href="#Highlighting-and-Annotating" accesskey="p" rel="prev">Highlighting and Annotating</a>, Up: <a href="#Getting-Started" accesskey="u" rel="up">Getting Started</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
 <span id="Navigating-from-One-Highlight-to-Another-1"></span><h3 class="section">2.2 Navigating from One Highlight to Another</h3>
 
 <span id="index-org_002dremark_002dview_002dnext"></span>
 <span id="index-org_002dremark_002dview_002dprev"></span>
-<span id="index-org_002dremark_002dremove"></span>
 <span id="index-Menu-in-the-menu-bar"></span>
 <span id="index-Context-menu"></span>
 
-<p>After you have added a couple of highlights in the text, you can jump around to the next or previous highlights easily. Use <code>org-remark-view-next</code> and <code>org-remark-view-prev</code> to brows the marginal notes as you move from one highlight to another. They display the marginal notes on the side-window. Or use <code>org-remark-next</code> and <code>org-remark-prev</code> if you simply move to though highlights without displaying marginal notes for them.
+<p>After you have added a couple of highlights in the text, you can move through the highlights easily. Use <code>org-remark-view-next</code> and <code>org-remark-view-prev</code> to browse the marginal notes as you move from one highlight to another. They display the marginal notes on the side-window. Or use <code>org-remark-next</code> and <code>org-remark-prev</code> if you simply move to though highlights without displaying marginal notes for them.
 </p>
-<p>To make it easy to navigate, you can use the same &ldquo;prefix key&rdquo; to Org-remark commands, like this:
+<p>To make it easy for you to navigate, you can use the same &ldquo;prefix key&rdquo; to Org-remark commands, like this:
 </p>
-<dl compact="compact">
-<dt><code>C-c n o</code></dt>
-<dd><p><code>org-remark-open</code>
-</p></dd>
-<dt><code>C-c n ]</code></dt>
-<dd><p><code>org-remark-view-next</code>
-</p></dd>
-<dt><code>C-c n [</code></dt>
-<dd><p><code>org-remark-view-prev</code>
-</p></dd>
-<dt><code>C-c n r</code></dt>
-<dd><p><code>org-remark-remove</code>
-</p></dd>
-</dl>
+<ul>
+<li> <code>C-c n o</code>: <code>org-remark-open</code>
+</li><li> <code>C-c n ]</code>: <code>org-remark-view-next</code>
+</li><li> <code>C-c n [</code>: <code>org-remark-view-prev</code>
+</li><li> <code>C-c n r</code>: <code>org-remark-remove</code>
+</li></ul>
 
-<p>The <code>C-c n</code> are the prefix key common to all of them. If you set the keybindings like this, you can use <code>C-c n ]</code> once to view the next highlight, and simply keep using a single key <code>]</code> or <code>[</code> to browse the next/previous highlights. After you have reached the one you like to act on, press <code>o</code> to open it, or <code>r</code> to remove it.
+<p>The <code>C-c n</code> are the prefix key common to all of them. If you set the keybindings like this, you can use <code>C-c n ]</code> once to view the next highlight and simply keep using a single key <code>]</code> or <code>[</code> to browse the next/previous highlights. After you have reached the one you like to act on, press <code>o</code> to open it, or <code>r</code> to remove it.
 </p>
 <hr>
-<span id="Create-Your-Own-Custom-Highlighter-Pens"></span><div class="header">
+<span id="Create-Your-Own-Highlighter-Pens"></span><div class="header">
 <p>
 Previous: <a href="#Navigating-from-One-Highlight-to-Another" accesskey="p" rel="prev">Navigating from One Highlight to Another</a>, Up: <a href="#Getting-Started" accesskey="u" rel="up">Getting Started</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
-<span id="Create-Your-Own-Custom-Highlighter-Pens-1"></span><h3 class="section">2.3 Create Your Own Custom Highlighter Pens</h3>
+<span id="Create-Your-Own-Highlighter-Pens-1"></span><h3 class="section">2.3 Create Your Own Highlighter Pens</h3>
 
-<span id="index-org_002dremark_002dcreate"></span>
-<span id="index-org_002dremark_002dmark_002dyellow"></span>
-<span id="index-org_002dremark_002dmark_002dred_002dline"></span>
+<span id="index-Custom-highlighter-pens"></span>
 
 <p>Org-remark has a default highlighter pen function, and comes with a set of two additional pens by default:
 </p>
@@ -274,9 +263,9 @@ Previous: <a href="#Navigating-from-One-Highlight-to-Another" accesskey="p" rel=
 </p></dd>
 </dl>
 
-<p>Org-remark let lets you create your own custom pen functions with <code>org-remark-create</code>. Use the yellow and red line pens as examples, and create your own. <a href="#Create-Your-Own-Custom-Highlighter-Pen">Create Your Own Custom Pens</a> for how to do it. 
+<p>Org-remark let lets you create your own custom pen functions with <code>org-remark-create</code>. Use the yellow and red line pens as examples, and create your own. For how to do it, <a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a>.
 </p>
-<p>This is all you need to started. For more detail, refer to the rest of this user manual, especially <a href="#Usage">Usage</a> and <a href="#Customizing">Customizing</a> sections. There is more detail to the commands introduced in this section and more ways in which you can customize Org-remark.
+<p>This is all you need to get started. For more detail, refer to the rest of this user manual, especially <a href="#Usage">Usage</a> and <a href="#Customizing">Customizing</a> sections. There is more to the commands introduced in this section and more ways in which you can customize Org-remark.
 </p>
 <hr>
 <span id="Usage"></span><div class="header">
@@ -286,7 +275,7 @@ Next: <a href="#Customizing" accesskey="n" rel="next">Customizing</a>, Previous:
 <span id="Usage-1"></span><h2 class="chapter">3 Usage</h2>
 
 <table class="menu" border="0" cellspacing="0">
-<tr><td align="left" valign="top">&bull; <a href="#Create-Your-Own-Custom-Highlighter-Pen" accesskey="1">Create Your Own Custom Highlighter Pen</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#How-to-Create-Custom-Highlighter-Pens" accesskey="1">How to Create Custom Highlighter Pens</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#Automatically-Turn-on-Highlights-after-Re_002dstarting-Emacs" accesskey="2">Automatically Turn on Highlights after Re-starting Emacs</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
@@ -299,18 +288,18 @@ Next: <a href="#Customizing" accesskey="n" rel="next">Customizing</a>, Previous:
 </table>
 
 <hr>
-<span id="Create-Your-Own-Custom-Highlighter-Pen"></span><div class="header">
+<span id="How-to-Create-Custom-Highlighter-Pens"></span><div class="header">
 <p>
 Next: <a href="#Automatically-Turn-on-Highlights-after-Re_002dstarting-Emacs" accesskey="n" rel="next">Automatically Turn on Highlights after Re-starting Emacs</a>, Up: <a href="#Usage" accesskey="u" rel="up">Usage</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
-<span id="Create-Your-Own-Custom-Highlighter-Pen-1"></span><h3 class="section">3.1 Create Your Own Custom Highlighter Pen</h3>
+<span id="How-to-Create-Custom-Highlighter-Pens-1"></span><h3 class="section">3.1 How to Create Custom Highlighter Pens</h3>
 
-<span id="index-User_002ddefined-custom-highlighter-pen-functions"></span>
+<span id="index-Custom-highlighter-pens-1"></span>
 <span id="index-Org_002dremark-properties-for-highlights"></span>
 <span id="index-org_002dremark_002dmark-1"></span>
-<span id="index-org_002dremark_002dmark_002dyellow-1"></span>
-<span id="index-org_002dremark_002dmark_002dred_002dline-1"></span>
-<span id="index-org_002dremark_002dcreate-1"></span>
+<span id="index-org_002dremark_002dmark_002dyellow"></span>
+<span id="index-org_002dremark_002dmark_002dred_002dline"></span>
+<span id="index-org_002dremark_002dcreate"></span>
 
 <p><code>org-remark-create</code> is a macro that lets create your own custom pen functions. Org-remark comes with two additional pens that are created by default. Use them as examples to learn how to create your own.
 </p>
@@ -343,7 +332,7 @@ Next: <a href="#Automatically-Turn-on-Highlights-after-Re_002dstarting-Emacs" ac
 <hr>
 <span id="Automatically-Turn-on-Highlights-after-Re_002dstarting-Emacs"></span><div class="header">
 <p>
-Next: <a href="#Marginal-Notes-File" accesskey="n" rel="next">Marginal Notes File</a>, Previous: <a href="#Create-Your-Own-Custom-Highlighter-Pen" accesskey="p" rel="prev">Create Your Own Custom Highlighter Pen</a>, Up: <a href="#Usage" accesskey="u" rel="up">Usage</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#Marginal-Notes-File" accesskey="n" rel="next">Marginal Notes File</a>, Previous: <a href="#How-to-Create-Custom-Highlighter-Pens" accesskey="p" rel="prev">How to Create Custom Highlighter Pens</a>, Up: <a href="#Usage" accesskey="u" rel="up">Usage</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
 <span id="Automatically-Turn-on-Highlights-after-Re_002dstarting-Emacs-1"></span><h3 class="section">3.2 Automatically Turn on Highlights after Re-starting Emacs</h3>
 
@@ -366,7 +355,7 @@ Next: <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="n" rel="next"
 </div>
 <span id="Marginal-Notes-File-1"></span><h3 class="section">3.3 Marginal Notes File</h3>
 
-<span id="index-Marginal-notes-file"></span>
+<span id="index-Marginal-notes-file-1"></span>
 <span id="index-Org_002dremark-properties-for-highlights-1"></span>
 
 <p>When you mark a part of text with a highlighter pen function, Org-remark will automatically create a <strong>marginal notes file</strong>. By default, it will be named <code>marginalia.org</code> and created in the same directory as the file you are editing (<a href="#Customizing">Customizing</a>).
@@ -384,7 +373,7 @@ Next: <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="n" rel="next"
 </p>
 <p>You can leave the marginal notes file as it is without writing any notes. In this case, the entries in marginal notes file simply save the locations of your highlighted text. After you quit Emacs,  re-start it, and visit the same main file, Org-remark uses this information to highlight the text again. You can also directly edit the marginal notes file as a normal Org file.
 </p>
-<p>In addition to the properties above that Org-remark reserves for itself, you can add your own custom properties and <code>CATEGORY</code> property. Use &ldquo;org-remark-&rdquo; as the prefix to the property names (or &ldquo;CATEGORY&rdquo;, which is the only exception), and Org-remark put them to the property drawer of highlight&rsquo;s headline entry in the marginal notes buffer. Define the custom properties in your own custom pen functions (for how to create your own pens, <a href="#Create-Your-Own-Custom-Highlighter-Pen">Create Your Own Custom Pens</a>).
+<p>In addition to the properties above that Org-remark reserves for itself, you can add your own custom properties and <code>CATEGORY</code> property. Use &ldquo;org-remark-&rdquo; as the prefix to the property names (or &ldquo;CATEGORY&rdquo;, which is the only exception), and Org-remark put them to the property drawer of highlight&rsquo;s headline entry in the marginal notes buffer. Define the custom properties in your own custom pen functions (for how to create your own pens, <a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a>).
 </p>
 <hr>
 <span id="g_t_002amarginal_002dnotes_002a-Buffer"></span><div class="header">
@@ -408,7 +397,9 @@ Previous: <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="p" rel="p
 
 <span id="index-org_002dremark_002dtoggle"></span>
 <span id="index-org_002dremark_002dchange"></span>
-<span id="index-org_002dremark_002dremove-1"></span>
+<span id="index-org_002dremark_002dremove"></span>
+<span id="index-org_002dremark_002dnext"></span>
+<span id="index-org_002dremark_002dprev"></span>
 
 <dl compact="compact">
 <dt>Command <code>org-remark-toggle</code></dt>
@@ -427,6 +418,24 @@ If you would like to hide/show the highlights in the current buffer, it is recom
 <dd><p>Remove the highlight at point.
 It will remove the highlight and the properties from the marginal notes file, but will keep the headline and annotations. This is to ensure to keep any notes you might have written intact.
 You can let this command DELETE the entire heading subtree for the highlight along with the annotations you have written, by passing a universal argument with <code>C-u</code>. If you have done so by error, you could still <code>undo</code> it in the marginal notes buffer, but not from within the current buffer as adding and removing overlays are not part of the undo tree.
+</p></dd>
+</dl>
+
+<p>To navigate through highlights in the current buffer, you can use <code>org-remark-view-next</code> / <code>org-remark-view-prev</code> or the following pair of commands. The former moves your cursor and displays the marginal notes buffer; the latter only moves your cursor.
+</p>
+<dl compact="compact">
+<dt>Command <code>org-remark-next</code></dt>
+<dd><p>Move to the next highlight, if any.
+If there is none below the point but there is a highlight in the buffer, cycle back to the first one.
+After the point has moved to the next highlight, this command
+</p></dd>
+</dl>
+<p>lets you move further by re-entering only the last letter like
+this example:  &lsquo;<samp>C-n ] ] ] ] ]</samp>&rsquo; (assuming this command is bound to C-n ])
+</p>
+<dl compact="compact">
+<dt>Command <code>org-remark-prev</code></dt>
+<dd><p>Move to the previous highlight, if any.
 </p></dd>
 </dl>
 
@@ -568,8 +577,6 @@ Next: <a href="#Index-_002d-Commands" accesskey="n" rel="next">Index - Commands<
  &nbsp; 
 <a class="summary-letter" href="#Index-_002d-Features_cp_letter-O"><b>O</b></a>
  &nbsp; 
-<a class="summary-letter" href="#Index-_002d-Features_cp_letter-U"><b>U</b></a>
- &nbsp; 
 </td></tr></table>
 <table class="index-cp" border="0">
 <tr><td></td><th align="left">Index Entry</th><td>&nbsp;</td><th align="left"> Section</th></tr>
@@ -579,18 +586,17 @@ Next: <a href="#Index-_002d-Commands" accesskey="n" rel="next">Index - Commands<
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index-_002d-Features_cp_letter-C">C</th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Context-menu">Context menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Navigating-from-One-Highlight-to-Another">Navigating from One Highlight to Another</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-Custom-highlighter-pens">Custom highlighter pens</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Create-Your-Own-Highlighter-Pens">Create Your Own Highlighter Pens</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-Custom-highlighter-pens-1">Custom highlighter pens</a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index-_002d-Features_cp_letter-M">M</th><td></td><td></td></tr>
-<tr><td></td><td valign="top"><a href="#index-marginal-notes-file">marginal notes file</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlighting-and-Annotating">Highlighting and Annotating</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-Marginal-notes-file">Marginal notes file</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Marginal-Notes-File">Marginal Notes File</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-Marginal-notes-file">Marginal notes file</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlighting-and-Annotating">Highlighting and Annotating</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-Marginal-notes-file-1">Marginal notes file</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Marginal-Notes-File">Marginal Notes File</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Menu-in-the-menu-bar">Menu in the menu bar</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Navigating-from-One-Highlight-to-Another">Navigating from One Highlight to Another</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index-_002d-Features_cp_letter-O">O</th><td></td><td></td></tr>
-<tr><td></td><td valign="top"><a href="#index-Org_002dremark-properties-for-highlights">Org-remark properties for highlights</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Create-Your-Own-Custom-Highlighter-Pen">Create Your Own Custom Highlighter Pen</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-Org_002dremark-properties-for-highlights">Org-remark properties for highlights</a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Org_002dremark-properties-for-highlights-1">Org-remark properties for highlights</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Marginal-Notes-File">Marginal Notes File</a></td></tr>
-<tr><td colspan="4"> <hr></td></tr>
-<tr><th id="Index-_002d-Features_cp_letter-U">U</th><td></td><td></td></tr>
-<tr><td></td><td valign="top"><a href="#index-User_002ddefined-custom-highlighter-pen-functions">User-defined custom highlighter pen functions</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Create-Your-Own-Custom-Highlighter-Pen">Create Your Own Custom Highlighter Pen</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 </table>
 <table><tr><th valign="top">Jump to: &nbsp; </th><td><a class="summary-letter" href="#Index-_002d-Features_cp_symbol-1"><b>*</b></a>
@@ -601,8 +607,6 @@ Next: <a href="#Index-_002d-Commands" accesskey="n" rel="next">Index - Commands<
 <a class="summary-letter" href="#Index-_002d-Features_cp_letter-M"><b>M</b></a>
  &nbsp; 
 <a class="summary-letter" href="#Index-_002d-Features_cp_letter-O"><b>O</b></a>
- &nbsp; 
-<a class="summary-letter" href="#Index-_002d-Features_cp_letter-U"><b>U</b></a>
  &nbsp; 
 </td></tr></table>
 
@@ -621,19 +625,17 @@ Next: <a href="#Index-_002d-User-Options" accesskey="n" rel="next">Index - User 
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index-_002d-Commands_fn_letter-O">O</th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dchange"><code>org-remark-change</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Other-Commands">Other Commands</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dcreate"><code>org-remark-create</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Create-Your-Own-Custom-Highlighter-Pens">Create Your Own Custom Highlighter Pens</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dcreate-1"><code>org-remark-create</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Create-Your-Own-Custom-Highlighter-Pen">Create Your Own Custom Highlighter Pen</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dcreate"><code>org-remark-create</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dglobal_002dtracking_002dmode"><code>org-remark-global-tracking-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Automatically-Turn-on-Highlights-after-Re_002dstarting-Emacs">Automatically Turn on Highlights after Re-starting Emacs</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark"><code>org-remark-mark</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlighting-and-Annotating">Highlighting and Annotating</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark-1"><code>org-remark-mark</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Create-Your-Own-Custom-Highlighter-Pen">Create Your Own Custom Highlighter Pen</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark_002dred_002dline"><code>org-remark-mark-red-line</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Create-Your-Own-Custom-Highlighter-Pens">Create Your Own Custom Highlighter Pens</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark_002dred_002dline-1"><code>org-remark-mark-red-line</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Create-Your-Own-Custom-Highlighter-Pen">Create Your Own Custom Highlighter Pen</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark_002dyellow"><code>org-remark-mark-yellow</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Create-Your-Own-Custom-Highlighter-Pens">Create Your Own Custom Highlighter Pens</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark_002dyellow-1"><code>org-remark-mark-yellow</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Create-Your-Own-Custom-Highlighter-Pen">Create Your Own Custom Highlighter Pen</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark-1"><code>org-remark-mark</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark_002dred_002dline"><code>org-remark-mark-red-line</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark_002dyellow"><code>org-remark-mark-yellow</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmode"><code>org-remark-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Automatically-Turn-on-Highlights-after-Re_002dstarting-Emacs">Automatically Turn on Highlights after Re-starting Emacs</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dnext"><code>org-remark-next</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Other-Commands">Other Commands</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dopen"><code>org-remark-open</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlighting-and-Annotating">Highlighting and Annotating</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dremove"><code>org-remark-remove</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Navigating-from-One-Highlight-to-Another">Navigating from One Highlight to Another</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dremove-1"><code>org-remark-remove</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Other-Commands">Other Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dprev"><code>org-remark-prev</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Other-Commands">Other Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dremove"><code>org-remark-remove</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Other-Commands">Other Commands</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dtoggle"><code>org-remark-toggle</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Other-Commands">Other Commands</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dview"><code>org-remark-view</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlighting-and-Annotating">Highlighting and Annotating</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dview_002dnext"><code>org-remark-view-next</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Navigating-from-One-Highlight-to-Another">Navigating from One Highlight to Another</a></td></tr>
