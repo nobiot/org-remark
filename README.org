@@ -35,15 +35,13 @@ For customization, refer to the customization group `org-transclusion' or user m
 * Screenshots :noexport:
 
 [[./resources/images/2022-01-22-Title.png]]
-*Figure 1*. Left: Org-mode with text enlarged; Right marginal notes with the inline image display on
-
-Refer to the screenshots below for a teaser of what it can do.
+*Figure 1*. Left: Org-mode with text enlarged; Right: marginal notes with an inline image
 
 [[./resources/images/2022-01-22-Context-menu.png]]
 *Figure 2*. Mouse context menu with built-in ~context-menu-mode~ available with Emacs version 28 onward
 
 [[./resources/images/2022-01-22-code.png]]
-*Figure 3*. Main note can be any text files. Left: marginal notes file; Right: an ~org-remark.el~ file with a highlight.
+*Figure 3*. Main notes can be any text files. Left: marginal notes file; Right: an ~org-remark.el~ file with a highlight.
 
 * Installation
 :PROPERTIES:
@@ -65,7 +63,7 @@ init file:
   (org-remark-global-tracking-mode +1)
 #+end_src
 
-Unless you explicitly load ~org~ during Emacs initialization, I suggest to defer loading ~org-remark~ (thus there is no ~(require 'org-remark)~ in the example above). This is because it will also pull in ~org~, which can slow down initialization. By autoloading some commands in similar ways as the example keybindings below, you can control the timing of loading ~org-remark~. 
+Unless you explicitly load ~org~ during Emacs initialization, I suggest to defer loading ~org-remark~ (thus there is no ~(require 'org-remark)~ in the example above). This is because it will also pull in ~org~, which can slow down initialization. You can control the timing of loading ~org-remark~ by autoloading some commands in a similar way with the example keybindings below.
 
 Below are example keybindings you might like to consider:
 
@@ -99,14 +97,16 @@ Thank you.
 
 This work is licensed under a GPLv3 license. For a full copy of the license, refer to [[./LICENSE][LICENSE]].
 
-* org-remark :noexport:
+* Marginal Notes                                                   :noexport:
 :PROPERTIES:
 :org-remark-file: ~/src/org-remark/org-remark.el
 :END:
 
-** (defmacro org-remark-create
+This section is created by Org-remark for the source file. It serves as an example to illustrate what Org-remark can do.
+
+** defmacro org-remark-create
 :PROPERTIES:
-:org-remark-beg: 4000
+:org-remark-beg: 4001
 :org-remark-end: 4027
 :org-remark-id: c759f435
 :org-remark-label: nil

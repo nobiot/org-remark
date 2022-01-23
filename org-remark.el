@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 0.1.0
 ;; Created: 22 December 2020
-;; Last modified: 22 January 2022
+;; Last modified: 23 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -435,7 +435,7 @@ buffer, cycle back to the first one.
 
 After the point has moved to the next highlight, this command
 lets you move further by re-entering only the last letter like
-this example:v
+this example:
 
    C-n \] \] \] \] \] \(assuming this command is bound to C-n \]\)
 
