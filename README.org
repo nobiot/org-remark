@@ -32,7 +32,9 @@ Getting Started in the user manual will get you started in 5 minutes: [[https://
 
 For customization, refer to the customization group `org-transclusion' or user manual: [[https://nobiot.github.io/org-remark/#Customizing][online]].
 
-* Screenshots :noexport:
+A short [[https://youtu.be/c8DHrAsFiLc][introductory video]] (8 minutes) is available on YouTube.
+
+* Screenshots and Videos                                           :noexport:
 
 [[./resources/images/2022-01-22-Title.png]]
 *Figure 1*. Left: Org-mode with text enlarged; Right: marginal notes with an inline image
@@ -87,9 +89,7 @@ Below are example keybindings you might like to consider:
 
 Create issues, discussion, and/or pull requests in the GitHub repository. All welcome.
 
-Feedback is also welcome in [[https://org-roam.discourse.group/t/prototype-org-marginalia-write-margin-notes-with-org-mode/1080][Org-roam Discourse forum]]. 
-
-Org-transclusion is part of GNU ELPA and thus copyrighted by the [[http://fsf.org][Free Software Foundation]] (FSF). This means that anyone who is making a substantive code contribution will need to "assign the copyright for your contributions to the FSF so that they can be included in GNU Emacs" ([[https://orgmode.org/contribute.html#copyright][Org Mode website]]).
+Org-remark is planned to be submitted to GNU ELPA and thus copyrighted by the [[http://fsf.org][Free Software Foundation]] (FSF). This means that anyone who is making a substantive code contribution will need to "assign the copyright for your contributions to the FSF so that they can be included in GNU Emacs" ([[https://orgmode.org/contribute.html#copyright][Org Mode website]]).
 
 Thank you.
    

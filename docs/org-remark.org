@@ -1,7 +1,7 @@
 #+title: Org-remark User Manual
 #+author: Noboru Ota <me@nobiot.com>
 #+macro: version 0.1.x
-#+macro: modified 23 January 2022
+#+macro: modified 25 January 2022
 
 #+language: en
 #+export_file_name: org-remark.texi
@@ -320,9 +320,7 @@ To create this package, I was inspired by the following packages. I did not copy
 
 Create issues, discussion, and/or pull requests in the GitHub repository. All welcome.
 
-Feedback welcome in this repo, or in [[https://org-roam.discourse.group/t/prototype-org-marginalia-write-margin-notes-with-org-mode/1080][Org-roam Discourse forum]].
-
-Org-transclusion is part of GNU ELPA and thus copyrighted by the [[http://fsf.org][Free Software Foundation]] (FSF). This means that anyone who is making a substantive code contribution will need to "assign the copyright for your contributions to the FSF so that they can be included in GNU Emacs" ([[https://orgmode.org/contribute.html#copyright][Org Mode website]]).
+Org-remark is planned to be submitted to GNU ELPA and thus copyrighted by the [[http://fsf.org][Free Software Foundation]] (FSF). This means that anyone who is making a substantive code contribution will need to "assign the copyright for your contributions to the FSF so that they can be included in GNU Emacs" ([[https://orgmode.org/contribute.html#copyright][Org Mode website]]).
 
 Thank you.
 

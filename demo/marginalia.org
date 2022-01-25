@@ -45,12 +45,6 @@ Marginalia from Opticks or, A treatise of the reflexions, refractions, inflexion
 
 ** org-remark-create
 
-
-
-
-
-
-
 ** Nouveau
 :PROPERTIES:
 :org-remark-beg: 176
@@ -79,6 +73,7 @@ Add annotation.
 :CATEGORY: exam
 :org-remark-link: [[file:~/src/org-remark/demo/demo.txt::14]]
 :END:
+
 
 ** 19th century
 :PROPERTIES:
