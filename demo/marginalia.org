@@ -42,7 +42,6 @@ Marginalia from Opticks or, A treatise of the reflexions, refractions, inflexion
 :org-remark-link: [[file:~/src/org-remark/demo/demo.txt::4]]
 :END:
 
-
 ** org-remark-create
 
 ** Nouveau
