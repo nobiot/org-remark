@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 0.1.0
 ;; Created: 22 December 2020
-;; Last modified: 23 January 2022
+;; Last modified: 26 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -275,7 +275,7 @@ recommended to turn it on as part of Emacs initialization.
 
 (define-key-after org-remark-pen-map
   [org-remark-mark]
-  '(menu-item "default" org-remark-mark))
+  '(menu-item "default pen" org-remark-mark))
 
 ;; Make change pen menu
 (defvar org-remark-change-pen-map
@@ -283,14 +283,14 @@ recommended to turn it on as part of Emacs initialization.
 
 (define-key-after org-remark-change-pen-map
   [org-remark-change]
-  '(menu-item "default" (lambda ()
-                          (interactive)
-                          (org-remark-change #'org-remark-mark))))
+  '(menu-item "default pen" (lambda ()
+                              (interactive)
+                              (org-remark-change #'org-remark-mark))))
 
 ;; Add change menu to the parent menu
 (define-key-after org-remark-menu-map
   [org-remark-change-pens]
-  (list 'menu-item "Change pen to..." org-remark-change-pen-map)
+  (list 'menu-item "Change to..." org-remark-change-pen-map)
   'org-remark-toggle)
 
 ;; Add pen menu to the parent menu
@@ -404,18 +404,16 @@ current buffer.
 This function ensures that there is only one cloned buffer for
 notes file by tracking it."
   (interactive "d\nP")
-  (when (buffer-live-p org-remark-last-notes-buffer)
-      (kill-buffer org-remark-last-notes-buffer))
   (when-let ((id (get-char-property point 'org-remark-id))
-             (ibuf (make-indirect-buffer
-                    (find-file-noselect org-remark-notes-file-path)
-                    org-remark-notes-buffer-name 'clone)))
-    (setq org-remark-last-notes-buffer ibuf)
-    (with-current-buffer ibuf
-      (when-let (p (org-find-property org-remark-prop-id id))
-        (widen)(goto-char p)(org-narrow-to-subtree)))
+             (ibuf (org-remark-notes-buffer-get-or-create))
+             (cbuf (current-buffer)))
+    (set-buffer ibuf)(widen)
+    (when-let (p (org-find-property org-remark-prop-id id))
+      (goto-char p)(org-narrow-to-subtree)(org-end-of-meta-data t))
     (display-buffer ibuf org-remark-notes-display-buffer-action)
-    (unless view-only (select-window (get-buffer-window ibuf)))))
+    ;; For some reason, to change the display, the window needs to be selected
+    (select-window (get-buffer-window ibuf))
+    (when view-only (select-window (get-buffer-window cbuf)))))
 
 (defun org-remark-view (point)
   "View marginal notes for highlight at POINT.
@@ -526,6 +524,7 @@ and removing overlays are not part of the undo tree."
     ;; Remove the highlight overlay and id Where there is more than one, remove
     ;; only one It should be last-in-first-out in general but overlays functions
     ;; don't guarantee it
+    ;;(when delete (org-remark-open point :view-only))
     (delete ov org-remark-highlights)
     (delete-overlay ov)
     ;; Update the notes file accordingly
@@ -787,21 +786,54 @@ the headline intact.  You can pass DELETE and delete the all
 notes of the entry.
 
 Return t if an entry is removed or deleted."
-  (with-current-buffer (find-file-noselect org-remark-notes-file-path)
-      (org-with-wide-buffer
-       (when-let ((id-headline (org-find-property org-remark-prop-id id)))
-         (goto-char id-headline)
-         (org-narrow-to-subtree)
-         (dolist (prop (org-entry-properties))
-           (when (string-prefix-p "org-remark-" (downcase (car prop)))
-             (org-delete-property (car prop))))
-         (when delete
-           ;; TODO I would love to add the y-n prompt if there is any notes
-           ;; written
-           (delete-region (point-min)(point-max))
-           (message "Deleted the marginal notes entry"))
-         (when (buffer-modified-p) (save-buffer))))
-      t))
+  (let ((note-buf (find-file-noselect org-remark-notes-file-path)))
+    (with-current-buffer note-buf
+      (let* ((ibuf (org-remark-notes-buffer-get-or-create))
+             (ibuf-window (get-buffer-window ibuf)))
+        (org-with-wide-buffer
+         (when-let ((id-headline (org-find-property org-remark-prop-id id)))
+           (goto-char id-headline)
+           (org-narrow-to-subtree)
+           (dolist (prop (org-entry-properties))
+             (when (string-prefix-p "org-remark-" (downcase (car prop)))
+               (org-delete-property (car prop))))
+           (when delete
+             (org-end-of-meta-data t)
+             (when-let (ok-to-delete?
+                        (if (looking-at ".")
+                            ;; If there is a content, display and prompt for
+                            ;; confirmation
+                            (progn
+                              ;; This does not display the location correctly
+                              (display-buffer ibuf
+                                              org-remark-notes-display-buffer-action)
+                              (y-or-n-p "Highlight removed but notes exist. \
+Do you really want to delete the notes?"))
+                          ;; If there is no content, it's OK
+                          t))
+               (delete-region (point-min)(point-max))
+               (message "Deleted the marginal notes entry")
+               (unless ibuf-window (quit-window nil
+                                                (get-buffer-window ibuf)))))))
+        (when (buffer-modified-p) (save-buffer))
+        t))))
+
+(defun org-remark-notes-buffer-get-or-create ()
+  "Return marginal notes buffer.
+It's a cloned indirect buffer of a buffer visiting the margina
+notes file of the current buffer.  This function ensures there is
+only one of the marginal notes buffer per session."
+  ;; Compare the target marginal notes buffer and current marginal notes buffer.
+  ;; The latter needs to be transcluded to the base buffer of an indirect
+  ;; buffer.
+  (let ((cbuf (find-file-noselect org-remark-notes-file-path))
+        (ibuf (when (buffer-live-p org-remark-last-notes-buffer)
+                org-remark-last-notes-buffer)))
+    (unless (eq (buffer-base-buffer ibuf) cbuf)
+      (setq ibuf (make-indirect-buffer cbuf org-remark-notes-buffer-name
+                                       :clone)))
+    ;; set the variable and return the indirect buffer
+    (setq org-remark-last-notes-buffer ibuf)))
 
 (defun org-remark-notes-set-properties (beg end &optional props)
   "Set properties for the headline in the notes file.
