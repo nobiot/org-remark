@@ -4,7 +4,7 @@
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
-;; Version: 0.1.0
+;; Version: 0.2.0
 ;; Created: 22 December 2020
 ;; Last modified: 26 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
@@ -407,12 +407,14 @@ notes file by tracking it."
   (when-let ((id (get-char-property point 'org-remark-id))
              (ibuf (org-remark-notes-buffer-get-or-create))
              (cbuf (current-buffer)))
-    (set-buffer ibuf)(widen)
-    (when-let (p (org-find-property org-remark-prop-id id))
-      (goto-char p)(org-narrow-to-subtree)(org-end-of-meta-data t))
     (display-buffer ibuf org-remark-notes-display-buffer-action)
-    ;; For some reason, to change the display, the window needs to be selected
     (select-window (get-buffer-window ibuf))
+    (widen)
+    (when-let (p (org-find-property org-remark-prop-id id))
+      ;; Somehow recenter is needed when a highlight is deleted and move to a
+      ;; previous.  Otherwise, the cursor is too low to show the entire entry.
+      ;; It looks like there is no entry.
+      (goto-char p)(org-narrow-to-subtree)(org-end-of-meta-data t)(recenter))
     (when view-only (select-window (get-buffer-window cbuf)))))
 
 (defun org-remark-view (point)
@@ -532,6 +534,24 @@ and removing overlays are not part of the undo tree."
     (org-remark-highlights-housekeep)
     (org-remark-highlights-sort)
     t))
+
+(defun org-remark-delete (point)
+  "Delete the highlight at POINT and marginal notes for it.
+
+This function will prompt for confirmation if there is any notes
+present in the marginal notes buffer.  When the marginal notes
+buffer is not displayed in the current frame, it will be
+temporarily displayed together with the prompt for the user to
+see the notes.
+
+If there is no notes, this function will not prompt for
+confirmation and will remove the highlight and deletes the entry
+in the marginal notes buffer.
+
+This command is identical with passing a universal argument to
+`org-remark-remove'. "
+  (interactive "d")
+  (org-remark-remove point :delete))
 
 
 ;;;; Internal Functions
@@ -786,37 +806,38 @@ the headline intact.  You can pass DELETE and delete the all
 notes of the entry.
 
 Return t if an entry is removed or deleted."
-  (let ((note-buf (find-file-noselect org-remark-notes-file-path)))
-    (with-current-buffer note-buf
-      (let* ((ibuf (org-remark-notes-buffer-get-or-create))
-             (ibuf-window (get-buffer-window ibuf)))
-        (org-with-wide-buffer
-         (when-let ((id-headline (org-find-property org-remark-prop-id id)))
-           (goto-char id-headline)
-           (org-narrow-to-subtree)
-           (dolist (prop (org-entry-properties))
-             (when (string-prefix-p "org-remark-" (downcase (car prop)))
-               (org-delete-property (car prop))))
-           (when delete
-             (org-end-of-meta-data t)
-             (when-let (ok-to-delete?
-                        (if (looking-at ".")
-                            ;; If there is a content, display and prompt for
-                            ;; confirmation
-                            (progn
-                              ;; This does not display the location correctly
-                              (display-buffer ibuf
-                                              org-remark-notes-display-buffer-action)
-                              (y-or-n-p "Highlight removed but notes exist. \
+  (let* ((ibuf (org-remark-notes-buffer-get-or-create))
+         (ibuf-window (get-buffer-window ibuf)))
+    (with-current-buffer ibuf
+      (org-with-wide-buffer
+       (when-let ((id-headline (org-find-property org-remark-prop-id id)))
+         (goto-char id-headline)
+         (org-narrow-to-subtree)
+         (dolist (prop (org-entry-properties))
+           (when (string-prefix-p "org-remark-" (downcase (car prop)))
+             (org-delete-property (car prop))))
+         (when delete
+           ;; CATEGORY prop won't be deleted. Move to line after props
+           (org-end-of-meta-data t)
+           (when-let (ok-to-delete?
+                      (if (looking-at ".")
+                          ;; If there is a content, display and prompt for
+                          ;; confirmation
+                          (progn
+                            ;; This does not display the location correctly
+                            (display-buffer ibuf
+                                            org-remark-notes-display-buffer-action)
+                            (y-or-n-p "Highlight removed but notes exist. \
 Do you really want to delete the notes?"))
-                          ;; If there is no content, it's OK
-                          t))
-               (delete-region (point-min)(point-max))
-               (message "Deleted the marginal notes entry")
-               (unless ibuf-window (quit-window nil
-                                                (get-buffer-window ibuf)))))))
-        (when (buffer-modified-p) (save-buffer))
-        t))))
+                        ;; If there is no content, it's OK
+                        t))
+             (delete-region (point-min)(point-max))
+             (message "Deleted the marginal notes entry")))))
+             ;; Quit the marginal notes indirect buffer if it was not there
+             ;; before the delete -- go back to the original state.
+             ;;(unless ibuf-window (quit-window nil (get-buffer-window ibuf)))))))
+      (when (buffer-modified-p) (save-buffer)))
+    t))
 
 (defun org-remark-notes-buffer-get-or-create ()
   "Return marginal notes buffer.
