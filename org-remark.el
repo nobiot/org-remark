@@ -807,7 +807,7 @@ notes of the entry.
 
 Return t if an entry is removed or deleted."
   (let* ((ibuf (org-remark-notes-buffer-get-or-create))
-         (ibuf-window (get-buffer-window ibuf)))
+         (window? (get-buffer-window ibuf)))
     (with-current-buffer ibuf
       (org-with-wide-buffer
        (when-let ((id-headline (org-find-property org-remark-prop-id id)))
@@ -832,10 +832,11 @@ Do you really want to delete the notes?"))
                         ;; If there is no content, it's OK
                         t))
              (delete-region (point-min)(point-max))
-             (message "Deleted the marginal notes entry")))))
+             (message "Deleted the marginal notes entry")
              ;; Quit the marginal notes indirect buffer if it was not there
              ;; before the delete -- go back to the original state.
-             ;;(unless ibuf-window (quit-window nil (get-buffer-window ibuf)))))))
+             (when-let (ibuf-window (get-buffer-window ibuf))
+               (unless window? (quit-window nil ibuf-window )))))))
       (when (buffer-modified-p) (save-buffer)))
     t))
 
