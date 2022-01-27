@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 0.2.0
 ;; Created: 22 December 2020
-;; Last modified: 26 January 2022
+;; Last modified: 27 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -407,15 +407,17 @@ notes file by tracking it."
   (when-let ((id (get-char-property point 'org-remark-id))
              (ibuf (org-remark-notes-buffer-get-or-create))
              (cbuf (current-buffer)))
-    (display-buffer ibuf org-remark-notes-display-buffer-action)
-    (select-window (get-buffer-window ibuf))
+    (pop-to-buffer ibuf org-remark-notes-display-buffer-action)
     (widen)
     (when-let (p (org-find-property org-remark-prop-id id))
       ;; Somehow recenter is needed when a highlight is deleted and move to a
-      ;; previous.  Otherwise, the cursor is too low to show the entire entry.
-      ;; It looks like there is no entry.
+      ;; previous highlight.  Otherwise, the cursor is too low to show the
+      ;; entire entry.  It looks like there is no entry.
       (goto-char p)(org-narrow-to-subtree)(org-end-of-meta-data t)(recenter))
-    (when view-only (select-window (get-buffer-window cbuf)))))
+    ;; Avoid error when buffer-action is set to display a new frame
+    (when-let ((view-only view-only)
+               (window (get-buffer-window cbuf)))
+      (select-window window))))
 
 (defun org-remark-view (point)
   "View marginal notes for highlight at POINT.
@@ -832,12 +834,12 @@ Do you really want to delete the notes?"))
                         ;; If there is no content, it's OK
                         t))
              (delete-region (point-min)(point-max))
-             (message "Deleted the marginal notes entry")
-             ;; Quit the marginal notes indirect buffer if it was not there
-             ;; before the delete -- go back to the original state.
-             (when-let (ibuf-window (get-buffer-window ibuf))
-               (unless window? (quit-window nil ibuf-window )))))))
-      (when (buffer-modified-p) (save-buffer)))
+             (message "Deleted the marginal notes entry")))))
+      (when (buffer-modified-p) (save-buffer))
+      ;; Quit the marginal notes indirect buffer if it was not there
+      ;; before the remove/delete -- go back to the original state.
+      (when-let (ibuf-window (get-buffer-window ibuf))
+        (unless window? (quit-window nil ibuf-window ))))
     t))
 
 (defun org-remark-notes-buffer-get-or-create ()
