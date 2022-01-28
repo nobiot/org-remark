@@ -1,7 +1,7 @@
 #+title: Org-remark User Manual
 #+author: Noboru Ota <me@nobiot.com>
 #+macro: version 0.1.x
-#+macro: modified 25 January 2022
+#+macro: modified 28 January 2022
 
 #+language: en
 #+export_file_name: org-remark.texi
@@ -223,6 +223,7 @@ Org-remark displays the marginal notes buffer narrowed to the highlight the curs
 #+findex: org-remark-toggle
 #+findex: org-remark-change
 #+findex: org-remark-remove
+#+findex: org-remark-delete
 #+findex: org-remark-next
 #+findex: org-remark-prev
 
@@ -240,6 +241,13 @@ This command will show you a list of available pens to choose from.
   You can let this command DELETE the entire heading subtree for the highlight along with the annotations you have written, by passing a universal argument with ~C-u~. If you have done so by error, you could still ~undo~ it in the marginal notes buffer, but not from within the current buffer as adding and removing overlays are not part of the undo tree.
 
 To navigate through highlights in the current buffer, you can use ~org-remark-view-next~ / ~org-remark-view-prev~ or the following pair of commands. The former moves your cursor and displays the marginal notes buffer; the latter only moves your cursor.
+
+- Command ~org-remark-delete~ ::
+  Delete the highlight at POINT and marginal notes for it.
+  This function will prompt for confirmation if there is any notes present in the marginal notes buffer.  When the marginal notes buffer is not displayed in the current frame, it will be temporarily displayed together with the prompt for the user to see the notes.
+  If there is no notes, this function will not prompt for confirmation and will remove the highlight and deletes the entry in the marginal notes buffer.
+  This command is identical with passing a universal argument to
+`org-remark-remove'.
 
 - Command ~org-remark-next~ ::
   Move to the next highlight, if any.

@@ -67,7 +67,7 @@ Next: <a href="#Installation" accesskey="n" rel="next">Installation</a> &nbsp; [
 
 <p>This manual is for Org-remark version 0.1.x.
 </p>
-<p>Last updated: 25 January 2022.
+<p>Last updated: 28 January 2022.
 </p>
 <p>Org-remark lets you highlight and annotate any text file with using Org mode.
 </p>
@@ -398,6 +398,7 @@ Previous: <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="p" rel="p
 <span id="index-org_002dremark_002dtoggle"></span>
 <span id="index-org_002dremark_002dchange"></span>
 <span id="index-org_002dremark_002dremove"></span>
+<span id="index-org_002dremark_002ddelete"></span>
 <span id="index-org_002dremark_002dnext"></span>
 <span id="index-org_002dremark_002dprev"></span>
 
@@ -422,6 +423,16 @@ You can let this command DELETE the entire heading subtree for the highlight alo
 </dl>
 
 <p>To navigate through highlights in the current buffer, you can use <code>org-remark-view-next</code> / <code>org-remark-view-prev</code> or the following pair of commands. The former moves your cursor and displays the marginal notes buffer; the latter only moves your cursor.
+</p>
+<dl compact="compact">
+<dt>Command <code>org-remark-delete</code></dt>
+<dd><p>Delete the highlight at POINT and marginal notes for it.
+This function will prompt for confirmation if there is any notes present in the marginal notes buffer.  When the marginal notes buffer is not displayed in the current frame, it will be temporarily displayed together with the prompt for the user to see the notes.
+If there is no notes, this function will not prompt for confirmation and will remove the highlight and deletes the entry in the marginal notes buffer.
+This command is identical with passing a universal argument to
+</p></dd>
+</dl>
+<p>&lsquo;org-remark-remove&rsquo;.
 </p>
 <dl compact="compact">
 <dt>Command <code>org-remark-next</code></dt>
@@ -625,6 +636,7 @@ Next: <a href="#Index-_002d-User-Options" accesskey="n" rel="next">Index - User 
 <tr><th id="Index-_002d-Commands_fn_letter-O">O</th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dchange"><code>org-remark-change</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Other-Commands">Other Commands</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dcreate"><code>org-remark-create</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002ddelete"><code>org-remark-delete</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Other-Commands">Other Commands</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dglobal_002dtracking_002dmode"><code>org-remark-global-tracking-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Automatically-Turn-on-Highlights-after-Re_002dstarting-Emacs">Automatically Turn on Highlights after Re-starting Emacs</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark"><code>org-remark-mark</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlighting-and-Annotating">Highlighting and Annotating</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark-1"><code>org-remark-mark</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a></td></tr>
