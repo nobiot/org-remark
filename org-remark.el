@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 0.2.0
 ;; Created: 22 December 2020
-;; Last modified: 27 January 2022
+;; Last modified: 28 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -247,11 +247,13 @@ recommended to turn it on as part of Emacs initialization.
 
 (define-key-after org-remark-menu-map
   [org-remark-open]
-  '(menu-item "Open" org-remark-open))
+  '(menu-item "Open" org-remark-open
+              :help "Display and move to marginal notes for highlight at point"))
 
 (define-key-after org-remark-menu-map
   [org-remark-view]
-  '(menu-item "View" org-remark-view))
+  '(menu-item "View" org-remark-view
+              :help "Display marginal notes for highlight at point; stay in current buffer"))
 
 (define-key-after org-remark-menu-map
   [org-remark-view-next]
@@ -263,11 +265,18 @@ recommended to turn it on as part of Emacs initialization.
 
 (define-key-after org-remark-menu-map
   [org-remark-toggle]
-  '(menu-item "Toggle" org-remark-toggle))
+  '(menu-item "Toggle" org-remark-toggle
+              :help "Toggle showing/hiding of highlights in current buffer"))
 
 (define-key-after org-remark-menu-map
   [org-remark-remove]
-  '(menu-item "Remove" org-remark-remove))
+  '(menu-item "Remove" org-remark-remove
+              :help "Remove highlight at point, keeping the marginal notes entry"))
+
+(define-key-after org-remark-menu-map
+  [org-remark-delete]
+  '(menu-item "Delete" org-remark-delete
+              :help "Delete highlight at point and the marginal notes entry"))
 
 ;; Make pen functions menu
 (defvar org-remark-pen-map
