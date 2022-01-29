@@ -59,15 +59,14 @@ Next: <a href="#Installation" accesskey="n" rel="next">Installation</a> &nbsp; [
 </div>
 <span id="Org_002dremark-User-Manual"></span><h1 class="top">Org-remark User Manual</h1>
 
-
 <blockquote>
 <p><b>CAUTION:</b> This manual is still in a draft version.
 </p>
 </blockquote>
 
-<p>This manual is for Org-remark version 0.1.x.
+<p>This manual is for Org-remark version 0.2.x.
 </p>
-<p>Last updated: 28 January 2022.
+<p>Last updated: 29 January 2022.
 </p>
 <p>Org-remark lets you highlight and annotate any text file with using Org mode.
 </p>
@@ -419,20 +418,16 @@ If you would like to hide/show the highlights in the current buffer, it is recom
 <dd><p>Remove the highlight at point.
 It will remove the highlight and the properties from the marginal notes file, but will keep the headline and annotations. This is to ensure to keep any notes you might have written intact.
 You can let this command DELETE the entire heading subtree for the highlight along with the annotations you have written, by passing a universal argument with <code>C-u</code>. If you have done so by error, you could still <code>undo</code> it in the marginal notes buffer, but not from within the current buffer as adding and removing overlays are not part of the undo tree.
+</p>
+</dd>
+<dt>Command <code>org-remark-delete</code></dt>
+<dd><p>Delete the highlight at POINT and marginal notes for it.
+This function will prompt for confirmation if there is any notes present in the marginal notes buffer.  When the marginal notes buffer is not displayed in the current frame, it will be temporarily displayed together with the prompt for the user to see the notes.
+If there is no notes, this function will not prompt for confirmation and will remove the highlight and deletes the entry in the marginal notes buffer. This command is identical with passing a universal argument to &lsquo;org-remark-remove&rsquo;.
 </p></dd>
 </dl>
 
 <p>To navigate through highlights in the current buffer, you can use <code>org-remark-view-next</code> / <code>org-remark-view-prev</code> or the following pair of commands. The former moves your cursor and displays the marginal notes buffer; the latter only moves your cursor.
-</p>
-<dl compact="compact">
-<dt>Command <code>org-remark-delete</code></dt>
-<dd><p>Delete the highlight at POINT and marginal notes for it.
-This function will prompt for confirmation if there is any notes present in the marginal notes buffer.  When the marginal notes buffer is not displayed in the current frame, it will be temporarily displayed together with the prompt for the user to see the notes.
-If there is no notes, this function will not prompt for confirmation and will remove the highlight and deletes the entry in the marginal notes buffer.
-This command is identical with passing a universal argument to
-</p></dd>
-</dl>
-<p>&lsquo;org-remark-remove&rsquo;.
 </p>
 <dl compact="compact">
 <dt>Command <code>org-remark-next</code></dt>
@@ -524,6 +519,10 @@ Next: <a href="#Credits" accesskey="n" rel="next">Credits</a>, Previous: <a href
 </dd>
 <dt>Moving source files and remark file</dt>
 <dd><p>Move your files and remark file to another directory does not update the source path recorded in the remark file. It will be confusing. Try not to do it.
+</p>
+</dd>
+<dt>Marginal notes file uses absolute path</dt>
+<dd><p>Related to the previous limitation. The marginal notes file serves as the database for the highlights&rsquo; locations and notes. The linkage back to the main note files are via absolute paths.  This means moving files to a different path is likely to break the the links.
 </p></dd>
 </dl>
 
