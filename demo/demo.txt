@@ -1,10 +1,11 @@
 
-   Org-remark
+      Org-remark
 
-   Highlight  and annotate any text file.
+      Highlight  and
+      annotate any text file.
 
-   † Name chagned from
-      Org-marginalia
+      † Name chagned from
+         Org-marginalia
 
 ---
 Art Nouveau
