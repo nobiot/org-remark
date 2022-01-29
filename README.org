@@ -32,12 +32,10 @@ Getting Started in the user manual will get you started in 5 minutes: [[https://
 
 For customization, refer to the customization group `org-transclusion' or user manual: [[https://nobiot.github.io/org-remark/#Customizing][online]].
 
-A short [[https://youtu.be/c8DHrAsFiLc][introductory video]] (8 minutes) is available on YouTube.
-
 * Screenshots and Videos                                           :noexport:
 
 [[./resources/images/2022-01-22-Title.png]]
-*Figure 1*. Left: Org-mode with text enlarged; Right: marginal notes with an inline image
+*Figure 1*. Left: Org-mode with text enlarged; Right: marginal notes with an inline image. [[https://youtu.be/c8DHrAsFiLc][Introductory video]] (8 minutes) is available on YouTube
 
 [[./resources/images/2022-01-22-Context-menu.png]]
 *Figure 2*. Mouse context menu with built-in ~context-menu-mode~ available with Emacs version 28 onward
