@@ -1,15 +1,13 @@
 #+title: Org-remark User Manual
 #+author: Noboru Ota <me@nobiot.com>
-#+macro: version 0.1.x
-#+macro: modified 28 January 2022
-
+#+macro: version 0.2.x
+#+macro: modified 29 January 2022
 #+language: en
 #+export_file_name: org-remark.texi
 #+texinfo_dir_category: Emacs
 #+texinfo_dir_title: Org-remark: (org-remark)
 #+texinfo_dir_desc: Highlight and annotate any text file
 #+texinfo: @paragraphindent asis
-
 #+options: toc:nil ':t
 
 #+ATTR_TEXINFO: :tag CAUTION
@@ -240,14 +238,12 @@ This command will show you a list of available pens to choose from.
   It will remove the highlight and the properties from the marginal notes file, but will keep the headline and annotations. This is to ensure to keep any notes you might have written intact.
   You can let this command DELETE the entire heading subtree for the highlight along with the annotations you have written, by passing a universal argument with ~C-u~. If you have done so by error, you could still ~undo~ it in the marginal notes buffer, but not from within the current buffer as adding and removing overlays are not part of the undo tree.
 
-To navigate through highlights in the current buffer, you can use ~org-remark-view-next~ / ~org-remark-view-prev~ or the following pair of commands. The former moves your cursor and displays the marginal notes buffer; the latter only moves your cursor.
-
 - Command ~org-remark-delete~ ::
   Delete the highlight at POINT and marginal notes for it.
   This function will prompt for confirmation if there is any notes present in the marginal notes buffer.  When the marginal notes buffer is not displayed in the current frame, it will be temporarily displayed together with the prompt for the user to see the notes.
-  If there is no notes, this function will not prompt for confirmation and will remove the highlight and deletes the entry in the marginal notes buffer.
-  This command is identical with passing a universal argument to
-`org-remark-remove'.
+  If there is no notes, this function will not prompt for confirmation and will remove the highlight and deletes the entry in the marginal notes buffer. This command is identical with passing a universal argument to `org-remark-remove'.
+
+To navigate through highlights in the current buffer, you can use ~org-remark-view-next~ / ~org-remark-view-prev~ or the following pair of commands. The former moves your cursor and displays the marginal notes buffer; the latter only moves your cursor.
 
 - Command ~org-remark-next~ ::
   Move to the next highlight, if any.
@@ -309,6 +305,8 @@ Org-remark's user options are available in the customization group ~org-remark~.
 - Undo highlight does not undo it :: Overlays are not part of the undo list; you cannot undo highlighting. Use ~org-remark-remove~ command instead.
   
 - Moving source files and remark file :: Move your files and remark file to another directory does not update the source path recorded in the remark file. It will be confusing. Try not to do it.
+
+- Marginal notes file uses absolute path :: Related to the previous limitation. The marginal notes file serves as the database for the highlights' locations and notes. The linkage back to the main note files are via absolute paths.  This means moving files to a different path is likely to break the the links.
 
 * Credits
 
