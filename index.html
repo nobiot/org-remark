@@ -140,31 +140,35 @@ Next: <a href="#Getting-Started" accesskey="n" rel="next">Getting Started</a>, P
 </div>
 <span id="Installation-1"></span><h2 class="chapter">1 Installation</h2>
 
-<p>This package is not available on ELPA or MELPA yet. Manual installation is required.
+<p>This package is available on:
 </p>
-<p>Ensure to have Org Mode 9.4 or later (tested on 9.4.2). This package uses <code>org-collect-keywords</code>, which does not exist in an earlier version.
-</p>
-<p>Store all the <code>.el</code> files in the repo in your load-path and put this in your
-init file:
+<ul>
+<li> <a href="https://elpa.gnu.org/packages/org-remark.html">GNU ELPA</a> (releases only; equivalent to MELPA-Stable)
+</li><li> <a href="https://elpa.gnu.org/devel/org-remark.html">GNU-devel ELPA</a> (unreleased development branch; equivalent to MELPA)
+</li></ul>
+
+<p>GNU ELPA should be already set up in your Emacs by default. If you wish to add GNU-devel ELPA, simply add its URL to <code>package-archives</code> like this:
 </p>
 <div class="lisp">
-<pre class="lisp">;; Set `load-path' , load `org-remark-global-tracking', and turn it on for
-;; automatic loading of highlights for the files tracked
-(add-to-list 'load-path &quot;~/local-repos/org-remark&quot;)
-(require 'org-remark-global-tracking)
+<pre class="lisp">(add-to-list 'package-archives
+             '(&quot;gnu-devel&quot; . &quot;https://elpa.gnu.org/devel/&quot;) :append)
+</pre></div>
+
+<p>After installation, we suggest you put the setup below in your configuration.
+</p>
+<div class="lisp">
+<pre class="lisp">(require 'org-remark-global-tracking)
 (org-remark-global-tracking-mode +1)
 </pre></div>
 
-<p>Unless you explicitly load <code>org</code> during Emacs initialization, I suggest to defer loading <code>org-remark</code> (thus there is no <code>(require 'org-remark)</code> in the example above). This is because it will also pull in <code>org</code>, which can slow down initialization. You can control the timing of loading <code>org-remark</code> by autoloading some commands in a similar way with the example keybindings below.
+<p>Unless you explicitly load <code>org</code> during Emacs initialization, we suggest to defer loading <code>org-remark</code> (thus there is no <code>(require 'org-remark)</code> in the example above). This is because it will also pull in <code>org</code>, which can slow down initialization. You can control the timing of loading <code>org-remark</code> by autoloading some commands in a similar way with the example keybindings below.
 </p>
 <p>Below are example keybindings you might like to consider:
 </p>
 <div class="lisp">
-<pre class="lisp">;; Key-bind `org-remark-mark' to global-map so that you can call it globally
-;; before the library is loaded.  In order to make `org-remark-mark' and
-;; `org-remark-mode' callable, use `autoload'.
-(autoload #'org-remark-mark &quot;org-remark&quot; nil t)
-(autoload #'org-remark-mode &quot;org-remark&quot; nil t)
+<pre class="lisp">;; Key-bind `org-remark-mark' to global-map so that you can call it
+;; globally before the library is loaded.
+
 (define-key global-map (kbd &quot;C-c n m&quot;) #'org-remark-mark)
 
 ;; The rest of keybidings are done only on loading `org-remark'
