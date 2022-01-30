@@ -856,6 +856,7 @@ only one of the marginal notes buffer per session."
         (ibuf (when (buffer-live-p org-remark-last-notes-buffer)
                 org-remark-last-notes-buffer)))
     (unless (eq (buffer-base-buffer ibuf) cbuf)
+      (kill-buffer ibuf)
       (setq ibuf (make-indirect-buffer cbuf org-remark-notes-buffer-name
                                        :clone)))
     ;; set the variable and return the indirect buffer
