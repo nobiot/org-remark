@@ -10,7 +10,7 @@
 
 Happy 2022!
 
-I have changed the name of the project and package to "*Org-remark*" from Org-marginalia. 
+I have changed the name of the project and package to "*Org-remark*" from Org-marginalia.
 
 If you are using Org-marginalia now, there are breaking changes. This package includes the feature that automatically converts the old Org-marginalia data into the new Org-remark data. Add ~org-remark-convert-legacy~ feature like this:
 
@@ -18,7 +18,7 @@ If you are using Org-marginalia now, there are breaking changes. This package in
   (require 'org-remark-convert-legacy)
 #+end_src
 
-This feature is designed to work automatically and transparently to you, meaning you should not have to do anything, as long as you did not customize ~org-marginala-notes-file-path~. If you did, you also need to customize ~org-remark-notes-file-path~. You can also manually do data conversion if you wish. For more detail, refer to the docstring of function ~org-remark-convert-legacy-data~. 
+This feature is designed to work automatically and transparently to you, meaning you should not have to do anything, as long as you did not customize ~org-marginala-notes-file-path~. If you did, you also need to customize ~org-remark-notes-file-path~. You can also manually do data conversion if you wish. For more detail, refer to the docstring of function ~org-remark-convert-legacy-data~.
 
 * Introduction
 
@@ -28,7 +28,7 @@ A user manual is available [[https://nobiot.github.io/org-remark/][online]] (Inf
 
 For installation and minimum configuration, refer to [[#installation][Installation]] below or the user manual: [[https://nobiot.github.io/org-remark/#Installation][online]] or Info node `(org-remark) Installation'
 
-Getting Started in the user manual will get you started in 5 minutes: [[https://nobiot.github.io/org-remark/#getting-started][online]] or or Info node `(org-remark) Getting Started'. 
+Getting Started in the user manual will get you started in 5 minutes: [[https://nobiot.github.io/org-remark/#getting-started][online]] or or Info node `(org-remark) Getting Started'.
 
 For customization, refer to the customization group `org-transclusion' or user manual: [[https://nobiot.github.io/org-remark/#Customizing][online]] or Info node `(org-remark) Customizing'.
 
@@ -50,17 +50,21 @@ An [[https://youtu.be/c8DHrAsFiLc][introductory video]] (8 minutes) is available
 :CUSTOM_ID: installation
 :END:
 
-This package is not available on ELPA or MELPA yet. Manual installation is required.
+This package is available on:
 
-Ensure to have Org Mode 9.4 or later (tested on 9.4.2). This package uses ~org-collect-keywords~, which does not exist in an earlier version.
+- [[https://elpa.gnu.org/packages/org-remark.html][GNU ELPA]] (releases only; equivalent to MELPA-Stable)
+- [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] (unreleased development branch; equivalent to MELPA)
 
-Store all the =.el= files in the repo in your load-path and put this in your
-init file:
+GNU ELPA should be already set up in your Emacs by default. If you wish to add GNU-devel ELPA, simply add its URL to ~package-archives~ like this:
+
+#+BEGIN_SRC elisp
+  (add-to-list 'package-archives
+               '("gnu-devel" . "https://elpa.gnu.org/devel/") :append)
+#+END_SRC
+
+After installation, we suggest you put the setup below in your configuration.
 
 #+begin_src emacs-lisp
-  ;; Set `load-path' , load `org-remark-global-tracking', and turn it on for
-  ;; automatic loading of highlights for the files tracked
-  (add-to-list 'load-path "~/local-repos/org-remark")
   (require 'org-remark-global-tracking)
   (org-remark-global-tracking-mode +1)
 #+end_src
@@ -70,11 +74,9 @@ Unless you explicitly load ~org~ during Emacs initialization, I suggest to defer
 Below are example keybindings you might like to consider:
 
 #+begin_src emacs-lisp
-  ;; Key-bind `org-remark-mark' to global-map so that you can call it globally
-  ;; before the library is loaded.  In order to make `org-remark-mark' and
-  ;; `org-remark-mode' callable, use `autoload'.
-  (autoload #'org-remark-mark "org-remark" nil t)
-  (autoload #'org-remark-mode "org-remark" nil t)
+  ;; Key-bind `org-remark-mark' to global-map so that you can call it
+  ;; globally before the library is loaded.
+
   (define-key global-map (kbd "C-c n m") #'org-remark-mark)
 
   ;; The rest of keybidings are done only on loading `org-remark'
@@ -92,7 +94,7 @@ Create issues, discussion, and/or pull requests in the GitHub repository. All we
 Org-remark is planned to be submitted to GNU ELPA and thus copyrighted by the [[http://fsf.org][Free Software Foundation]] (FSF). This means that anyone who is making a substantive code contribution will need to "assign the copyright for your contributions to the FSF so that they can be included in GNU Emacs" ([[https://orgmode.org/contribute.html#copyright][Org Mode website]]).
 
 Thank you.
-   
+
 * License
 
 This work is licensed under a GPLv3 license. For a full copy of the license, refer to [[./LICENSE][LICENSE]].

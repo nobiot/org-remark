@@ -42,31 +42,33 @@ modify this GNU manual.”
 :CUSTOM_ID: installation
 :END:
 
-This package is not available on ELPA or MELPA yet. Manual installation is required.
+This package is available on:
 
-Ensure to have Org Mode 9.4 or later (tested on 9.4.2). This package uses ~org-collect-keywords~, which does not exist in an earlier version.
+- [[https://elpa.gnu.org/packages/org-remark.html][GNU ELPA]] (releases only; equivalent to MELPA-Stable)
+- [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] (unreleased development branch; equivalent to MELPA)
 
-Store all the ~.el~ files in the repo in your load-path and put this in your
-init file:
+GNU ELPA should be already set up in your Emacs by default. If you wish to add GNU-devel ELPA, simply add its URL to ~package-archives~ like this:
+
+#+BEGIN_SRC elisp
+  (add-to-list 'package-archives
+               '("gnu-devel" . "https://elpa.gnu.org/devel/") :append)
+#+END_SRC
+
+After installation, we suggest you put the setup below in your configuration.
 
 #+begin_src emacs-lisp
-  ;; Set `load-path' , load `org-remark-global-tracking', and turn it on for
-  ;; automatic loading of highlights for the files tracked
-  (add-to-list 'load-path "~/local-repos/org-remark")
   (require 'org-remark-global-tracking)
   (org-remark-global-tracking-mode +1)
 #+end_src
 
-Unless you explicitly load ~org~ during Emacs initialization, I suggest to defer loading ~org-remark~ (thus there is no ~(require 'org-remark)~ in the example above). This is because it will also pull in ~org~, which can slow down initialization. You can control the timing of loading ~org-remark~ by autoloading some commands in a similar way with the example keybindings below.
+Unless you explicitly load ~org~ during Emacs initialization, we suggest to defer loading ~org-remark~ (thus there is no ~(require 'org-remark)~ in the example above). This is because it will also pull in ~org~, which can slow down initialization. You can control the timing of loading ~org-remark~ by autoloading some commands in a similar way with the example keybindings below.
 
 Below are example keybindings you might like to consider:
 
 #+begin_src emacs-lisp
-  ;; Key-bind `org-remark-mark' to global-map so that you can call it globally
-  ;; before the library is loaded.  In order to make `org-remark-mark' and
-  ;; `org-remark-mode' callable, use `autoload'.
-  (autoload #'org-remark-mark "org-remark" nil t)
-  (autoload #'org-remark-mode "org-remark" nil t)
+  ;; Key-bind `org-remark-mark' to global-map so that you can call it
+  ;; globally before the library is loaded.
+
   (define-key global-map (kbd "C-c n m") #'org-remark-mark)
 
   ;; The rest of keybidings are done only on loading `org-remark'

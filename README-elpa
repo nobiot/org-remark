@@ -55,20 +55,25 @@ _________________
 2 Installation
 ==============
 
-  This package is not available on ELPA or MELPA yet. Manual
-  installation is required.
+  This package is available on:
 
-  Ensure to have Org Mode 9.4 or later (tested on 9.4.2). This package
-  uses `org-collect-keywords', which does not exist in an earlier
-  version.
+  - [GNU ELPA] (releases only; equivalent to MELPA-Stable)
+  - [GNU-devel ELPA] (unreleased development branch; equivalent to
+    MELPA)
 
-  Store all the `.el' files in the repo in your load-path and put this
-  in your init file:
+  GNU ELPA should be already set up in your Emacs by default. If you
+  wish to add GNU-devel ELPA, simply add its URL to `package-archives'
+  like this:
 
   ,----
-  | ;; Set `load-path' , load `org-remark-global-tracking', and turn it on for
-  | ;; automatic loading of highlights for the files tracked
-  | (add-to-list 'load-path "~/local-repos/org-remark")
+  | (add-to-list 'package-archives
+  | 	     '("gnu-devel" . "https://elpa.gnu.org/devel/") :append)
+  `----
+
+  After installation, we suggest you put the setup below in your
+  configuration.
+
+  ,----
   | (require 'org-remark-global-tracking)
   | (org-remark-global-tracking-mode +1)
   `----
@@ -83,11 +88,9 @@ _________________
   Below are example keybindings you might like to consider:
 
   ,----
-  | ;; Key-bind `org-remark-mark' to global-map so that you can call it globally
-  | ;; before the library is loaded.  In order to make `org-remark-mark' and
-  | ;; `org-remark-mode' callable, use `autoload'.
-  | (autoload #'org-remark-mark "org-remark" nil t)
-  | (autoload #'org-remark-mode "org-remark" nil t)
+  | ;; Key-bind `org-remark-mark' to global-map so that you can call it
+  | ;; globally before the library is loaded.
+  | 
   | (define-key global-map (kbd "C-c n m") #'org-remark-mark)
   | 
   | ;; The rest of keybidings are done only on loading `org-remark'
@@ -97,6 +100,11 @@ _________________
   |   (define-key org-remark-mode-map (kbd "C-c n [") #'org-remark-view-prev)
   |   (define-key org-remark-mode-map (kbd "C-c n r") #'org-remark-remove))
   `----
+
+
+[GNU ELPA] <https://elpa.gnu.org/packages/org-remark.html>
+
+[GNU-devel ELPA] <https://elpa.gnu.org/devel/org-remark.html>
 
 
 3 Contributing and Feedback
