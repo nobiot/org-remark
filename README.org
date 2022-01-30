@@ -24,13 +24,13 @@ This feature is designed to work automatically and transparently to you, meaning
 
 Org-remark lets you highlight and annotate any text file with using Org mode.
 
-A user manual is available [[https://nobiot.github.io/org-remark/][online]] (Info node will be available when Org-remark is added to ELPA/MELPA).
+A user manual is available [[https://nobiot.github.io/org-remark/][online]] (Info node will be available when Org-remark is added to ELPA/MELPA) or Emacs in-system as an Info node `(org-remark)': (~C-h i~ and find the =Org-remark= node).
 
-For installation and minimum configuration, refer to [[#installation][Installation]] below or the user manual: [[https://nobiot.github.io/org-remark/#Installation][online]].
+For installation and minimum configuration, refer to [[#installation][Installation]] below or the user manual: [[https://nobiot.github.io/org-remark/#Installation][online]] or Info node `(org-remark) Installation'
 
-Getting Started in the user manual will get you started in 5 minutes: [[https://nobiot.github.io/org-remark/#getting-started][online]].
+Getting Started in the user manual will get you started in 5 minutes: [[https://nobiot.github.io/org-remark/#getting-started][online]] or or Info node `(org-remark) Getting Started'. 
 
-For customization, refer to the customization group `org-transclusion' or user manual: [[https://nobiot.github.io/org-remark/#Customizing][online]].
+For customization, refer to the customization group `org-transclusion' or user manual: [[https://nobiot.github.io/org-remark/#Customizing][online]] or Info node `(org-remark) Customizing'.
 
 An [[https://youtu.be/c8DHrAsFiLc][introductory video]] (8 minutes) is available on YouTube.
 
