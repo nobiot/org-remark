@@ -1,5 +1,6 @@
 Version 0.2.0
   - add: org-remark-delete
+  - rm: Adding Org-ID automatically to file level when file is empty
 
 Version 0.1.0
 * Features & additions

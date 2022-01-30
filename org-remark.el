@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 0.2.0
 ;; Created: 22 December 2020
-;; Last modified: 28 January 2022
+;; Last modified: 30 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -744,12 +744,7 @@ buffer with serach option \"::line-number\".
 ORGID can be passed to this function.  If user option
 `org-remark-use-org-id' is non-nil, this function will add an
 Org-ID link in the body text of the headline, linking back to the
-source with using ORGID.
-
-When a new marginal notes file is to be created and
-`org-remark-use-org-id' is non-nil, this function will also add
-an Org-ID property to the file level.  This can be helpful with
-other packages such as Org-roam's backlink feature."
+source with using ORGID."
   ;;`org-with-wide-buffer is a macro that should work for non-Org file'
   (let* ((path (org-remark-source-path path))
          (id (plist-get props 'org-remark-id))
@@ -760,8 +755,6 @@ other packages such as Org-roam's backlink feature."
     ;; TODO Want to add a check if save is applicable here.
     (with-current-buffer (find-file-noselect org-remark-notes-file-path)
       ;; If it is a new empty marginalia file
-      (when (and (org-remark-empty-buffer-p) org-remark-use-org-id)
-        (org-id-get-create))
       (when (featurep 'org-remark-convert-legacy) (org-remark-convert-legacy-data))
       (org-with-wide-buffer
        (let ((file-headline (or (org-find-property
@@ -1084,10 +1077,6 @@ path."
   ;;     (funcall org-remark-notes-path-function path org-remark-notes-relative-directory)
   ;;   (funcall org-remark-notes-path-function path)))
   (abbreviate-file-name path))
-
-(defun org-remark-empty-buffer-p ()
-  "Return t when the current buffer is empty."
-  (when (= 0 (buffer-size)) t))
 
 (defun org-remark-region-or-word ()
   "Return beg and end of the active region or of the word at point.
