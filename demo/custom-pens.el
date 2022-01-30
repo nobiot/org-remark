@@ -1,3 +1,5 @@
+;; Copyright (C) 2021-2022  Free Software Foundation, Inc.
+
 (org-remark-create "memorize"
                    '(:foreground "white" :underline "black")
                    '(CATEGORY "exam"))
