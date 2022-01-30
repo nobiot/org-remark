@@ -1,7 +1,7 @@
 #+title: Org-remark User Manual
 #+author: Noboru Ota <me@nobiot.com>
 #+macro: version 0.2.x
-#+macro: modified 29 January 2022
+#+macro: modified 30 January 2022
 #+language: en
 #+export_file_name: org-remark.texi
 #+texinfo_dir_category: Emacs
@@ -9,11 +9,6 @@
 #+texinfo_dir_desc: Highlight and annotate any text file
 #+texinfo: @paragraphindent asis
 #+options: toc:nil ':t
-
-#+ATTR_TEXINFO: :tag CAUTION
-#+begin_quote
-This manual is still in a draft version.
-#+end_quote
 
 This manual is for Org-remark version {{{version}}}.
 
@@ -96,7 +91,7 @@ Below are example keybindings you might like to consider:
 
 Once you have installed and set it up ([[#installation][Installation]]), Org-remark is simple to use. Select a part of text and call ~M-x org-remark-mark~ to highlight it. You will see the selected text gets highlighted.
 
-The menu bar item "Org-remark" is available when you turn on ~org-remark-mode~. It helps you discover Org-remark's main commands. If you use Emacs version 28 or newer, a context menu is also available by right click of your mouse. Turn on the Emacs built-in ~context-menu-mode~ to enable the context menu.
+The menu bar item "Org-remark" is available when you turn on ~org-remark-mode~. It helps you discover Org-remark's main commands. If you use Emacs version 28 or newer, a context menu is also available by right-clicking your mouse. Turn on the Emacs built-in ~context-menu-mode~ to enable the context menu.
 
 To display the marginal notes for the highlight you have just marked, place your cursor on the highlight and call ~M-x org-remark-open~ or ~M-x org-remark-view~. This will display a new buffer to the left of the current buffer you are editing. The ~open~ command takes the cursor to the marginal notes buffer for you to edit notes; whereas the ~view~ command keeps the cursor in the current buffer only to display the marginal notes. Both commands narrow the *marginal notes file* to the entry for the highlight under the cursor.  The marginal notes file is a normal Org file. Edit your notes just as you would do with any other Org files and save the buffer.
 
@@ -107,16 +102,17 @@ To display the marginal notes for the highlight you have just marked, place your
 #+cindex: Menu in the menu bar
 #+cindex: Context menu
 
-After you have added a couple of highlights in the text, you can move through the highlights easily. Use ~org-remark-view-next~ and ~org-remark-view-prev~ to browse the marginal notes as you move from one highlight to another. They display the marginal notes on the side-window. Or use ~org-remark-next~ and ~org-remark-prev~ if you simply move to though highlights without displaying marginal notes for them.
+After you have added a couple of highlights in the text, you can move through the highlights easily. Use ~org-remark-view-next~ and ~org-remark-view-prev~ to browse the marginal notes as you move from one highlight to another. They display the marginal notes on the side-window by default. Or use ~org-remark-next~ and ~org-remark-prev~ if you simply want to move to the next/previous highlight without displaying marginal notes for them.
 
-To make it easy for you to navigate, you can use the same "prefix key" to Org-remark commands, like this:
+To make navigation easy, you can use define the same "prefix key" to Org-remark commands like this:
 
 - ~C-c n o~: ~org-remark-open~
 - ~C-c n ]~: ~org-remark-view-next~
 - ~C-c n [~: ~org-remark-view-prev~
 - ~C-c n r~: ~org-remark-remove~
+- ~C-c n d~: ~org-remark-delete~  
 
-The ~C-c n~ are the prefix key common to all of them. If you set the keybindings like this, you can use ~C-c n ]~ once to view the next highlight and simply keep using a single key ~]~ or ~[~ to browse the next/previous highlights. After you have reached the one you like to act on, press ~o~ to open it, or ~r~ to remove it.
+The ~C-c n~ part is the prefix key common to all of them. If you set the keybindings like this, you can use ~C-c n ]~ once to view the next highlight and keep pressing a single key ~]~ or ~[~ to browse through the next/previous highlights. After you have reached the one you like to act on, press ~o~ to open it, or ~r~/~d~ to remove/delete it.
 
 ** Create Your Own Highlighter Pens
 

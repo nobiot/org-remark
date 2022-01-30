@@ -59,14 +59,9 @@ Next: <a href="#Installation" accesskey="n" rel="next">Installation</a> &nbsp; [
 </div>
 <span id="Org_002dremark-User-Manual"></span><h1 class="top">Org-remark User Manual</h1>
 
-<blockquote>
-<p><b>CAUTION:</b> This manual is still in a draft version.
-</p>
-</blockquote>
-
 <p>This manual is for Org-remark version 0.2.x.
 </p>
-<p>Last updated: 29 January 2022.
+<p>Last updated: 30 January 2022.
 </p>
 <p>Org-remark lets you highlight and annotate any text file with using Org mode.
 </p>
@@ -210,7 +205,7 @@ Next: <a href="#Navigating-from-One-Highlight-to-Another" accesskey="n" rel="nex
 
 <p>Once you have installed and set it up (<a href="#Installation">Installation</a>), Org-remark is simple to use. Select a part of text and call <code>M-x org-remark-mark</code> to highlight it. You will see the selected text gets highlighted.
 </p>
-<p>The menu bar item &ldquo;Org-remark&rdquo; is available when you turn on <code>org-remark-mode</code>. It helps you discover Org-remark&rsquo;s main commands. If you use Emacs version 28 or newer, a context menu is also available by right click of your mouse. Turn on the Emacs built-in <code>context-menu-mode</code> to enable the context menu.
+<p>The menu bar item &ldquo;Org-remark&rdquo; is available when you turn on <code>org-remark-mode</code>. It helps you discover Org-remark&rsquo;s main commands. If you use Emacs version 28 or newer, a context menu is also available by right-clicking your mouse. Turn on the Emacs built-in <code>context-menu-mode</code> to enable the context menu.
 </p>
 <p>To display the marginal notes for the highlight you have just marked, place your cursor on the highlight and call <code>M-x org-remark-open</code> or <code>M-x org-remark-view</code>. This will display a new buffer to the left of the current buffer you are editing. The <code>open</code> command takes the cursor to the marginal notes buffer for you to edit notes; whereas the <code>view</code> command keeps the cursor in the current buffer only to display the marginal notes. Both commands narrow the <strong>marginal notes file</strong> to the entry for the highlight under the cursor.  The marginal notes file is a normal Org file. Edit your notes just as you would do with any other Org files and save the buffer.
 </p>
@@ -226,18 +221,19 @@ Next: <a href="#Create-Your-Own-Highlighter-Pens" accesskey="n" rel="next">Creat
 <span id="index-Menu-in-the-menu-bar"></span>
 <span id="index-Context-menu"></span>
 
-<p>After you have added a couple of highlights in the text, you can move through the highlights easily. Use <code>org-remark-view-next</code> and <code>org-remark-view-prev</code> to browse the marginal notes as you move from one highlight to another. They display the marginal notes on the side-window. Or use <code>org-remark-next</code> and <code>org-remark-prev</code> if you simply move to though highlights without displaying marginal notes for them.
+<p>After you have added a couple of highlights in the text, you can move through the highlights easily. Use <code>org-remark-view-next</code> and <code>org-remark-view-prev</code> to browse the marginal notes as you move from one highlight to another. They display the marginal notes on the side-window by default. Or use <code>org-remark-next</code> and <code>org-remark-prev</code> if you simply want to move to the next/previous highlight without displaying marginal notes for them.
 </p>
-<p>To make it easy for you to navigate, you can use the same &ldquo;prefix key&rdquo; to Org-remark commands, like this:
+<p>To make navigation easy, you can use define the same &ldquo;prefix key&rdquo; to Org-remark commands like this:
 </p>
 <ul>
 <li> <code>C-c n o</code>: <code>org-remark-open</code>
 </li><li> <code>C-c n ]</code>: <code>org-remark-view-next</code>
 </li><li> <code>C-c n [</code>: <code>org-remark-view-prev</code>
 </li><li> <code>C-c n r</code>: <code>org-remark-remove</code>
+</li><li> <code>C-c n d</code>: <code>org-remark-delete</code>  
 </li></ul>
 
-<p>The <code>C-c n</code> are the prefix key common to all of them. If you set the keybindings like this, you can use <code>C-c n ]</code> once to view the next highlight and simply keep using a single key <code>]</code> or <code>[</code> to browse the next/previous highlights. After you have reached the one you like to act on, press <code>o</code> to open it, or <code>r</code> to remove it.
+<p>The <code>C-c n</code> part is the prefix key common to all of them. If you set the keybindings like this, you can use <code>C-c n ]</code> once to view the next highlight and keep pressing a single key <code>]</code> or <code>[</code> to browse through the next/previous highlights. After you have reached the one you like to act on, press <code>o</code> to open it, or <code>r~/~d</code> to remove/delete it.
 </p>
 <hr>
 <span id="Create-Your-Own-Highlighter-Pens"></span><div class="header">
