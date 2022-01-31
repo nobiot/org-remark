@@ -2,6 +2,9 @@ Current development version
 
   - chg: `org-remark-global-tracking-mode' has been simplified.
 
+         This is not expected to break the user's workflow or configuration
+         -- simply removing a superfluous feature.   
+
          .org-remark-tracking file is no longer necessary and can be safely
          deleted from the user's Emacs configuraiton directory if present.
          Automatic activation of `org-remark-mode' is done by looking the
