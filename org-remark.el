@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 0.2.0
 ;; Created: 22 December 2020
-;; Last modified: 30 January 2022
+;; Last modified: 31 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -64,9 +64,19 @@ Set to nil if you prefer for it not to."
 
 (defcustom org-remark-notes-file-path "marginalia.org"
   "Define the file path to store the location of highlights and write annotations.
-The default is one file per directory.  Ensure that it is an Org
-file."
-  :type 'file)
+It can be either a string or function.
+
+If it is a string, it should be a file path to the marginal notes
+file. The default is \"marginalia.org\". It will be one marginal
+notes file per directory.  Ensure that it is an Or file.
+
+If it is a function, the default function is
+`org-remark-notes-file-path-function'.  It returns a file name
+like this: \"FILE-notes.org\" by adding \"-notes.org\" as a
+suffix to the file name without the extension."
+  :type '(choice
+          (file "marginalia.org")
+          (function org-remark-notes-file-path-function)))
 
 (defcustom org-remark-notes-display-buffer-action
   `((display-buffer-in-side-window)
@@ -84,9 +94,22 @@ for more detail and expected elements of the list."
 name."
   :type 'string)
 
+(defcustom org-remark-source-path-function #'file-relative-name
+  "Define the function that returns the file path to the main file.
+The main (source) file is the file for which `org-remark' creates
+highlights and marginal notes.
+
+When relative path is used, it is relative from the
+`default-directory' of the source file (current buffer)."
+  :type '(choice
+          (const :tag "Relative path" file-relative-name)
+          (const :tag "Abbreviated absolute path" abbreviate-file-name)
+          (function :tag "Other function")))
+
 (defcustom org-remark-use-org-id nil
   "Define if Org-remark use Org-ID to link back to the main note."
   :type 'boolean)
+
 
 
 ;;;; Variables
@@ -96,8 +119,8 @@ name."
 It is a local variable and is a list of overlays.  Each overlay
 represents a highlighted text region.
 
-On `save-buffer' each highlight will be save in the notes file at
-`org-remark-notes-file-path'.")
+On `save-buffer' each highlight will be saved in the notes file at
+the path returned by `org-remark-notes-get-file-path'.")
 
 (defvar-local org-remark-highlights-hidden nil
   "Keep hidden/shown state of the highlights in current buffer.")
@@ -328,8 +351,9 @@ region, and Org-remark will start tracking the highlight's
 location in the current buffer.
 
 A Org headline entry for the highlght will be created in the
-marginal notes file specified by `org-remark-notes-file-path'.
-If the file does not exist yet, it will be created.
+marginal notes file specified by
+`org-remark-notes-get-file-path'.  If the file does not exist
+yet, it will be created.
 
 When this function is called from Elisp, ID can be
 optionally passed, indicating to Org-remark that it is to load an
@@ -361,7 +385,6 @@ marginal notes file.  The expected values are nil, :load and
 
 (defun org-remark-save ()
   "Save all the highlights tracked in current buffer to notes file.
-Variable`org-remark-notes-file-path' defines the file path.
 
 This function is automatically called when you save the current
 buffer via `after-save-hook'.
@@ -390,11 +413,10 @@ in the current buffer.  Each highlight is represented by an overlay."
 The marginal notes will be narrowed to the relevant headline to
 show only the highlight at point.
 
-This function creates a cloned indirect buffer of the marginal
-notes file \(`org-remark-notes-file-path'\).  You can edit
-marginal notes file as a normal Org file.  Once you have done
-editing, you can simply save and kill the buffer or keep it
-around.
+This function creates a cloned indirect buffer for the marginal
+notes file.  You can edit it as a normal Org buffer.  Once you
+have done editing, you can simply save and kill the buffer or
+keep it around.
 
 The marginal notes file gets displayed by the action defined by
 `org-remark-notes-display-buffer-action' (by default in a side
@@ -654,7 +676,7 @@ marginal notes file.  The expected values are nil, :load and
 :change.
 
 A Org headline entry for the highlght will be created in the
-marginal notes file specified by `org-remark-notes-file-path'.
+marginal notes file specified by `org-remark-notes-get-file-path'.
 If the file does not exist yet, it will be created.
 
 When this function is called from Elisp, ID can be optionally
@@ -753,7 +775,7 @@ source with using ORGID."
          ;; FIXME current-line - it's not always at point
          (line-num (org-current-line beg)))
     ;; TODO Want to add a check if save is applicable here.
-    (with-current-buffer (find-file-noselect org-remark-notes-file-path)
+    (with-current-buffer (find-file-noselect (org-remark-notes-get-file-path))
       ;; If it is a new empty marginalia file
       (when (featurep 'org-remark-convert-legacy) (org-remark-convert-legacy-data))
       (org-with-wide-buffer
@@ -802,6 +824,29 @@ source with using ORGID."
 
 ;;;;; org-remark-notes
 ;;    Work on marginal notes
+
+(defun org-remark-notes-get-file-path ()
+  "Return the file path to the marginal notes for current buffer.
+This function looks at customization variable
+`org-remark-notes-file-path'.  If it is a string, return it as
+the file path.  If it is a function, evaluate it to return the
+value."
+  (if-let ((fn (when (functionp org-remark-notes-file-path)
+                 org-remark-notes-file-path)))
+      (funcall fn)
+    ;; If not funciton, assume string and return it as the file path
+    org-remark-notes-file-path))
+
+(defun org-remark-notes-file-path-function ()
+  "Return a marginal notes file name for the current buffer.
+
+This is the default function for the customizing variable
+`org-remark-notes-file-path' for its funciton option.
+
+When the current buffer is visiting a FILE, the name of marginal
+notes file will be \"FILE-notes.org\", adding \"-notes.org\" as a
+suffix to the file name without the extension."
+  (concat (file-name-sans-extension (buffer-file-name)) "-notes.org"))
 
 (defun org-remark-notes-remove (id &optional delete)
   "Remove the highlight entry for ID for current buffer.
@@ -852,7 +897,7 @@ only one of the marginal notes buffer per session."
   ;; Compare the target marginal notes buffer and current marginal notes buffer.
   ;; The latter needs to be transcluded to the base buffer of an indirect
   ;; buffer.
-  (let ((cbuf (find-file-noselect org-remark-notes-file-path))
+  (let ((cbuf (find-file-noselect (org-remark-notes-get-file-path)))
         (ibuf (when (buffer-live-p org-remark-last-notes-buffer)
                 org-remark-last-notes-buffer)))
     (unless (eq (buffer-base-buffer ibuf) cbuf)
@@ -927,10 +972,11 @@ load the highlights"
         (funcall fn beg end id :load)))))
 
 (defun org-remark-highlights-get ()
-  "Return a list of highlights from `org-remark-notes-file-path'.
+  "Return a list of highlights from the marginal notes file path.
+The file path is returned by `org-remark-notes-get-file-path'.
 Each highlight is a list in the following structure:
     (id (beg . end) label)"
-  (when-let ((notes-buf (find-file-noselect org-remark-notes-file-path))
+  (when-let ((notes-buf (find-file-noselect (org-remark-notes-get-file-path)))
              (source-path (org-remark-source-path (buffer-file-name))))
     ;; TODO check if there is any relevant notes for the current file
     ;; This can be used for adding icon to the highlight
@@ -1069,15 +1115,7 @@ Case 2. The overlay points to no buffer
 Returns the standardized path.  Currently, it's only a place
 holder and uses `abbreviate-file-name' to return an absolute
 path."
-  ;; TODO
-  ;; A place holder for enhancemnet after the release of v1.0.0
-  ;; Potentially support relative path.
-  ;; No capacity to test this properly at the moment.
-  ;;
-  ;; (if org-remark-notes-relative-directory
-  ;;     (funcall org-remark-notes-path-function path org-remark-notes-relative-directory)
-  ;;   (funcall org-remark-notes-path-function path)))
-  (abbreviate-file-name path))
+  (funcall org-remark-source-path-function path))
 
 (defun org-remark-region-or-word ()
   "Return beg and end of the active region or of the word at point.

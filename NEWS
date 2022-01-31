@@ -1,3 +1,17 @@
+Current development version
+
+  - add: Option to use relative links from the marginal notes back to the source
+
+         Adding user option org-remark-source-path-function.  The default is
+         file-relative-name.
+
+  - add: Adding a new option to org-remark-notes-file-path to use a function
+
+         Its default function is org-remark-notes-file-path-function.  It
+         returns a file name like this: "FILE-notes.org" by adding
+         "-notes.org" as a suffix to the file name without the extension.
+
+
 Version 0.2.0
   - add: org-remark-delete
   - rm: Adding Org-ID automatically to file level when file is empty
