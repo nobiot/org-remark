@@ -1,7 +1,7 @@
 #+title: Org-remark User Manual
 #+author: Noboru Ota <me@nobiot.com>
 #+macro: version 0.2.x
-#+macro: modified 30 January 2022
+#+macro: modified 31 January 2022
 #+language: en
 #+export_file_name: org-remark.texi
 #+texinfo_dir_category: Emacs
@@ -44,8 +44,9 @@ modify this GNU manual.”
 
 This package is available on:
 
-- [[https://elpa.gnu.org/packages/org-remark.html][GNU ELPA]] (releases only; equivalent to MELPA-Stable)
 - [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] (unreleased development branch; equivalent to MELPA)
+
+It will soon be available on GNU ELPA (releases only; equivalent to MELPA-Stable) in one of the next updates.
 
 GNU ELPA should be already set up in your Emacs by default. If you wish to add GNU-devel ELPA, simply add its URL to ~package-archives~ like this:
 
