@@ -916,7 +916,7 @@ load the highlights"
   "Return a list of highlights from the marginal notes file path.
 The file path is returned by `org-remark-notes-get-file-path'.
 Each highlight is a list in the following structure:
-    (id (beg . end) label)"
+    (ID (BEG . END) LABEL)"
   (when-let ((notes-buf (find-file-noselect (org-remark-notes-get-file-path)))
              (source-path (org-remark-source-path (buffer-file-name))))
     ;; TODO check if there is any relevant notes for the current file
@@ -1050,9 +1050,8 @@ Case 2. The overlay points to no buffer
 
 
 ;;;;; Other utilities
-
-(defun org-remark-source-path (path)
-  "Covert PATH either to absolute or relative for marginal notes files.
+ (defun org-remark-source-path (path)
+  "Convert PATH either to absolute or relative for marginal notes files.
 Returns the standardized path.  Currently, it's only a place
 holder and uses `abbreviate-file-name' to return an absolute
 path."
@@ -1083,5 +1082,5 @@ function extends the behavior and looks for the word at point"
 ;;; org-remark.el ends here
 
 ;; Local Variables:
-;; eval: (setq-local org-remark-notes-file-path "README.org")
+;; org-remark-notes-file-path: "README.org"
 ;; End:

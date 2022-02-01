@@ -7,3 +7,6 @@
 test
 test*
 
+# ELPA-generated files.
+/org-remark-autoloads.el
+/org-remark-pkg.el
