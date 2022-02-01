@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 0.2.0
 ;; Created: 22 December 2020
-;; Last modified: 31 January 2022
+;; Last modified: 01 February 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -843,13 +843,14 @@ It's a cloned indirect buffer of a buffer visiting the margina
 notes file of the current buffer.  This function ensures there is
 only one of the marginal notes buffer per session."
   ;; Compare the target marginal notes buffer and current marginal notes buffer.
-  ;; The latter needs to be transcluded to the base buffer of an indirect
-  ;; buffer.
+  ;; For the latter, we need the base buffer of an indirect buffer.
   (let ((cbuf (find-file-noselect (org-remark-notes-get-file-path)))
         (ibuf (when (buffer-live-p org-remark-last-notes-buffer)
                 org-remark-last-notes-buffer)))
     (unless (eq (buffer-base-buffer ibuf) cbuf)
-      (kill-buffer ibuf)
+      ;; fix issue of killing the main buffer when there is no indirect buffer
+      ;; created yet
+      (when ibuf (kill-buffer ibuf))
       (setq ibuf (make-indirect-buffer cbuf org-remark-notes-buffer-name
                                        :clone)))
     ;; set the variable and return the indirect buffer
