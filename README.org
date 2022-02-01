@@ -30,7 +30,7 @@ For installation and minimum configuration, refer to [[#installation][Installati
 
 Getting Started in the user manual will get you started in 5 minutes: [[https://nobiot.github.io/org-remark/#getting-started][online]] or or Info node `(org-remark) Getting Started'.
 
-For customization, refer to the customization group `org-transclusion' or user manual: [[https://nobiot.github.io/org-remark/#Customizing][online]] or Info node `(org-remark) Customizing'.
+For customization, refer to the customization group `org-remark' or user manual: [[https://nobiot.github.io/org-remark/#Customizing][online]] or Info node `(org-remark) Customizing'.
 
 An [[https://youtu.be/c8DHrAsFiLc][introductory video]] (8 minutes) is available on YouTube.
 
