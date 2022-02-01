@@ -85,11 +85,11 @@ This function looks at customization variable
 `org-remark-notes-file-path'.  If it is a string, return it as
 the file path.  If it is a function, evaluate it to return the
 value."
-  (if-let ((fn (when (functionp org-remark-notes-file-path)
-                 org-remark-notes-file-path)))
-      (funcall fn)
+  (if (functionp org-remark-notes-file-path)
+      (funcall org-remark-notes-file-path)
     ;; If not function, assume string and return it as the file path.
     org-remark-notes-file-path))
+
 (defun org-remark-notes-file-path-function ()
   "Return a marginal notes file name for the current buffer.
 

@@ -1050,11 +1050,9 @@ Case 2. The overlay points to no buffer
 
 
 ;;;;; Other utilities
- (defun org-remark-source-path (path)
+(defun org-remark-source-path (path)
   "Convert PATH either to absolute or relative for marginal notes files.
-Returns the standardized path.  Currently, it's only a place
-holder and uses `abbreviate-file-name' to return an absolute
-path."
+Returns the standardized path."
   (funcall org-remark-source-path-function path))
 
 (defun org-remark-region-or-word ()
