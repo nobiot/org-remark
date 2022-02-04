@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 0.2.0
 ;; Created: 22 December 2020
-;; Last modified: 01 February 2022
+;; Last modified: 04 February 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -743,11 +743,9 @@ source with using ORGID."
          (id (plist-get props 'org-remark-id))
          (text (org-with-wide-buffer (buffer-substring-no-properties beg end)))
          (orgid (org-remark-highlight-get-org-id beg))
-         ;; FIXME current-line - it's not always at point
+         (notes-buf (find-file-noselect (org-remark-notes-get-file-path)))
          (line-num (org-current-line beg)))
-    ;; TODO Want to add a check if save is applicable here.
-    (with-current-buffer (find-file-noselect (org-remark-notes-get-file-path))
-      ;; If it is a new empty marginalia file
+    (with-current-buffer notes-buf
       (when (featurep 'org-remark-convert-legacy) (org-remark-convert-legacy-data))
       (org-with-wide-buffer
        (let ((file-headline (or (org-find-property
@@ -789,7 +787,15 @@ source with using ORGID."
            (org-remark-notes-set-properties beg end props)
            (when (and orgid org-remark-use-org-id)
                (insert (concat "[[id:" orgid "]" "[" title "]]"))))))
-      (when (buffer-modified-p) (save-buffer))
+      (cond
+       ;; fix GH issue #19
+       ;; Temporarily remove `org-remark-save' from the `after-save-hook'
+       ;; When the marginal notes buffer is the current buffer
+       ((eq notes-buf (current-buffer))(progn
+                                         (remove-hook 'after-save-hook #'org-remark-save t)
+                                         (save-buffer)
+                                         (add-hook 'after-save-hook #'org-remark-save nil t))
+        (buffer-modified-p)(save-buffer)))
       t)))
 
 
