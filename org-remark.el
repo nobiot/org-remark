@@ -750,9 +750,10 @@ source with using ORGID."
   (let* ((filename (org-remark-source-get-file-name filename))
          (id (plist-get props 'org-remark-id))
          (text (org-with-wide-buffer (buffer-substring-no-properties beg end)))
-         (orgid (org-remark-highlight-get-org-id beg))
          (notes-buf (find-file-noselect (org-remark-notes-get-file-name)))
-         (line-num (org-current-line beg)))
+         (main-buf (current-buffer))
+         (line-num (org-current-line beg))
+         (orgid (org-remark-highlight-get-org-id beg)))
     (with-current-buffer notes-buf
       (when (featurep 'org-remark-convert-legacy) (org-remark-convert-legacy-data))
       ;;`org-with-wide-buffer is a macro that should work for non-Org file'
@@ -799,12 +800,15 @@ source with using ORGID."
       (cond
        ;; fix GH issue #19
        ;; Temporarily remove `org-remark-save' from the `after-save-hook'
-       ;; When the marginal notes buffer is the current buffer
-       ((eq notes-buf (current-buffer))(progn
-                                         (remove-hook 'after-save-hook #'org-remark-save t)
-                                         (save-buffer)
-                                         (add-hook 'after-save-hook #'org-remark-save nil t))
-        (buffer-modified-p)(save-buffer)))
+       ;; When the marginal notes buffer is the main buffer
+       ((eq notes-buf main-buf)
+        (remove-hook 'after-save-hook #'org-remark-save t)
+        (save-buffer)
+        (add-hook 'after-save-hook #'org-remark-save nil t))
+       ;; When marginal notes buffer is separate from the main buffer, save the
+       ;; notes buffer
+       ((buffer-modified-p)
+        (save-buffer)))
       t)))
 
 
