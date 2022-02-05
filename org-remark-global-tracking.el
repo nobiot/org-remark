@@ -32,7 +32,7 @@
 (declare-function org-remark-mode "org-remark")
 
 (defcustom org-remark-notes-file-name "marginalia.org"
-  "Define the file path to store the location of highlights and write annotations.
+  "Name of the file wher we store highlights and marginal notes.
 It can be either a string or function.
 
 If it is a string, it should be a file path to the marginal notes
@@ -50,6 +50,7 @@ suffix to the file name without the extension."
           (function org-remark-notes-file-name-function)))
 
 (defvaralias 'org-remark-notes-file-path 'org-remark-notes-file-name)
+
 (make-obsolete-variable
  'org-remark-notes-file-path 'org-remark-notes-file-name "0.2.0")
 
@@ -76,15 +77,16 @@ readable, the function automatically activates `org-remark'."
   "Return a marginal notes file name for the current buffer.
 
 This is the default function for the customizing variable
-`org-remark-notes-file-path' for its funciton option.
+`org-remark-notes-file-name' for its funciton option.
 
-When the current buffer is visiting a FILE, the name of marginal
+When the current buffer is visiting a file, the name of marginal
 notes file will be \"FILE-notes.org\", adding \"-notes.org\" as a
 suffix to the file name without the extension."
   (concat (file-name-sans-extension (buffer-file-name)) "-notes.org"))
 
 (defalias
   'org-remark-notes-file-path-function 'org-remark-notes-file-name-function)
+
 (make-obsolete
  'org-remark-notes-file-path-function 'org-remark-notes-file-name-function "0.2.0" )
 
@@ -100,7 +102,7 @@ This function is meant to be addd to `find-file-hook' by
       (org-remark-mode +1))))
 
 (defun org-remark-notes-get-file-name ()
-  "Return the file path to the marginal notes for current buffer.
+  "Return the name of marginal notes file for current buffer.
 This function looks at customization variable
 `org-remark-notes-file-path'.  If it is a string, return it as
 the file path.  If it is a function, evaluate it to return the

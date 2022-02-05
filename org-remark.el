@@ -73,22 +73,31 @@ for more detail and expected elements of the list."
   :type display-buffer--action-custom-type)
 
 (defcustom org-remark-notes-buffer-name "*marginal notes*"
-  "Define the buffer name of the marginal notes.
-`org-remark-open' creates an indirect clone buffer with this
-name."
+  "Buffer name of the marginal notes buffer.
+`org-remark-open' and `org-remark-visit' create an indirect clone
+buffer with this name."
   :type 'string)
 
-(defcustom org-remark-source-path-function #'file-relative-name
-  "Define the function that returns the file path to the main file.
-The main (source) file is the file for which `org-remark' creates
-highlights and marginal notes.
+(defcustom org-remark-source-file-name-function #'file-relative-name
+  "Function that return the file name to point back at the source file.
 
-When relative path is used, it is relative from the
-`default-directory' of the source file (current buffer)."
+The function is called with a single argument: the absolute path
+of the source file.  The `default-directory' is set to the
+directory where the marginal notes file resides.
+
+This means that when the \"Relative file name\" option is
+selected, the source file name will be relative to the marginal
+notes file."
   :type '(choice
-          (const :tag "Relative path" file-relative-name)
-          (const :tag "Abbreviated absolute path" abbreviate-file-name)
+          (const :tag "Relative file name" file-relative-name)
+          (const :tag "Abbreviated absolute file name" abbreviate-file-name)
           (function :tag "Other function")))
+
+(defvaralias
+  'org-remark-source-path-function 'org-remark-source-file-name-function)
+
+(make-obsolete-variable
+ 'org-remark-source-path-function 'org-remark-source-file-name-function "0.2.0")
 
 (defcustom org-remark-use-org-id nil
   "Define if Org-remark use Org-ID to link back to the main note."
@@ -103,8 +112,8 @@ When relative path is used, it is relative from the
 It is a local variable and is a list of overlays.  Each overlay
 represents a highlighted text region.
 
-On `save-buffer' each highlight will be saved in the notes file at
-the path returned by `org-remark-notes-get-file-name'.")
+On `save-buffer' each highlight will be saved in the notes file
+returned by `org-remark-notes-get-file-name'.")
 
 (defvar-local org-remark-highlights-hidden nil
   "Keep hidden/shown state of the highlights in current buffer.")
@@ -372,12 +381,12 @@ in the current buffer.  Each highlight is represented by an overlay."
   (interactive)
   (org-remark-highlights-housekeep)
   (org-remark-highlights-sort)
-  (let ((path (buffer-file-name)))
+  (let ((filename (buffer-file-name)))
     (dolist (h org-remark-highlights)
       (let ((beg (overlay-start h))
             (end (overlay-end h))
             (props (overlay-properties h)))
-        (org-remark-highlight-save path beg end props)))))
+        (org-remark-highlight-save filename beg end props)))))
 
 (defun org-remark-open (point &optional view-only)
   "Open marginal notes file for highlight at POINT.
@@ -701,12 +710,12 @@ non-nil.  Returns nil otherwise, or when no Org-ID is found."
   (and org-remark-use-org-id
        (org-entry-get point "ID" :inherit)))
 
-(defun org-remark-highlight-save (path beg end props &optional title)
+(defun org-remark-highlight-save (filename beg end props &optional title)
   "Save a single HIGHLIGHT in the marginal notes file.
 
 Return t.
 
-PATH specifies the source/main file with which the marginal notes
+FILENAME specifies the name of source file with which the marginal notes
 file is associated.
 
 BEG and END specify the range of the highlight being saved.  It
@@ -738,8 +747,7 @@ ORGID can be passed to this function.  If user option
 `org-remark-use-org-id' is non-nil, this function will add an
 Org-ID link in the body text of the headline, linking back to the
 source with using ORGID."
-  ;;`org-with-wide-buffer is a macro that should work for non-Org file'
-  (let* ((path (org-remark-source-path path))
+  (let* ((filename (org-remark-source-file-name filename))
          (id (plist-get props 'org-remark-id))
          (text (org-with-wide-buffer (buffer-substring-no-properties beg end)))
          (orgid (org-remark-highlight-get-org-id beg))
@@ -747,22 +755,23 @@ source with using ORGID."
          (line-num (org-current-line beg)))
     (with-current-buffer notes-buf
       (when (featurep 'org-remark-convert-legacy) (org-remark-convert-legacy-data))
+      ;;`org-with-wide-buffer is a macro that should work for non-Org file'
       (org-with-wide-buffer
        (let ((file-headline (or (org-find-property
-                                 org-remark-prop-source-file path)
+                                 org-remark-prop-source-file filename)
                                 (progn
                                   ;; If file-headline does not exist, create one at the bottom
                                   (goto-char (point-max))
                                   ;; Ensure to be in the beginning of line to add a new headline
                                   (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
                                   (insert (concat "* " title "\n"))
-                                  (org-set-property org-remark-prop-source-file path)
+                                  (org-set-property org-remark-prop-source-file filename)
                                   (org-up-heading-safe) (point))))
              (id-headline (org-find-property org-remark-prop-id id)))
          ;; Add org-remark-link with updated line-num as a property
          (plist-put props "org-remark-link" (concat
                                              "[[file:"
-                                             path
+                                             filename
                                              (when line-num (format "::%d" line-num))
                                              "]]"))
          (if id-headline
@@ -919,12 +928,12 @@ load the highlights"
         (funcall fn beg end id :load)))))
 
 (defun org-remark-highlights-get ()
-  "Return a list of highlights from the marginal notes file path.
-The file path is returned by `org-remark-notes-get-file-name'.
+  "Return a list of highlights from the marginal notes file.
+The file name is returned by `org-remark-notes-get-file-name'.
 Each highlight is a list in the following structure:
     (ID (BEG . END) LABEL)"
   (when-let ((notes-buf (find-file-noselect (org-remark-notes-get-file-name)))
-             (source-path (org-remark-source-path (buffer-file-name))))
+             (source-file-name (org-remark-source-file-name (buffer-file-name))))
     ;; TODO check if there is any relevant notes for the current file
     ;; This can be used for adding icon to the highlight
     (let ((highlights))
@@ -933,10 +942,10 @@ Each highlight is a list in the following structure:
           (org-remark-convert-legacy-data))
         (org-with-wide-buffer
          (let ((heading (org-find-property
-                         org-remark-prop-source-file source-path)))
+                         org-remark-prop-source-file source-file-name)))
            (if (not heading)
                (message "No highlights or annotations found for %s."
-                        source-path)
+                        source-file-name)
              (goto-char heading)
              ;; Narrow to only subtree for a single file.  `org-find-property'
              ;; ensures that it is the beginning of a headline
