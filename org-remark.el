@@ -86,8 +86,8 @@ of the source file.  The `default-directory' is set to the
 directory where the marginal notes file resides.
 
 This means that when the \"Relative file name\" option is
-selected, the source file name will be relative to the marginal
-notes file."
+selected, the source file name recorded in the marginal notes
+file will be relative to it."
   :type '(choice
           (const :tag "Relative file name" file-relative-name)
           (const :tag "Abbreviated absolute file name" abbreviate-file-name)
@@ -337,7 +337,7 @@ When this function is used interactively, it will generate a new
 ID, always assuming it is working on a new highlighted text
 region.
 
-A Org headline entry for the highlght will be created in the
+A Org headline entry for the highlight will be created in the
 marginal notes file specified by
 `org-remark-notes-get-file-name'.  If the file does not exist
 yet, it will be created.
@@ -409,7 +409,7 @@ You can customize the name of the marginal notes buffer with
 By default, the cursor will go to the marginal notes buffer for
 further editing.  When VIEW-ONLY is non-nil \(e.g. by passing a
 universal argument with \\[universal-argument]\), you can display
-the marginal notes buffer with the cursour remaining in the
+the marginal notes buffer with the cursor remaining in the
 current buffer.
 
 This function ensures that there is only one cloned buffer for
@@ -577,7 +577,7 @@ This command is identical with passing a universal argument to
 NEXT must be either non-nil or nil.
 When non-nil it's for the next; for nil, prev.
 
-This function is internal only and meant to be used by interctive
+This function is internal only and meant to be used by interactive
 commands such as `org-remark-next' and `org-remark-prev'.
 
 Return t if the cursor has moved to next/prev.
@@ -655,7 +655,7 @@ MODE determines whether or not highlight is to be saved in the
 marginal notes file.  The expected values are nil, :load and
 :change.
 
-A Org headline entry for the highlght will be created in the
+A Org headline entry for the highlight will be created in the
 marginal notes file specified by `org-remark-notes-get-file-name'.
 If the file does not exist yet, it will be created.
 
@@ -740,8 +740,8 @@ update, the headline text will be kept intact, because the user
 might have changed it to their needs.
 
 This function will also add a normal file link as property
-\"org-remark-lilnk\" of the H2 headline entry back to the current
-buffer with serach option \"::line-number\".
+\"org-remark-link\" of the H2 headline entry back to the current
+buffer with search option \"::line-number\".
 
 ORGID can be passed to this function.  If user option
 `org-remark-use-org-id' is non-nil, this function will add an
@@ -854,7 +854,7 @@ Do you really want to delete the notes?"))
 
 (defun org-remark-notes-buffer-get-or-create ()
   "Return marginal notes buffer.
-It's a cloned indirect buffer of a buffer visiting the margina
+It's a cloned indirect buffer of a buffer visiting the marginal
 notes file of the current buffer.  This function ensures there is
 only one of the marginal notes buffer per session."
   ;; Compare the target marginal notes buffer and current marginal notes buffer.
@@ -968,7 +968,7 @@ Each highlight is a list in the following structure:
            highlights))))))
 
 (defun org-remark-highlights-get-positions (&optional reverse)
-  "Return list of the beggining point of all visible highlights in this buffer.
+  "Return list of the beginning point of all visible highlights in this buffer.
 By default, the list is in ascending order.  If REVERSE is
 non-nil, return list in the descending order.
 
@@ -1034,11 +1034,11 @@ the show/hide state."
     (setq org-remark-highlights-hidden nil)))
 
 (defun org-remark-highlights-housekeep ()
-  "Housekeep the internal variable `org-remark-highlights'.
+  "House keep the internal variable `org-remark-highlights'.
 
 Return t.
 
-This is a private function; housekeep is automatically done on
+This is a private function; house keep is automatically done on
 mark, save, and remove -- before sort-highlights.
 
 Case 1. Both start and end of an overlay are identical

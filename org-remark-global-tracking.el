@@ -32,7 +32,7 @@
 (declare-function org-remark-mode "org-remark")
 
 (defcustom org-remark-notes-file-name "marginalia.org"
-  "Name of the file wher we store highlights and marginal notes.
+  "Name of the file where we store highlights and marginal notes.
 It can be either a string or function.
 
 If it is a string, it should be a file path to the marginal notes
@@ -77,7 +77,7 @@ readable, the function automatically activates `org-remark'."
   "Return a marginal notes file name for the current buffer.
 
 This is the default function for the customizing variable
-`org-remark-notes-file-name' for its funciton option.
+`org-remark-notes-file-name' for its function option.
 
 When the current buffer is visiting a file, the name of marginal
 notes file will be \"FILE-notes.org\", adding \"-notes.org\" as a
@@ -94,7 +94,7 @@ suffix to the file name without the extension."
 
 (defun org-remark-auto-on ()
   "Automatically activates `org-remark-mode' for current buffer when relevant.
-This function is meant to be addd to `find-file-hook' by
+This function is meant to be added to `find-file-hook' by
 `org-remark-global-tracking-mode'."
   (when-let (notes-file (org-remark-notes-get-file-name))
     (when (file-readable-p notes-file)

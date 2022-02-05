@@ -1,7 +1,19 @@
+
 * demo
 :PROPERTIES:
-:org-remark-file: ~/src/org-remark/demo/demo.txt
+:org-remark-file: demo.txt
 :END:
+
+** World War I
+:PROPERTIES:
+:org-remark-beg: 633
+:org-remark-end: 644
+:org-remark-id: 598a701e
+:org-remark-label: nil
+:CATEGORY: exam
+:org-remark-link: [[file:~/src/org-remark/demo/demo.txt::10]]
+:END:
+
 
 ** Highlight
 :PROPERTIES:
@@ -104,24 +116,3 @@ Annotation for the 19th centry.
 :CATEGORY: exam
 :org-remark-link: [[file:~/src/org-remark/demo/demo.txt::10]]
 :END:
-
-** World War I
-:PROPERTIES:
-:org-remark-beg: 633
-:org-remark-end: 644
-:org-remark-id: 598a701e
-:org-remark-label: nil
-:CATEGORY: exam
-:org-remark-link: [[file:~/src/org-remark/demo/demo.txt::10]]
-:END:
-
-** particularly iron
-:PROPERTIES:
-:org-remark-beg: 1019
-:org-remark-end: 1036
-:org-remark-id: 895c6dfe
-:org-remark-label: nil
-:org-remark-link: [[file:~/src/org-remark/demo/demo.txt::10]]
-:END:
-
-
