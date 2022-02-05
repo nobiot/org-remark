@@ -68,10 +68,10 @@ Set to nil if you prefer for it not to."
     (slot . 1))
   "Buffer display action that Org-remark uses to open marginal notes buffer.
 
-The default is to use a dedicated side-window on the left.
+The default is to use a side-window on the left.
 
 Org-remark uses `pop-to-buffer', which passes this display action
-list to `dipplay-buffer'.  Refer to its documentation for more
+list to `display-buffer'.  Refer to its documentation for more
 detail and expected elements of the list."
   :type display-buffer--action-custom-type)
 
