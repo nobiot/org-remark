@@ -31,13 +31,18 @@
 
 (declare-function org-remark-mode "org-remark")
 
+(defvaralias 'org-remark-notes-file-path 'org-remark-notes-file-name)
+
+(make-obsolete-variable
+ 'org-remark-notes-file-path 'org-remark-notes-file-name "0.2.0")
+
 (defcustom org-remark-notes-file-name "marginalia.org"
   "Name of the file where we store highlights and marginal notes.
 It can be either a string or function.
 
-If it is a string, it should be a file path to the marginal notes
+If it is a string, it should be a file name to the marginal notes
 file.  The default is \"marginalia.org\".  It will be one marginal
-notes file per directory.  Ensure that it is an Or file.
+notes file per directory.  Ensure that it is an Org file.
 
 If it is a function, the default function is
 `org-remark-notes-file-name-function'.  It returns a file name
@@ -48,11 +53,6 @@ suffix to the file name without the extension."
   :type '(choice
           (file "marginalia.org")
           (function org-remark-notes-file-name-function)))
-
-(defvaralias 'org-remark-notes-file-path 'org-remark-notes-file-name)
-
-(make-obsolete-variable
- 'org-remark-notes-file-path 'org-remark-notes-file-name "0.2.0")
 
 ;;;###autoload
 (define-minor-mode org-remark-global-tracking-mode
@@ -102,15 +102,11 @@ This function is meant to be added to `find-file-hook' by
       (org-remark-mode +1))))
 
 (defun org-remark-notes-get-file-name ()
-  "Return the name of marginal notes file for current buffer.
-This function looks at customization variable
-`org-remark-notes-file-path'.  If it is a string, return it as
-the file path.  If it is a function, evaluate it to return the
-value."
-  (if (functionp org-remark-notes-file-path)
-      (funcall org-remark-notes-file-path)
+  "Return the name of marginal notes file for current buffer."
+  (if (functionp org-remark-notes-file-name)
+      (funcall org-remark-notes-file-name)
     ;; If not function, assume string and return it as the file path.
-    org-remark-notes-file-path))
+    org-remark-notes-file-name))
 
 (provide 'org-remark-global-tracking)
 

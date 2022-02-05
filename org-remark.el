@@ -1,4 +1,4 @@
-;;; org-remark.el --- Highlight & annotate text file -*- lexical-binding: t; -*-
+;;; org-remark.el --- Highlight & annotate any text files -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020-2022 Free Software Foundation, Inc.
 
@@ -43,7 +43,7 @@
 ;;;; Customization
 
 (defgroup org-remark nil
-  "Highlight and annotate any text file with using Org mode."
+  "Highlight and annotate any text files with using Org mode."
   :group 'org
   :prefix "org-remark-"
   :link '(url-link :tag "GitHub" "https://github.com/nobiot/org-remark"))
@@ -66,10 +66,13 @@ Set to nil if you prefer for it not to."
   `((display-buffer-in-side-window)
     (side . left)
     (slot . 1))
-  "Define how Org-remark opens the notes buffer.
-The default is to use a dedicated side-window on the left.  It is
-an action list for `display-buffer'.  Refer to its documentation
-for more detail and expected elements of the list."
+  "Buffer display action that Org-remark uses to open marginal notes buffer.
+
+The default is to use a dedicated side-window on the left.
+
+Org-remark uses `pop-to-buffer', which passes this display action
+list to `dipplay-buffer'.  Refer to its documentation for more
+detail and expected elements of the list."
   :type display-buffer--action-custom-type)
 
 (defcustom org-remark-notes-buffer-name "*marginal notes*"
@@ -78,12 +81,18 @@ for more detail and expected elements of the list."
 buffer with this name."
   :type 'string)
 
+(defvaralias
+  'org-remark-source-path-function 'org-remark-source-file-name)
+
+(make-obsolete-variable
+ 'org-remark-source-path-function 'org-remark-source-file-name "0.2.0")
+
 (defcustom org-remark-source-file-name #'file-relative-name
   "Function that return the file name to point back at the source file.
 
-The function is called with a single argument: the absolute path
-of the source file.  The `default-directory' is set to the
-directory where the marginal notes file resides.
+The function is called with a single argument: the absolute file
+name of source file.  The `default-directory' is temporarily set
+to the directory where the marginal notes file resides.
 
 This means that when the \"Relative file name\" option is
 selected, the source file name recorded in the marginal notes
@@ -93,14 +102,11 @@ file will be relative to it."
           (const :tag "Abbreviated absolute file name" abbreviate-file-name)
           (function :tag "Other function")))
 
-(defvaralias
-  'org-remark-source-path-function 'org-remark-source-file-name)
-
-(make-obsolete-variable
- 'org-remark-source-path-function 'org-remark-source-file-name "0.2.0")
-
 (defcustom org-remark-use-org-id nil
-  "Define if Org-remark use Org-ID to link back to the main note."
+  "When non-nil, Org-remark adds an Org-ID link to marginal notes.
+The link point at the relevant Org-ID in the source file .
+Org-remark does not create an ID, which needs to be added
+manually or some other function to either the headline or file."
   :type 'boolean)
 
 
@@ -329,9 +335,7 @@ recommended to turn it on as part of Emacs initialization.
 (add-to-list 'org-remark-available-pens #'org-remark-mark)
 ;;;###autoload
 (defun org-remark-mark (beg end &optional id mode)
-  "Apply the FACE to the region selected by BEG and END.
-
-This function will apply face `org-remark-highlighter' to the selected region.
+  "Apply face `org-remark-highlighter' to the region between BEG and END.
 
 When this function is used interactively, it will generate a new
 ID, always assuming it is working on a new highlighted text
@@ -377,7 +381,7 @@ This function is automatically called when you save the current
 buffer via `after-save-hook'.
 
 `org-remark-highlights' is the local variable that tracks every highlight
-in the current buffer.  Each highlight is represented by an overlay."
+in the current buffer.  Each highlight is an overlay."
   (interactive)
   (org-remark-highlights-housekeep)
   (org-remark-highlights-sort)
@@ -399,9 +403,9 @@ have done editing, you can simply save and kill the buffer or
 keep it around.
 
 The marginal notes file gets displayed by the action defined by
-`org-remark-notes-display-buffer-action' (by default in a side
-window in the left of the current frame), narrowed to the
-relevant headline.
+`org-remark-notes-display-buffer-action' (by default in a left
+side window of the current frame), narrowed to the relevant
+headline.
 
 You can customize the name of the marginal notes buffer with
 `org-remark-notes-buffer-name'.
@@ -574,14 +578,13 @@ This command is identical with passing a universal argument to
 
 (defun org-remark-next-or-prev (&optional next)
   "Move cursor to the next or previous highlight if any.
-NEXT must be either non-nil or nil.
-When non-nil it's for the next; for nil, prev.
+When NEXT is non-nil, move to the next; for nil, to the previous.
 
 This function is internal only and meant to be used by interactive
 commands such as `org-remark-next' and `org-remark-prev'.
 
 Return t if the cursor has moved to next/prev.
-Return nil if not after a message."
+Return nil if not and outputs a message in the echo."
   (if (not org-remark-highlights)
       (progn (message "No highlights present in the buffer") nil)
     (let ((p (if next (org-remark-find-next-highlight)
