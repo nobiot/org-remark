@@ -61,7 +61,7 @@ Next: <a href="#Installation" accesskey="n" rel="next">Installation</a> &nbsp; [
 
 <p>This manual is for Org-remark version 0.2.x.
 </p>
-<p>Last updated: 31 January 2022.
+<p>Last updated: 05 February 2022.
 </p>
 <p>Org-remark lets you highlight and annotate any text file with using Org mode.
 </p>
@@ -121,13 +121,23 @@ Usage
 
 </pre></th></tr><tr><td align="left" valign="top">&bull; <a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Automatically-Turn-on-Highlights-after-Re_002dstarting-Emacs">Automatically Turn on Highlights after Re-starting Emacs</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#How-to-Automatically-Turn-On-Highlights-after-Re_002dstarting-Emacs">How to Automatically Turn On Highlights after Re-starting Emacs</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Marginal-Notes-File">Marginal Notes File</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#How-to-Manage-Marginal-Notes">How to Manage Marginal Notes</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Where Org-remark stores highlights and how to control it
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#How-to-Remove-and-Delete-Highlights">How to Remove and Delete Highlights</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Other-Commands">Other Commands</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><th colspan="3" align="left" valign="top"><pre class="menu-comment">
+
+How to Manage Marginal Notes
+
+</pre></th></tr><tr><td align="left" valign="top">&bull; <a href="#Marginal-Notes-File">Marginal Notes File</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#g_t_002amarginal_002dnotes_002a-Buffer">&lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Other-Commands">Other Commands</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#How-to-Store-Marginal-Notes-in-the-Source-File">How to Store Marginal Notes in the Source File</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 <tr><th colspan="3" align="left" valign="top"><pre class="menu-comment">
 
@@ -277,11 +287,11 @@ Next: <a href="#Customizing" accesskey="n" rel="next">Customizing</a>, Previous:
 <table class="menu" border="0" cellspacing="0">
 <tr><td align="left" valign="top">&bull; <a href="#How-to-Create-Custom-Highlighter-Pens" accesskey="1">How to Create Custom Highlighter Pens</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Automatically-Turn-on-Highlights-after-Re_002dstarting-Emacs" accesskey="2">Automatically Turn on Highlights after Re-starting Emacs</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#How-to-Automatically-Turn-On-Highlights-after-Re_002dstarting-Emacs" accesskey="2">How to Automatically Turn On Highlights after Re-starting Emacs</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Marginal-Notes-File" accesskey="3">Marginal Notes File</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#How-to-Manage-Marginal-Notes" accesskey="3">How to Manage Marginal Notes</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Where Org-remark stores highlights and how to control it
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="4">&lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#How-to-Remove-and-Delete-Highlights" accesskey="4">How to Remove and Delete Highlights</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#Other-Commands" accesskey="5">Other Commands</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
@@ -290,7 +300,7 @@ Next: <a href="#Customizing" accesskey="n" rel="next">Customizing</a>, Previous:
 <hr>
 <span id="How-to-Create-Custom-Highlighter-Pens"></span><div class="header">
 <p>
-Next: <a href="#Automatically-Turn-on-Highlights-after-Re_002dstarting-Emacs" accesskey="n" rel="next">Automatically Turn on Highlights after Re-starting Emacs</a>, Up: <a href="#Usage" accesskey="u" rel="up">Usage</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#How-to-Automatically-Turn-On-Highlights-after-Re_002dstarting-Emacs" accesskey="n" rel="next">How to Automatically Turn On Highlights after Re-starting Emacs</a>, Up: <a href="#Usage" accesskey="u" rel="up">Usage</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
 <span id="How-to-Create-Custom-Highlighter-Pens-1"></span><h3 class="section">3.1 How to Create Custom Highlighter Pens</h3>
 
@@ -330,11 +340,11 @@ Next: <a href="#Automatically-Turn-on-Highlights-after-Re_002dstarting-Emacs" ac
 </blockquote>
 
 <hr>
-<span id="Automatically-Turn-on-Highlights-after-Re_002dstarting-Emacs"></span><div class="header">
+<span id="How-to-Automatically-Turn-On-Highlights-after-Re_002dstarting-Emacs"></span><div class="header">
 <p>
-Next: <a href="#Marginal-Notes-File" accesskey="n" rel="next">Marginal Notes File</a>, Previous: <a href="#How-to-Create-Custom-Highlighter-Pens" accesskey="p" rel="prev">How to Create Custom Highlighter Pens</a>, Up: <a href="#Usage" accesskey="u" rel="up">Usage</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#How-to-Manage-Marginal-Notes" accesskey="n" rel="next">How to Manage Marginal Notes</a>, Previous: <a href="#How-to-Create-Custom-Highlighter-Pens" accesskey="p" rel="prev">How to Create Custom Highlighter Pens</a>, Up: <a href="#Usage" accesskey="u" rel="up">Usage</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
-<span id="Automatically-Turn-on-Highlights-after-Re_002dstarting-Emacs-1"></span><h3 class="section">3.2 Automatically Turn on Highlights after Re-starting Emacs</h3>
+<span id="How-to-Automatically-Turn-On-Highlights-after-Re_002dstarting-Emacs-1"></span><h3 class="section">3.2 How to Automatically Turn On Highlights after Re-starting Emacs</h3>
 
 <span id="index-org_002dremark_002dglobal_002dtracking_002dmode"></span>
 <span id="index-org_002dremark_002dmode"></span>
@@ -344,16 +354,30 @@ Next: <a href="#Marginal-Notes-File" accesskey="n" rel="next">Marginal Notes Fil
 </p>
 <p>Once you have added highlights to some files, quit Emacs, and re-start it, active <code>org-remark-global-tracking-mode</code> will automatically turn on <code>org-remark-mode</code> and load the highlights from your previous sessions for the files being globally tracked.
 </p>
-<p>When activated, <code>org-remark-global-tracking-mode</code> will also start remembering and tracking the files to which you add highlights and annotations. When you quit Emacs, it will save the tracked files in a file in your Emacs config directory (<code>user-emacs-directory</code>). By default, this file is named <code>.org-remark-tracking</code> (<a href="#Customizing">Customizing</a>).
-</p>
 <p>Without this global minor mode, you would need to remember to activate <code>org-remark-mode</code> for each file where you add highlights and annotation. This is often unpractical.
 </p>
 <hr>
+<span id="How-to-Manage-Marginal-Notes"></span><div class="header">
+<p>
+Next: <a href="#How-to-Remove-and-Delete-Highlights" accesskey="n" rel="next">How to Remove and Delete Highlights</a>, Previous: <a href="#How-to-Automatically-Turn-On-Highlights-after-Re_002dstarting-Emacs" accesskey="p" rel="prev">How to Automatically Turn On Highlights after Re-starting Emacs</a>, Up: <a href="#Usage" accesskey="u" rel="up">Usage</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+</div>
+<span id="How-to-Manage-Marginal-Notes-1"></span><h3 class="section">3.3 How to Manage Marginal Notes</h3>
+
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top">&bull; <a href="#Marginal-Notes-File" accesskey="1">Marginal Notes File</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="2">&lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#How-to-Store-Marginal-Notes-in-the-Source-File" accesskey="3">How to Store Marginal Notes in the Source File</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+</table>
+
+<hr>
 <span id="Marginal-Notes-File"></span><div class="header">
 <p>
-Next: <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="n" rel="next">&lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</a>, Previous: <a href="#Automatically-Turn-on-Highlights-after-Re_002dstarting-Emacs" accesskey="p" rel="prev">Automatically Turn on Highlights after Re-starting Emacs</a>, Up: <a href="#Usage" accesskey="u" rel="up">Usage</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="n" rel="next">&lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</a>, Up: <a href="#How-to-Manage-Marginal-Notes" accesskey="u" rel="up">How to Manage Marginal Notes</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
-<span id="Marginal-Notes-File-1"></span><h3 class="section">3.3 Marginal Notes File</h3>
+<span id="Marginal-Notes-File-1"></span><h4 class="subsection">3.3.1 Marginal Notes File</h4>
 
 <span id="index-Marginal-notes-file-1"></span>
 <span id="index-Org_002dremark-properties-for-highlights-1"></span>
@@ -369,18 +393,30 @@ Next: <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="n" rel="next"
 </li><li> :org-remark-label:
 </li></ul>
 
-<p>Essentially, the marginal notes file is a database in the plain text with using Org mode. As a plain text database, you can easily edit these properties manually if necessary.
+<p>Essentially, the marginal notes file is a database in the plain text with using Org mode. As a plain text database, you can easily edit these properties manually if necessary. You can directly edit the marginal notes file as a normal Org file.
 </p>
-<p>You can leave the marginal notes file as it is without writing any notes. In this case, the entries in marginal notes file simply save the locations of your highlighted text. After you quit Emacs,  re-start it, and visit the same main file, Org-remark uses this information to highlight the text again. You can also directly edit the marginal notes file as a normal Org file.
+<p>The marginal notes file stores highlights and notes like this below; it is designed to organize highlights and notes for multiple files and multiple highlights. 
+</p>
+<div class="example">
+<pre class="example">* File 1
+** Highlight 1 in File 1
+** Highlight 2 in File 1
+    [...]
+* File 2
+** Highlight 1 in File 2
+    [...]
+</pre></div>
+
+<p>You can leave the marginal notes file as it is without writing any notes. In this case, the entries in marginal notes file simply save the locations of your highlighted text. After you quit Emacs,  re-start it, and visit the same main file, Org-remark uses this information to highlight the text again. 
 </p>
 <p>In addition to the properties above that Org-remark reserves for itself, you can add your own custom properties and <code>CATEGORY</code> property. Use &ldquo;org-remark-&rdquo; as the prefix to the property names (or &ldquo;CATEGORY&rdquo;, which is the only exception), and Org-remark put them to the property drawer of highlight&rsquo;s headline entry in the marginal notes buffer. Define the custom properties in your own custom pen functions (for how to create your own pens, <a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a>).
 </p>
 <hr>
 <span id="g_t_002amarginal_002dnotes_002a-Buffer"></span><div class="header">
 <p>
-Next: <a href="#Other-Commands" accesskey="n" rel="next">Other Commands</a>, Previous: <a href="#Marginal-Notes-File" accesskey="p" rel="prev">Marginal Notes File</a>, Up: <a href="#Usage" accesskey="u" rel="up">Usage</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#How-to-Store-Marginal-Notes-in-the-Source-File" accesskey="n" rel="next">How to Store Marginal Notes in the Source File</a>, Previous: <a href="#Marginal-Notes-File" accesskey="p" rel="prev">Marginal Notes File</a>, Up: <a href="#How-to-Manage-Marginal-Notes" accesskey="u" rel="up">How to Manage Marginal Notes</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
-<span id="g_t_002amarginal_002dnotes_002a-Buffer-1"></span><h3 class="section">3.4 &lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</h3>
+<span id="g_t_002amarginal_002dnotes_002a-Buffer-1"></span><h4 class="subsection">3.3.2 &lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</h4>
 
 <span id="index-_002amarginal-notes_002a-buffer"></span>
 
@@ -389,16 +425,51 @@ Next: <a href="#Other-Commands" accesskey="n" rel="next">Other Commands</a>, Pre
 <p>Org-remark displays the marginal notes buffer narrowed to the highlight the cursor is on.
 </p>
 <hr>
+<span id="How-to-Store-Marginal-Notes-in-the-Source-File"></span><div class="header">
+<p>
+Previous: <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="p" rel="prev">&lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</a>, Up: <a href="#How-to-Manage-Marginal-Notes" accesskey="u" rel="up">How to Manage Marginal Notes</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+</div>
+<span id="How-to-Store-Marginal-Notes-in-the-Source-File-1"></span><h4 class="subsection">3.3.3 How to Store Marginal Notes in the Source File</h4>
+
+<p>The location of the marginal notes file is specified by user option <code>org-remark-notes-file-name</code> and its default is &ldquo;marginalia.org&rdquo;. This means the marginal notes file will reside in the same directory as the source files as a separate file.
+</p>
+<p><code>org-remark-notes-file-name</code> also takes a function as a value, so you have a wide range of customizability. In <code>customize</code>, the default function to be used is <code>org-remark-notes-file-name-function</code>, which adds &lsquo;<samp>-notes.org</samp>&rsquo; as a suffix to the source file&rsquo;s name without the extension. For example, for &lsquo;<samp>my-main-file.txt</samp>&rsquo; Org-remark will create and store highlights in  &lsquo;<samp>my-main-file-notes.org</samp>&rsquo;.
+</p>
+<p>In order to use the source file also as the marginal notes file (storing the notes in the source file), you can set the built-in function <code>buffer-file-name</code> as the value of <code>org-remark-notes-file-name</code>. Note that you will need to ensure that the source files are an Org file.
+</p>
+<hr>
+<span id="How-to-Remove-and-Delete-Highlights"></span><div class="header">
+<p>
+Next: <a href="#Other-Commands" accesskey="n" rel="next">Other Commands</a>, Previous: <a href="#How-to-Manage-Marginal-Notes" accesskey="p" rel="prev">How to Manage Marginal Notes</a>, Up: <a href="#Usage" accesskey="u" rel="up">Usage</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+</div>
+<span id="How-to-Remove-and-Delete-Highlights-1"></span><h3 class="section">3.4 How to Remove and Delete Highlights</h3>
+
+<span id="index-org_002dremark_002dremove"></span>
+<span id="index-org_002dremark_002ddelete"></span>
+
+<dl compact="compact">
+<dt>Command <code>org-remark-remove</code></dt>
+<dd><p>Remove the highlight at point.
+It will remove the highlight and the properties from the marginal notes file, but will keep the headline and annotations. This is to ensure to keep any notes you might have written intact.
+You can let this command DELETE the entire heading subtree for the highlight along with the annotations you have written, by passing a universal argument with <code>C-u</code>. If you have done so by error, you could still <code>undo</code> it in the marginal notes buffer, but not from within the current buffer as adding and removing overlays are not part of the undo tree.
+</p>
+</dd>
+<dt>Command <code>org-remark-delete</code></dt>
+<dd><p>Delete the highlight at POINT and marginal notes for it.
+This function will prompt for confirmation if there is any notes present in the marginal notes buffer.  When the marginal notes buffer is not displayed in the current frame, it will be temporarily displayed together with the prompt for the user to see the notes.
+If there is no notes, this function will not prompt for confirmation and will remove the highlight and deletes the entry in the marginal notes buffer. This command is identical with passing a universal argument to &lsquo;org-remark-remove&rsquo;.
+</p></dd>
+</dl>
+
+<hr>
 <span id="Other-Commands"></span><div class="header">
 <p>
-Previous: <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="p" rel="prev">&lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</a>, Up: <a href="#Usage" accesskey="u" rel="up">Usage</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+Previous: <a href="#How-to-Remove-and-Delete-Highlights" accesskey="p" rel="prev">How to Remove and Delete Highlights</a>, Up: <a href="#Usage" accesskey="u" rel="up">Usage</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
 <span id="Other-Commands-1"></span><h3 class="section">3.5 Other Commands</h3>
 
 <span id="index-org_002dremark_002dtoggle"></span>
 <span id="index-org_002dremark_002dchange"></span>
-<span id="index-org_002dremark_002dremove"></span>
-<span id="index-org_002dremark_002ddelete"></span>
 <span id="index-org_002dremark_002dnext"></span>
 <span id="index-org_002dremark_002dprev"></span>
 
@@ -410,18 +481,6 @@ If you would like to hide/show the highlights in the current buffer, it is recom
 </dd>
 <dt>Command <code>org-remark-change</code></dt>
 <dd><p>Change the highlight at point to one by another pen. This command will show you a list of available pens to choose from.
-</p>
-</dd>
-<dt>Command <code>org-remark-remove</code></dt>
-<dd><p>Remove the highlight at point.
-It will remove the highlight and the properties from the marginal notes file, but will keep the headline and annotations. This is to ensure to keep any notes you might have written intact.
-You can let this command DELETE the entire heading subtree for the highlight along with the annotations you have written, by passing a universal argument with <code>C-u</code>. If you have done so by error, you could still <code>undo</code> it in the marginal notes buffer, but not from within the current buffer as adding and removing overlays are not part of the undo tree.
-</p>
-</dd>
-<dt>Command <code>org-remark-delete</code></dt>
-<dd><p>Delete the highlight at POINT and marginal notes for it.
-This function will prompt for confirmation if there is any notes present in the marginal notes buffer.  When the marginal notes buffer is not displayed in the current frame, it will be temporarily displayed together with the prompt for the user to see the notes.
-If there is no notes, this function will not prompt for confirmation and will remove the highlight and deletes the entry in the marginal notes buffer. This command is identical with passing a universal argument to &lsquo;org-remark-remove&rsquo;.
 </p></dd>
 </dl>
 
@@ -629,17 +688,17 @@ Next: <a href="#Index-_002d-User-Options" accesskey="n" rel="next">Index - User 
 <tr><th id="Index-_002d-Commands_fn_letter-O">O</th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dchange"><code>org-remark-change</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Other-Commands">Other Commands</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dcreate"><code>org-remark-create</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-org_002dremark_002ddelete"><code>org-remark-delete</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Other-Commands">Other Commands</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dglobal_002dtracking_002dmode"><code>org-remark-global-tracking-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Automatically-Turn-on-Highlights-after-Re_002dstarting-Emacs">Automatically Turn on Highlights after Re-starting Emacs</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002ddelete"><code>org-remark-delete</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Remove-and-Delete-Highlights">How to Remove and Delete Highlights</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dglobal_002dtracking_002dmode"><code>org-remark-global-tracking-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Automatically-Turn-On-Highlights-after-Re_002dstarting-Emacs">How to Automatically Turn On Highlights after Re-starting Emacs</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark"><code>org-remark-mark</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlighting-and-Annotating">Highlighting and Annotating</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark-1"><code>org-remark-mark</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark_002dred_002dline"><code>org-remark-mark-red-line</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark_002dyellow"><code>org-remark-mark-yellow</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmode"><code>org-remark-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Automatically-Turn-on-Highlights-after-Re_002dstarting-Emacs">Automatically Turn on Highlights after Re-starting Emacs</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmode"><code>org-remark-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Automatically-Turn-On-Highlights-after-Re_002dstarting-Emacs">How to Automatically Turn On Highlights after Re-starting Emacs</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dnext"><code>org-remark-next</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Other-Commands">Other Commands</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dopen"><code>org-remark-open</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlighting-and-Annotating">Highlighting and Annotating</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dprev"><code>org-remark-prev</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Other-Commands">Other Commands</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dremove"><code>org-remark-remove</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Other-Commands">Other Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dremove"><code>org-remark-remove</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Remove-and-Delete-Highlights">How to Remove and Delete Highlights</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dtoggle"><code>org-remark-toggle</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Other-Commands">Other Commands</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dview"><code>org-remark-view</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlighting-and-Annotating">Highlighting and Annotating</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dview_002dnext"><code>org-remark-view-next</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Navigating-from-One-Highlight-to-Another">Navigating from One Highlight to Another</a></td></tr>
@@ -669,7 +728,7 @@ Next: <a href="#GNU-Free-Documentation-License" accesskey="n" rel="next">GNU Fre
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dnotes_002dbuffer_002dname"><code>org-remark-notes-buffer-name</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dnotes_002ddisplay_002dbuffer_002daction"><code>org-remark-notes-display-buffer-action</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dnotes_002dfile_002dpath"><code>org-remark-notes-file-path</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dtracking_002dfile"><code>org-remark-tracking-file</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Automatically-Turn-on-Highlights-after-Re_002dstarting-Emacs">Automatically Turn on Highlights after Re-starting Emacs</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dtracking_002dfile"><code>org-remark-tracking-file</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Automatically-Turn-On-Highlights-after-Re_002dstarting-Emacs">How to Automatically Turn On Highlights after Re-starting Emacs</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dtracking_002dfile-1"><code>org-remark-tracking-file</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002duse_002dorg_002did"><code>org-remark-use-org-id</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
