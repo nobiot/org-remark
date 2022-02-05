@@ -78,7 +78,7 @@ for more detail and expected elements of the list."
 buffer with this name."
   :type 'string)
 
-(defcustom org-remark-source-file-name-function #'file-relative-name
+(defcustom org-remark-source-file-name #'file-relative-name
   "Function that return the file name to point back at the source file.
 
 The function is called with a single argument: the absolute path
@@ -94,10 +94,10 @@ file will be relative to it."
           (function :tag "Other function")))
 
 (defvaralias
-  'org-remark-source-path-function 'org-remark-source-file-name-function)
+  'org-remark-source-path-function 'org-remark-source-file-name)
 
 (make-obsolete-variable
- 'org-remark-source-path-function 'org-remark-source-file-name-function "0.2.0")
+ 'org-remark-source-path-function 'org-remark-source-file-name "0.2.0")
 
 (defcustom org-remark-use-org-id nil
   "Define if Org-remark use Org-ID to link back to the main note."
@@ -747,7 +747,7 @@ ORGID can be passed to this function.  If user option
 `org-remark-use-org-id' is non-nil, this function will add an
 Org-ID link in the body text of the headline, linking back to the
 source with using ORGID."
-  (let* ((filename (org-remark-source-file-name filename))
+  (let* ((filename (org-remark-source-get-file-name filename))
          (id (plist-get props 'org-remark-id))
          (text (org-with-wide-buffer (buffer-substring-no-properties beg end)))
          (orgid (org-remark-highlight-get-org-id beg))
@@ -933,7 +933,7 @@ The file name is returned by `org-remark-notes-get-file-name'.
 Each highlight is a list in the following structure:
     (ID (BEG . END) LABEL)"
   (when-let ((notes-buf (find-file-noselect (org-remark-notes-get-file-name)))
-             (source-file-name (org-remark-source-file-name (buffer-file-name))))
+             (source-file-name (org-remark-source-get-file-name (buffer-file-name))))
     ;; TODO check if there is any relevant notes for the current file
     ;; This can be used for adding icon to the highlight
     (let ((highlights))
@@ -1065,7 +1065,7 @@ Case 2. The overlay points to no buffer
 
 
 ;;;;; Other utilities
-(defun org-remark-source-file-name (filename)
+(defun org-remark-source-get-file-name (filename)
   "Convert FILENAME either to absolute or relative for marginal notes files.
 Returns the standardized filename.
 
@@ -1074,7 +1074,7 @@ The current buffer is assumed to be visiting the source file.
 FILENAME should be an absolute file name of the source file."
   ;; Get the default-directory of the notes
   (with-current-buffer (find-file-noselect (org-remark-notes-get-file-name))
-    (funcall org-remark-source-file-name-function filename)))
+    (funcall org-remark-source-file-name filename)))
 
 (defun org-remark-region-or-word ()
   "Return beg and end of the active region or of the word at point.

@@ -1,9 +1,40 @@
 Current development version
+  - chg: align with GNU convention: path -> file name
+
+        Regarding user option `org-remark-notes-file-path`, the GNU convention
+        is to call this a "file name" rather than a "path"; "path" is only used
+        for lists of directories as in `load-path` (pointed out by Stefan
+        Monnier; thank you).
+
+        To align with the GNU convention, the following changes are done.  Users
+        should not have to change their existing customization as the old names
+        are aliased to the new ones.
+
+        User option:
+        - org-remark-notes-file-path -> org-remark-notes-file-name
+        - org-remark-source-path-function -> 'org-remark-source-file-name
+
+        Function:
+        - org-remark-notes-file-path-function -> org-remark-notes-file-name-function
+
+        Private Function:
+        - org-remark-notes-get-file-path -> org-remark-notes-get-file-name
+
+        `org-remark-notes-file-path`, `org-remark-source-path-function`, and
+        `org-remark-notes-file-path-function` are used by existing
+        customization, thus both explicitly made obsolete and aliased to the new
+        file-name equivalents.
+
+  - fix: Relative file name of the source file in the notes file
+
+         The relative file name of the source was not relative from the marginal notes
+         file but from the source file itself -- this should be relative from the
+         marginal notes.
 
   - chg: `org-remark-global-tracking-mode' has been simplified.
 
          This is not expected to break the user's workflow or configuration
-         -- simply removing a superfluous feature.   
+         -- simply removing a superfluous feature.
 
          .org-remark-tracking file is no longer necessary and can be safely
          deleted from the user's Emacs configuraiton directory if present.
