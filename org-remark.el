@@ -1065,10 +1065,16 @@ Case 2. The overlay points to no buffer
 
 
 ;;;;; Other utilities
-(defun org-remark-source-path (path)
-  "Convert PATH either to absolute or relative for marginal notes files.
-Returns the standardized path."
-  (funcall org-remark-source-path-function path))
+(defun org-remark-source-file-name (filename)
+  "Convert FILENAME either to absolute or relative for marginal notes files.
+Returns the standardized filename.
+
+The current buffer is assumed to be visiting the source file.
+
+FILENAME should be an absolute file name of the source file."
+  ;; Get the default-directory of the notes
+  (with-current-buffer (find-file-noselect (org-remark-notes-get-file-name))
+    (funcall org-remark-source-file-name-function filename)))
 
 (defun org-remark-region-or-word ()
   "Return beg and end of the active region or of the word at point.
