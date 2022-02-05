@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 0.2.0
 ;; Created: 22 December 2020
-;; Last modified: 04 February 2022
+;; Last modified: 05 February 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -104,7 +104,7 @@ It is a local variable and is a list of overlays.  Each overlay
 represents a highlighted text region.
 
 On `save-buffer' each highlight will be saved in the notes file at
-the path returned by `org-remark-notes-get-file-path'.")
+the path returned by `org-remark-notes-get-file-name'.")
 
 (defvar-local org-remark-highlights-hidden nil
   "Keep hidden/shown state of the highlights in current buffer.")
@@ -330,7 +330,7 @@ region.
 
 A Org headline entry for the highlght will be created in the
 marginal notes file specified by
-`org-remark-notes-get-file-path'.  If the file does not exist
+`org-remark-notes-get-file-name'.  If the file does not exist
 yet, it will be created.
 
 When this function is called from Elisp, ID can be
@@ -647,7 +647,7 @@ marginal notes file.  The expected values are nil, :load and
 :change.
 
 A Org headline entry for the highlght will be created in the
-marginal notes file specified by `org-remark-notes-get-file-path'.
+marginal notes file specified by `org-remark-notes-get-file-name'.
 If the file does not exist yet, it will be created.
 
 When this function is called from Elisp, ID can be optionally
@@ -743,7 +743,7 @@ source with using ORGID."
          (id (plist-get props 'org-remark-id))
          (text (org-with-wide-buffer (buffer-substring-no-properties beg end)))
          (orgid (org-remark-highlight-get-org-id beg))
-         (notes-buf (find-file-noselect (org-remark-notes-get-file-path)))
+         (notes-buf (find-file-noselect (org-remark-notes-get-file-name)))
          (line-num (org-current-line beg)))
     (with-current-buffer notes-buf
       (when (featurep 'org-remark-convert-legacy) (org-remark-convert-legacy-data))
@@ -850,7 +850,7 @@ notes file of the current buffer.  This function ensures there is
 only one of the marginal notes buffer per session."
   ;; Compare the target marginal notes buffer and current marginal notes buffer.
   ;; For the latter, we need the base buffer of an indirect buffer.
-  (let ((cbuf (find-file-noselect (org-remark-notes-get-file-path)))
+  (let ((cbuf (find-file-noselect (org-remark-notes-get-file-name)))
         (ibuf (when (buffer-live-p org-remark-last-notes-buffer)
                 org-remark-last-notes-buffer)))
     (unless (eq (buffer-base-buffer ibuf) cbuf)
@@ -920,10 +920,10 @@ load the highlights"
 
 (defun org-remark-highlights-get ()
   "Return a list of highlights from the marginal notes file path.
-The file path is returned by `org-remark-notes-get-file-path'.
+The file path is returned by `org-remark-notes-get-file-name'.
 Each highlight is a list in the following structure:
     (ID (BEG . END) LABEL)"
-  (when-let ((notes-buf (find-file-noselect (org-remark-notes-get-file-path)))
+  (when-let ((notes-buf (find-file-noselect (org-remark-notes-get-file-name)))
              (source-path (org-remark-source-path (buffer-file-name))))
     ;; TODO check if there is any relevant notes for the current file
     ;; This can be used for adding icon to the highlight
@@ -1086,5 +1086,5 @@ function extends the behavior and looks for the word at point"
 ;;; org-remark.el ends here
 
 ;; Local Variables:
-;; org-remark-notes-file-path: "README.org"
+;; org-remark-notes-file-name: "README.org"
 ;; End:

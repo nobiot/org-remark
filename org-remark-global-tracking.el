@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 15 August 2021
-;; Last modified: 01 February 2022
+;; Last modified: 05 February 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal notes
 
@@ -31,7 +31,7 @@
 
 (declare-function org-remark-mode "org-remark")
 
-(defcustom org-remark-notes-file-path "marginalia.org"
+(defcustom org-remark-notes-file-name "marginalia.org"
   "Define the file path to store the location of highlights and write annotations.
 It can be either a string or function.
 
@@ -40,14 +40,18 @@ file.  The default is \"marginalia.org\".  It will be one marginal
 notes file per directory.  Ensure that it is an Or file.
 
 If it is a function, the default function is
-`org-remark-notes-file-path-function'.  It returns a file name
+`org-remark-notes-file-name-function'.  It returns a file name
 like this: \"FILE-notes.org\" by adding \"-notes.org\" as a
 suffix to the file name without the extension."
   :group 'org-remark
   :safe #'stringp
   :type '(choice
           (file "marginalia.org")
-          (function org-remark-notes-file-path-function)))
+          (function org-remark-notes-file-name-function)))
+
+(defvaralias 'org-remark-notes-file-path 'org-remark-notes-file-name)
+(make-obsolete-variable
+ 'org-remark-notes-file-path 'org-remark-notes-file-name "0.2.0")
 
 ;;;###autoload
 (define-minor-mode org-remark-global-tracking-mode
@@ -68,29 +72,7 @@ readable, the function automatically activates `org-remark'."
     ;; Deactivate
     (remove-hook 'find-file-hook #'org-remark-auto-on))))
 
-;;;; Private Functions
-
-(defun org-remark-auto-on ()
-  "Automatically activates `org-remark-mode' for current buffer when relevant.
-This function is meant to be addd to `find-file-hook' by
-`org-remark-global-tracking-mode'."
-  (when-let (notes-file (org-remark-notes-get-file-path))
-    (when (file-readable-p notes-file)
-      (unless (featurep 'org-remark) (require 'org-remark))
-      (org-remark-mode +1))))
-
-(defun org-remark-notes-get-file-path ()
-  "Return the file path to the marginal notes for current buffer.
-This function looks at customization variable
-`org-remark-notes-file-path'.  If it is a string, return it as
-the file path.  If it is a function, evaluate it to return the
-value."
-  (if (functionp org-remark-notes-file-path)
-      (funcall org-remark-notes-file-path)
-    ;; If not function, assume string and return it as the file path.
-    org-remark-notes-file-path))
-
-(defun org-remark-notes-file-path-function ()
+(defun org-remark-notes-file-name-function ()
   "Return a marginal notes file name for the current buffer.
 
 This is the default function for the customizing variable
@@ -100,6 +82,33 @@ When the current buffer is visiting a FILE, the name of marginal
 notes file will be \"FILE-notes.org\", adding \"-notes.org\" as a
 suffix to the file name without the extension."
   (concat (file-name-sans-extension (buffer-file-name)) "-notes.org"))
+
+(defalias
+  'org-remark-notes-file-path-function 'org-remark-notes-file-name-function)
+(make-obsolete
+ 'org-remark-notes-file-path-function 'org-remark-notes-file-name-function "0.2.0" )
+
+;;;; Private Functions
+
+(defun org-remark-auto-on ()
+  "Automatically activates `org-remark-mode' for current buffer when relevant.
+This function is meant to be addd to `find-file-hook' by
+`org-remark-global-tracking-mode'."
+  (when-let (notes-file (org-remark-notes-get-file-name))
+    (when (file-readable-p notes-file)
+      (unless (featurep 'org-remark) (require 'org-remark))
+      (org-remark-mode +1))))
+
+(defun org-remark-notes-get-file-name ()
+  "Return the file path to the marginal notes for current buffer.
+This function looks at customization variable
+`org-remark-notes-file-path'.  If it is a string, return it as
+the file path.  If it is a function, evaluate it to return the
+value."
+  (if (functionp org-remark-notes-file-path)
+      (funcall org-remark-notes-file-path)
+    ;; If not function, assume string and return it as the file path.
+    org-remark-notes-file-path))
 
 (provide 'org-remark-global-tracking)
 
