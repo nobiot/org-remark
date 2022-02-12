@@ -59,9 +59,9 @@ Next: <a href="#Installation" accesskey="n" rel="next">Installation</a> &nbsp; [
 </div>
 <span id="Org_002dremark-User-Manual"></span><h1 class="top">Org-remark User Manual</h1>
 
-<p>This manual is for Org-remark version 0.2.x.
+<p>This manual is for Org-remark version 1.0.x.
 </p>
-<p>Last updated: 05 February 2022.
+<p>Last updated: 12 February 2022.
 </p>
 <p>Org-remark lets you highlight and annotate any text file with using Org mode.
 </p>
@@ -433,7 +433,7 @@ Previous: <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="p" rel="p
 
 <p>The location of the marginal notes file is specified by user option <code>org-remark-notes-file-name</code> and its default is &ldquo;marginalia.org&rdquo;. This means the marginal notes file will reside in the same directory as the source files as a separate file.
 </p>
-<p><code>org-remark-notes-file-name</code> also takes a function as a value, so you have a wide range of customizability. In <code>customize</code>, the default function to be used is <code>org-remark-notes-file-name-function</code>, which adds &lsquo;<samp>-notes.org</samp>&rsquo; as a suffix to the source file&rsquo;s name without the extension. For example, for &lsquo;<samp>my-main-file.txt</samp>&rsquo; Org-remark will create and store highlights in  &lsquo;<samp>my-main-file-notes.org</samp>&rsquo;.
+<p><code>org-remark-notes-file-name</code> can also take a function as a value, so you have a wide range of customizability. In <code>customize</code>, the default function to be used is <code>org-remark-notes-file-name-function</code>. It adds &lsquo;<samp>-notes.org</samp>&rsquo; as a suffix to the source file&rsquo;s name without the extension. For example, for a file named &lsquo;<samp>my-main-file.txt</samp>&rsquo;,  Org-remark will store highlights in  &lsquo;<samp>my-main-file-notes.org</samp>&rsquo;.
 </p>
 <p>In order to use the source file also as the marginal notes file (storing the notes in the source file), you can set the built-in function <code>buffer-file-name</code> as the value of <code>org-remark-notes-file-name</code>. Note that you will need to ensure that the source files are an Org file.
 </p>
@@ -447,6 +447,12 @@ Next: <a href="#Other-Commands" accesskey="n" rel="next">Other Commands</a>, Pre
 <span id="index-org_002dremark_002dremove"></span>
 <span id="index-org_002dremark_002ddelete"></span>
 
+<p>You can remove the highlight under the cursor with command &lsquo;org-remark-remove&lsquo;. This command does not delete the corresponding entry in the marginal notes file. This is intentional; Org-roam is conservative when it deletes anything that the user might have edited.
+</p>
+<p>If you wish to delete the entry and the highlight at the same time, pass a universal argument to &lsquo;org-remark-remove&lsquo; (e.g. by adding <code>C-u</code> before <code>M-x org-remark-remove</code>) or use <code>org-remark-delete</code>. <code>org-remark-delete</code> is identical with adding <code>C-u</code> to <code>org-remark-remove</code>.
+</p>
+<p>The delete function will prompt for confirmation if it detects any notes present in the corresponding entry for the highlight in question in the marginal notes buffer.
+</p>
 <dl compact="compact">
 <dt>Command <code>org-remark-remove</code></dt>
 <dd><p>Remove the highlight at point.

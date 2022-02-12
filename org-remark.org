@@ -1,7 +1,7 @@
 #+title: Org-remark User Manual
 #+author: Noboru Ota <me@nobiot.com>
-#+macro: version 0.2.x
-#+macro: modified 05 February 2022
+#+macro: version 1.0.x
+#+macro: modified 12 February 2022
 #+language: en
 #+export_file_name: org-remark.texi
 #+texinfo_dir_category: Emacs
@@ -234,13 +234,19 @@ Org-remark displays the marginal notes buffer narrowed to the highlight the curs
 
 The location of the marginal notes file is specified by user option ~org-remark-notes-file-name~ and its default is "marginalia.org". This means the marginal notes file will reside in the same directory as the source files as a separate file.
 
-~org-remark-notes-file-name~ also takes a function as a value, so you have a wide range of customizability. In ~customize~, the default function to be used is ~org-remark-notes-file-name-function~, which adds =-notes.org= as a suffix to the source file's name without the extension. For example, for =my-main-file.txt= Org-remark will create and store highlights in  =my-main-file-notes.org=.
+~org-remark-notes-file-name~ can also take a function as a value, so you have a wide range of customizability. In ~customize~, the default function to be used is ~org-remark-notes-file-name-function~. It adds =-notes.org= as a suffix to the source file's name without the extension. For example, for a file named =my-main-file.txt=,  Org-remark will store highlights in  =my-main-file-notes.org=.
 
 In order to use the source file also as the marginal notes file (storing the notes in the source file), you can set the built-in function ~buffer-file-name~ as the value of ~org-remark-notes-file-name~. Note that you will need to ensure that the source files are an Org file.
 
 ** How to Remove and Delete Highlights
 #+findex: org-remark-remove
 #+findex: org-remark-delete
+
+You can remove the highlight under the cursor with command `org-remark-remove`. This command does not delete the corresponding entry in the marginal notes file. This is intentional; Org-roam is conservative when it deletes anything that the user might have edited.
+
+If you wish to delete the entry and the highlight at the same time, pass a universal argument to `org-remark-remove` (e.g. by adding ~C-u~ before ~M-x org-remark-remove~) or use ~org-remark-delete~. ~org-remark-delete~ is identical with adding ~C-u~ to ~org-remark-remove~.
+
+The delete function will prompt for confirmation if it detects any notes present in the corresponding entry for the highlight in question in the marginal notes buffer.
 
 - Command ~org-remark-remove~ ::
   Remove the highlight at point.
