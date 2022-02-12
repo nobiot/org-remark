@@ -4,7 +4,7 @@
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
-;; Version: 1.0.0
+;; Version: 1.0.1
 ;; Created: 22 December 2020
 ;; Last modified: 12 February 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
@@ -88,7 +88,7 @@ buffer with this name."
  'org-remark-source-path-function 'org-remark-source-file-name "0.2.0")
 
 (defcustom org-remark-source-file-name #'file-relative-name
-  "Function that return the file name to point back at the source file.
+  "Function that returns the file name to point back at the source file.
 
 The function is called with a single argument: the absolute file
 name of source file.  The `default-directory' is temporarily set
