@@ -1,4 +1,4 @@
-Current development version
+Version 1.0.0
   - chg: align with GNU convention: path -> file name
 
          Regarding user option `org-remark-notes-file-path`, the GNU convention
