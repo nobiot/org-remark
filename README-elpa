@@ -57,11 +57,10 @@ _________________
 
   This package is available on:
 
+  - [GNU-ELPA] (releases only; equivalent to MELPA-Stable)
   - [GNU-devel ELPA] (unreleased development branch; equivalent to
     MELPA)
 
-  It will soon be available on GNU ELPA (releases only; equivalent to
-  MELPA-Stable) in one of the next updates.
 
   GNU ELPA should be already set up in your Emacs by default. If you
   wish to add GNU-devel ELPA, simply add its URL to `package-archives'
@@ -103,6 +102,8 @@ _________________
   |   (define-key org-remark-mode-map (kbd "C-c n r") #'org-remark-remove))
   `----
 
+
+[GNU-ELPA] <https://elpa.gnu.org/packages/org-remark.html>
 
 [GNU-devel ELPA] <https://elpa.gnu.org/devel/org-remark.html>
 
