@@ -61,7 +61,7 @@ Next: <a href="#Installation" accesskey="n" rel="next">Installation</a> &nbsp; [
 
 <p>This manual is for Org-remark version 1.0.x.
 </p>
-<p>Last updated: 12 February 2022.
+<p>Last updated: 13 February 2022.
 </p>
 <p>Org-remark lets you highlight and annotate any text file with using Org mode.
 </p>
@@ -139,7 +139,7 @@ How to Manage Marginal Notes
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#How-to-Store-Marginal-Notes-in-the-Source-File">How to Store Marginal Notes in the Source File</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#How-to-Use-Relative-or-Absolute-Path-for-Links-in-Marginal-Notes-File">How to Use Relative or Absolute Path for Links in Marginal Notes File</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#How-to-Use-Relative-or-Absolute-File-Names-for-Links-in-Marginal-Notes-File">How to Use Relative or Absolute File Names for Links in Marginal Notes File</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 <tr><th colspan="3" align="left" valign="top"><pre class="menu-comment">
 
@@ -250,7 +250,7 @@ Next: <a href="#Create-Your-Own-Highlighter-Pens" accesskey="n" rel="next">Creat
 </li><li> <code>C-c n d</code>: <code>org-remark-delete</code>
 </li></ul>
 
-<p>The <code>C-c n</code> part is the prefix key common to all of them. If you set the keybindings like this, you can use <code>C-c n ]</code> once to view the next highlight and keep pressing a single key <code>]</code> or <code>[</code> to browse through the next/previous highlights. After you have reached the one you like to act on, press <code>o</code> to open it, or <code>r~/~d</code> to remove/delete it.
+<p>The <code>C-c n</code> part is the prefix key common to all of them. If you set the keybindings like this, you can use <code>C-c n ]</code> once to view the next highlight and keep pressing a single key <code>]</code> or <code>[</code> to browse through the next/previous highlights. After you have reached the one you like to act on, press <code>o</code> to open it, <code>r</code> or <code>d</code> to remove/delete it.
 </p>
 <hr>
 <span id="Create-Your-Own-Highlighter-Pens"></span><div class="header">
@@ -275,7 +275,7 @@ Previous: <a href="#Navigating-from-One-Highlight-to-Another" accesskey="p" rel=
 </p></dd>
 </dl>
 
-<p>Org-remark let lets you create your own custom pen functions with <code>org-remark-create</code>. Use the yellow and red line pens as examples, and create your own. For how to do it, <a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a>.
+<p>Org-remark lets you create your own custom pen functions with <code>org-remark-create</code>. Use the yellow and red line pens as examples, and create your own. For how to do it, <a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a>.
 </p>
 <p>This is all you need to get started. For more detail, refer to the rest of this user manual, especially <a href="#Usage">Usage</a> and <a href="#Customizing">Customizing</a> sections. There is more to the commands introduced in this section and more ways in which you can customize Org-remark.
 </p>
@@ -350,7 +350,6 @@ Next: <a href="#How-to-Manage-Marginal-Notes" accesskey="n" rel="next">How to Ma
 
 <span id="index-org_002dremark_002dglobal_002dtracking_002dmode"></span>
 <span id="index-org_002dremark_002dmode"></span>
-<span id="index-org_002dremark_002dtracking_002dfile"></span>
 
 <p>It is recommended that <code>org-remark-global-tracking-mode</code> be turned on as part of your Emacs initialization. This should be done before you start adding highlights in any file.
 </p>
@@ -372,7 +371,7 @@ Next: <a href="#How-to-Remove-and-Delete-Highlights" accesskey="n" rel="next">Ho
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#How-to-Store-Marginal-Notes-in-the-Source-File" accesskey="3">How to Store Marginal Notes in the Source File</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#How-to-Use-Relative-or-Absolute-Path-for-Links-in-Marginal-Notes-File" accesskey="4">How to Use Relative or Absolute Path for Links in Marginal Notes File</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#How-to-Use-Relative-or-Absolute-File-Names-for-Links-in-Marginal-Notes-File" accesskey="4">How to Use Relative or Absolute File Names for Links in Marginal Notes File</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 </table>
 
@@ -431,7 +430,7 @@ Next: <a href="#How-to-Store-Marginal-Notes-in-the-Source-File" accesskey="n" re
 <hr>
 <span id="How-to-Store-Marginal-Notes-in-the-Source-File"></span><div class="header">
 <p>
-Next: <a href="#How-to-Use-Relative-or-Absolute-Path-for-Links-in-Marginal-Notes-File" accesskey="n" rel="next">How to Use Relative or Absolute Path for Links in Marginal Notes File</a>, Previous: <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="p" rel="prev">&lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</a>, Up: <a href="#How-to-Manage-Marginal-Notes" accesskey="u" rel="up">How to Manage Marginal Notes</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#How-to-Use-Relative-or-Absolute-File-Names-for-Links-in-Marginal-Notes-File" accesskey="n" rel="next">How to Use Relative or Absolute File Names for Links in Marginal Notes File</a>, Previous: <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="p" rel="prev">&lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</a>, Up: <a href="#How-to-Manage-Marginal-Notes" accesskey="u" rel="up">How to Manage Marginal Notes</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
 <span id="How-to-Store-Marginal-Notes-in-the-Source-File-1"></span><h4 class="subsection">3.3.3 How to Store Marginal Notes in the Source File</h4>
 
@@ -442,11 +441,11 @@ Next: <a href="#How-to-Use-Relative-or-Absolute-Path-for-Links-in-Marginal-Notes
 <p>In order to use the source file also as the marginal notes file (storing the notes in the source file), you can set the built-in function <code>buffer-file-name</code> as the value of <code>org-remark-notes-file-name</code>. Note that you will need to ensure that the source files are an Org file.
 </p>
 <hr>
-<span id="How-to-Use-Relative-or-Absolute-Path-for-Links-in-Marginal-Notes-File"></span><div class="header">
+<span id="How-to-Use-Relative-or-Absolute-File-Names-for-Links-in-Marginal-Notes-File"></span><div class="header">
 <p>
 Previous: <a href="#How-to-Store-Marginal-Notes-in-the-Source-File" accesskey="p" rel="prev">How to Store Marginal Notes in the Source File</a>, Up: <a href="#How-to-Manage-Marginal-Notes" accesskey="u" rel="up">How to Manage Marginal Notes</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
-<span id="How-to-Use-Relative-or-Absolute-Path-for-Links-in-Marginal-Notes-File-1"></span><h4 class="subsection">3.3.4 How to Use Relative or Absolute Path for Links in Marginal Notes File</h4>
+<span id="How-to-Use-Relative-or-Absolute-File-Names-for-Links-in-Marginal-Notes-File-1"></span><h4 class="subsection">3.3.4 How to Use Relative or Absolute File Names for Links in Marginal Notes File</h4>
 
 <span id="index-Relative-or-absolute-file-names-pointing-back-at-source-files-in-marginal-notes"></span>
 <span id="index-org_002dremark_002dsource_002dfile_002dname"></span>
@@ -465,7 +464,7 @@ Previous: <a href="#How-to-Store-Marginal-Notes-in-the-Source-File" accesskey="p
 :END:
 </pre></div>
 
-<p>The level-1 headline named &ldquo;File 1&rdquo; records the file name of the source file &lsquo;<samp>path/to/File1.txt</samp>&rsquo;.  Similarly, the level-2 headline named &ldquo;Highlight 1 in File 1&rdquo; stores the link pointing back a the source file and the line number of the highlight.
+<p>The level-1 headline named &ldquo;File 1&rdquo; records the file name of the source file &lsquo;<samp>path/to/File1.txt</samp>&rsquo;.  Similarly, the level-2 headline named &ldquo;Highlight 1 in File 1&rdquo; stores the link pointing back at the source file and the line number of the highlight.
 </p>
 <p>As you can see, both file names use a relative file name from the marginal notes file. This is the default setting of <code>org-remark-source-file-name</code>.
 </p>
@@ -550,8 +549,8 @@ Next: <a href="#Known-Limitations" accesskey="n" rel="next">Known Limitations</a
 <span id="index-org_002dremark_002dnotes_002dfile_002dname"></span>
 <span id="index-org_002dremark_002dnotes_002ddisplay_002dbuffer_002daction"></span>
 <span id="index-org_002dremark_002dnotes_002dbuffer_002dname"></span>
+<span id="index-org_002dremark_002dsource_002dfile_002dname-1"></span>
 <span id="index-org_002dremark_002duse_002dorg_002did"></span>
-<span id="index-org_002dremark_002dtracking_002dfile-1"></span>
 
 <p>Org-remark&rsquo;s user options are available in the customization group <code>org-remark</code>.
 </p>
@@ -564,29 +563,31 @@ Next: <a href="#Known-Limitations" accesskey="n" rel="next">Known Limitations</a
 <dd><p>When non-nil, Org-remark creates default pen set. Set to nil if you prefer for it not to.
 </p>
 </dd>
-<dt>Option: <code>org-remark-notes-file-path</code></dt>
-<dd><p>Define the file path to store the location of highlights and write annotations.
-The default is one file per directory. Ensure that it is an Org file.
+<dt>Option: <code>org-remark-notes-file-name</code></dt>
+<dd><p>Name of the file where we store highlights and marginal notes. It can be either a string or function.
+If it is a string, it should be a file name to the marginal notes
+</p></dd>
+</dl>
+<p>file. The default is &lsquo;<samp>marginalia.org</samp>&rsquo;.  The default will result in one marginal notes file per directory.  Ensure that it is an Org file.
+  If it is a function, the default function is <code>org-remark-notes-file-name-function</code>.  It returns a file name like this: &lsquo;<samp>FILE-notes.org</samp>&rsquo; by adding &lsquo;<samp>-notes.org</samp>&rsquo; as a suffix to the file name without the extension.
 </p>
-</dd>
+<dl compact="compact">
 <dt>Option: <code>org-remark-notes-display-buffer-action</code></dt>
-<dd><p>Define how Org-remark opens the notes buffer.
-The default is to use a dedicated side-window on the left. It is an action list for <code>display-buffer</code>. Refer to its documentation for more detail and expected elements of the list.
+<dd><p>Buffer display action that Org-remark uses to open marginal notes buffer.
 </p>
 </dd>
 <dt>Option: <code>org-remark-notes-buffer-name</code></dt>
-<dd><p>Define the buffer name of the marginal notes.
-<code>org-remark-open</code> creates an indirect clone buffer with this name.
+<dd><p>Buffer name of the marginal notes buffer. <code>org-remark-open</code> and <code>org-remark-visit</code> create an indirect clone buffer with this name.
+</p>
+</dd>
+<dt>Option: <code>org-remark-source-file-name</code></dt>
+<dd><p>Function that returns the file name to point back at the source file.
+The function is called with a single argument: the absolute file name of source file.  The &lsquo;<samp>default-directory</samp>&rsquo; is temporarily set to the directory where the marginal notes file resides.
+This means that when the &lsquo;<samp>Relative file name</samp>&rsquo; option is selected, the source file name recorded in the marginal notes file will be relative to it.
 </p>
 </dd>
 <dt>Option: <code>org-remark-use-org-id</code></dt>
-<dd><p>Define if Org-remark use Org-ID to link back to the main note.
-</p>
-</dd>
-<dt>Option: <code>org-remark-tracking-file</code></dt>
-<dd><p>Define file path to save the files <code>org-remark</code> tracks.
- When <code>org-remark-global-tracking-mode</code> is active, opening a file saved in
-<code>org-remark-tracking-file</code> automatically loads highlights.
+<dd><p>When non-nil, Org-remark adds an Org-ID link to marginal notes. The link points at the relevant Org-ID in the source file. Org-remark does not create this ID, which needs to be added manually or some other function to either the headline or file.
 </p></dd>
 </dl>
 
@@ -607,15 +608,11 @@ Next: <a href="#Credits" accesskey="n" rel="next">Credits</a>, Previous: <a href
 </p>
 </dd>
 <dt>Undo highlight does not undo it</dt>
-<dd><p>Overlays are not part of the undo list; you cannot undo highlighting. Use <code>org-remark-remove</code> command instead.
+<dd><p>Overlays are not part of the undo list; you cannot undo highlighting. Use <code>org-remark-remove</code> or <code>org-remark-delete</code> commands instead.
 </p>
 </dd>
 <dt>Moving source files and remark file</dt>
-<dd><p>Move your files and remark file to another directory does not update the source path recorded in the remark file. It will be confusing. Try not to do it.
-</p>
-</dd>
-<dt>Marginal notes file uses absolute path</dt>
-<dd><p>Related to the previous limitation. The marginal notes file serves as the database for the highlights&rsquo; locations and notes. The linkage back to the main note files are via absolute paths.  This means moving files to a different path is likely to break the the links.
+<dd><p>Moving your files and remark file to another directory does not update the source paths and file names stored in the marginal notes file. One way to keep the links between the source files and marginal notes files is to use relative file names with <code>org-remark-source-file-name</code> (default).
 </p></dd>
 </dl>
 
@@ -703,7 +700,7 @@ Next: <a href="#Index-_002d-Commands" accesskey="n" rel="next">Index - Commands<
 <tr><td></td><td valign="top"><a href="#index-Org_002dremark-properties-for-highlights-1">Org-remark properties for highlights</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Marginal-Notes-File">Marginal Notes File</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index-_002d-Features_cp_letter-R">R</th><td></td><td></td></tr>
-<tr><td></td><td valign="top"><a href="#index-Relative-or-absolute-file-names-pointing-back-at-source-files-in-marginal-notes">Relative or absolute file names pointing back at source files in marginal notes</a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Use-Relative-or-Absolute-Path-for-Links-in-Marginal-Notes-File">How to Use Relative or Absolute Path for Links in Marginal Notes File</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-Relative-or-absolute-file-names-pointing-back-at-source-files-in-marginal-notes">Relative or absolute file names pointing back at source files in marginal notes</a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Use-Relative-or-Absolute-File-Names-for-Links-in-Marginal-Notes-File">How to Use Relative or Absolute File Names for Links in Marginal Notes File</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 </table>
 <table><tr><th valign="top">Jump to: &nbsp; </th><td><a class="summary-letter" href="#Index-_002d-Features_cp_symbol-1"><b>*</b></a>
@@ -775,9 +772,8 @@ Next: <a href="#GNU-Free-Documentation-License" accesskey="n" rel="next">GNU Fre
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dnotes_002dbuffer_002dname"><code>org-remark-notes-buffer-name</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dnotes_002ddisplay_002dbuffer_002daction"><code>org-remark-notes-display-buffer-action</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dnotes_002dfile_002dname"><code>org-remark-notes-file-name</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dsource_002dfile_002dname"><code>org-remark-source-file-name</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Use-Relative-or-Absolute-Path-for-Links-in-Marginal-Notes-File">How to Use Relative or Absolute Path for Links in Marginal Notes File</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dtracking_002dfile"><code>org-remark-tracking-file</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Automatically-Turn-On-Highlights-after-Re_002dstarting-Emacs">How to Automatically Turn On Highlights after Re-starting Emacs</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dtracking_002dfile-1"><code>org-remark-tracking-file</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dsource_002dfile_002dname"><code>org-remark-source-file-name</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Use-Relative-or-Absolute-File-Names-for-Links-in-Marginal-Notes-File">How to Use Relative or Absolute File Names for Links in Marginal Notes File</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dsource_002dfile_002dname-1"><code>org-remark-source-file-name</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002duse_002dorg_002did"><code>org-remark-use-org-id</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 </table>
