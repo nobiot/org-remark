@@ -194,7 +194,7 @@ Without this global minor mode, you would need to remember to activate ~org-rema
 #+cindex: Marginal notes file
 #+cindex: Org-remark properties for highlights
 
-When you mark a part of text with a highlighter pen function, Org-remark will automatically create a *marginal notes file*. By default, it will be named ~marginalia.org~ and created in the same directory as the file you are editing ([[#customizing][Customizing]]).
+When you mark a part of text with a highlighter pen function, Org-remark will automatically create a *marginal notes file*. By default, it will be named ~marginalia.org~ and created in the same directory as the file you are editing ([[#customizing][Customizing]]; see ~org-remark-notes-file-name~).
 
 The important thing to note is that Org-remark uses following properties in the property drawer of the headline to remember the highlights:
 
@@ -230,6 +230,8 @@ When you display the marginal notes with ~org-remark-view~ or ~org-remark-open~ 
 Org-remark displays the marginal notes buffer narrowed to the highlight the cursor is on.
 
 *** How to Store Marginal Notes in the Source File
+
+#+vindex: org-remark-notes-file-name
 
 The location of the marginal notes file is specified by user option ~org-remark-notes-file-name~ and its default is "marginalia.org". This means the marginal notes file will reside in the same directory as the source files as a separate file.
 
@@ -328,8 +330,7 @@ Org-remark's user options are available in the customization group ~org-remark~.
 
 - Option: ~org-remark-notes-file-name~ ::
   Name of the file where we store highlights and marginal notes. It can be either a string or function.
-  If it is a string, it should be a file name to the marginal notes
-file. The default is =marginalia.org=.  The default will result in one marginal notes file per directory.  Ensure that it is an Org file.
+  If it is a string, it should be a file name to the marginal notes file. The default is =marginalia.org=.  The default will result in one marginal notes file per directory.  Ensure that it is an Org file.
   If it is a function, the default function is ~org-remark-notes-file-name-function~.  It returns a file name like this: =FILE-notes.org= by adding =-notes.org= as a suffix to the file name without the extension.
 
 - Option: ~org-remark-notes-display-buffer-action~ ::
@@ -354,7 +355,7 @@ file. The default is =marginalia.org=.  The default will result in one marginal 
 
 - Undo highlight does not undo it :: Overlays are not part of the undo list; you cannot undo highlighting. Use ~org-remark-remove~ or ~org-remark-delete~ commands instead.
 
-- Moving source files and remark file :: Moving your files and remark file to another directory does not update the source paths and file names stored in the marginal notes file. One way to keep the links between the source files and marginal notes files is to use relative file names with ~org-remark-source-file-name~ (default).
+- Moving source files and marginal notes files :: Moving your files and remark file to another directory does not update the source paths and file names stored in the marginal notes file. One way to keep the links between the source files and marginal notes files is to use relative file names with ~org-remark-source-file-name~ (default).
 
 * Credits
 
