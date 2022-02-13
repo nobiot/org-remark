@@ -385,7 +385,7 @@ Next: <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="n" rel="next"
 <span id="index-Marginal-notes-file-1"></span>
 <span id="index-Org_002dremark-properties-for-highlights-1"></span>
 
-<p>When you mark a part of text with a highlighter pen function, Org-remark will automatically create a <strong>marginal notes file</strong>. By default, it will be named <code>marginalia.org</code> and created in the same directory as the file you are editing (<a href="#Customizing">Customizing</a>).
+<p>When you mark a part of text with a highlighter pen function, Org-remark will automatically create a <strong>marginal notes file</strong>. By default, it will be named <code>marginalia.org</code> and created in the same directory as the file you are editing (<a href="#Customizing">Customizing</a>; see <code>org-remark-notes-file-name</code>).
 </p>
 <p>The important thing to note is that Org-remark uses following properties in the property drawer of the headline to remember the highlights:
 </p>
@@ -433,6 +433,8 @@ Next: <a href="#How-to-Store-Marginal-Notes-in-the-Source-File" accesskey="n" re
 Next: <a href="#How-to-Use-Relative-or-Absolute-File-Names-for-Links-in-Marginal-Notes-File" accesskey="n" rel="next">How to Use Relative or Absolute File Names for Links in Marginal Notes File</a>, Previous: <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="p" rel="prev">&lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</a>, Up: <a href="#How-to-Manage-Marginal-Notes" accesskey="u" rel="up">How to Manage Marginal Notes</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
 <span id="How-to-Store-Marginal-Notes-in-the-Source-File-1"></span><h4 class="subsection">3.3.3 How to Store Marginal Notes in the Source File</h4>
+
+<span id="index-org_002dremark_002dnotes_002dfile_002dname"></span>
 
 <p>The location of the marginal notes file is specified by user option <code>org-remark-notes-file-name</code> and its default is &ldquo;marginalia.org&rdquo;. This means the marginal notes file will reside in the same directory as the source files as a separate file.
 </p>
@@ -546,7 +548,7 @@ Next: <a href="#Known-Limitations" accesskey="n" rel="next">Known Limitations</a
 
 <span id="index-org_002dremark_002dhighlighter"></span>
 <span id="index-org_002dremark_002dcreate_002ddefault_002dpen_002dset"></span>
-<span id="index-org_002dremark_002dnotes_002dfile_002dname"></span>
+<span id="index-org_002dremark_002dnotes_002dfile_002dname-1"></span>
 <span id="index-org_002dremark_002dnotes_002ddisplay_002dbuffer_002daction"></span>
 <span id="index-org_002dremark_002dnotes_002dbuffer_002dname"></span>
 <span id="index-org_002dremark_002dsource_002dfile_002dname-1"></span>
@@ -565,13 +567,10 @@ Next: <a href="#Known-Limitations" accesskey="n" rel="next">Known Limitations</a
 </dd>
 <dt>Option: <code>org-remark-notes-file-name</code></dt>
 <dd><p>Name of the file where we store highlights and marginal notes. It can be either a string or function.
-If it is a string, it should be a file name to the marginal notes
-</p></dd>
-</dl>
-<p>file. The default is &lsquo;<samp>marginalia.org</samp>&rsquo;.  The default will result in one marginal notes file per directory.  Ensure that it is an Org file.
-  If it is a function, the default function is <code>org-remark-notes-file-name-function</code>.  It returns a file name like this: &lsquo;<samp>FILE-notes.org</samp>&rsquo; by adding &lsquo;<samp>-notes.org</samp>&rsquo; as a suffix to the file name without the extension.
+If it is a string, it should be a file name to the marginal notes file. The default is &lsquo;<samp>marginalia.org</samp>&rsquo;.  The default will result in one marginal notes file per directory.  Ensure that it is an Org file.
+If it is a function, the default function is <code>org-remark-notes-file-name-function</code>.  It returns a file name like this: &lsquo;<samp>FILE-notes.org</samp>&rsquo; by adding &lsquo;<samp>-notes.org</samp>&rsquo; as a suffix to the file name without the extension.
 </p>
-<dl compact="compact">
+</dd>
 <dt>Option: <code>org-remark-notes-display-buffer-action</code></dt>
 <dd><p>Buffer display action that Org-remark uses to open marginal notes buffer.
 </p>
@@ -611,7 +610,7 @@ Next: <a href="#Credits" accesskey="n" rel="next">Credits</a>, Previous: <a href
 <dd><p>Overlays are not part of the undo list; you cannot undo highlighting. Use <code>org-remark-remove</code> or <code>org-remark-delete</code> commands instead.
 </p>
 </dd>
-<dt>Moving source files and remark file</dt>
+<dt>Moving source files and marginal notes files</dt>
 <dd><p>Moving your files and remark file to another directory does not update the source paths and file names stored in the marginal notes file. One way to keep the links between the source files and marginal notes files is to use relative file names with <code>org-remark-source-file-name</code> (default).
 </p></dd>
 </dl>
@@ -771,7 +770,8 @@ Next: <a href="#GNU-Free-Documentation-License" accesskey="n" rel="next">GNU Fre
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dhighlighter"><code>org-remark-highlighter</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dnotes_002dbuffer_002dname"><code>org-remark-notes-buffer-name</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dnotes_002ddisplay_002dbuffer_002daction"><code>org-remark-notes-display-buffer-action</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dnotes_002dfile_002dname"><code>org-remark-notes-file-name</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dnotes_002dfile_002dname"><code>org-remark-notes-file-name</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Store-Marginal-Notes-in-the-Source-File">How to Store Marginal Notes in the Source File</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dnotes_002dfile_002dname-1"><code>org-remark-notes-file-name</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dsource_002dfile_002dname"><code>org-remark-source-file-name</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Use-Relative-or-Absolute-File-Names-for-Links-in-Marginal-Notes-File">How to Use Relative or Absolute File Names for Links in Marginal Notes File</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dsource_002dfile_002dname-1"><code>org-remark-source-file-name</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002duse_002dorg_002did"><code>org-remark-use-org-id</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
