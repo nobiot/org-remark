@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 15 August 2021
-;; Last modified: 05 February 2022
+;; Last modified: 13 February 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal notes
 
@@ -41,8 +41,9 @@
 It can be either a string or function.
 
 If it is a string, it should be a file name to the marginal notes
-file.  The default is \"marginalia.org\".  It will be one marginal
-notes file per directory.  Ensure that it is an Org file.
+file.  The default is \"marginalia.org\".  The default will
+result in one marginal notes file per directory.  Ensure that it
+is an Org file.
 
 If it is a function, the default function is
 `org-remark-notes-file-name-function'.  It returns a file name

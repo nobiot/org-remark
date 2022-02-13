@@ -1,3 +1,9 @@
+Current version
+  - Update user manual and doc strings in source
+
+Version 1.0.1
+  - Update user manual
+
 Version 1.0.0
   - chg: align with GNU convention: path -> file name
 

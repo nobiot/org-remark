@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.0.1
 ;; Created: 22 December 2020
-;; Last modified: 12 February 2022
+;; Last modified: 13 February 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -104,8 +104,8 @@ file will be relative to it."
 
 (defcustom org-remark-use-org-id nil
   "When non-nil, Org-remark adds an Org-ID link to marginal notes.
-The link point at the relevant Org-ID in the source file .
-Org-remark does not create an ID, which needs to be added
+The link points at the relevant Org-ID in the source file.
+Org-remark does not create this ID, which needs to be added
 manually or some other function to either the headline or file."
   :type 'boolean)
 
