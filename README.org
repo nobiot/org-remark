@@ -24,7 +24,7 @@ This feature is designed to work automatically and transparently to you, meaning
 
 Org-remark lets you highlight and annotate any text file with using Org mode.
 
-A user manual is available [[https://nobiot.github.io/org-remark/][online]] (Info node will be available when Org-remark is added to ELPA/MELPA) or Emacs in-system as an Info node `(org-remark)': (~C-h i~ and find the =Org-remark= node).
+A user manual is available [[https://nobiot.github.io/org-remark/][online]] or Emacs in-system as an Info node `(org-remark)': (~C-h i~ and find the =Org-remark= node).
 
 For installation and minimum configuration, refer to [[#installation][Installation]] below or the user manual: [[https://nobiot.github.io/org-remark/#Installation][online]] or Info node `(org-remark) Installation'
 
@@ -92,7 +92,7 @@ Below are example keybindings you might like to consider:
 
 Create issues, discussion, and/or pull requests in the GitHub repository. All welcome.
 
-Org-remark is planned to be submitted to GNU ELPA and thus copyrighted by the [[http://fsf.org][Free Software Foundation]] (FSF). This means that anyone who is making a substantive code contribution will need to "assign the copyright for your contributions to the FSF so that they can be included in GNU Emacs" ([[https://orgmode.org/contribute.html#copyright][Org Mode website]]).
+Org-remark is available on GNU ELPA and thus copyrighted by the [[http://fsf.org][Free Software Foundation]] (FSF). This means that anyone who is making a substantive code contribution will need to "assign the copyright for your contributions to the FSF so that they can be included in GNU Emacs" ([[https://orgmode.org/contribute.html#copyright][Org Mode website]]).
 
 Thank you.
 
