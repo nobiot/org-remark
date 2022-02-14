@@ -4,9 +4,9 @@
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
-;; Version: 1.0.1
+;; Version: 1.0.2
 ;; Created: 22 December 2020
-;; Last modified: 13 February 2022
+;; Last modified: 14 February 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
