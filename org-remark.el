@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.0.2
 ;; Created: 22 December 2020
-;; Last modified: 14 February 2022
+;; Last modified: 26 February 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -957,6 +957,7 @@ Each highlight is a list in the following structure:
              ;; Narrow to only subtree for a single file.  `org-find-property'
              ;; ensures that it is the beginning of a headline
              (org-narrow-to-subtree)
+             (org-show-children)
              ;; It's important that the headline levels are fixed
              ;; H1: File
              ;; H2: Highlighted region (each one has a dedicated H2 subtree)
