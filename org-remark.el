@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.0.2
 ;; Created: 22 December 2020
-;; Last modified: 26 February 2022
+;; Last modified: 27 February 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -1079,10 +1079,13 @@ Returns the standardized filename.
 
 The current buffer is assumed to be visiting the source file.
 
-FILENAME should be an absolute file name of the source file."
+FILENAME should be an absolute file name of the source file.
+
+If FILENAME is nil, return nil."
   ;; Get the default-directory of the notes
-  (with-current-buffer (find-file-noselect (org-remark-notes-get-file-name))
-    (funcall org-remark-source-file-name filename)))
+  (when filename ; fix #23
+    (with-current-buffer (find-file-noselect (org-remark-notes-get-file-name))
+      (funcall org-remark-source-file-name filename))))
 
 (defun org-remark-region-or-word ()
   "Return beg and end of the active region or of the word at point.
