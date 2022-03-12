@@ -1,3 +1,6 @@
+Current
+  - fix: "Wrong type argument: stringp, nil" on highlightintg in scratch
+
 Version 1.0.3
   - fix #23: "Wrong type argument: stringp, nil" on org export
   - fix:#22: highlights not found when marginalia does not show all

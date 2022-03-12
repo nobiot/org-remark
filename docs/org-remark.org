@@ -1,7 +1,7 @@
 #+title: Org-remark User Manual
 #+author: Noboru Ota <me@nobiot.com>
 #+macro: version 1.0.x
-#+macro: modified 13 February 2022
+#+macro: modified 12 March 2022
 #+language: en
 #+export_file_name: org-remark.texi
 #+texinfo_dir_category: Emacs
@@ -229,15 +229,33 @@ When you display the marginal notes with ~org-remark-view~ or ~org-remark-open~ 
 
 Org-remark displays the marginal notes buffer narrowed to the highlight the cursor is on.
 
-*** How to Store Marginal Notes in the Source File
+*** How to Change Where Marginal Notes File is Saved
 
 #+vindex: org-remark-notes-file-name
 
 The location of the marginal notes file is specified by user option ~org-remark-notes-file-name~ and its default is "marginalia.org". This means the marginal notes file will reside in the same directory as the source files as a separate file.
 
-~org-remark-notes-file-name~ can also take a function as a value, so you have a wide range of customizability. In ~customize~, the default function to be used is ~org-remark-notes-file-name-function~. It adds =-notes.org= as a suffix to the source file's name without the extension. For example, for a file named =my-main-file.txt=,  Org-remark will store highlights in  =my-main-file-notes.org=.
+If you use the ~customize~ command to customize ~org-remark-notes-file-name~, you will have an option to choose a =File= or =Function= (customization group ~org-remark~). The default is =File= with the default "marginalial.org" as noted as above.  Use a string to specify the single file name; you can specify a relative path like the default or an absolute path.
 
-In order to use the source file also as the marginal notes file (storing the notes in the source file), you can set the built-in function ~buffer-file-name~ as the value of ~org-remark-notes-file-name~. Note that you will need to ensure that the source files are an Org file.
+If you would like to dynamically change the location based on the file and various different conditions, select the function as an option.  The default function is ~org-remark-notes-file-name-function~. It adds =-notes.org= as a suffix to the source file's name without the extension. For example, for a file named =my-main-file.txt=,  Org-remark will store highlights in  =my-main-file-notes.org=.  You can create your own function and use it.
+
+Some examples and use cases are listed below
+
+- Store Marginal Notes in the Source File ::
+  In order to use the source file also as the marginal notes file (storing the notes in the source file), you can set the built-in function ~buffer-file-name~ as the value of ~org-remark-notes-file-name~. Note that you will need to ensure that the source files are an Org file.
+
+- Create a marginal notes file for each main file and store all of them in a specific location ::
+  Create a custom function that returns an absolute file name per main file, and set ~org-remark-notes-file-name~ to the function name. It might look like this:
+
+  #+begin_src elisp
+    (defun my/function ()
+      (concat "~/path/to/note-files/"
+              (file-name-base (org-remark-notes-file-name-function))
+              ".org"))
+
+    (setq org-remark-notes-file-name
+          #'my/function)
+  #+end_src
 
 *** How to Use Relative or Absolute File Names for Links in Marginal Notes File
 #+cindex: Relative or absolute file names pointing back at source files in marginal notes
