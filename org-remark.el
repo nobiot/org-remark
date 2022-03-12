@@ -4,7 +4,7 @@
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
-;; Version: 1.0.3
+;; Version: 1.0.4
 ;; Created: 22 December 2020
 ;; Last modified: 12 March 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
