@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.0.3
 ;; Created: 22 December 2020
-;; Last modified: 28 February 2022
+;; Last modified: 12 March 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -691,10 +691,13 @@ to the database."
      ;; for mode, nil and :change result in saving the highlight.  :load
      ;; bypasses save.
      (unless (eq mode :load)
-       (org-remark-highlight-save (buffer-file-name)
-                                  beg end
-                                  (overlay-properties ov)
-                                  (org-remark-highlight-get-title)))))
+       (let ((filename (buffer-file-name)))
+         (if filename
+             (org-remark-highlight-save filename
+                                        beg end
+                                        (overlay-properties ov)
+                                        (org-remark-highlight-get-title))
+           (message "org-remark: Highlights not saved; buffer is not visiting a file"))))))
   (deactivate-mark)
   (org-remark-highlights-housekeep)
   (org-remark-highlights-sort))
