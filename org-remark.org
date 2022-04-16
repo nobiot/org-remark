@@ -1,7 +1,7 @@
 #+title: Org-remark User Manual
 #+author: Noboru Ota <me@nobiot.com>
 #+macro: version 1.0.x
-#+macro: modified 12 March 2022
+#+macro: modified 16 April 2022
 #+language: en
 #+export_file_name: org-remark.texi
 #+texinfo_dir_category: Emacs
@@ -194,7 +194,7 @@ Without this global minor mode, you would need to remember to activate ~org-rema
 #+cindex: Marginal notes file
 #+cindex: Org-remark properties for highlights
 
-When you mark a part of text with a highlighter pen function, Org-remark will automatically create a *marginal notes file*. By default, it will be named ~marginalia.org~ and created in the same directory as the file you are editing ([[#customizing][Customizing]]; see ~org-remark-notes-file-name~).
+When you mark a part of text with a highlighter pen function, Org-remark will automatically create a *marginal notes file*. By default, it will be named ~marginalia.org~ and created in the same directory as the file you are editing ([[#change-marginal-notes-filename][How to Change Where Marginal Notes File is Saved]] [[#customizing][;Customizing]], ~org-remark-notes-file-name~).
 
 The important thing to note is that Org-remark uses following properties in the property drawer of the headline to remember the highlights:
 
@@ -205,7 +205,7 @@ The important thing to note is that Org-remark uses following properties in the 
 
 Essentially, the marginal notes file is a database in the plain text with using Org mode. As a plain text database, you can easily edit these properties manually if necessary. You can directly edit the marginal notes file as a normal Org file.
 
-The marginal notes file stores highlights and notes like this below; it is designed to organize highlights anpd notes for multiple files and multiple highlights.
+The marginal notes file stores highlights and notes like this below; it is designed to organize highlights and notes for multiple files and multiple highlights.
 
 #+begin_src org
   ,* File 1
@@ -230,12 +230,15 @@ When you display the marginal notes with ~org-remark-view~ or ~org-remark-open~ 
 Org-remark displays the marginal notes buffer narrowed to the highlight the cursor is on.
 
 *** How to Change Where Marginal Notes File is Saved
+:PROPERTIES:
+:CUSTOM_ID: change-marginal-notes-filename
+:END:
 
 #+vindex: org-remark-notes-file-name
 
 The location of the marginal notes file is specified by user option ~org-remark-notes-file-name~ and its default is "marginalia.org". This means the marginal notes file will reside in the same directory as the source files as a separate file.
 
-If you use the ~customize~ command to customize ~org-remark-notes-file-name~, you will have an option to choose a =File= or =Function= (customization group ~org-remark~). The default is =File= with the default "marginalial.org" as noted as above.  Use a string to specify the single file name; you can specify a relative path like the default or an absolute path.
+If you use the ~customize~ command to customize ~org-remark-notes-file-name~, you will have an option to choose a =File= or =Function= (customization group ~org-remark~). The default is =File= with the default "marginalial.org" as noted above.  Use a string to specify the single file name; you can specify a relative path like the default or an absolute path.
 
 If you would like to dynamically change the location based on the file and various different conditions, select the function as an option.  The default function is ~org-remark-notes-file-name-function~. It adds =-notes.org= as a suffix to the source file's name without the extension. For example, for a file named =my-main-file.txt=,  Org-remark will store highlights in  =my-main-file-notes.org=.  You can create your own function and use it.
 
