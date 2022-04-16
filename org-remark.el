@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.0.4
 ;; Created: 22 December 2020
-;; Last modified: 12 March 2022
+;; Last modified: 16 April 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -503,7 +503,7 @@ buffer, it is recommended to use this command instead of
 highlights and their locations are still kept tracked.  Toggling
 off `org-remark-mode' stops this tracking completely, which will
 likely result in inconsistency between the marginal notes file
-and the current main buffer."
+and the current source buffer."
   (interactive)
   (if org-remark-highlights-hidden
       (org-remark-highlights-show)
@@ -806,12 +806,12 @@ source with using ORGID."
       (cond
        ;; fix GH issue #19
        ;; Temporarily remove `org-remark-save' from the `after-save-hook'
-       ;; When the marginal notes buffer is the main buffer
+       ;; When the marginal notes buffer is the source buffer
        ((eq notes-buf main-buf)
         (remove-hook 'after-save-hook #'org-remark-save t)
         (save-buffer)
         (add-hook 'after-save-hook #'org-remark-save nil t))
-       ;; When marginal notes buffer is separate from the main buffer, save the
+       ;; When marginal notes buffer is separate from the source buffer, save the
        ;; notes buffer
        ((buffer-modified-p)
         (save-buffer)))
