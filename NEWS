@@ -1,9 +1,12 @@
-Current
+Version 1.0.5 - Current
+  - fix #28 toggle causes error on saving highlights
+
+Version 1.0.4
   - fix: "Wrong type argument: stringp, nil" on highlightintg in scratch
 
 Version 1.0.3
   - fix #23: "Wrong type argument: stringp, nil" on org export
-  - fix:#22: highlights not found when marginalia does not show all
+  - fix #22: highlights not found when marginalia does not show all
 
 Version 1.0.2
   - Update README, user manual, and doc strings in source
