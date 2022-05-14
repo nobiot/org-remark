@@ -4,9 +4,9 @@
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
-;; Version: 1.0.4
+;; Version: 1.0.5
 ;; Created: 22 December 2020
-;; Last modified: 16 April 2022
+;; Last modified: 14 May 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -1021,15 +1021,15 @@ It returns t when sorting is done."
 (defun org-remark-highlights-hide ()
   "Hide highlights.
 This function removes the font-lock-face of all the highlights,
-and add org-remark-hidden property with value t. It does not
+and add *org-remark-hidden property with value t. It does not
 check the current hidden state, thus not interactive.  Use
 `org-remark-toggle' command to manually toggle the show/hide
 state."
   (when-let ((highlights org-remark-highlights))
     (dolist (highlight highlights)
-      (overlay-put highlight 'org-remark-face (overlay-get highlight 'face))
+      (overlay-put highlight '*org-remark-face (overlay-get highlight 'face))
       (overlay-put highlight 'face nil)
-      (overlay-put highlight 'org-remark-hidden t))
+      (overlay-put highlight '*org-remark-hidden t))
     (setq org-remark-highlights-hidden t)))
 
 (defun org-remark-highlights-show ()
@@ -1040,8 +1040,8 @@ interactive.  Use `org-remark-toggle' command to manually toggle
 the show/hide state."
   (when-let ((highlights org-remark-highlights))
     (dolist (highlight highlights)
-      (overlay-put highlight 'org-remark-hidden nil)
-      (overlay-put highlight 'face (overlay-get highlight 'org-remark-face)))
+      (overlay-put highlight '*org-remark-hidden nil)
+      (overlay-put highlight 'face (overlay-get highlight '*org-remark-face)))
     (setq org-remark-highlights-hidden nil)))
 
 (defun org-remark-highlights-housekeep ()
