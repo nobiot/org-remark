@@ -334,7 +334,7 @@ recommended to turn it on as part of Emacs initialization.
 
 (add-to-list 'org-remark-available-pens #'org-remark-mark)
 ;;;###autoload
-(defun org-remark-mark (beg end &optional id mode)
+(defun org-remark-mark (beg end &optional id text mode)
   "Apply face `org-remark-highlighter' to the region between BEG and END.
 
 When this function is used interactively, it will generate a new
@@ -362,7 +362,8 @@ marginal notes file.  The expected values are nil, :load and
   ;; This will do for now
   (org-remark-highlight-mark beg end id mode
                              nil nil
-                             (list "org-remark-label" "nil")))
+                             (list "org-remark-label" "nil"
+                                   'help-echo text)))
 
 (when org-remark-create-default-pen-set
   ;; Create default pen set.
@@ -932,10 +933,11 @@ load the highlights"
     (let ((id (car highlight))
           (beg (caadr highlight))
           (end (cdadr highlight))
+          (text (cadddr highlight))
           (label (caddr highlight)))
       (let ((fn (intern (concat "org-remark-mark-" label))))
         (unless (functionp fn) (setq fn #'org-remark-mark))
-        (funcall fn beg end id :load)))))
+        (funcall fn beg end id text :load)))))
 
 (defun org-remark-highlights-get ()
   "Return a list of highlights from the marginal notes file.
@@ -971,12 +973,31 @@ Each highlight is a list in the following structure:
                                                org-remark-prop-source-beg)))
                           (end (string-to-number
                                 (org-entry-get (point)
-                                               org-remark-prop-source-end))))
+                                               org-remark-prop-source-end)))
+                          (text (org-remark-highlights-text-get)))
                  (push (list id
                              (cons beg end)
-                             (org-entry-get (point) "org-remark-label"))
+                             (org-entry-get (point) "org-remark-label")
+                             text)
                        highlights))))
            highlights))))))
+
+(defun org-remark-highlights-text-get ()
+  "Return the text body of a highlight in the notes buffer."
+  (let ((full-text
+         (save-excursion
+           (org-end-of-meta-data :full)
+           (if
+               ;; handle empty annotation
+               ;; (org-end-of-meta-data :full) took us to next org heading):
+               (looking-at org-heading-regexp)
+               "[empty entry]"
+             (buffer-substring-no-properties
+              (point)
+              (org-end-of-subtree))))))
+    (if (< 200 (length full-text))
+        (substring-no-properties full-text 0 200)
+      full-text)))
 
 (defun org-remark-highlights-get-positions (&optional reverse)
   "Return list of the beginning point of all visible highlights in this buffer.
