@@ -1,5 +1,8 @@
+
+
 Version 1.0.5 - Current
   - fix #28 toggle causes error on saving highlights
+  - fix #39 source-file-name incorrect issue
 
 Version 1.0.4
   - fix: "Wrong type argument: stringp, nil" on highlightintg in scratch

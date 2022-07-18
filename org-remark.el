@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.0.5
 ;; Created: 22 December 2020
-;; Last modified: 14 May 2022
+;; Last modified: 18 July 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -942,6 +942,10 @@ load the highlights"
 The file name is returned by `org-remark-notes-get-file-name'.
 Each highlight is a list in the following structure:
     (ID (BEG . END) LABEL)"
+  ;; Set source-file-name first, as `find-file-noselect' will set the
+  ;; current-buffer to source-file-name. Issue #39 FIXME: A way to make
+  ;; this sequence agnostic is preferred, if there is a function that
+  ;; visit file but not set the current buffer
   (when-let ((source-file-name (org-remark-source-get-file-name (buffer-file-name)))
              (notes-buf (find-file-noselect (org-remark-notes-get-file-name))))
     ;; TODO check if there is any relevant notes for the current file
