@@ -942,8 +942,8 @@ load the highlights"
 The file name is returned by `org-remark-notes-get-file-name'.
 Each highlight is a list in the following structure:
     (ID (BEG . END) LABEL)"
-  (when-let ((notes-buf (find-file-noselect (org-remark-notes-get-file-name)))
-             (source-file-name (org-remark-source-get-file-name (buffer-file-name))))
+  (when-let ((source-file-name (org-remark-source-get-file-name (buffer-file-name)))
+             (notes-buf (find-file-noselect (org-remark-notes-get-file-name))))
     ;; TODO check if there is any relevant notes for the current file
     ;; This can be used for adding icon to the highlight
     (let ((highlights))
