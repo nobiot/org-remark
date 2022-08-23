@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.0.5
 ;; Created: 22 December 2020
-;; Last modified: 18 July 2022
+;; Last modified: 23 August 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
 
@@ -109,6 +109,10 @@ Org-remark does not create this ID, which needs to be added
 manually or some other function to either the headline or file."
   :type 'boolean)
 
+(defcustom  org-remark-open-hook nil
+  "Hook run when a note buffer is opened/visited.
+The current buffer is the note buffer."
+  :type 'hook)
 
 
 ;;;; Variables
@@ -429,6 +433,8 @@ notes file by tracking it."
       ;; previous highlight.  Otherwise, the cursor is too low to show the
       ;; entire entry.  It looks like there is no entry.
       (goto-char p)(org-narrow-to-subtree)(org-end-of-meta-data t)(recenter))
+    ;; Run hook with the current-buffer being the note's buffer
+    (run-hooks 'org-remark-open-hook)
     ;; Avoid error when buffer-action is set to display a new frame
     (when-let ((view-only view-only)
                (window (get-buffer-window cbuf)))
