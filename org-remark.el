@@ -388,10 +388,19 @@ in the current buffer.  Each highlight is an overlay."
   (org-remark-highlights-sort)
   (let ((filename (buffer-file-name)))
     (dolist (h org-remark-highlights)
-      (let ((beg (overlay-start h))
-            (end (overlay-end h))
-            (props (overlay-properties h)))
+      (let* ((beg (overlay-start h))
+             (end (overlay-end h))
+             (props (overlay-properties h)))
+        (org-remark-highlight-update beg end)
         (org-remark-highlight-save filename beg end props)))))
+
+(defun org-remark-highlight-update (beg end)
+  "Update help echo text of overlay at BEG, END with TEXT."
+  (let* ((ov (car (overlays-at beg)))
+         (id (overlay-get ov 'org-remark-id))
+         (note (assoc id (org-remark-highlights-get)))
+         (text (car (last note))))
+    (overlay-put ov 'help-echo text)))
 
 (defun org-remark-open (point &optional view-only)
   "Open marginal notes file for highlight at POINT.
