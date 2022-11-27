@@ -377,6 +377,15 @@ marginal notes file.  The expected values are nil, :load and
                      '(:underline "gold" :background "lemon chiffon")
                      '(CATEGORY "important")))
 
+(defun org-remark-source-find-file-name ()
+  "Assumes that we are currently in the source buffer.
+Returns the filename for the soure buffer. We use this filename
+to identify the source buffer in all operations related to
+marginalia."
+  (if (eq major-mode 'eww-mode)
+      (let ((url-parsed (url-generic-parse-url (eww-current-url))))
+          (concat (url-host url-parsed) (url-filename url-parsed)))
+    (buffer-file-name)))
 
 (defun org-remark-save ()
   "Save all the highlights tracked in current buffer to notes file.
@@ -389,7 +398,7 @@ in the current buffer.  Each highlight is an overlay."
   (interactive)
   (org-remark-highlights-housekeep)
   (org-remark-highlights-sort)
-  (let ((filename (buffer-file-name)))
+  (let ((filename (org-remark-source-find-file-name)))
     (dolist (h org-remark-highlights)
       (let ((beg (overlay-start h))
             (end (overlay-end h))
@@ -697,7 +706,7 @@ to the database."
      ;; for mode, nil and :change result in saving the highlight.  :load
      ;; bypasses save.
      (unless (eq mode :load)
-       (let ((filename (buffer-file-name)))
+       (let ((filename (org-remark-source-find-file-name)))
          (if filename
              (org-remark-highlight-save filename
                                         beg end
@@ -712,8 +721,17 @@ to the database."
   "Return the title of the current buffer.
 Utility function to work with a single highlight overlay."
   (or (cadr (assoc "TITLE" (org-collect-keywords '("TITLE"))))
-                    (file-name-sans-extension
-                     (file-name-nondirectory (buffer-file-name)))))
+      (let* ((full-name (org-remark-source-find-file-name))
+             (filename (if (and (string= "" (file-name-nondirectory full-name))
+                                (string-match "[\/]+\\'" full-name))
+                           ;; The name ends with a / (possibly a URL).
+                           ;; Trim all the slashes at the end of the
+                           ;; name.
+                           (replace-match "" t t full-name)
+                         full-name)))
+        (if (or (null filename) (string= "" filename))
+            (error "Could not extract highlight title")
+            (file-name-sans-extension (file-name-nondirectory filename))))))
 
 (defun org-remark-highlight-get-org-id (point)
   "Return Org-ID closest to POINT.
@@ -952,7 +970,8 @@ Each highlight is a list in the following structure:
   ;; current-buffer to source-file-name. Issue #39 FIXME: A way to make
   ;; this sequence agnostic is preferred, if there is a function that
   ;; visit file but not set the current buffer
-  (when-let ((source-file-name (org-remark-source-get-file-name (buffer-file-name)))
+  (when-let ((source-file-name (org-remark-source-get-file-name
+                                (org-remark-source-find-file-name)))
              (notes-buf (find-file-noselect (org-remark-notes-get-file-name))))
     ;; TODO check if there is any relevant notes for the current file
     ;; This can be used for adding icon to the highlight
@@ -1073,12 +1092,19 @@ Case 2. The overlay points to no buffer
         This case happens when overlay is deleted by
         `overlay-delete' but the variable not cleared."
   (dolist (ov org-remark-highlights)
-    ;; Both start and end of an overlay are identical; this should not happen
-    ;; when you manually mark a text region. A typical cause of this case is
-    ;; when you delete a region that contains a highlight overlay.
+    ;; Both start and end of an overlay are identical; this should not
+    ;; happen when you manually mark a text region. A typical cause of
+    ;; this case is when you delete a region that contains a highlight
+    ;; overlay. This also happens when EWW reloads the buffer or
+    ;; re-renders any part of the buffer. This is because it removes
+    ;; overlays on re-render by calling `remove-overlays', which edits
+    ;; the overlay-start and overlay-end properties. To guard against
+    ;; this, we check if the buffer is write-able and only remove the
+    ;; annotation when it is.
     (when (and (overlay-buffer ov)
                (= (overlay-start ov) (overlay-end ov)))
-      (org-remark-notes-remove (overlay-get ov 'org-remark-id))
+      (when (not buffer-read-only)
+        (org-remark-notes-remove (overlay-get ov 'org-remark-id)))
       (delete-overlay ov))
     (unless (overlay-buffer ov)
       (setq org-remark-highlights (delete ov org-remark-highlights))))

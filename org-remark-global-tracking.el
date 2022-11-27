@@ -30,6 +30,7 @@
 ;;; Code:
 
 (declare-function org-remark-mode "org-remark")
+(declare-function org-remark-source-find-file-name "org-remark")
 
 (defvaralias 'org-remark-notes-file-path 'org-remark-notes-file-name)
 
@@ -69,7 +70,8 @@ readable, the function automatically activates `org-remark'."
   (cond
    (org-remark-global-tracking-mode
     ;; Activate
-    (add-hook 'find-file-hook #'org-remark-auto-on))
+    (progn (add-hook 'find-file-hook #'org-remark-auto-on)
+           (add-hook 'eww-after-render-hook #'org-remark-auto-on)))
    (t
     ;; Deactivate
     (remove-hook 'find-file-hook #'org-remark-auto-on))))
@@ -83,7 +85,9 @@ This is the default function for the customizing variable
 When the current buffer is visiting a file, the name of marginal
 notes file will be \"FILE-notes.org\", adding \"-notes.org\" as a
 suffix to the file name without the extension."
-  (concat (file-name-sans-extension (buffer-file-name)) "-notes.org"))
+  (concat (file-name-sans-extension
+           (file-name-nondirectory (org-remark-source-find-file-name)))
+          "-notes.org"))
 
 (defalias
   'org-remark-notes-file-path-function 'org-remark-notes-file-name-function)
