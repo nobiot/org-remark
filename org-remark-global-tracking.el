@@ -5,9 +5,9 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 15 August 2021
-;; Last modified: 13 February 2022
+;; Last modified: 14 December 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
-;; Keywords: org-mode, annotation, writing, note-taking, marginal notes
+;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
 ;; This file is not part of GNU Emacs.
 
@@ -30,7 +30,6 @@
 ;;; Code:
 
 (declare-function org-remark-mode "org-remark")
-(declare-function org-remark-source-find-file-name "org-remark")
 
 (defvaralias 'org-remark-notes-file-path 'org-remark-notes-file-name)
 
@@ -112,6 +111,16 @@ This function is meant to be added to `find-file-hook' by
       (funcall org-remark-notes-file-name)
     ;; If not function, assume string and return it as the file path.
     org-remark-notes-file-name))
+
+(defun org-remark-source-find-file-name ()
+  "Assumes that we are currently in the source buffer.
+Returns the filename for the soure buffer.  We use this filename
+to identify the source buffer in all operations related to
+marginalia."
+  (if (eq major-mode 'eww-mode)
+      (let ((url-parsed (url-generic-parse-url (eww-current-url))))
+        (concat (url-host url-parsed) (url-filename url-parsed)))
+    (buffer-file-name)))
 
 (provide 'org-remark-global-tracking)
 

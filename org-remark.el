@@ -6,9 +6,9 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.0.5
 ;; Created: 22 December 2020
-;; Last modified: 23 August 2022
+;; Last modified: 14 December 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
-;; Keywords: org-mode, annotation, writing, note-taking, marginal-notes
+;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
 ;; This file is not part of GNU Emacs.
 
@@ -376,16 +376,6 @@ marginal notes file.  The expected values are nil, :load and
   (org-remark-create "yellow"
                      '(:underline "gold" :background "lemon chiffon")
                      '(CATEGORY "important")))
-
-(defun org-remark-source-find-file-name ()
-  "Assumes that we are currently in the source buffer.
-Returns the filename for the soure buffer. We use this filename
-to identify the source buffer in all operations related to
-marginalia."
-  (if (eq major-mode 'eww-mode)
-      (let ((url-parsed (url-generic-parse-url (eww-current-url))))
-          (concat (url-host url-parsed) (url-filename url-parsed)))
-    (buffer-file-name)))
 
 (defun org-remark-save ()
   "Save all the highlights tracked in current buffer to notes file.
