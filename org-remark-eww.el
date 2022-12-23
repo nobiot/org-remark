@@ -37,18 +37,27 @@
 (require 'eww)
 ;; Silence compiler
 (defvar org-remark-global-tracking-mode)
+(declare-function org-remark-auto-on "org-remark-global-tracking")
 
-(defun org-remark-eww-global-tracking-mode ()
+(defun org-remark-eww-enable ()
   (if org-remark-global-tracking-mode
       (add-hook 'eww-after-render-hook #'org-remark-auto-on)
     (remove-hook 'eww-after-render-hook #'org-remark-auto-on))
-  (add-to-list 'org-remark-source-find-file-name-functions
-               #'org-remark-eww-find-file-name))
+  ;; TODO allow for disable with org-remark-mode-hook (local)
+  (add-hook 'org-remark-source-find-file-name-functions
+            #'org-remark-eww-find-file-name)
+  (add-hook 'org-remark-highlight-link-to-source-functions
+            #'org-remark-eww-highlight-link-to-source))
 
 (defun org-remark-eww-find-file-name ()
-  (if (eq major-mode 'eww-mode)
-      (let ((url-parsed (url-generic-parse-url (eww-current-url))))
-        (concat (url-host url-parsed) (url-filename url-parsed)))))
+  (when (eq major-mode 'eww-mode)
+    (let ((url-parsed (url-generic-parse-url (eww-current-url))))
+      (concat (url-host url-parsed) (url-filename url-parsed)))))
+
+(defun org-remark-eww-highlight-link-to-source (filename)
+  (when (eq major-mode 'eww-mode)
+    ;;; FIXME we shhould not assume https?
+    (concat "[[https://" filename "]]")))
 
 (provide 'org-remark-eww)
 ;;; org-remark-eww.el ends here

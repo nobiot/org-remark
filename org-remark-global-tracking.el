@@ -93,8 +93,13 @@ appropriate function to this hook.
 Assume that the current buffer is the source buffer when the function is
 called, which can be used to find the file name."
   :group 'org-remark
-  :type
-  '(repeat function))
+  :type '(repeat function))
+
+(defcustom org-remark-highlight-link-to-source-functions nil
+  "Abnormal hook called to create a link to source in notes file.
+Each one is called with FILENAME as an argument."
+  :group 'org-remark
+  :type '(repeat function))
 
 (defun org-remark-modules-set (symbol value)
   "Enable the modules set in user option `org-remark-modules'.
@@ -104,7 +109,7 @@ Set SYMBOL and VALUE for `org-remark-modules'."
     (let ((feat (intern (concat "org-remark-" (symbol-name module))))
           (fn (intern (concat "org-remark-"
                      (symbol-name module)
-                     "-global-tracking-mode"))))
+                     "-enable"))))
       (require feat)
       (when (functionp fn)
         ;; As minor mode would have been already activated, run the

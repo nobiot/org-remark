@@ -777,10 +777,8 @@ source with using ORGID."
          (link (if buffer-file-name
                    (concat "[[file:" filename
                            (when line-num (format "::%d" line-num)) "]]")
-                 ;;FIXME we really should not assume EWW
-                 (when (eq major-mode 'eww-mode)
-                   ;;; FIXME we shhould not assume https?
-                   (concat "[[https://" filename "]]")))))
+                 (run-hook-with-args-until-success
+                  'org-remark-highlight-link-to-source-functions filename))))
     (with-current-buffer notes-buf
       (when (featurep 'org-remark-convert-legacy) (org-remark-convert-legacy-data))
       ;;`org-with-wide-buffer is a macro that should work for non-Org file'
