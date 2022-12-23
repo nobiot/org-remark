@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.0.5
 ;; Created: 22 December 2020
-;; Last modified: 14 December 2022
+;; Last modified: 23 December 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -773,7 +773,14 @@ source with using ORGID."
          (notes-buf (find-file-noselect (org-remark-notes-get-file-name)))
          (main-buf (current-buffer))
          (line-num (org-current-line beg))
-         (orgid (org-remark-highlight-get-org-id beg)))
+         (orgid (org-remark-highlight-get-org-id beg))
+         (link (if buffer-file-name
+                   (concat "[[file:" filename
+                           (when line-num (format "::%d" line-num)) "]]")
+                 ;;FIXME we really should not assume EWW
+                 (when (eq major-mode 'eww-mode)
+                   ;;; FIXME we shhould not assume https?
+                   (concat "[[https://" filename "]]")))))
     (with-current-buffer notes-buf
       (when (featurep 'org-remark-convert-legacy) (org-remark-convert-legacy-data))
       ;;`org-with-wide-buffer is a macro that should work for non-Org file'
@@ -790,11 +797,7 @@ source with using ORGID."
                                   (org-up-heading-safe) (point))))
              (id-headline (org-find-property org-remark-prop-id id)))
          ;; Add org-remark-link with updated line-num as a property
-         (plist-put props "org-remark-link" (concat
-                                             "[[file:"
-                                             filename
-                                             (when line-num (format "::%d" line-num))
-                                             "]]"))
+         (when link (plist-put props "org-remark-link" link))
          (if id-headline
              (progn
                (goto-char id-headline)
