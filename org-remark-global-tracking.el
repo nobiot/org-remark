@@ -66,15 +66,60 @@ readable, the function automatically activates `org-remark'."
   :lighter " ormk-auto"
   :global t
   :group 'org-remark
-  (cond
-   (org-remark-global-tracking-mode
-    ;; Activate
-    (progn (add-hook 'find-file-hook #'org-remark-auto-on)
-           (add-hook 'eww-after-render-hook #'org-remark-auto-on)))
-   (t
-    ;; Deactivate
-    (remove-hook 'find-file-hook #'org-remark-auto-on))))
+  (if org-remark-global-tracking-mode
+    ;; Enable
+      (add-hook 'find-file-hook #'org-remark-auto-on)
+    ;; Disable
+    (remove-hook 'find-file-hook #'org-remark-auto-on)))
 
+;;; Modules
+;;  This needs to be defined after the minor mode as the hook needs to
+;;  have been defined.
+
+;;  Note the sequence of symbol definition in the modules section is
+;;  significant.  The hook needs to be defined before the module set
+;;  function.
+(defcustom org-remark-source-find-file-name-functions '(buffer-name)
+  "Abnormal hook called to find the source file name.
+Each one is called with argument until a non-nil value is
+returned.
+
+Org-remark runs this hook when the buffer in question does not
+visit a file; this is why the `buffer-file-name' cannot be used
+and a special function is required for each context.  Each
+module (`org-remark-modules') is supposed to provide and set an
+appropriate function to this hook.
+
+Assume that the current buffer is the source buffer when the function is
+called, which can be used to find the file name."
+  :group 'org-remark
+  :type
+  '(repeat function))
+
+(defun org-remark-modules-set (symbol value)
+  "Enable the modules set in user option `org-remark-modules'.
+Set SYMBOL and VALUE for `org-remark-modules'."
+  (set symbol value)
+  (dolist (module value)
+    (let ((feat (intern (concat "org-remark-" (symbol-name module))))
+          (fn (intern (concat "org-remark-"
+                     (symbol-name module)
+                     "-global-tracking-mode"))))
+      (require feat)
+      (when (functionp fn)
+        ;; As minor mode would have been already activated, run the
+        ;; function once and then set the hook
+        (funcall fn)
+        (add-hook 'org-remark-global-tracking-mode-hook fn)))))
+
+(defcustom org-remark-modules (list 'eww)
+  "List of modules enabled for Org-remark."
+  :group 'org-remark
+  :set #'org-remark-modules-set
+  :type
+  '(set (const :tag "Org-remark in EWW" eww)))
+
+;;; Functions
 (defun org-remark-notes-file-name-function ()
   "Return a marginal notes file name for the current buffer.
 
@@ -94,10 +139,12 @@ suffix to the file name without the extension."
     (expand-file-name "marginalia.org" user-emacs-directory)))
 
 (defalias
-  'org-remark-notes-file-path-function 'org-remark-notes-file-name-function)
+  'org-remark-notes-file-path-function
+  'org-remark-notes-file-name-function)
 
 (make-obsolete
- 'org-remark-notes-file-path-function 'org-remark-notes-file-name-function "0.2.0" )
+ 'org-remark-notes-file-path-function
+ 'org-remark-notes-file-name-function "0.2.0" )
 
 ;;;; Private Functions
 
@@ -125,16 +172,9 @@ This function is meant to be added to `find-file-hook' by
 Returns the filename for the source buffer.  We use this filename
 to identify the source buffer in all operations related to
 marginal notes."
-  (let ((filename buffer-file-name))
-    (unless filename
-      (if (eq major-mode 'eww-mode)
-          (let ((url-parsed (url-generic-parse-url (eww-current-url))))
-            (setq filename
-                  (concat (url-host url-parsed) (url-filename url-parsed))))
-        ;; TODO Abstract this and move the EWW specific one
-        ;; If not, return the buffer's name as is
-        ;; EWW, Info, etc. may need their respective handler.
-        (setq filename (buffer-name))))
+  (let ((filename (or buffer-file-name
+                      (run-hook-with-args-until-success
+                       'org-remark-source-find-file-name-functions))))
     filename))
 
 (provide 'org-remark-global-tracking)

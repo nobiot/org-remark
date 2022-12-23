@@ -1080,6 +1080,11 @@ Case 1. Both start and end of an overlay are identical
         region.  A typical cause of this case is when you delete a
         region that contains a highlight overlay.
 
+        This also happens when EWW reloads the buffer or
+        re-renders any part of the buffer.  This is because it
+        removes overlays on re-render by calling
+        `remove-overlays'.
+
 Case 2. The overlay points to no buffer
 
         This case happens when overlay is deleted by
