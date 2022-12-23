@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 15 August 2021
-;; Last modified: 14 December 2022
+;; Last modified: 23 December 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -84,9 +84,13 @@ This is the default function for the customizing variable
 When the current buffer is visiting a file, the name of marginal
 notes file will be \"FILE-notes.org\", adding \"-notes.org\" as a
 suffix to the file name without the extension."
-  (concat (file-name-sans-extension
-           (file-name-nondirectory (org-remark-source-find-file-name)))
-          "-notes.org"))
+  (if buffer-file-name
+      (concat (file-name-sans-extension
+               (file-name-nondirectory (org-remark-source-find-file-name)))
+              "-notes.org")
+    ;; If buffer is not visiting a file, a default file name.
+    ;; TODO this should be configurable
+    (expand-file-name "marginalia.org" user-emacs-directory)))
 
 (defalias
   'org-remark-notes-file-path-function 'org-remark-notes-file-name-function)
@@ -109,18 +113,28 @@ This function is meant to be added to `find-file-hook' by
   "Return the name of marginal notes file for current buffer."
   (if (functionp org-remark-notes-file-name)
       (funcall org-remark-notes-file-name)
-    ;; If not function, assume string and return it as the file path.
-    org-remark-notes-file-name))
+    ;; If not function, assume string and return it as the file name.
+    ;; TODO when buffer is not visitng a file, assume file resides in
+    ;; `user-emacs-directory'
+    (if buffer-file-name org-remark-notes-file-name
+      (expand-file-name org-remark-notes-file-name user-emacs-directory))))
 
 (defun org-remark-source-find-file-name ()
   "Assumes that we are currently in the source buffer.
-Returns the filename for the soure buffer.  We use this filename
+Returns the filename for the source buffer.  We use this filename
 to identify the source buffer in all operations related to
-marginalia."
-  (if (eq major-mode 'eww-mode)
-      (let ((url-parsed (url-generic-parse-url (eww-current-url))))
-        (concat (url-host url-parsed) (url-filename url-parsed)))
-    (buffer-file-name)))
+marginal notes."
+  (let ((filename buffer-file-name))
+    (unless filename
+      (if (eq major-mode 'eww-mode)
+          (let ((url-parsed (url-generic-parse-url (eww-current-url))))
+            (setq filename
+                  (concat (url-host url-parsed) (url-filename url-parsed))))
+        ;; TODO Abstract this and move the EWW specific one
+        ;; If not, return the buffer's name as is
+        ;; EWW, Info, etc. may need their respective handler.
+        (setq filename (buffer-name))))
+    filename))
 
 (provide 'org-remark-global-tracking)
 
