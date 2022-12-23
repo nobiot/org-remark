@@ -88,8 +88,9 @@ suffix to the file name without the extension."
       (concat (file-name-sans-extension
                (file-name-nondirectory (org-remark-source-find-file-name)))
               "-notes.org")
-    ;; If buffer is not visiting a file, a default file name.
-    ;; TODO this should be configurable
+    ;; If buffer is not visiting a file, a default file name.  If this
+    ;; file name is not suitable, either override the function or set
+    ;; the user option to a custom function.
     (expand-file-name "marginalia.org" user-emacs-directory)))
 
 (defalias
