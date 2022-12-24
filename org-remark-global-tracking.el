@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 15 August 2021
-;; Last modified: 23 December 2022
+;; Last modified: 24 December 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -55,6 +55,12 @@ suffix to the file name without the extension."
           (file "marginalia.org")
           (function org-remark-notes-file-name-function)))
 
+(defcustom org-remark-highlight-link-to-source-functions nil
+  "Abnormal hook called to create a link to source in notes file.
+Each one is called with FILENAME as an argument."
+  :group 'org-remark
+  :type '(repeat function))
+
 ;;;###autoload
 (define-minor-mode org-remark-global-tracking-mode
   "Automatically activates local minor mode `org-remark-mode'.
@@ -71,58 +77,6 @@ readable, the function automatically activates `org-remark'."
       (add-hook 'find-file-hook #'org-remark-auto-on)
     ;; Disable
     (remove-hook 'find-file-hook #'org-remark-auto-on)))
-
-;;; Modules
-;;  This needs to be defined after the minor mode as the hook needs to
-;;  have been defined.
-
-;;  Note the sequence of symbol definition in the modules section is
-;;  significant.  The hook needs to be defined before the module set
-;;  function.
-(defcustom org-remark-source-find-file-name-functions '(buffer-name)
-  "Abnormal hook called to find the source file name.
-Each one is called with argument until a non-nil value is
-returned.
-
-Org-remark runs this hook when the buffer in question does not
-visit a file; this is why the `buffer-file-name' cannot be used
-and a special function is required for each context.  Each
-module (`org-remark-modules') is supposed to provide and set an
-appropriate function to this hook.
-
-Assume that the current buffer is the source buffer when the function is
-called, which can be used to find the file name."
-  :group 'org-remark
-  :type '(repeat function))
-
-(defcustom org-remark-highlight-link-to-source-functions nil
-  "Abnormal hook called to create a link to source in notes file.
-Each one is called with FILENAME as an argument."
-  :group 'org-remark
-  :type '(repeat function))
-
-(defun org-remark-modules-set (symbol value)
-  "Enable the modules set in user option `org-remark-modules'.
-Set SYMBOL and VALUE for `org-remark-modules'."
-  (set symbol value)
-  (dolist (module value)
-    (let ((feat (intern (concat "org-remark-" (symbol-name module))))
-          (fn (intern (concat "org-remark-"
-                     (symbol-name module)
-                     "-enable"))))
-      (require feat)
-      (when (functionp fn)
-        ;; As minor mode would have been already activated, run the
-        ;; function once and then set the hook
-        (funcall fn)
-        (add-hook 'org-remark-global-tracking-mode-hook fn)))))
-
-(defcustom org-remark-modules (list 'eww)
-  "List of modules enabled for Org-remark."
-  :group 'org-remark
-  :set #'org-remark-modules-set
-  :type
-  '(set (const :tag "Org-remark in EWW" eww)))
 
 ;;; Functions
 (defun org-remark-notes-file-name-function ()

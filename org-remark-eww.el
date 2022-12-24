@@ -6,7 +6,7 @@
 ;;         Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 23 December 2022
-;; Last modified: 23 December 2022
+;; Last modified: 24 December 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -35,26 +35,42 @@
 ;;; Code:
 
 (require 'eww)
-;; Silence compiler
-(defvar org-remark-global-tracking-mode)
 (declare-function org-remark-auto-on "org-remark-global-tracking")
 
-(defun org-remark-eww-enable ()
-  (if org-remark-global-tracking-mode
-      (add-hook 'eww-after-render-hook #'org-remark-auto-on)
-    (remove-hook 'eww-after-render-hook #'org-remark-auto-on))
-  ;; TODO allow for disable with org-remark-mode-hook (local)
-  (add-hook 'org-remark-source-find-file-name-functions
-            #'org-remark-eww-find-file-name)
-  (add-hook 'org-remark-highlight-link-to-source-functions
-            #'org-remark-eww-highlight-link-to-source))
+;;;###autoload
+(define-minor-mode org-remark-eww-mode
+  "Enable Org-remark to work with EWW."
+  :global t
+  :group 'org-remark
+  (if org-remark-eww-mode
+      ;; Enable
+      (progn
+        (add-hook 'eww-after-render-hook #'org-remark-auto-on)
+        (add-hook 'org-remark-source-find-file-name-functions
+                  #'org-remark-eww-find-file-name)
+        (add-hook 'org-remark-highlight-link-to-source-functions
+                  #'org-remark-eww-highlight-link-to-source))
+      ;; Disable
+      (remove-hook 'eww-after-render-hook #'org-remark-auto-on)
+      (remove-hook 'org-remark-source-find-file-name-functions
+                   #'org-remark-eww-find-file-name)
+      (remove-hook 'org-remark-highlight-link-to-source-functions
+                   #'org-remark-eww-highlight-link-to-source)))
 
 (defun org-remark-eww-find-file-name ()
+  "Return URL without the protocol as the file name for the website.
+It assumes the buffer is the source website to be annotated.
+This function is meant to be set to hook
+`org-remark-source-find-file-name-functions'."
   (when (eq major-mode 'eww-mode)
     (let ((url-parsed (url-generic-parse-url (eww-current-url))))
       (concat (url-host url-parsed) (url-filename url-parsed)))))
 
 (defun org-remark-eww-highlight-link-to-source (filename)
+  "Return URL pointinting to the source website (FILENAME).
+It assumes https:
+This function is meant to be set to hook
+`org-remark-highlight-link-to-source-functions'."
   (when (eq major-mode 'eww-mode)
     ;;; FIXME we shhould not assume https?
     (concat "[[https://" filename "]]")))
