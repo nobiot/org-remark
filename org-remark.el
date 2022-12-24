@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.0.5
 ;; Created: 22 December 2020
-;; Last modified: 23 December 2022
+;; Last modified: 24 December 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -167,7 +167,7 @@ property names with \"org-remark-\" or use \"CATEGORY\"."
     `(progn
        ;; Define custom pen function
        (defun ,(intern (format "org-remark-mark-%s" label))
-           (beg end &optional id mode)
+           (beg end &optional id mode text)
          ,(format "Apply the following face to the region selected by BEG and END.
 
 %s
@@ -184,10 +184,16 @@ location in the current buffer.
 
 When this function is called from Elisp, ID can be optionally
 passed, indicating to Org-remark that it is an existing
-highlight.  In this case, no new ID gets generated."
+highlight.  In this case, no new ID gets generated.
+
+When the pen itself defines the help-echo property, it will have
+the priority over the excerpt of the marginal notes."
                   (or face "`org-remark-highlighter'") properties)
          (interactive (org-remark-region-or-word))
-         (org-remark-highlight-mark beg end id mode ,label ,face ,properties))
+         (let ((properties ,properties))
+           (unless (member 'help-echo properties)
+             (setq properties (append properties (list 'help-echo text))))
+           (org-remark-highlight-mark beg end id mode ,label ,face properties)))
 
        ;; Register to `org-remark-available-pens'
        (add-to-list 'org-remark-available-pens
@@ -338,7 +344,7 @@ recommended to turn it on as part of Emacs initialization.
 
 (add-to-list 'org-remark-available-pens #'org-remark-mark)
 ;;;###autoload
-(defun org-remark-mark (beg end &optional id text mode)
+(defun org-remark-mark (beg end &optional id mode text)
   "Apply face `org-remark-highlighter' to the region between BEG and END.
 
 When this function is used interactively, it will generate a new
@@ -394,16 +400,16 @@ in the current buffer.  Each highlight is an overlay."
       (let* ((beg (overlay-start h))
              (end (overlay-end h))
              (props (overlay-properties h)))
-        (org-remark-highlight-update beg end)
+;;        (org-remark-highlight-update beg end)
         (org-remark-highlight-save filename beg end props)))))
 
-(defun org-remark-highlight-update (beg end)
-  "Update help echo text of overlay at BEG, END with TEXT."
-  (let* ((ov (car (overlays-at beg)))
-         (id (overlay-get ov 'org-remark-id))
-         (note (assoc id (org-remark-highlights-get)))
-         (text (car (last note))))
-    (overlay-put ov 'help-echo text)))
+;; (defun org-remark-highlight-update (beg end)
+;;   "Update help echo text of overlay at BEG, END with TEXT."
+;;   (let* ((ov (car (overlays-at beg)))
+;;          (id (overlay-get ov 'org-remark-id))
+;;          (note (assoc id (org-remark-highlights-get)))
+;;          (text (car (last note))))
+;;     (overlay-put ov 'help-echo text)))
 
 (defun org-remark-open (point &optional view-only)
   "Open marginal notes file for highlight at POINT.
@@ -534,11 +540,12 @@ from."
               (id (overlay-get ov 'org-remark-id))
               (beg (overlay-start ov))
               (end (overlay-end ov)))
-    (let ((new-pen (if pen pen
+    (let* ((text (overlay-get ov 'help-echo))
+           (new-pen (if pen pen
                      (intern
                       (completing-read "Which pen?:" org-remark-available-pens)))))
       (delete-overlay ov)
-      (funcall new-pen beg end id :change))))
+      (funcall new-pen beg end id :change text))))
 
 (defun org-remark-remove (point &optional delete)
   "Remove the highlight at POINT.
@@ -957,11 +964,11 @@ load the highlights"
     (let ((id (car highlight))
           (beg (caadr highlight))
           (end (cdadr highlight))
-          (text (cadddr highlight))
-          (label (caddr highlight)))
+          (label (caddr highlight))
+          (text (cadddr highlight)))
       (let ((fn (intern (concat "org-remark-mark-" label))))
         (unless (functionp fn) (setq fn #'org-remark-mark))
-        (funcall fn beg end id text :load)))))
+        (funcall fn beg end id :load text)))))
 
 (defun org-remark-highlights-get ()
   "Return a list of highlights from the marginal notes file.
