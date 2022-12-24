@@ -749,7 +749,8 @@ non-nil.  Returns nil otherwise, or when no Org-ID is found."
            (if
                ;; handle empty annotation
                ;; (org-end-of-meta-data :full) took us to next org heading):
-               (looking-at org-heading-regexp)
+               (or (looking-at org-heading-regexp)
+                   (eobp)) ;; end of buffer
                "[empty entry]"
              (buffer-substring-no-properties
               (point)
