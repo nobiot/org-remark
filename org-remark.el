@@ -381,11 +381,11 @@ TEXT is an excerpt of the body text of the marginal note (for
 (when org-remark-create-default-pen-set
   ;; Create default pen set.
   (org-remark-create "red-line"
-                     '(:underline (:color "dark red" :style wave))
-                     '(CATEGORY "review" help-echo "Review this"))
+                     `(:underline (:color "dark red" :style wave))
+                     `(CATEGORY "review" help-echo "Review this"))
   (org-remark-create "yellow"
-                     '(:underline "gold" :background "lemon chiffon")
-                     '(CATEGORY "important")))
+                     `(:underline "gold" :background "lemon chiffon")
+                     `(CATEGORY "important")))
 
 (defun org-remark-save ()
   "Save all the highlights tracked in current buffer to notes file.
