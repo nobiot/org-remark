@@ -365,7 +365,10 @@ back to the database.
 MODE is also an argument which can be passed from Elisp.  It
 determines whether or not highlight is to be saved in the
 marginal notes file.  The expected values are nil, :load and
-:change."
+:change.
+
+TEXT is an excerpt of the body text of the marginal note (for
+:load and :change modes only)."
   (interactive (org-remark-region-or-word))
   ;; FIXME
   ;; Adding "nil" is different to removing a prop
@@ -378,11 +381,11 @@ marginal notes file.  The expected values are nil, :load and
 (when org-remark-create-default-pen-set
   ;; Create default pen set.
   (org-remark-create "red-line"
-                     `(:underline (:color "dark red" :style wave))
-                     `(CATEGORY "review" help-echo "Review this"))
+                     '(:underline (:color "dark red" :style wave))
+                     '(CATEGORY "review" help-echo "Review this"))
   (org-remark-create "yellow"
-                     `(:underline "gold" :background "lemon chiffon")
-                     `(CATEGORY "important")))
+                     '(:underline "gold" :background "lemon chiffon")
+                     '(CATEGORY "important")))
 
 (defun org-remark-save ()
   "Save all the highlights tracked in current buffer to notes file.
@@ -400,16 +403,7 @@ in the current buffer.  Each highlight is an overlay."
       (let* ((beg (overlay-start h))
              (end (overlay-end h))
              (props (overlay-properties h)))
-;;        (org-remark-highlight-update beg end)
         (org-remark-highlight-save filename beg end props)))))
-
-;; (defun org-remark-highlight-update (beg end)
-;;   "Update help echo text of overlay at BEG, END with TEXT."
-;;   (let* ((ov (car (overlays-at beg)))
-;;          (id (overlay-get ov 'org-remark-id))
-;;          (note (assoc id (org-remark-highlights-get)))
-;;          (text (car (last note))))
-;;     (overlay-put ov 'help-echo text)))
 
 (defun org-remark-open (point &optional view-only)
   "Open marginal notes file for highlight at POINT.
@@ -747,6 +741,23 @@ non-nil.  Returns nil otherwise, or when no Org-ID is found."
   (and org-remark-use-org-id
        (org-entry-get point "ID" :inherit)))
 
+(defun org-remark-highlight-get-text ()
+  "Return the text body of a highlight in the notes buffer."
+  (let ((full-text
+         (save-excursion
+           (org-end-of-meta-data :full)
+           (if
+               ;; handle empty annotation
+               ;; (org-end-of-meta-data :full) took us to next org heading):
+               (looking-at org-heading-regexp)
+               "[empty entry]"
+             (buffer-substring-no-properties
+              (point)
+              (org-end-of-subtree))))))
+    (if (< 200 (length full-text))
+        (substring-no-properties full-text 0 200)
+      full-text)))
+
 (defun org-remark-highlight-save (filename beg end props &optional title)
   "Save a single HIGHLIGHT in the marginal notes file.
 
@@ -974,7 +985,7 @@ load the highlights"
   "Return a list of highlights from the marginal notes file.
 The file name is returned by `org-remark-notes-get-file-name'.
 Each highlight is a list in the following structure:
-    (ID (BEG . END) LABEL)"
+    (ID (BEG . END) LABEL TEXT)"
   ;; Set source-file-name first, as `find-file-noselect' will set the
   ;; current-buffer to source-file-name. Issue #39 FIXME: A way to make
   ;; this sequence agnostic is preferred, if there is a function that
@@ -1010,30 +1021,13 @@ Each highlight is a list in the following structure:
                           (end (string-to-number
                                 (org-entry-get (point)
                                                org-remark-prop-source-end)))
-                          (text (org-remark-highlights-text-get)))
+                          (text (org-remark-highlight-get-text)))
                  (push (list id
                              (cons beg end)
                              (org-entry-get (point) "org-remark-label")
                              text)
                        highlights))))
            highlights))))))
-
-(defun org-remark-highlights-text-get ()
-  "Return the text body of a highlight in the notes buffer."
-  (let ((full-text
-         (save-excursion
-           (org-end-of-meta-data :full)
-           (if
-               ;; handle empty annotation
-               ;; (org-end-of-meta-data :full) took us to next org heading):
-               (looking-at org-heading-regexp)
-               "[empty entry]"
-             (buffer-substring-no-properties
-              (point)
-              (org-end-of-subtree))))))
-    (if (< 200 (length full-text))
-        (substring-no-properties full-text 0 200)
-      full-text)))
 
 (defun org-remark-highlights-get-positions (&optional reverse)
   "Return list of the beginning point of all visible highlights in this buffer.
