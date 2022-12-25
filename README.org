@@ -110,3 +110,39 @@ This section is created by Org-remark for the source file. It serves as an examp
 ** defmacro org-remark-create
 
 This macro was inspired by [[https://github.com/jkitchin/ov-highlight][Ov-highlight]].  It's by John Kitchin (author of Org-ref). Great UX for markers with hydra. Saves the marker info and comments directly within the Org file as Base64 encoded string. It uses overlays with using ~ov~ package.
+
+* org-remark
+:PROPERTIES:
+:org-remark-file: org-remark.el
+:END:
+
+** org-remark-notes-send-data
+:PROPERTIES:
+:org-remark-beg: 39511
+:org-remark-end: 39537
+:org-remark-id: 4de1f10c
+:org-remark-label: nil
+:org-remark-link: [[file:org-remark.el::984]]
+:org-remark-note-body: [empty entry]
+:END:
+
+** org-remark-highlights-load
+:PROPERTIES:
+:org-remark-beg: 39628
+:org-remark-end: 39654
+:org-remark-id: bf05b18c
+:org-remark-label: nil
+:org-remark-link: [[file:org-remark.el::988]]
+:org-remark-note-body: [empty entry]
+:END:
+
+** goto
+:PROPERTIES:
+:org-remark-beg: 33838
+:org-remark-end: 33842
+:org-remark-id: 184667c4
+:org-remark-label: nil
+:org-remark-link: [[file:org-remark.el::852]]
+:org-remark-note-body: This is no longer empty.
+:END:
+This is no longer empty.
