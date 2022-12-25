@@ -716,32 +716,9 @@ to the database."
              (overlay-put ov 'help-echo (plist-get notes-props :body)))
            (overlay-put ov 'org-remark-note-body
                         (plist-get notes-props :body)))))))
-  ;;; for on-going communication from notes to source, after-save-hook.
-  (let ((notes-buf (find-file-noselect (org-remark-notes-get-file-name))))
-    (with-current-buffer notes-buf
-        ;;; think of the case when source = notes files?
-      (add-hook 'after-save-hook #'org-remark-notes-send-data nil :local)))
   (deactivate-mark)
   (org-remark-highlights-housekeep)
   (org-remark-highlights-sort))
-
-(defun org-remark-notes-communicate-with-source (filename id)
-  "Send data for the marginal notes for ID.
-Assume the current buffer is the source buffer."
-  ;;; Add local hook to the notes buffer so that it can communicate data
-  ;;; to the source buffer upon save.
-  (let ((notes-buf (find-file-noselect (org-remark-notes-get-file-name))))
-    (with-current-buffer notes-buf
-      ;;; on load, send data once
-      (org-with-wide-buffer
-       ;;; File must exist already; this is not to create
-       (let ((file-headline (org-find-property
-                             org-remark-prop-source-file
-                             (org-remark-source-get-file-name filename)))
-             (id-headline (org-find-property org-remark-prop-id id)))
-         (goto-char file-headline)
-         (goto-char id-headline)
-         (message (concat "text" (org-remark-highlight-get-text))))))))
 
 (defun org-remark-highlight-get-title ()
   "Return the title of the current buffer.
@@ -985,10 +962,6 @@ drawer."
 
 ;;;;; org-remark-highlights
 ;;    Work on all the highlights in the current buffer
-
-(defun org-remark-notes-send-data ()
-  ;; TODO.  Think of the case when source = notes files
-  (message "Sending"))
 
 (defun org-remark-highlights-load ()
   "Visit `org-remark-notes-file' & load the saved highlights onto current buffer.
