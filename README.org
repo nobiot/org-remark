@@ -118,31 +118,31 @@ This macro was inspired by [[https://github.com/jkitchin/ov-highlight][Ov-highli
 
 ** org-remark-notes-send-data
 :PROPERTIES:
-:org-remark-beg: 39420
-:org-remark-end: 39446
+:org-remark-beg: 39905
+:org-remark-end: 39931
 :org-remark-id: 4de1f10c
 :org-remark-label: nil
-:org-remark-link: [[file:org-remark.el::982]]
+:org-remark-link: [[file:org-remark.el::989]]
 :org-remark-note-body: [empty entry]
 :END:
 
 ** org-remark-highlights-load
 :PROPERTIES:
-:org-remark-beg: 39537
-:org-remark-end: 39563
+:org-remark-beg: 40022
+:org-remark-end: 40048
 :org-remark-id: bf05b18c
 :org-remark-label: nil
-:org-remark-link: [[file:org-remark.el::986]]
+:org-remark-link: [[file:org-remark.el::993]]
 :org-remark-note-body: [empty entry]
 :END:
 
 ** goto
 :PROPERTIES:
-:org-remark-beg: 33747
-:org-remark-end: 33751
+:org-remark-beg: 34151
+:org-remark-end: 34155
 :org-remark-id: 184667c4
 :org-remark-label: nil
-:org-remark-link: [[file:org-remark.el::850]]
+:org-remark-link: [[file:org-remark.el::856]]
 :org-remark-note-body: This is no longer empty.
 :END:
 This is no longer empty.

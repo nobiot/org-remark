@@ -684,7 +684,8 @@ to the database."
   (org-with-wide-buffer
    (let ((ov (make-overlay beg end nil :front-advance))
          ;; UUID is too long; does not have to be the full length
-         (id (if id id (substring (org-id-uuid) 0 8))))
+         (id (if id id (substring (org-id-uuid) 0 8)))
+         (notes-props))
      (overlay-put ov 'face (if face face 'org-remark-highlighter))
      (while properties
        (let ((prop (pop properties))
@@ -701,16 +702,20 @@ to the database."
      (let ((filename (org-remark-source-find-file-name)))
        (unless (eq mode :load)
          (if filename
-             (org-remark-highlight-save filename
-                                        beg end
-                                        (overlay-properties ov)
-                                        (org-remark-highlight-get-title))
+             (setq notes-props
+                   (org-remark-highlight-save filename
+                                              beg end
+                                              (overlay-properties ov)
+                                              (org-remark-highlight-get-title)))
               ;;; Get props for create and change any way
-           (message "org-remark: Highlights not saved; buffer is not visiting a file")))
-       ;;; on load, send data once from notes to source
-
-       (when (eq mode :load)
-         (org-remark-notes-communicate-with-source filename id)))))
+           ;; TODO remove this message; non-file-visiting buffers is now supported.
+           (message "org-remark: Highlights not saved; buffer is not visiting a file"))
+         (when notes-props
+           ;; TODO. The function should be based on parameters
+           (unless (overlay-get ov 'help-echo)
+             (overlay-put ov 'help-echo (plist-get notes-props :body)))
+           (overlay-put ov 'org-remark-note-body
+                        (plist-get notes-props :body)))))))
   ;;; for on-going communication from notes to source, after-save-hook.
   (let ((notes-buf (find-file-noselect (org-remark-notes-get-file-name))))
     (with-current-buffer notes-buf
@@ -782,7 +787,7 @@ non-nil.  Returns nil otherwise, or when no Org-ID is found."
 (defun org-remark-highlight-save (filename beg end props &optional title)
   "Save a single HIGHLIGHT in the marginal notes file.
 
-Return t.
+Return the highlight's data properties list (TODO refer to ...).
 
 FILENAME specifies the name of source file with which the marginal notes
 file is associated.
@@ -827,7 +832,8 @@ source with using ORGID."
                    (concat "[[file:" filename
                            (when line-num (format "::%d" line-num)) "]]")
                  (run-hook-with-args-until-success
-                  'org-remark-highlight-link-to-source-functions filename))))
+                  'org-remark-highlight-link-to-source-functions filename)))
+         (notes-props))
     (with-current-buffer notes-buf
       (when (featurep 'org-remark-convert-legacy) (org-remark-convert-legacy-data))
       ;;`org-with-wide-buffer is a macro that should work for non-Org file'
@@ -866,7 +872,8 @@ source with using ORGID."
            (insert (concat "** " text "\n"))
            (org-remark-notes-set-properties beg end props)
            (when (and orgid org-remark-use-org-id)
-               (insert (concat "[[id:" orgid "]" "[" title "]]"))))))
+             (insert (concat "[[id:" orgid "]" "[" title "]]"))))
+         (setq notes-props (list :body (org-remark-highlight-get-text)))))
       (cond
        ;; fix GH issue #19
        ;; Temporarily remove `org-remark-save' from the `after-save-hook'
@@ -879,7 +886,7 @@ source with using ORGID."
        ;; notes buffer
        ((buffer-modified-p)
         (save-buffer)))
-      t)))
+      notes-props)))
 
 
 ;;;;; org-remark-notes
