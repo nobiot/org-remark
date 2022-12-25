@@ -341,7 +341,7 @@ recommended to turn it on as part of Emacs initialization.
 
 (add-to-list 'org-remark-available-pens #'org-remark-mark)
 ;;;###autoload
-(defun org-remark-mark (beg end &optional id text mode)
+(defun org-remark-mark (beg end &optional id mode)
   "Apply face `org-remark-highlighter' to the region between BEG and END.
 
 When this function is used interactively, it will generate a new
@@ -362,18 +362,14 @@ back to the database.
 MODE is also an argument which can be passed from Elisp.  It
 determines whether or not highlight is to be saved in the
 marginal notes file.  The expected values are nil, :load and
-:change.
-
-TEXT is an excerpt of the body text of the marginal note (for
-:load and :change modes only)."
+:change."
   (interactive (org-remark-region-or-word))
   ;; FIXME
   ;; Adding "nil" is different to removing a prop
   ;; This will do for now
   (org-remark-highlight-mark beg end id mode
                              nil nil
-                             (list 'org-remark-label "nil"
-                                   'help-echo text)))
+                             (list 'org-remark-label "nil")))
 
 (when org-remark-create-default-pen-set
   ;; Create default pen set.
@@ -709,8 +705,10 @@ to the database."
                                         beg end
                                         (overlay-properties ov)
                                         (org-remark-highlight-get-title))
+              ;;; Get props for create and change any way
            (message "org-remark: Highlights not saved; buffer is not visiting a file")))
        ;;; on load, send data once from notes to source
+
        (when (eq mode :load)
          (org-remark-notes-communicate-with-source filename id)))))
   ;;; for on-going communication from notes to source, after-save-hook.
@@ -1008,7 +1006,8 @@ load the highlights"
       (let ((fn (intern (concat "org-remark-mark-" label))))
         (unless (functionp fn) (setq fn #'org-remark-mark))
         (funcall fn beg end id :load)
-        ;; TODO Generalize. TEXT should not be the fixed property.
+        ;; TODO Generalize the part that updates properties.
+        ;; :body should not be the fixed property.
         ;; '(:text (val . fn) :prop1 (val . fn) :prop2 (val .fn))
         ;; (dolist list)
         (let ((ov (org-remark-find-overlay-at-point beg)))
