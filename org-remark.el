@@ -128,6 +128,10 @@ returned by `org-remark-notes-get-file-name'.")
 (defvar-local org-remark-highlights-hidden nil
   "Keep hidden/shown state of the highlights in current buffer.")
 
+;; TODO org-remark-sync?
+(defvar-local org-remark-notes-setup-done nil)
+(defvar-local org-remark-source-setup-done nil)
+
 (defvar org-remark-last-notes-buffer nil
   "Stores the cloned indirect buffer visiting the notes file.
 It is meant to exist only one of these in each Emacs session.")
@@ -647,6 +651,26 @@ If there are more than one, return CAR of the list."
       (setq overlays (cdr overlays)))
     (car found)))
 
+(defun org-remark-find-overlay-in (beg end &optional id)
+  "Return one org-remark overlay between BEG and END.
+If there are more than one, return CAR of the list.
+Optioanlly ID can be passed to find the exacth ID match."
+  (let* ((overlays (overlays-in beg end))
+         found)
+    (while overlays
+      (let ((overlay (car overlays)))
+        (if (overlay-get overlay 'org-remark-id)
+            (setq found (cons overlay found))))
+      (setq overlays (cdr overlays)))
+    (when id (setq found
+                   (seq-filter
+                    (lambda (ov)
+                      (equal (overlay-get ov 'org-remark-id) id))
+                    found)))
+    (car found)))
+
+
+
 
 ;;;; org-remark-highlight
 ;;   Work on a single highlight
@@ -1024,9 +1048,6 @@ load the highlights"
     (setq org-remark-source-setup-done t))
   t)
 
-(defvar-local org-remark-notes-setup-done nil)
-(defvar-local org-remark-source-setup-done nil)
-
 (defun org-remark-notes-setup (notes-buf source-buf source-file-name)
   ;;; Start tracking the source buffer in the notes buffer as local variable.
   ;;; This adds variable only to the base-buffer and not to the indrect buffer.
@@ -1052,9 +1073,11 @@ Trigger by on-save of the notes."
           (org-remark-highlights-get (current-buffer) source-file-name)))
     (with-current-buffer source-buffer
       (dolist (highlight new-highlights)
-        (let ((ov (org-remark-find-overlay-at-point
-                   (car (plist-get highlight :location))))
-              (props (plist-get highlight :props)))
+        (let* ((location (plist-get highlight :location))
+               (beg (car location))
+               (end (cdr location))
+               (id (plist-get highlight :id))
+               (ov (org-remark-find-overlay-in beg end id)))
           (delete-overlay ov)
           (org-remark-highlight-load highlight))))))
 
