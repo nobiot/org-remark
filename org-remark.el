@@ -784,7 +784,10 @@ buffer with search option \"::line-number\".
 ORGID can be passed to this function.  If user option
 `org-remark-use-org-id' is non-nil, this function will add an
 Org-ID link in the body text of the headline, linking back to the
-source with using ORGID."
+source with using ORGID.
+
+When a new notes file is created, add
+`org-remark-notes-sync-with-source' to `after-save-hook'."
   (let* ((filename (org-remark-source-get-file-name filename))
          (id (plist-get props 'org-remark-id))
          (text (org-with-wide-buffer (buffer-substring-no-properties beg end)))
@@ -798,20 +801,23 @@ source with using ORGID."
                  (run-hook-with-args-until-success
                   'org-remark-highlight-link-to-source-functions filename)))
          (notes-props))
+    ;;; Set up notes buffer for sync, etc.
+    (org-remark-notes-setup notes-buf (current-buffer) filename)
     (with-current-buffer notes-buf
       (when (featurep 'org-remark-convert-legacy) (org-remark-convert-legacy-data))
       ;;`org-with-wide-buffer is a macro that should work for non-Org file'
       (org-with-wide-buffer
-       (let ((file-headline (or (org-find-property
-                                 org-remark-prop-source-file filename)
-                                (progn
-                                  ;; If file-headline does not exist, create one at the bottom
-                                  (goto-char (point-max))
-                                  ;; Ensure to be in the beginning of line to add a new headline
-                                  (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
-                                  (insert (concat "* " title "\n"))
-                                  (org-set-property org-remark-prop-source-file filename)
-                                  (org-up-heading-safe) (point))))
+       (let ((file-headline
+              (or (org-find-property
+                   org-remark-prop-source-file filename)
+                  (progn
+                    ;; If file-headline does not exist, create one at the bottom
+                    (goto-char (point-max))
+                    ;; Ensure to be in the beginning of line to add a new headline
+                    (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
+                    (insert (concat "* " title "\n"))
+                    (org-set-property org-remark-prop-source-file filename)
+                    (org-up-heading-safe) (point))))
              (id-headline (org-find-property org-remark-prop-id id)))
          ;; Add org-remark-link with updated line-num as a property
          (when link (plist-put props "org-remark-link" link))
@@ -1014,18 +1020,28 @@ load the highlights"
         (source-buf (current-buffer)))
     (dolist (highlight (org-remark-highlights-get notes-buf source-file-name))
       (org-remark-highlight-load highlight))
-    ;;; Start tracking the source buffer in the notes buffer as local variable.
-    ;;; This adds variable only to the base-buffer and not to the indrect buffer.
-    (with-current-buffer notes-buf
-      (cl-pushnew (cons source-buf source-file-name)
-                  org-remark-notes-source-buffers)))
+    (org-remark-notes-setup notes-buf source-buf source-file-name)
+    (setq org-remark-source-setup-done t))
   t)
 
+(defvar-local org-remark-notes-setup-done nil)
+(defvar-local org-remark-source-setup-done nil)
+
+(defun org-remark-notes-setup (notes-buf source-buf source-file-name)
+  ;;; Start tracking the source buffer in the notes buffer as local variable.
+  ;;; This adds variable only to the base-buffer and not to the indrect buffer.
+  (let ((source-setup-done org-remark-source-setup-done))
+    (with-current-buffer notes-buf
+      (unless (and org-remark-notes-setup-done source-setup-done)
+        (cl-pushnew (cons source-buf source-file-name)
+                    org-remark-notes-source-buffers)
+        (add-hook 'after-save-hook #'org-remark-notes-sync-with-source nil :local)
+        (setq org-remark-notes-setup-done t)))))
 
 (defun org-remark-notes-housekeep ()
  "Remove killed buffers from `org-remark-notes-source-buffers'."
  (setq org-remark-notes-source-buffers
-       (seq-filter #'(lambda (buf) (not (buffer-live-p buf)))
+       (seq-filter #'(lambda (pair) (buffer-live-p (car pair)))
                    org-remark-notes-source-buffers)))
 
 (defun org-remark-notes-update-source (source-buffer source-file-name)
