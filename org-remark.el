@@ -1078,7 +1078,12 @@ Trigger by on-save of the notes."
                (end (cdr location))
                (id (plist-get highlight :id))
                (ov (org-remark-find-overlay-in beg end id)))
-          (delete-overlay ov)
+          ;; FIXME Currently the when clause is used to guard against
+          ;; the case where a highlight overlay is not found.  It should
+          ;; be an edge case but the highlight could have moved to a
+          ;; completely new location where the old location does not
+          ;; overlap with the new location at all.
+          (when ov (delete-overlay ov))
           (org-remark-highlight-load highlight))))))
 
 (defun org-remark-notes-sync-with-source ()
