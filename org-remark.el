@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.0.5
 ;; Created: 22 December 2020
-;; Last modified: 25 December 2022
+;; Last modified: 26 December 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -743,24 +743,6 @@ non-nil.  Returns nil otherwise, or when no Org-ID is found."
   (and org-remark-use-org-id
        (org-entry-get point "ID" :inherit)))
 
-(defun org-remark-highlight-get-text ()
-  "Return the text body of a highlight in the notes buffer."
-  (let ((full-text
-         (save-excursion
-           (org-end-of-meta-data :full)
-           (if
-               ;; handle empty annotation
-               ;; (org-end-of-meta-data :full) took us to next org heading):
-               (or (looking-at org-heading-regexp)
-                   (eobp)) ;; end of buffer
-               "[empty entry]"
-             (buffer-substring-no-properties
-              (point)
-              (org-end-of-subtree))))))
-    (if (< 200 (length full-text))
-        (substring-no-properties full-text 0 200)
-      full-text)))
-
 (defun org-remark-highlight-save (filename beg end props &optional title)
   "Save a single HIGHLIGHT in the marginal notes file.
 
@@ -850,7 +832,7 @@ source with using ORGID."
            (org-remark-notes-set-properties beg end props)
            (when (and orgid org-remark-use-org-id)
              (insert (concat "[[id:" orgid "]" "[" title "]]"))))
-         (setq notes-props (list :body (org-remark-highlight-get-text)))))
+         (setq notes-props (list :body (org-remark-notes-get-text)))))
       (cond
        ;; fix GH issue #19
        ;; Temporarily remove `org-remark-save' from the `after-save-hook'
@@ -959,6 +941,25 @@ drawer."
         (org-set-property p v))))
   t)
 
+(defun org-remark-notes-get-text ()
+  "Return the text body of a highlight in the notes buffer."
+  (let ((full-text
+         (save-excursion
+           (org-end-of-meta-data :full)
+           (if
+               ;; handle empty annotation
+               ;; (org-end-of-meta-data :full) took us to next org heading):
+               (or (looking-at org-heading-regexp)
+                   (eobp)) ;; end of buffer
+               "[empty entry]"
+             (buffer-substring-no-properties
+              (point)
+              (org-end-of-subtree))))))
+    (if (< 200 (length full-text))
+        (substring-no-properties full-text 0 200)
+      full-text)))
+
+
 
 ;;;;; org-remark-highlights
 ;;    Work on all the highlights in the current buffer
@@ -1036,7 +1037,7 @@ Each highlight is a property list in the following properties:
                           (end (string-to-number
                                 (org-entry-get (point)
                                                org-remark-prop-source-end)))
-                          (text (org-remark-highlight-get-text)))
+                          (text (org-remark-notes-get-text)))
                  (push (list :id id
                              :location (cons beg end)
                              :label    (org-entry-get (point) "org-remark-label")
