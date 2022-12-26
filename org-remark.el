@@ -741,7 +741,7 @@ to the database."
            ;; TODO. The function should be based on parameters
            (unless (overlay-get ov 'help-echo)
              (overlay-put ov 'help-echo (plist-get notes-props :body)))
-           (overlay-put ov 'org-remark-note-body
+           (overlay-put ov '_org-remark-note-body
                         (plist-get notes-props :body)))))
       (deactivate-mark)
       (org-remark-highlights-housekeep)
@@ -868,18 +868,31 @@ When a new notes file is created, add
            (when (and orgid org-remark-use-org-id)
              (insert (concat "[[id:" orgid "]" "[" title "]]"))))
          (setq notes-props (list :body (org-remark-notes-get-text)))))
-      (cond
-       ;; fix GH issue #19
-       ;; Temporarily remove `org-remark-save' from the `after-save-hook'
-       ;; When the marginal notes buffer is the source buffer
-       ((eq notes-buf main-buf)
+      ;; (cond
+      ;;  ;; fix GH issue #19
+      ;;  ;; Temporarily remove `org-remark-save' from the `after-save-hook'
+      ;;  ;; When the marginal notes buffer is the source buffer
+      ;;  ((eq notes-buf main-buf)
+      ;;   (remove-hook 'after-save-hook #'org-remark-save t)
+      ;;   (save-buffer)
+      ;;   (add-hook 'after-save-hook #'org-remark-save nil t))
+      ;;  ;; When marginal notes buffer is separate from the source buffer, save the
+      ;;  ;; notes buffer
+      ;;  ((buffer-modified-p)
+
+      ;;  Now that the notes-sync is put into after-save-buffer, we need
+      ;;  to remove stop saving or remove 'after-save-hook temporarily
+      ;;  to avoid (infinite) loop.
+
+      ;;   (save-buffer)))
+      (when (eq notes-buf main-buf)
         (remove-hook 'after-save-hook #'org-remark-save t)
-        (save-buffer)
-        (add-hook 'after-save-hook #'org-remark-save nil t))
-       ;; When marginal notes buffer is separate from the source buffer, save the
-       ;; notes buffer
-       ((buffer-modified-p)
-        (save-buffer)))
+        (remove-hook 'after-save-hook #'org-remark-notes-sync-with-source t)
+        ;;(save-buffer)
+        (set-buffer-modified-p nil)
+        ;;(add-hook 'after-save-hook #'org-remark-save t)
+        ;;(add-hook 'after-save-hook #'org-remark-notes-sync-with-source t))
+        )
       notes-props)))
 
 
@@ -1022,7 +1035,7 @@ killed so that this needs to be checked with `buffer-live-p'.")
       ;; (dolist list)
       (unless (overlay-get ov 'help-echo)
         (overlay-put ov 'help-echo (plist-get props :body)))
-      (overlay-put ov 'org-remark-note-body
+      (overlay-put ov '*org-remark-note-body
                    (plist-get props :body)))))
 
 (defun org-remark-highlights-load ()
