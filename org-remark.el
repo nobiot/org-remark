@@ -366,7 +366,7 @@ marginal notes file.  The expected values are nil, :load and
   ;; This will do for now
   (org-remark-highlight-mark beg end id mode
                              nil nil
-                             (list "org-remark-label" "nil")))
+                             (list 'org-remark-label "nil")))
 
 (when org-remark-create-default-pen-set
   ;; Create default pen set.
