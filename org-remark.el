@@ -975,10 +975,16 @@ And the following are also reserved for Org-remark:
 For PROPS, if the property name is CATEGORY \(case-sensitive\) or
 prefixed with \"org-remark-\" set them to to headline's property
 drawer."
+
   (org-set-property org-remark-prop-source-beg
                     (number-to-string beg))
   (org-set-property org-remark-prop-source-end
                     (number-to-string end))
+
+  ;; Delete property
+  ;; `org-delete-property'
+  (org-entry-delete nil "CATEGORY")
+
   (while props
     (let ((p (pop props))
           (v (pop props)))
