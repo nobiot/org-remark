@@ -1306,7 +1306,12 @@ function extends the behavior and looks for the word at point"
     ;; Check beg end is required as the cursor may be on an empty point with no
     ;; word under it.
     (if (and beg end)
-        (list beg end)
+        (progn
+          (when (> beg end)
+            (let ((large beg))
+              (setq beg end
+                    end large)))
+          (list beg end))
       (user-error "No region selected and the cursor is not on a word"))))
 
 
