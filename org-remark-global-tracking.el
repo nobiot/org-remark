@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 15 August 2021
-;; Last modified: 24 December 2022
+;; Last modified: 07 January 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -127,10 +127,10 @@ This function is meant to be added to `find-file-hook' by
       (expand-file-name org-remark-notes-file-name user-emacs-directory))))
 
 (defun org-remark-source-find-file-name ()
-  "Assumes that we are currently in the source buffer.
-Returns the filename for the source buffer.  We use this filename
-to identify the source buffer in all operations related to
-marginal notes."
+  "Return the filename for the source buffer.
+We use this filename to identify the source buffer in all
+operations related to marginal notes.
+Assumes that we are currently in the source buffer."
   (let ((filename (or buffer-file-name
                       (run-hook-with-args-until-success
                        'org-remark-source-find-file-name-functions))))
