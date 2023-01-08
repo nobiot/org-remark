@@ -417,9 +417,9 @@ in the current buffer.  Each highlight is an overlay."
           (let* ((beg (overlay-start h))
                  (end (overlay-end h))
                  (props (overlay-properties h)))
-            (org-remark-highlight-save filename beg end props)))))
-    (with-current-buffer notes-buf
-      (save-buffer))))
+            (org-remark-highlight-save filename beg end props))))
+      (with-current-buffer notes-buf
+        (save-buffer)))))
 
 (defun org-remark-open (point &optional view-only)
   "Open marginal notes file for highlight at POINT.
@@ -553,7 +553,7 @@ from."
     (let ((new-pen (if pen pen
                      (intern
                       (completing-read "Which pen?:" org-remark-available-pens)))))
-      (delete-overlay ov)
+      (org-remark-highlight-clear ov)
       (funcall new-pen beg end id :change))))
 
 (defun org-remark-remove (point &optional delete)
@@ -571,12 +571,11 @@ and removing overlays are not part of the undo tree."
   (interactive "d\nP")
   (when-let ((ov (org-remark-find-overlay-at-point point))
              (id (overlay-get ov 'org-remark-id)))
-    ;; Remove the highlight overlay and id Where there is more than one, remove
-    ;; only one It should be last-in-first-out in general but overlays functions
-    ;; don't guarantee it
-    ;;(when delete (org-remark-open point :view-only))
-    (delete ov org-remark-highlights)
-    (delete-overlay ov)
+    ;; Remove the highlight overlay and id Where there is more than one,
+    ;; remove only one.  It should be last-in-first-out in general but
+    ;; overlays functions don't guarantee it (when delete
+    ;; (org-remark-open point :view-only))
+    (org-remark-highlight-clear ov)
     ;; Update the notes file accordingly
     (org-remark-notes-remove id delete)
     (org-remark-highlights-housekeep)
@@ -933,6 +932,13 @@ Assume the current buffer is the source buffer."
       (overlay-put ov '*org-remark-note-body
                    (plist-get props :body)))))
 
+(defun org-remark-highlight-clear (overlay)
+  "Clear a single highlight OVERLAY.
+It is a utility function to take care of both
+`org-remark-highlights' and a highlight overlay at the same time."
+  (setq org-remark-highlights (delete overlay org-remark-highlights))
+  (delete-overlay overlay))
+
 
 ;;;;; org-remark-notes
 ;;    Private functions that work on marginal notes buffer (notes
@@ -1118,7 +1124,7 @@ notes file (indrect or base)."
           ;; be an edge case but the highlight could have moved to a
           ;; completely new location where the old location does not
           ;; overlap with the new location at all.
-          (when ov (delete-overlay ov))
+          (when ov (org-remark-highlight-clear ov))
           (org-remark-highlight-load highlight))))))
 
 (defun org-remark-notes-sync-with-source ()
