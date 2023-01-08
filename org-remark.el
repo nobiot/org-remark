@@ -119,7 +119,7 @@ The current buffer is the note buffer."
 ;;;; Variables
 
 (defvar-local org-remark-highlights '()
-  "Keep track of all the highlights in current buffer.
+  "All the highlights in current source buffer.
 It is a local variable and is a list of overlays.  Each overlay
 represents a highlighted text region.
 
@@ -127,19 +127,21 @@ On `save-buffer' each highlight will be saved in the notes file
 returned by `org-remark-notes-get-file-name'.")
 
 (defvar-local org-remark-highlights-hidden nil
-  "Keep hidden/shown state of the highlights in current buffer.")
+  "Hidden/shown state of the highlights in current source buffer.")
 
 (defvar-local org-remark-notes-source-buffers '()
   "List of source buffers that have loaded current notes buffer.
-Each notes' buffer locally keeps track of the source buffers that
-have loaded notes from itself.  Buffers in this list may be
+Each notes buffer locally keeps track of the source buffers that
+have loaded notes from itself.  This list is used when automatic
+sync is triggered in `after-save-buffer' of the notes buffer, as
+not all the sources may be open.  Buffers in this list may be
 killed so that this needs to be checked with `buffer-live-p'.")
 
 (defvar-local org-remark-source-setup-done nil
   "Local indicator that sync with notes buffer is set up.")
 
 (defvar org-remark-last-notes-buffer nil
-  "Stores the cloned indirect buffer visiting the notes file.
+  "The cloned indirect buffer visiting the notes file.
 It is meant to exist only one of these in each Emacs session.")
 
 (defvar org-remark-available-pens nil)
@@ -667,7 +669,7 @@ If there are more than one, return CAR of the list."
 (defun org-remark-find-overlay-in (beg end &optional id)
   "Return one org-remark overlay between BEG and END.
 If there are more than one, return CAR of the list.
-Optioanlly ID can be passed to find the exacth ID match."
+Optionally ID can be passed to find the exact ID match."
   (let* ((overlays (overlays-in beg end))
          found)
     (while overlays
@@ -703,7 +705,7 @@ nil, this function will use the default face `org-remark-highlighter'
 This function will add LABEL and PROPERTIES as overlay
 properties.  PROPERTIES is a plist of pairs of a symbol and value.
 
-Return the hightliht overlay.
+Return the highlight overlay.
 
 When this function is used interactively, it will generate a new
 ID, always assuming it is working on a new highlighted text
@@ -1116,14 +1118,16 @@ Assume the current buffer is the notes file (indrect or base)."
           (org-remark-highlight-load highlight))))))
 
 (defun org-remark-notes-sync-with-source ()
-  "
-It is meant to be used in `after-save-hook'.
-Look at the base buffer for org-remark-notes-source-buffers."
+  "Update sources from the current notes buffer.
+This function iterates through `org-remark-notes-source-buffers'
+in the base buffer of the notes.
+
+It is meant to be used in `after-save-hook'."
   ;;; Assume the current buffer is either the indirect or notes buffer
   ;;; in question.  In order for the `after-save-hook' to correctly
   ;;; triggers notes sync, we need to get the base buffer if the note
-  ;;; buffer is an indirect one.
-  (let* ((notes-buffer (or (buffer-base-buffer) (current-buffer))))
+  ;;; buffer being saved is an indirect one.
+  (let ((notes-buffer (or (buffer-base-buffer) (current-buffer))))
     (with-current-buffer notes-buffer
       (org-remark-notes-housekeep)
       (dolist (source-buf org-remark-notes-source-buffers)
@@ -1138,7 +1142,7 @@ Look at the base buffer for org-remark-notes-source-buffers."
 The file name is returned by `org-remark-notes-get-file-name'.
 It is assumed that the current buffer is source buffer.  Each
 highlight is a property list in the following properties:
-    (:id ID :location (BEG . END) :label LABEL :props '(PROPERTIES)"
+    (:id ID :location (BEG . END) :label LABEL :props (PROPERTIES)"
   ;; Set source-file-name first, as `find-file-noselect' will set the
   ;; current-buffer to source-file-name. Issue #39 FIXME: A way to make
   ;; this sequence agnostic is preferred, if there is a function that
