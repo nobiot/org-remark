@@ -1080,12 +1080,15 @@ properties, add prefix \"*\"."
       full-text)))
 
 (defun org-remark-notes-setup (notes-buf source-buf)
-  ;;; Start tracking the source buffer in the notes buffer as local variable.
-  ;;; This adds variable only to the base-buffer and not to the indrect buffer.
-  (with-current-buffer notes-buf
-    (unless (member source-buf org-remark-notes-source-buffers)
-      (cl-pushnew source-buf org-remark-notes-source-buffers)
-      (add-hook 'after-save-hook #'org-remark-notes-sync-with-source nil :local)))
+  "Set up NOTES-BUF and SOURCE-BUF for sync.
+
+Note that this function adds some local variables only to the
+base-buffer of the notes and not to the indirect buffer."
+  (let ((base-buf (or (buffer-base-buffer notes-buf) notes-buf)))
+    (with-current-buffer base-buf
+      (unless (member source-buf org-remark-notes-source-buffers)
+        (cl-pushnew source-buf org-remark-notes-source-buffers)
+        (add-hook 'after-save-hook #'org-remark-notes-sync-with-source nil :local))))
   (with-current-buffer source-buf
     (setq org-remark-source-setup-done t)))
 
