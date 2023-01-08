@@ -904,6 +904,9 @@ buffer for automatic sync."
            (when (and orgid org-remark-use-org-id)
              (insert (concat "[[id:" orgid "]" "[" title "]]"))))
          (setq notes-props (list :body (org-remark-notes-get-body)))))
+      ;; Save the notes buf to file unless source and notes buffers are
+      ;; the same.
+      (unless (eq notes-buf source-buf) (save-buffer))
       notes-props)))
 
 (defun org-remark-highlight-load (highlight)
@@ -952,7 +955,6 @@ Assume the current buffer is the source buffer."
 ;;    convenience. Users might interact with either the indirect buffer
 ;;    or directly with the base buffer.  For automatic sync
 ;;    functionality, Org-remark interacts directly with the base buffer.
-
 
 (defun org-remark-notes-remove (id &optional delete)
   "Remove the note entry for highlight ID.
