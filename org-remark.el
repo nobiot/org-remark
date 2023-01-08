@@ -417,7 +417,8 @@ in the current buffer.  Each highlight is an overlay."
              (props (overlay-properties h)))
         (org-remark-highlight-save filename beg end props)))
     ;;; Avoid saving the notes buffer if it is the same as the source buffer
-    (unless (eq source-buf notes-buf)
+    (if (eq source-buf notes-buf)
+        (set-buffer-modified-p nil)
       (with-current-buffer notes-buf
         (save-buffer)))))
 
