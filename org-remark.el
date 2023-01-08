@@ -409,15 +409,15 @@ in the current buffer.  Each highlight is an overlay."
   (org-remark-highlights-housekeep)
   (org-remark-highlights-sort)
   (let ((notes-buf (find-file-noselect (org-remark-notes-get-file-name)))
-        (source-buf (or (buffer-base-buffer) (current-buffer))))
+        (source-buf (or (buffer-base-buffer) (current-buffer)))
+        (filename (org-remark-source-find-file-name)))
+    (dolist (h org-remark-highlights)
+      (let* ((beg (overlay-start h))
+             (end (overlay-end h))
+             (props (overlay-properties h)))
+        (org-remark-highlight-save filename beg end props)))
     ;;; Avoid saving the notes buffer if it is the same as the source buffer
     (unless (eq source-buf notes-buf)
-      (let ((filename (org-remark-source-find-file-name)))
-        (dolist (h org-remark-highlights)
-          (let* ((beg (overlay-start h))
-                 (end (overlay-end h))
-                 (props (overlay-properties h)))
-            (org-remark-highlight-save filename beg end props))))
       (with-current-buffer notes-buf
         (save-buffer)))))
 
@@ -766,6 +766,10 @@ round-trip back to the notes file."
       (org-remark-highlights-housekeep)
       (org-remark-highlights-sort)
       (setq org-remark-source-setup-done t)
+      ;; Save the notes buffer
+      (let ((notes-buf (find-file-noselect (org-remark-notes-get-file-name))))
+        (unless (eq notes-buf (current-buffer))
+          (with-current-buffer notes-buf (save-buffer))))
       ;; Return overlay
       ov)))
 
