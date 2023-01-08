@@ -845,8 +845,9 @@ ORGID can be passed to this function.  If user option
 Org-ID link in the body text of the headline, linking back to the
 source with using ORGID.
 
-When a new notes file is created, add
-`org-remark-notes-sync-with-source' to `after-save-hook'."
+When the current source buffer is not set up for sync with notes,
+this function calls `org-remark-notes-setup' to prepare the notes
+buffer for automatic sync."
   (let* ((filename (org-remark-source-get-file-name filename))
          (id (plist-get props 'org-remark-id))
          (text (org-with-wide-buffer (buffer-substring-no-properties beg end)))
