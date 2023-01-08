@@ -1099,8 +1099,9 @@ base-buffer of the notes and not to the indirect buffer."
 
 (defun org-remark-notes-update-source (source-buffer)
   "Update SOURCE-BUFFER with marginal notes properties.
-Assume the current buffer is the notes file (indrect or base)."
-  (let* ((notes-buf (current-buffer)))
+This function assumes the current buffer is one visiting the
+notes file (indrect or base)."
+  (let ((notes-buf (current-buffer)))
     (with-current-buffer source-buffer
       (dolist (highlight (org-remark-highlights-get notes-buf))
         (let* ((location (plist-get highlight :location))
