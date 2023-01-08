@@ -391,11 +391,11 @@ marginal notes file.  The expected values are nil, :load and
 (when org-remark-create-default-pen-set
   ;; Create default pen set.
   (org-remark-create "red-line"
-                     `(:underline (:color "dark red" :style wave))
-                     `(CATEGORY "review" help-echo "Review this"))
+                     '(:underline (:color "dark red" :style wave))
+                     '(CATEGORY "review" help-echo "Review this"))
   (org-remark-create "yellow"
-                     `(:underline "gold" :background "lemon chiffon")
-                     `(CATEGORY "important")))
+                     '(:inherit default :underline "gold2")
+                     '(CATEGORY "important")))
 
 (defun org-remark-save ()
   "Save all the highlights tracked in current buffer to notes buffer.
