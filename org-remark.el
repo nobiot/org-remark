@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.0.5
 ;; Created: 22 December 2020
-;; Last modified: 07 January 2023
+;; Last modified: 08 January 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -129,14 +129,14 @@ returned by `org-remark-notes-get-file-name'.")
 (defvar-local org-remark-highlights-hidden nil
   "Keep hidden/shown state of the highlights in current buffer.")
 
-;; TODO org-remark-sync?
-(defvar-local org-remark-notes-setup-done nil)
 (defvar-local org-remark-notes-source-buffers '()
   "List of source buffers that have loaded current notes buffer.
 Each notes' buffer locally keeps track of the source buffers that
 have loaded notes from itself.  Buffers in this list may be
 killed so that this needs to be checked with `buffer-live-p'.")
-(defvar-local org-remark-source-setup-done nil)
+
+(defvar-local org-remark-source-setup-done nil
+  "Local indicator that sync with notes buffer is set up.")
 
 (defvar org-remark-last-notes-buffer nil
   "Stores the cloned indirect buffer visiting the notes file.
@@ -860,8 +860,9 @@ When a new notes file is created, add
                  (run-hook-with-args-until-success
                   'org-remark-highlight-link-to-source-functions filename)))
          (notes-props))
-    ;;; Set up notes buffer for sync, etc.
-    (org-remark-notes-setup notes-buf source-buf)
+    ;;; Set up notes buffer for sync for the source buffer
+    (unless org-remark-source-setup-done
+      (org-remark-notes-setup notes-buf source-buf))
     (with-current-buffer notes-buf
       (when (featurep 'org-remark-convert-legacy) (org-remark-convert-legacy-data))
       ;;`org-with-wide-buffer is a macro that should work for non-Org file'
@@ -1076,12 +1077,12 @@ properties, add prefix \"*\"."
 (defun org-remark-notes-setup (notes-buf source-buf)
   ;;; Start tracking the source buffer in the notes buffer as local variable.
   ;;; This adds variable only to the base-buffer and not to the indrect buffer.
-  (let ((source-setup-done org-remark-source-setup-done))
-    (with-current-buffer notes-buf
-      (unless (and org-remark-notes-setup-done source-setup-done)
-        (cl-pushnew source-buf org-remark-notes-source-buffers)
-        (add-hook 'after-save-hook #'org-remark-notes-sync-with-source nil :local)
-        (setq org-remark-notes-setup-done t)))))
+  (with-current-buffer notes-buf
+    (unless (member source-buf org-remark-notes-source-buffers)
+      (cl-pushnew source-buf org-remark-notes-source-buffers)
+      (add-hook 'after-save-hook #'org-remark-notes-sync-with-source nil :local)))
+  (with-current-buffer source-buf
+    (setq org-remark-source-setup-done t)))
 
 (defun org-remark-notes-housekeep ()
  "Remove killed buffers from `org-remark-notes-source-buffers'."
