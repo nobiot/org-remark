@@ -78,7 +78,13 @@ readable, the function automatically activates `org-remark'."
     ;; Disable
     (remove-hook 'find-file-hook #'org-remark-auto-on)))
 
+;;; Dependencies
+;;;
+(require 'org)
+(require 'org-roam)
+
 ;;; Functions
+
 (defun org-remark-notes-file-name-function ()
   "Return a marginal notes file name for the current buffer.
 
@@ -95,7 +101,7 @@ suffix to the file name without the extension."
     ;; If buffer is not visiting a file, a default file name.  If this
     ;; file name is not suitable, either override the function or set
     ;; the user option to a custom function.
-    (expand-file-name "marginalia.org" user-emacs-directory)))
+    (expand-file-name "marginalia.org" org-roam-directory)))
 
 (defalias
   'org-remark-notes-file-path-function
@@ -122,9 +128,9 @@ This function is meant to be added to `find-file-hook' by
       (funcall org-remark-notes-file-name)
     ;; If not function, assume string and return it as the file name.
     ;; TODO when buffer is not visitng a file, assume file resides in
-    ;; `user-emacs-directory'
+    ;; `org-roam-directory'
     (if buffer-file-name org-remark-notes-file-name
-      (expand-file-name org-remark-notes-file-name user-emacs-directory))))
+      (expand-file-name org-remark-notes-file-name org-roam-directory))))
 
 (defun org-remark-source-find-file-name ()
   "Assumes that we are currently in the source buffer.

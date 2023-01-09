@@ -39,7 +39,7 @@
 (require 'org-remark-global-tracking)
 (declare-function org-remark-convert-legacy-data "org-remark-convert-legacy")
 
-
+
 ;;;; Customization
 
 (defgroup org-remark nil
@@ -87,6 +87,7 @@ buffer with this name."
 (make-obsolete-variable
  'org-remark-source-path-function 'org-remark-source-file-name "0.2.0")
 
+
 (defcustom org-remark-source-file-name #'file-relative-name
   "Function that returns the file name to point back at the source file.
 
@@ -114,7 +115,7 @@ manually or some other function to either the headline or file."
 The current buffer is the note buffer."
   :type 'hook)
 
-
+
 ;;;; Variables
 
 (defvar-local org-remark-highlights '()
@@ -132,6 +133,10 @@ returned by `org-remark-notes-get-file-name'.")
 (defvar-local org-remark-notes-setup-done nil)
 (defvar-local org-remark-source-setup-done nil)
 
+(defvar org-remark-source-find-file-name-functions '()
+  "List of functions to get the source file referenced by
+the current buffer when `buffer-file-name` returns nil.")
+
 (defvar org-remark-last-notes-buffer nil
   "Stores the cloned indirect buffer visiting the notes file.
 It is meant to exist only one of these in each Emacs session.")
@@ -144,7 +149,7 @@ It is meant to exist only one of these in each Emacs session.")
 (defconst org-remark-prop-source-beg "org-remark-beg")
 (defconst org-remark-prop-source-end "org-remark-end")
 
-
+
 ;;;; Macros to create user-defined highlighter pen functions
 
 (defmacro org-remark-create (label &optional face properties)
@@ -216,7 +221,7 @@ the priority over the excerpt of the marginal notes."
                        (org-remark-change
                         #',(intern (format "org-remark-mark-%s" label)))))))))
 
-
+
 ;;;; Commands
 
 ;;;###autoload
@@ -270,7 +275,7 @@ recommended to turn it on as part of Emacs initialization.
       (setq org-remark-highlights nil)
       (remove-hook 'after-save-hook #'org-remark-save t))))
 
-
+
 ;; Org-remark Menu
 (defvar org-remark-menu-map
   (make-sparse-keymap "Org-remark"))
@@ -342,7 +347,7 @@ recommended to turn it on as part of Emacs initialization.
             [menu-bar org-remark]
             (list 'menu-item "Org-remark" org-remark-menu-map))
 
-
+
 ;;;; Other Commands
 
 (add-to-list 'org-remark-available-pens #'org-remark-mark)
@@ -586,7 +591,7 @@ This command is identical with passing a universal argument to
   (interactive "d")
   (org-remark-remove point :delete))
 
-
+
 ;;;; Internal Functions
 
 ;;;;; org-remark-find
@@ -671,7 +676,7 @@ Optioanlly ID can be passed to find the exacth ID match."
 
 
 
-
+
 ;;;; org-remark-highlight
 ;;   Work on a single highlight
 
@@ -772,6 +777,45 @@ non-nil.  Returns nil otherwise, or when no Org-ID is found."
   (and org-remark-use-org-id
        (org-entry-get point "ID" :inherit)))
 
+(defun org-remark-highlight-add-note (filename beg end props link text title id orgid)
+  "Add new note when buffer is marked with a new highlight. "
+  (let ((file-headline
+              (or (org-find-property
+                   org-remark-prop-source-file filename)
+                  (progn
+                    ;; If file-headline does not exist, create one at the bottom
+                    (goto-char (point-max))
+                    ;; Ensure to be in the beginning of line to add a new headline
+                    (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
+                    (insert (concat "* " title "\n"))
+                    (org-set-property org-remark-prop-source-file filename)
+                    (org-up-heading-safe) (point))))
+             (id-headline (org-find-property org-remark-prop-id id)))
+         ;; Add org-remark-link with updated line-num as a property
+         (when link (plist-put props "org-remark-link" link))
+         (if id-headline
+             (progn
+               (goto-char id-headline)
+               ;; Update the existing headline and position properties
+               ;; Don't update the headline text when it already exists
+               ;; Let the user decide how to manage the headlines
+               ;; (org-edit-headline text)
+               ;; FIXME update the line-num in a normal link if any
+               (org-remark-notes-set-properties beg end props))
+           ;; No headline with the marginal notes ID property. Create a new one
+           ;; at the end of the file's entry
+           (goto-char file-headline)
+           (org-narrow-to-subtree)
+           (goto-char (point-max))
+           ;; Ensure to be in the beginning of line to add a new headline
+           (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
+           ;; Create a headline
+           ;; Add a properties
+           (insert (concat "** " text "\n"))
+           (org-remark-notes-set-properties beg end props)
+           (when (and orgid org-remark-use-org-id)
+             (insert (concat "[[id:" orgid "]" "[" title "]]"))))))
+
 (defun org-remark-highlight-save (filename beg end props &optional title)
   "Save a single HIGHLIGHT in the marginal notes file.
 
@@ -825,49 +869,15 @@ When a new notes file is created, add
                  (run-hook-with-args-until-success
                   'org-remark-highlight-link-to-source-functions filename)))
          (notes-props))
+
     ;;; Set up notes buffer for sync, etc.
     (org-remark-notes-setup notes-buf (current-buffer) filename)
     (with-current-buffer notes-buf
       (when (featurep 'org-remark-convert-legacy) (org-remark-convert-legacy-data))
       ;;`org-with-wide-buffer is a macro that should work for non-Org file'
       (org-with-wide-buffer
-       (let ((file-headline
-              (or (org-find-property
-                   org-remark-prop-source-file filename)
-                  (progn
-                    ;; If file-headline does not exist, create one at the bottom
-                    (goto-char (point-max))
-                    ;; Ensure to be in the beginning of line to add a new headline
-                    (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
-                    (insert (concat "* " title "\n"))
-                    (org-set-property org-remark-prop-source-file filename)
-                    (org-up-heading-safe) (point))))
-             (id-headline (org-find-property org-remark-prop-id id)))
-         ;; Add org-remark-link with updated line-num as a property
-         (when link (plist-put props "org-remark-link" link))
-         (if id-headline
-             (progn
-               (goto-char id-headline)
-               ;; Update the existing headline and position properties
-               ;; Don't update the headline text when it already exists
-               ;; Let the user decide how to manage the headlines
-               ;; (org-edit-headline text)
-               ;; FIXME update the line-num in a normal link if any
-               (org-remark-notes-set-properties beg end props))
-           ;; No headline with the marginal notes ID property. Create a new one
-           ;; at the end of the file's entry
-           (goto-char file-headline)
-           (org-narrow-to-subtree)
-           (goto-char (point-max))
-           ;; Ensure to be in the beginning of line to add a new headline
-           (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
-           ;; Create a headline
-           ;; Add a properties
-           (insert (concat "** " text "\n"))
-           (org-remark-notes-set-properties beg end props)
-           (when (and orgid org-remark-use-org-id)
-             (insert (concat "[[id:" orgid "]" "[" title "]]"))))
-         (setq notes-props (list :body (org-remark-notes-get-text)))))
+       (org-remark-highlight-add-note filename beg end props link text title id orgid)
+       (setq notes-props (list :body (org-remark-notes-get-text))))
       ;; (cond
       ;;  ;; fix GH issue #19
       ;;  ;; Temporarily remove `org-remark-save' from the `after-save-hook'
@@ -895,7 +905,7 @@ When a new notes file is created, add
         )
       notes-props)))
 
-
+
 ;;;;; org-remark-notes
 ;;    Work on marginal notes
 
@@ -1014,7 +1024,7 @@ drawer."
       full-text)))
 
 
-
+
 ;;;;; org-remark-highlights
 ;;    Work on all the highlights in the current buffer
 
@@ -1276,7 +1286,7 @@ Case 2. The overlay points to no buffer
       (setq org-remark-highlights (delete ov org-remark-highlights))))
   t)
 
-
+
 ;;;;; Other utilities
 (defun org-remark-source-get-file-name (filename)
   "Convert FILENAME either to absolute or relative for marginal notes files.
@@ -1314,7 +1324,7 @@ function extends the behavior and looks for the word at point"
           (list beg end))
       (user-error "No region selected and the cursor is not on a word"))))
 
-
+
 ;;;; Footer
 
 (provide 'org-remark)
