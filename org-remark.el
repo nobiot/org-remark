@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.0.5
 ;; Created: 22 December 2020
-;; Last modified: 08 January 2023
+;; Last modified: 09 January 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -872,7 +872,7 @@ buffer for automatic sync."
       (org-remark-notes-setup notes-buf source-buf))
     (with-current-buffer notes-buf
       (when (featurep 'org-remark-convert-legacy) (org-remark-convert-legacy-data))
-      ;;`org-with-wide-buffer is a macro that should work for non-Org file'
+      ;;`org-with-wide-buffer' is a macro that should work for non-Org file
       (org-with-wide-buffer
        (let ((file-headline
               (or (org-find-property
@@ -1319,7 +1319,17 @@ Case 2. The overlay points to no buffer
     ;; annotation when it is.
     (when (and (overlay-buffer ov)
                (= (overlay-start ov) (overlay-end ov)))
-      (when (not buffer-read-only)
+      (when (and (not buffer-read-only)
+                 (not (derived-mode-p 'special-mode)))
+                ;; buffer-size 0 happens for package like nov.el It
+                ;; erases the buffer (size 0) and renders a new page in
+                ;; the same buffer.  In this case, buffer is writable.
+        ;; Removing the notes here is meant to be automatically remove
+        ;; notes when you delete a region that contains a higlight
+        ;; overlay.
+
+        ;; TODO Relying on the current major mode being derived from
+        ;; special-mode is not the best.
         (org-remark-notes-remove (overlay-get ov 'org-remark-id)))
       (delete-overlay ov))
     (unless (overlay-buffer ov)
