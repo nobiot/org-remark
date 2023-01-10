@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.0.5
 ;; Created: 22 December 2020
-;; Last modified: 09 January 2023
+;; Last modified: 10 January 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -761,7 +761,7 @@ round-trip back to the notes file."
          (when notes-props
            (unless (overlay-get ov 'help-echo)
              (overlay-put ov 'help-echo (plist-get notes-props :body)))
-           (overlay-put ov '_org-remark-note-body
+           (overlay-put ov '*org-remark-note-body
                         (plist-get notes-props :body)))))
       (deactivate-mark)
       (org-remark-highlights-housekeep)
