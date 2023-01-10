@@ -802,12 +802,12 @@ This function assumes the current buffer is the source buffer."
   (and org-remark-use-org-id
        (org-entry-get point "ID" :inherit)))
 
+;;; TODO Remove test function (should be implemented in
+;;; org-remark-nov.el)
 (defvar org-remark-notes-create-entry-functions
-  '((1 . test/simple-headline)
-    (2 . org-remark-highlight-save-file-entry)))
-
-;; (defvar org-remark-notes-create-entry-functions
-;;   '((1 . org-remark-highlight-save-file-entry)))
+  '((nov-mode . ((1 . test/simple-headline)
+                 (2 . org-remark-highlight-save-file-entry)))
+    (default . ((1 . org-remark-highlight-save-file-entry)))))
 
 (defun org-remark-highlight-save (overlay source-buf notes-buf)
   "Save a single HIGHLIGHT in the marginal notes file.
@@ -856,12 +856,15 @@ source with using ORGID.
 When the current source buffer is not set up for sync with notes,
 this function calls `org-remark-notes-setup' to prepare the notes
 buffer for automatic sync."
-  (let (notes-props)
+  (let ((notes-props)
+        (notes-create-entry-functions
+         (cdr (or (assoc-string major-mode org-remark-notes-create-entry-functions)
+                  (assoc-string 'default org-remark-notes-create-entry-functions)))))
     ;;; Set up notes buffer for sync for the source buffer
     (with-current-buffer notes-buf
       (save-restriction
         (widen)
-        (dolist (pair org-remark-notes-create-entry-functions)
+        (dolist (pair notes-create-entry-functions)
           (let ((level (car pair))
                 (fn (cdr pair)))
             (goto-char (funcall fn level source-buf notes-buf))
@@ -872,6 +875,7 @@ buffer for automatic sync."
           (org-remark-notes-setup notes-buf source-buf))
         notes-props))))
 
+;;; TODO remove this test function
 (defun test/simple-headline (level source-buf _notes-buf)
   (let (filename)
     (with-current-buffer source-buf
