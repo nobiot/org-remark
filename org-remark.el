@@ -762,15 +762,15 @@ round-trip back to the notes file."
            (unless (overlay-get ov 'help-echo)
              (overlay-put ov 'help-echo (plist-get notes-props :body)))
            (overlay-put ov '*org-remark-note-body
-                        (plist-get notes-props :body)))))
+                        (plist-get notes-props :body)))
+         ;; Save the notes buffer when not loading
+         (let ((notes-buf (find-file-noselect (org-remark-notes-get-file-name))))
+           (unless (eq notes-buf (current-buffer))
+             (with-current-buffer notes-buf (save-buffer))))))
       (deactivate-mark)
       (org-remark-highlights-housekeep)
       (org-remark-highlights-sort)
       (setq org-remark-source-setup-done t)
-      ;; Save the notes buffer
-      (let ((notes-buf (find-file-noselect (org-remark-notes-get-file-name))))
-        (unless (eq notes-buf (current-buffer))
-          (with-current-buffer notes-buf (save-buffer))))
       ;; Return overlay
       ov)))
 
