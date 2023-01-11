@@ -23,23 +23,24 @@
                 (2 . org-remark-highlight-save-file-entry))))
 
 (defun org-remark-nov-highlight-save-book-entry (level source-buf _notes-buf)
-  ".
+  "Create the book entry if it does not exist for the epub file
 Assume the current buffer is in the notes buffer."
   (let (filename title)
     (with-current-buffer source-buf
       (setq filename nov-file-name
             title (cdr (assoc 'title nov-metadata))))
-    (or (org-find-property
-         "org-remark-nov-file" filename)
+    ;; Back in the notes buffer, return the point of the beginning of
+    ;; the headline
+    (or (org-find-property "org-remark-nov-file" filename)
         (progn
-          ;; If file-headline does not exist, create one at the bottom
+          ;; If the book entry does not exist, create one at the bottom of notes buffer
           (goto-char (point-max))
           ;; Ensure to be in the beginning of line to add a new headline
           (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
           (insert-char (string-to-char "*") level)
           (insert (concat " " title "\n"))
           (org-set-property "org-remark-nov-file" filename)
-          (point)))))
+          (org-back-to-heading) (point)))))
 
 ;;; TODO move this test function to the user manual as a sample
 (defun test/simple-headline (level source-buf _notes-buf)
@@ -47,17 +48,17 @@ Assume the current buffer is in the notes buffer."
     (with-current-buffer source-buf
       (setq filename (org-remark-source-get-file-name
                       (org-remark-source-find-file-name))))
-    (or (org-find-property
-         "org-remark-file-name" filename)
+    ;; Return the point of the beginning of the headline
+    (or (org-find-property "org-remark-file-name" filename)
         (progn
-          ;; If file-headline does not exist, create one at the bottom
+          ;; If this level of headline does not exist, create one at the bottom
           (goto-char (point-max))
           ;; Ensure to be in the beginning of line to add a new headline
           (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
           (insert-char (string-to-char "*") level)
           (insert (concat " " "title" "\n"))
           (org-set-property "org-remark-file-name" filename)
-          (point)))))
+          (org-back-to-heading) (point)))))
 
 (provide 'org-remark-nov)
 ;;; org-remark-nov.el ends here
