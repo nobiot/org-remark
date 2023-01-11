@@ -802,12 +802,11 @@ This function assumes the current buffer is the source buffer."
   (and org-remark-use-org-id
        (org-entry-get point "ID" :inherit)))
 
-;;; TODO Remove test function (should be implemented in
-;;; org-remark-nov.el)
+;;; TODO When design finalizes, move to top of file.  Probably should
+;;; not be a user option, and leave it to the extension developer to add
+;;; a mode-specific entry.
 (defvar org-remark-notes-create-entry-functions
-  '((nov-mode . ((1 . test/simple-headline)
-                 (2 . org-remark-highlight-save-file-entry)))
-    (default . ((1 . org-remark-highlight-save-file-entry)))))
+  '((default . ((1 . org-remark-highlight-save-file-entry)))))
 
 (defun org-remark-highlight-save (overlay source-buf notes-buf)
   "Save a single HIGHLIGHT in the marginal notes file.
@@ -874,7 +873,7 @@ buffer for automatic sync."
     (unless org-remark-source-setup-done
       (org-remark-notes-setup notes-buf source-buf))
     ;;; Return notes-props
-    notes-props)
+    notes-props))
 
 ;;; TODO remove this test function
 (defun test/simple-headline (level source-buf _notes-buf)
