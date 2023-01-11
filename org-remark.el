@@ -411,7 +411,7 @@ in the current buffer.  Each highlight is an overlay."
   (let ((notes-buf (find-file-noselect (org-remark-notes-get-file-name)))
         (source-buf (or (buffer-base-buffer) (current-buffer))))
     (dolist (h org-remark-highlights)
-      (org-remark-highlight-save h source-buf notes-buf))
+      (org-remark-highlight-add h source-buf notes-buf))
     ;;; Avoid saving the notes buffer if it is the same as the source buffer
     (if (eq source-buf notes-buf)
         (set-buffer-modified-p nil)
@@ -752,7 +752,7 @@ round-trip back to the notes file."
                 (source-buf (current-buffer))
                 ;; Get props for create and change modes
                 (notes-props
-                 (org-remark-highlight-save ov source-buf notes-buf)))
+                 (org-remark-highlight-add ov source-buf notes-buf)))
            ;; TODO generalize putting props to highlight overlay
            (when notes-props
              (unless (overlay-get ov 'help-echo)
@@ -805,11 +805,13 @@ This function assumes the current buffer is the source buffer."
 ;;; TODO When design finalizes, move to top of file.  Probably should
 ;;; not be a user option, and leave it to the extension developer to add
 ;;; a mode-specific entry.
-(defvar org-remark-notes-create-entry-functions
-  '((default . ((1 . org-remark-highlight-save-file-entry)))))
+(defvar org-remark-notes-headline-functions
+  '((default . ((1 . org-remark-highlight-add-source-headline-maybe)))))
 
-(defun org-remark-highlight-save (overlay source-buf notes-buf)
-  "Save a single HIGHLIGHT in the marginal notes file.
+(make-obsolete #'org-remark-highlight-save #'org-remark-highlight-add "1.3.0")
+
+(defun org-remark-highlight-add (overlay source-buf notes-buf)
+  "Add a single HIGHLIGHT in the marginal notes file.
 
 Return the highlight's data properties list (TODO refer to ...).
 
@@ -856,61 +858,70 @@ When the current source buffer is not set up for sync with notes,
 this function calls `org-remark-notes-setup' to prepare the notes
 buffer for automatic sync."
   (let ((notes-props)
-        (notes-create-entry-functions
-         (cdr (or (assoc-string major-mode org-remark-notes-create-entry-functions)
-                  (assoc-string 'default org-remark-notes-create-entry-functions)))))
+        (notes-headline-functions
+         (cdr (or (assoc major-mode org-remark-notes-headline-functions)
+                  (assoc 'default org-remark-notes-headline-functions)))))
     (with-current-buffer notes-buf
-      (save-restriction
-        (widen)
-        (dolist (pair notes-create-entry-functions)
+      (org-with-wide-buffer
+        (dolist (pair notes-headline-functions)
           (let ((level (car pair))
                 (fn (cdr pair)))
             (goto-char (funcall fn level source-buf notes-buf))
             (org-narrow-to-subtree)))
         (setq notes-props
-              (org-remark-highlight-save-highlight-entry overlay source-buf notes-buf))))
+              (org-remark-highlight-add-or-update-highlight-headline
+               overlay source-buf notes-buf))))
     ;;; Set up notes buffer for sync for the source buffer
-    (unless org-remark-source-setup-done
-      (org-remark-notes-setup notes-buf source-buf))
+    (with-current-buffer source-buf
+      (unless org-remark-source-setup-done
+        (org-remark-notes-setup notes-buf source-buf)))
     ;;; Return notes-props
     notes-props))
 
-(defun org-remark-highlight-save-file-entry (level source-buf _notes-buf)
-  ".
-Return point of file entry.
-Assume the current buffer is NOTES-BUF."
-  (let (filename title)
+(defun org-remark-highlight-add-source-headline-maybe (level source-buf notes-buf)
+  "Add a new source headline if not yet present in NOTES-BUF.
+Return the point of beginning of source headline regardless of it
+being newly added or already presented.
 
+SOURCE-BUF is the source buffer that contains highlights.
+
+Assume the current buffer is NOTES-BUF."
+  (let (source-name title)
     (with-current-buffer source-buf
-      (setq filename (org-remark-source-get-file-name
+      (setq source-name (org-remark-source-get-file-name
                       (org-remark-source-find-file-name)))
       (setq title (org-remark-highlight-get-title)))
+    (with-current-buffer notes-buf
+      ;; Transparent org-marginalia data conversion to org-remark
+      (when (featurep 'org-remark-convert-legacy) (org-remark-convert-legacy-data))
+      ;; Return the beginning point of the headline. Create if not present
+      (or (org-find-property
+           org-remark-prop-source-file source-name)
+          (progn
+            ;; If file-headline does not exist, create one at the bottom
+            (goto-char (point-max))
+            ;; Ensure to be in the beginning of line to add a new headline
+            (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
+            (insert-char (string-to-char "*") level)
+            (insert (concat " " title "\n"))
+            (org-set-property org-remark-prop-source-file source-name)
+            (org-back-to-heading) (point))))))
 
-    (when (featurep 'org-remark-convert-legacy) (org-remark-convert-legacy-data))
+(defun org-remark-highlight-add-or-update-highlight-headline (hightlight source-buf notes-buf)
+  "Add a new HIGHLIGHT headlne to the NOTES-BUF or update it.
+Return notes-props as a property list.
 
-    (or (org-find-property
-         org-remark-prop-source-file filename)
-        (progn
-          ;; If file-headline does not exist, create one at the bottom
-          (goto-char (point-max))
-          ;; Ensure to be in the beginning of line to add a new headline
-          (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
-          (insert (concat (insert-char (string-to-char "*") level)
-                          " " title "\n"))
-          (org-set-property org-remark-prop-source-file filename)
-          (org-back-to-heading) (point)))))
+HIGHLIGHT is an overlay from the SOURCE-BUF.
 
-(defun org-remark-highlight-save-highlight-entry (overlay source-buf _notes-buf)
-  ".
-Return notes-props Assume the current buffer is NOTES-BUF and
-point is placed on the beginning of file-headline (one level up)."
+Assume the current buffer is NOTES-BUF and point is placed on the
+beginning of source-headline, which should be one level up."
   ;; Add org-remark-link with updated line-num as a property
   (let (title beg end props id text filename line-num link orgid)
     (with-current-buffer source-buf
       (setq title (org-remark-highlight-get-title)
-            beg (overlay-start overlay)
-            end (overlay-end overlay)
-            props (overlay-properties overlay)
+            beg (overlay-start highlight)
+            end (overlay-end highlight)
+            props (overlay-properties highlight)
             id (plist-get props 'org-remark-id)
             text (org-with-wide-buffer (buffer-substring-no-properties beg end))
             filename (org-remark-source-get-file-name
@@ -923,32 +934,34 @@ point is placed on the beginning of file-headline (one level up)."
                     'org-remark-highlight-link-to-source-functions filename))
             orgid (org-remark-highlight-get-org-id beg))
       (when link (plist-put props "org-remark-link" link)))
-
-    (let ((id-headline (org-find-property org-remark-prop-id id))
-          ;; Assume point is at the beginning of the parent headline
-          (level (1+ (org-current-level))))
-      (if id-headline
-          (progn
-            (goto-char id-headline)
-            ;; Update the existing headline and position properties
-            ;; Don't update the headline text when it already exists
-            ;; Let the user decide how to manage the headlines
-            ;; (org-edit-headline text)
-            (org-remark-notes-set-properties beg end props))
-        ;; No headline with the marginal notes ID property. Create a new one
-        ;; at the end of the file's entry
-        (org-narrow-to-subtree)
-        (goto-char (point-max))
-        ;; Ensure to be in the beginning of line to add a new headline
-        (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
-        ;; Create a headline
-        ;; Add a properties
-        (insert (concat (insert-char (string-to-char "*") level)
-                        " " text "\n"))
-        (org-remark-notes-set-properties beg end props)
-        (when (and orgid org-remark-use-org-id)
-          (insert (concat "[[id:" orgid "]" "[" title "]]"))))
-      (list :body (org-remark-notes-get-body)))))
+    ;;; Make it explicit that we are now in the notes-buf, though it is
+    ;;; functionally redundant.
+    (with-current-buffer notes-buf
+      (let ((highlight-headline (org-find-property org-remark-prop-id id))
+            ;; Assume point is at the beginning of the parent headline
+            (level (1+ (org-current-level))))
+        (if highlight-headline
+            (progn
+              (goto-char id-headline)
+              ;; Update the existing headline and position properties
+              ;; Don't update the headline text when it already exists
+              ;; Let the user decide how to manage the headlines
+              ;; (org-edit-headline text)
+              (org-remark-notes-set-properties beg end props))
+          ;; No headline with the marginal notes ID property. Create a new one
+          ;; at the end of the file's entry
+          (org-narrow-to-subtree)
+          (goto-char (point-max))
+          ;; Ensure to be in the beginning of line to add a new headline
+          (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
+          ;; Create a headline
+          ;; Add a properties
+          (insert (concat (insert-char (string-to-char "*") level)
+                          " " text "\n"))
+          (org-remark-notes-set-properties beg end props)
+          (when (and orgid org-remark-use-org-id)
+            (insert (concat "[[id:" orgid "]" "[" title "]]"))))
+        (list :body (org-remark-notes-get-body))))))
 
 (defun org-remark-highlight-load (highlight)
   "Load a single HIGHLIGHT to the source buffer.
