@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.0.5
 ;; Created: 22 December 2020
-;; Last modified: 10 January 2023
+;; Last modified: 11 January 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -860,7 +860,6 @@ buffer for automatic sync."
         (notes-create-entry-functions
          (cdr (or (assoc-string major-mode org-remark-notes-create-entry-functions)
                   (assoc-string 'default org-remark-notes-create-entry-functions)))))
-    ;;; Set up notes buffer for sync for the source buffer
     (with-current-buffer notes-buf
       (save-restriction
         (widen)
@@ -870,10 +869,12 @@ buffer for automatic sync."
             (goto-char (funcall fn level source-buf notes-buf))
             (org-narrow-to-subtree)))
         (setq notes-props
-              (org-remark-highlight-save-highlight-entry overlay source-buf notes-buf))
-        (unless org-remark-source-setup-done
-          (org-remark-notes-setup notes-buf source-buf))
-        notes-props))))
+              (org-remark-highlight-save-highlight-entry overlay source-buf notes-buf))))
+    ;;; Set up notes buffer for sync for the source buffer
+    (unless org-remark-source-setup-done
+      (org-remark-notes-setup notes-buf source-buf))
+    ;;; Return notes-props
+    notes-props)
 
 ;;; TODO remove this test function
 (defun test/simple-headline (level source-buf _notes-buf)
