@@ -875,24 +875,6 @@ buffer for automatic sync."
     ;;; Return notes-props
     notes-props))
 
-;;; TODO remove this test function
-(defun test/simple-headline (level source-buf _notes-buf)
-  (let (filename)
-    (with-current-buffer source-buf
-      (setq filename (org-remark-source-get-file-name
-                      (org-remark-source-find-file-name))))
-    (or (org-find-property
-         "file-name" filename)
-        (progn
-          ;; If file-headline does not exist, create one at the bottom
-          (goto-char (point-max))
-          ;; Ensure to be in the beginning of line to add a new headline
-          (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
-          (insert (concat (insert-char (string-to-char "*") level)
-                          " " "title" "\n"))
-          (org-set-property "file-name" filename)
-          (point)))))
-
 (defun org-remark-highlight-save-file-entry (level source-buf _notes-buf)
   ".
 Return point of file entry.
