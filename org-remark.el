@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.0.5
 ;; Created: 22 December 2020
-;; Last modified: 10 January 2023
+;; Last modified: 11 January 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -856,7 +856,10 @@ this function calls `org-remark-notes-setup' to prepare the notes
 buffer for automatic sync."
   (let* ((filename (org-remark-source-get-file-name filename))
          (id (plist-get props 'org-remark-id))
-         (text (org-with-wide-buffer (buffer-substring-no-properties beg end)))
+         (text (org-with-wide-buffer
+                (replace-regexp-in-string
+                 "\n" " "
+                 (buffer-substring-no-properties beg end))))
          (notes-buf (find-file-noselect (org-remark-notes-get-file-name)))
          (source-buf (current-buffer))
          (line-num (org-current-line beg))
