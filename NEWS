@@ -1,6 +1,9 @@
+Development
+  - fix: Text cut off in notes if the highlight spans across two lines #56
+    Thanks to GitHub user @sati-bodhi for reporting and suggesting a fix
+    (code implemented by nobiot)
 
-
-Version 1.0.5 - Current
+Version 1.0.5
   - fix #28 toggle causes error on saving highlights
   - fix #39 source-file-name incorrect issue
 
