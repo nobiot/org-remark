@@ -923,7 +923,9 @@ beginning of source-headline, which should be one level up."
             end (overlay-end highlight)
             props (overlay-properties highlight)
             id (plist-get props 'org-remark-id)
-            text (org-with-wide-buffer (buffer-substring-no-properties beg end))
+            text (org-with-wide-buffer
+                  (replace-regexp-in-string "\n" " " text)
+                  (buffer-substring-no-properties beg end))
             filename (org-remark-source-get-file-name
                       (org-remark-source-find-file-name))
             line-num (org-current-line beg)
