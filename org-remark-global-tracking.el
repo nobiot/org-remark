@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 15 August 2021
-;; Last modified: 10 January 2023
+;; Last modified: 11 January 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -60,6 +60,16 @@ suffix to the file name without the extension."
 Each one is called with FILENAME as an argument."
   :group 'org-remark
   :type '(repeat function))
+
+(defvar org-remark-source-find-file-name-functions nil
+  "List of functions to get the source file name.
+It is an abnormal hook run with no argument and each function
+must return a file-name-equvalent as a string that uniquely
+identifies the source.  The hook is run when `buffer-file-name`
+in source buffer returns nil, meaning the source buffer is not
+visiting a file.
+
+Meant to be set by extensions such as `org-remark-eww'")
 
 ;;;###autoload
 (define-minor-mode org-remark-global-tracking-mode

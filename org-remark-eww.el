@@ -35,7 +35,7 @@
 ;;; Code:
 
 (require 'eww)
-(declare-function org-remark-auto-on "org-remark-global-tracking")
+(require 'org-remark-global-tracking)
 
 ;;;###autoload
 (define-minor-mode org-remark-eww-mode
