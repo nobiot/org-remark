@@ -6,7 +6,7 @@
 ;;          Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 23 December 2022
-;; Last modified: 10 January 2023
+;; Last modified: 11 January 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -35,7 +35,7 @@
 ;;; Code:
 
 (require 'eww)
-(declare-function org-remark-auto-on "org-remark-global-tracking")
+(require 'org-remark-global-tracking)
 
 ;;;###autoload
 (define-minor-mode org-remark-eww-mode
