@@ -907,7 +907,7 @@ Assume the current buffer is NOTES-BUF."
             (org-set-property org-remark-prop-source-file source-name)
             (org-back-to-heading) (point))))))
 
-(defun org-remark-highlight-add-or-update-highlight-headline (hightlight source-buf notes-buf)
+(defun org-remark-highlight-add-or-update-highlight-headline (highlight source-buf notes-buf)
   "Add a new HIGHLIGHT headlne to the NOTES-BUF or update it.
 Return notes-props as a property list.
 
@@ -924,8 +924,9 @@ beginning of source-headline, which should be one level up."
             props (overlay-properties highlight)
             id (plist-get props 'org-remark-id)
             text (org-with-wide-buffer
-                  (replace-regexp-in-string "\n" " " text)
-                  (buffer-substring-no-properties beg end))
+                  (replace-regexp-in-string
+                   "\n" " "
+                   (buffer-substring-no-properties beg end)))
             filename (org-remark-source-get-file-name
                       (org-remark-source-find-file-name))
             line-num (org-current-line beg)
