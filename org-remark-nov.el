@@ -2,7 +2,7 @@
 
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 9 January 2023
-;; Last modified: 11 January 2023
+;; Last modified: 12 January 2023
 
 ;;; Commentary:
 
@@ -22,6 +22,8 @@
 ;; displayed get removed; the ones for the new document need to be
 ;; loaded document after `nov-mode' renders the new document.
 (add-hook 'nov-post-html-render-hook #'org-remark-highlights-load)
+(add-hook 'org-remark-highlights-after-load-hook
+          #'org-remark-nov-highlight-adjust-positions)
 (add-to-list 'org-remark-notes-headline-functions
   '(nov-mode . ((1 . org-remark-nov-highlight-add-book-headline-maybe)
                 (2 . org-remark-highlight-add-source-headline-maybe))))
@@ -74,6 +76,11 @@ Assume the current buffer is NOTES-BUF."
             (insert (concat " " title "\n"))
             (org-set-property "org-remark-nov-file" filename)
             (org-back-to-heading) (point))))))
+
+(defun org-remark-nov-highlight-adjust-positions (overlays _notes-buf)
+  (dolist (ov overlays)
+    (let ((highlight-text (overlay-get ov '*org-remark-original-text)))
+      (when highlight-text (test/move-highlight ov highlight-text)))))
 
 (provide 'org-remark-nov)
 ;;; org-remark-nov.el ends here

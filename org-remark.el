@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.0.5
 ;; Created: 22 December 2020
-;; Last modified: 11 January 2023
+;; Last modified: 13 January 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -753,12 +753,8 @@ round-trip back to the notes file."
                 ;; Get props for create and change modes
                 (notes-props
                  (org-remark-highlight-add ov source-buf notes-buf)))
-           ;; TODO generalize putting props to highlight overlay
            (when notes-props
-             (unless (overlay-get ov 'help-echo)
-               (overlay-put ov 'help-echo (plist-get notes-props :body)))
-             (overlay-put ov '*org-remark-note-body
-                          (plist-get notes-props :body)))
+             (org-remark-highlight-put-props ov notes-props))
            ;; Save the notes buffer when not loading
            (unless (eq notes-buf (current-buffer))
              (with-current-buffer notes-buf (save-buffer))))))
@@ -945,7 +941,7 @@ beginning of source-headline, which should be one level up."
             (level (1+ (org-current-level))))
         (if highlight-headline
             (progn
-              (goto-char id-headline)
+              (goto-char highlight-headline)
               ;; Update the existing headline and position properties
               ;; Don't update the headline text when it already exists
               ;; Let the user decide how to manage the headlines
@@ -961,13 +957,21 @@ beginning of source-headline, which should be one level up."
           ;; Add a properties
           (insert (concat (insert-char (string-to-char "*") level)
                           " " text "\n"))
+          ;; org-remark-original-text should be added onlyy when this
+          ;; headline is created. No update afterwards
+          (plist-put props "org-remark-original-text" text)
           (org-remark-notes-set-properties beg end props)
           (when (and orgid org-remark-use-org-id)
             (insert (concat "[[id:" orgid "]" "[" title "]]"))))
-        (list :body (org-remark-notes-get-body))))))
+        (list :body (org-remark-notes-get-body)
+              :original-text text)))))
 
 (defun org-remark-highlight-load (highlight)
   "Load a single HIGHLIGHT to the source buffer.
+
+Return highlight overlay that has been loaded on the source
+buffer.
+
 Assume the current buffer is the source buffer."
   (let* ((id (plist-get highlight :id))
          (location (plist-get highlight :location))
@@ -975,18 +979,27 @@ Assume the current buffer is the source buffer."
          (end (cdr location))
          (label (plist-get highlight :label))
          (ov nil)
-         (props (plist-get highlight :props)))
+         (props (plist-get highlight :props))
+         (highlight-text (plist-get props :original-text)))
     (let ((fn (intern (concat "org-remark-mark-" label))))
       (unless (functionp fn) (setq fn #'org-remark-mark))
       (setq ov (funcall fn beg end id :load))
-      ;; TODO Generalize the part that updates properties.
-      ;; :body should not be the fixed property.
-      ;; '(:text (val . fn) :prop1 (val . fn) :prop2 (val .fn))
-      ;; (dolist list)
-      (unless (overlay-get ov 'help-echo)
-        (overlay-put ov 'help-echo (plist-get props :body)))
-      (overlay-put ov '*org-remark-note-body
-                   (plist-get props :body)))))
+      (org-remark-highlight-put-props ov props)
+      ;; Return highlight overlay
+      ov)))
+
+(defun org-remark-highlight-put-props (highlight plist)
+  "Put PLIST from notes Org props to HIGHLIGHT overlay properties."
+  ;; TODO Generalize the part that updates properties.
+  ;; :body should not be the fixed property.
+  ;; '(:text (val . fn) :prop1 (val . fn) :prop2 (val .fn))
+  ;; (dolist list)
+  (unless (overlay-get highlight 'help-echo)
+    (overlay-put highlight 'help-echo (plist-get plist :body)))
+  (overlay-put highlight '*org-remark-note-body
+               (plist-get plist :body))
+  (overlay-put highlight '*org-remark-original-text
+               (plist-get plist :original-text)))
 
 (defun org-remark-highlight-clear (overlay)
   "Clear a single highlight OVERLAY.
@@ -1244,13 +1257,21 @@ highlight is a property list in the following properties:
                           (end (string-to-number
                                 (org-entry-get (point)
                                                org-remark-prop-source-end)))
-                          (text (org-remark-notes-get-body)))
+                          (body (org-remark-notes-get-body)))
                  (push (list :id id
                              :location (cons beg end)
                              :label    (org-entry-get (point) "org-remark-label")
-                             :props    (list :body text))
+                             :props    (list
+                                        :original-text
+                                        (org-entry-get (point) "org-remark-original-text")
+                                        :body body))
                        highlights))))
            highlights))))))
+
+(defvar org-remark-highlights-after-load-hook nil
+  "Hook run after `org-remark-highlights-load'.
+It is run with OVERLAYS and NOTES-BUF as arguments.  OVERLAYS are
+highlights.  It is run with the source buffer as current buffer.")
 
 (defun org-remark-highlights-load ()
   "Visit `org-remark-notes-file' & load the saved highlights onto current buffer.
@@ -1266,10 +1287,13 @@ Otherwise, do not forget to turn on `org-remark-mode' manually to
 load the highlights"
   ;; Loop highlights and add them to the current buffer
   (let ((notes-buf (find-file-noselect (org-remark-notes-get-file-name)))
-        (source-buf (current-buffer)))
-    (dolist (highlight (org-remark-highlights-get notes-buf))
-      (org-remark-highlight-load highlight))
-    (org-remark-notes-setup notes-buf source-buf))
+        (source-buf (current-buffer))
+        (overlays)) ;; highlight overlays
+    (dolist (highlight (org-remark-highlights-get notes-buf) overlays)
+      (push (org-remark-highlight-load highlight) overlays))
+    (org-remark-notes-setup notes-buf source-buf)
+    (run-hook-with-args 'org-remark-highlights-after-load-hook
+                        overlays notes-buf))
   t)
 
 (defun org-remark-highlights-get-positions (&optional reverse)
