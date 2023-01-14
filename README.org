@@ -4,25 +4,14 @@
 #+html: <a href="https://www.gnu.org/software/emacs/"><img alt="GNU Emacs" src="https://img.shields.io/static/v1?logo=gnuemacs&logoColor=fafafa&label=Made%20for&message=GNU%20Emacs&color=7F5AB6&style=flat"/></a>
 #+html: <img alt="GPLv3" src="https://img.shields.io/badge/License-GPLv3-blue.svg">
 
-* ❦❦❦ IMPORTANT NOTICE ❦❦❦ :noexport:
+* Breaking Changes :noexport:
 
-[This notice written on 18 January 2022]
-
-Happy 2022!
-
-I have changed the name of the project and package to "*Org-remark*" from Org-marginalia.
-
-If you are using Org-marginalia now, there are breaking changes. This package includes the feature that automatically converts the old Org-marginalia data into the new Org-remark data. Add ~org-remark-convert-legacy~ feature like this:
-
-#+begin_src elisp
-  (require 'org-remark-convert-legacy)
-#+end_src
-
-This feature is designed to work automatically and transparently to you, meaning you should not have to do anything, as long as you did not customize ~org-marginala-notes-file-path~. If you did, you also need to customize ~org-remark-notes-file-path~. You can also manually do data conversion if you wish. For more detail, refer to the docstring of function ~org-remark-convert-legacy-data~.
+- [18 January 2022] Package name change from Org-marginalia to Org-remark. See [[https://github.com/nobiot/org-remark/issues/11][detail on data conversion]].
 
 * Introduction
 
-Org-remark lets you highlight and annotate any text file with using Org mode.
+Org-remark lets you highlight and annotate text files and websites with
+using Org mode.
 
 A user manual is available [[https://nobiot.github.io/org-remark/][online]] or Emacs in-system as an Info node `(org-remark)': (~C-h i~ and find the =Org-remark= node).
 
@@ -95,6 +84,16 @@ Create issues, discussion, and/or pull requests in the GitHub repository. All we
 Org-remark is available on GNU ELPA and thus copyrighted by the [[http://fsf.org][Free Software Foundation]] (FSF). This means that anyone who is making a substantive code contribution will need to "assign the copyright for your contributions to the FSF so that they can be included in GNU Emacs" ([[https://orgmode.org/contribute.html#copyright][Org Mode website]]).
 
 Thank you.
+
+* Contributors
+** New features
+- ~echo-text~ update from the marginal notes to the source buffer by marty hiatt (@mooseyboots)
+- Support for websites with ~eww-mode~ by Vedang Manerikar (@vedang)
+
+** Bug fixes: Nan Jun Jie (@nanjj), @sati-bodhi
+
+** Documentation: @randomwangran
+
 
 * License
 
