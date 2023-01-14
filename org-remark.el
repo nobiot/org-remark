@@ -1214,7 +1214,7 @@ It is meant to be used in `after-save-hook'."
     (with-current-buffer notes-buffer
       (org-remark-notes-housekeep)
       (dolist (source-buf org-remark-notes-source-buffers)
-        (with-current-buffer source-buffer
+        (with-current-buffer source-buf
           (org-remark-highlights-load :update))))
     t))
 
