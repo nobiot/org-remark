@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 15 August 2021
-;; Last modified: 10 January 2023
+;; Last modified: 14 January 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -60,6 +60,16 @@ suffix to the file name without the extension."
 Each one is called with FILENAME as an argument."
   :group 'org-remark
   :type '(repeat function))
+
+(defvar org-remark-source-find-file-name-functions nil
+  "List of functions to get the source file name.
+It is an abnormal hook run with no argument and each function
+must return a file-name-equvalent as a string that uniquely
+identifies the source.  The hook is run when `buffer-file-name`
+in source buffer returns nil, meaning the source buffer is not
+visiting a file.
+
+Meant to be set by extensions such as `org-remark-eww'")
 
 ;;;###autoload
 (define-minor-mode org-remark-global-tracking-mode
@@ -127,10 +137,10 @@ This function is meant to be added to `find-file-hook' by
       (expand-file-name org-remark-notes-file-name user-emacs-directory))))
 
 (defun org-remark-source-find-file-name ()
-  "Assumes that we are currently in the source buffer.
-Returns the filename for the source buffer.  We use this filename
-to identify the source buffer in all operations related to
-marginal notes."
+  "Return the filename for the source buffer.
+We use this filename to identify the source buffer in all
+operations related to marginal notes.
+Assumes that we are currently in the source buffer."
   (let ((filename (or buffer-file-name
                       (run-hook-with-args-until-success
                        'org-remark-source-find-file-name-functions))))

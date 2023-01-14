@@ -4,25 +4,16 @@
 #+html: <a href="https://www.gnu.org/software/emacs/"><img alt="GNU Emacs" src="https://img.shields.io/static/v1?logo=gnuemacs&logoColor=fafafa&label=Made%20for&message=GNU%20Emacs&color=7F5AB6&style=flat"/></a>
 #+html: <img alt="GPLv3" src="https://img.shields.io/badge/License-GPLv3-blue.svg">
 
-* ❦❦❦ IMPORTANT NOTICE ❦❦❦ :noexport:
+* Breaking Changes :noexport:
 
-[This notice written on 18 January 2022]
-
-Happy 2022!
-
-I have changed the name of the project and package to "*Org-remark*" from Org-marginalia.
-
-If you are using Org-marginalia now, there are breaking changes. This package includes the feature that automatically converts the old Org-marginalia data into the new Org-remark data. Add ~org-remark-convert-legacy~ feature like this:
-
-#+begin_src elisp
-  (require 'org-remark-convert-legacy)
-#+end_src
-
-This feature is designed to work automatically and transparently to you, meaning you should not have to do anything, as long as you did not customize ~org-marginala-notes-file-path~. If you did, you also need to customize ~org-remark-notes-file-path~. You can also manually do data conversion if you wish. For more detail, refer to the docstring of function ~org-remark-convert-legacy-data~.
+- [18 January 2022] Package name change from Org-marginalia to Org-remark. See [[https://github.com/nobiot/org-remark/issues/11][detail on data conversion]]. In most cases, no action is required for you.
 
 * Introduction
 
-Org-remark lets you highlight and annotate any text file with using Org mode.
+Org-remark lets you highlight and annotate text files and websites with
+using Org mode [fn:1].
+
+[fn:1]: Feature to highlight and annotate websites is new in the latest [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] and is planned to be part of v1.1.0.
 
 A user manual is available [[https://nobiot.github.io/org-remark/][online]] or Emacs in-system as an Info node `(org-remark)': (~C-h i~ and find the =Org-remark= node).
 
@@ -33,6 +24,14 @@ Getting Started in the user manual will get you started in 5 minutes: [[https://
 For customization, refer to the customization group `org-remark' or user manual: [[https://nobiot.github.io/org-remark/#Customizing][online]] or Info node `(org-remark) Customizing'.
 
 An [[https://youtu.be/c8DHrAsFiLc][introductory video]] (8 minutes) is available on YouTube.
+
+* Features
+
+- Highlight and annotate any text file. The highlights and notes are kepted in an Org file as the plain text database. This lets you easily manage your marginal notes and use the built-in Org fecilities on them -- e.g. create a sparse tree based on the category of the notes
+
+- Have the same highlighting and annotating functionality for websites when you use EWW to browse them (new in latest [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] and is planned to be part of v1.1.0.)
+
+- Create your your own highlighter pens with different colors, type (e.g. underline, squiggle, etc. optionally with Org's category for search and filter on your highlights and notes)
 
 * Screenshots and Videos                                           :noexport:
 
@@ -66,7 +65,6 @@ GNU ELPA should be already set up in your Emacs by default. If you wish to add G
 After installation, we suggest you put the setup below in your configuration.
 
 #+begin_src emacs-lisp
-  (require 'org-remark-global-tracking)
   (org-remark-global-tracking-mode +1)
 #+end_src
 
@@ -96,6 +94,20 @@ Org-remark is available on GNU ELPA and thus copyrighted by the [[http://fsf.org
 
 Thank you.
 
+* Contributors
+- New features ::
+- ~echo-text~ update from the marginal notes to the source buffer by marty hiatt (@mooseyboots)
+- Support for websites with ~eww-mode~ by Vedang Manerikar (@vedang)
+
+- Bug fixes ::
+Nan Jun Jie (@nanjj), @sgati-bodhi
+
+- Documentation (including README, NEWS, CHANGELOG) ::
+@randomwangran, marty hiatt (@mooseyboots)
+
+- All the comments, issues, and questions on GitHub ::
+@randomwangran, @karthink, @holtzermann17, @shombando, @magthe, @linwaytin, @rtrppl, @ryanprior, @ericsfraga, @darcamo, @zhewy, @QMeqGR, @Vidianos-Giannitsis, @AtomicNess123, @mooseyboots, @ouboub, @dian-yu-luo, @SylvianHemus, @basaran, @Ypot, @oatmealm, @sati-bodhi
+
 * License
 
 This work is licensed under a GPLv3 license. For a full copy of the license, refer to [[./LICENSE][LICENSE]].
@@ -110,15 +122,3 @@ This section is created by Org-remark for the source file. It serves as an examp
 ** defmacro org-remark-create
 
 This macro was inspired by [[https://github.com/jkitchin/ov-highlight][Ov-highlight]].  It's by John Kitchin (author of Org-ref). Great UX for markers with hydra. Saves the marker info and comments directly within the Org file as Base64 encoded string. It uses overlays with using ~ov~ package.
-
-* org-remark
-:PROPERTIES:
-:org-remark-file: org-remark.el
-:END:
-
-** org-remark-notes-send-data
-
-** org-remark-highlights-load
-
-** goto
-This is no longer empty.

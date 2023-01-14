@@ -1,6 +1,93 @@
+Version 1.1.0-rc -- Current development version
 
+  Features:
 
-Version 1.0.5 - Current
+  - feat: notes-and-source sync
+          Previously, Org-remark was designed to create/update/delete
+          highlights from the source buffer to its marginal notes
+          buffer; this was always one-way from the source to the notes.
+
+          Now we have implemented the updating process in the other
+          direction from the notes to source.
+
+          Functionally, we currently have echo-text/tooltip containing
+          an excerpt from the body of notes from the notes buffer
+          (thanks to @mooseyboots).
+
+          Other than this additional feature, there should be no visible
+          change for end users.  The update should all happen
+          transparently behind the scenes with no to little change for
+          end users of Org-remark.
+
+  - feat: echo-text update from the marginal notes to the source buffer
+          This is a code contribution by marty hiatt (@mooseyboots).  He
+          has done FSF copyright assignment in July, 2022.
+
+          Now the source buffer can Display annotation text as help-echo
+          or tooltip. Thank you, @mooseyboots.
+
+          This has opened up an avenue to implement "notes sync" feature
+          which updates select elements of marginal notes buffer back
+          into the source buffer for highlight overlays.
+
+  - feat: Extend support for non-file-visiting buffer
+          We now have an approach to extend Org-remark to support
+          non-file-visiting buffers of various modes.  Currently it is
+          assumed that the support is to be implemented per mode
+          basis. We have support for EWW with 'org-remark-eww-mode' and
+          its dedicated file and feature 'org-remark-eww'. Refer to its
+          implementation as a reference as to how this approach is
+          currently practiced.
+
+  - feat: Global minor mode org-remark-eww-mode
+          Support taking annotations in eww buffers for websites A new
+          feature contributed by Vedang Manerikar (@vedang).  He has
+          completed FSF paperwork in May, 2022 and received a PDF
+          regarding the same from the FSF.
+
+          This has opened up a big new avenue to support highlights in
+          non-file visiting buffers. Thank you @vedang.
+
+          EWW support is modularized in a separate file
+          'org-remark-eww.el'.
+
+          org-remark-link: prop for EWW
+          Now 'org-remark-link' property in the marginal notes buffer
+          contains the URL that you can follow for the source website.
+
+  - add: org-remark-open-hook #40
+         Hook run when a note buffer is opened/visited. The current
+         buffer is the note buffer.
+
+  Fixes:
+
+  - refactor: change the default colors of yellow pen #52
+         This is to cater to users who have dark theme that may render
+         the highlighted text illegible due to the default background
+         color of yellow.
+
+  - fix: Text cut off in notes if the highlight spans across two lines #56
+         Thanks to GitHub user @sati-bodhi for reporting and suggesting a fix
+         (code implemented by nobiot). Thank you @sati-bodhi.
+
+  - fix: issue #44 change CATEGORY
+         Now CATEGORY property from the highlight can be properly
+         deleted if a new pen does not have CATEGORY.
+
+  - fix: case for highlight-get-text empty notes at the bottom of buffer
+
+  - fix: text-property org-remark-label to be symbol
+         Fixes the error when you do 'describe-text-properties' on the
+         highlight overlay
+
+  - fix: move org-remark-source-find-file-name to tracking
+         After EWW support, 'org-remark-source-get-file-name' is now
+         moved to 'org-remark-global-tracking.el' file
+
+  - fix: source-file-name incorrect issue #39
+         PR #38 by Nan Jun Jie (@nanjj).  Thank you @nanjj.
+
+Version 1.0.5
   - fix #28 toggle causes error on saving highlights
   - fix #39 source-file-name incorrect issue
 
@@ -74,53 +161,4 @@ Version 1.0.0
          returns a file name like this: "FILE-notes.org" by adding
          "-notes.org" as a suffix to the file name without the extension.
 
-
-Version 0.2.0
-  - add: org-remark-delete
-  - rm: Adding Org-ID automatically to file level when file is empty
-
-Version 0.1.0
-* Features & additions
-
-  - docs: comprehensive user manual (online - Info to be added on ELPA release)
-
-  - feat: org-remark-create macro to let users create their own custom pens
-
-  - feat: minor-mode menu for menu-bar-mode
-
-          This works as mouse context-menu for the new context-menu-mode (>=
-          Emacs 28)
-
-  - add: browse-next/prev: move and display next/prev marginal notes at the same
-         time
-
-  - add: view/open to display side-window by default (user option)
-
-  - add: org-remark-link property in marginal notes file with ::line-number
-         search option
-
-  - feat: org-remark-legacy-convert as a separate feature
-
-          This is for automatically converting legacy Org-marginalia file to
-          Org-remark.
-
-  - feat: Legacy data facility with org-remark-tracking
-
-* Changes
-
-  - chg: `remove' (and delete) only removes one highlight at a time instead of
-         remove all at point
-
-  - chg: Save marginal notes on `mark' instead of wainting for `save'
-
-  - chg: define org-remark-mark explicitly for autoload cookie
-
-  - chg: `org-remark-view' and `org-remark-open'. View will stay in the
-          current main note; open will move the cursor to the marginal notes
-          buffer for further editing.
-
-  - chg: When updating the existing headline and position properties, don't
-         update the headline text when it already exists. Let the user decide
-         how to manage headlines.
-
-  - doc: copyright assignment to FSF; copyright years
+[Older changes before v1.0.0 are in CHANGELOG file]
