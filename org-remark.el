@@ -1200,36 +1200,6 @@ base-buffer of the notes and not to the indirect buffer."
  (setq org-remark-notes-source-buffers
        (seq-filter #'buffer-live-p org-remark-notes-source-buffers)))
 
-(defun org-remark-notes-update-source (source-buffer)
-  "Update SOURCE-BUFFER with marginal notes properties.
-This function assumes the current buffer is one visiting the
-notes file (indrect or base)."
-  (let ((notes-buf (current-buffer))
-         (overlays)) ;; highlight overlays
-    (with-current-buffer source-buffer
-      (dolist (highlight (org-remark-highlights-get notes-buf) overlays)
-        (let* ((location (plist-get highlight :location))
-               (beg (car location))
-               (end (cdr location))
-               (id (plist-get highlight :id))
-               (ov (org-remark-find-overlay-in beg end id)))
-          ;; In order to update the overlay, it is first gets deleted
-          ;; and newly loaded.  This way, we avoid duplicate of the same
-          ;; highlight.
-
-          ;; FIXME Currently the when clause is used to guard against
-          ;; the case wheremarkre a highlight overlay is not found.  It should
-          ;; be an edge case but the highlight could have moved to a
-          ;; completely new location where the old location does not
-          ;; overlap with the new location at all.
-          (when ov (org-remark-highlight-clear ov))
-          (push (org-remark-highlight-load highlight) overlays)))
-      ;; TODO This function is pretty much the same as
-      ;; `org-remark-highlights-load'. Refactor into one?
-      (run-hook-with-args 'org-remark-highlights-after-load-hook
-                          overlays notes-buf))
-    t))
-
 (defun org-remark-notes-sync-with-source ()
   "Update sources from the current notes buffer.
 This function iterates through `org-remark-notes-source-buffers'
@@ -1244,7 +1214,9 @@ It is meant to be used in `after-save-hook'."
     (with-current-buffer notes-buffer
       (org-remark-notes-housekeep)
       (dolist (source-buf org-remark-notes-source-buffers)
-        (org-remark-notes-update-source source-buf)))))
+        (with-current-buffer source-buffer
+          (org-remark-highlights-load :update))))
+    t))
 
 
 ;;;;; org-remark-highlights
@@ -1307,7 +1279,7 @@ highlight is a property list in the following properties:
 It is run with OVERLAYS and NOTES-BUF as arguments.  OVERLAYS are
 highlights.  It is run with the source buffer as current buffer.")
 
-(defun org-remark-highlights-load ()
+(defun org-remark-highlights-load (&optional update)
   "Visit `org-remark-notes-file' & load the saved highlights onto current buffer.
 If there is no highlights or annotations for current buffer,
 output a message in the echo.
@@ -1324,8 +1296,23 @@ load the highlights"
         (source-buf (current-buffer))
         (overlays)) ;; highlight overlays
     (dolist (highlight (org-remark-highlights-get notes-buf) overlays)
-      (push (org-remark-highlight-load highlight) overlays))
-    (org-remark-notes-setup notes-buf source-buf)
+      (let* ((location (plist-get highlight :location))
+             (beg (car location))
+             (end (cdr location))
+             (id (plist-get highlight :id))
+             (ov (org-remark-find-overlay-in beg end id)))
+        ;; In order to update the overlay, it is first gets deleted
+        ;; and newly loaded.  This way, we avoid duplicate of the same
+        ;; highlight.
+
+        ;; FIXME Currently the when clause is used to guard against
+        ;; the case wheremarkre a highlight overlay is not found.  It should
+        ;; be an edge case but the highlight could have moved to a
+        ;; completely new location where the old location does not
+        ;; overlap with the new location at all.
+        (when ov (org-remark-highlight-clear ov))
+        (push (org-remark-highlight-load highlight) overlays)))
+    (unless update (org-remark-notes-setup notes-buf source-buf))
     (run-hook-with-args 'org-remark-highlights-after-load-hook
                         overlays notes-buf))
   t)
