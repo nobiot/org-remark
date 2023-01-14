@@ -397,7 +397,7 @@ Org-remark's user options are available in the customization group ~org-remark~.
 
 - Moving source files and marginal notes files :: Moving your files and remark file to another directory does not update the source paths and file names stored in the marginal notes file. One way to keep the links between the source files and marginal notes files is to use relative file names with ~org-remark-source-file-name~ (default).
 
-- With ~org-remark-eww-mode~, highlights get displaced when the website is edited and its content changes.
+- With ~org-remark-eww-mode~ highlights can get displaced :: This happens when the website is edited and its content changes outside Emacs -- of course this is normal for websites. Currently there is no way to fix the location of highlights.
 
 * Credits
 
