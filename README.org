@@ -90,9 +90,11 @@ Thank you.
 - ~echo-text~ update from the marginal notes to the source buffer by marty hiatt (@mooseyboots)
 - Support for websites with ~eww-mode~ by Vedang Manerikar (@vedang)
 
-** Bug fixes: Nan Jun Jie (@nanjj), @sati-bodhi
+** Bug fixes:
+Nan Jun Jie (@nanjj), @sgati-bodhi
 
-** Documentation: @randomwangran
+** Documentation:
+@randomwangran
 
 
 * License
