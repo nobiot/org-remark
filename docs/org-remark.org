@@ -67,7 +67,7 @@ After installation, we suggest you put the setup below in your configuration.
 
 ~org-remark-global-tracking-mode~ automatically turns on ~org-remark-mode~ when you open a file or website via EWW [fn:1] that has a marginal notes file associated to it. This is useful to keep the location of your highlights correct across Emacs sessions after you shutdown Emacs.
 
-[fn:1]: Feature to highlight and annotate websites is new in latest [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] and is planned to be part of v1.1.0.
+[fn:1]: Feature to highlight and annotate websites is new in the latest [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] and is planned to be part of v1.1.0.
 
 Unless you explicitly load ~org~ during Emacs initialization, we suggest to defer loading ~org-remark~ (thus there is no ~(require 'org-remark)~ in the example above). This is because it will also pull in ~org~, which can slow down initialization. You can control the timing of loading ~org-remark~ by autoloading some commands in a similar way with the example keybindings below.
 
