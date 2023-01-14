@@ -75,6 +75,13 @@ Below are example keybindings you might like to consider:
     (define-key org-remark-mode-map (kbd "C-c n [") #'org-remark-view-prev)
     (define-key org-remark-mode-map (kbd "C-c n r") #'org-remark-remove))
 #+end_src
+* Features
+
+- Highlight and annotate any text file. The highlights and notes are kepted in an Org file as the plain text database. This lets you easily manage your marginal notes and use the built-in Org fecilities on them -- e.g. create a sparse tree based on the category of the notes
+
+- Have the same highlighting and annotating functionality for websites when you use EWW to browse them (new in latest [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] and is planned to be part of v1.1.0.)
+
+- Create your your own highlighter pens with different colors, type (e.g. underline, squiggle, etc. optionally with Org's category for search and filter on your highlights and notes)
 
 * Contributing and Feedback
 
