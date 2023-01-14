@@ -66,7 +66,7 @@ Next: <a href="#Installation" accesskey="n" rel="next">Installation</a> &nbsp; [
 
 <p>This manual is for Org-remark version 1.0.x.
 </p>
-<p>Last updated: 24 April 2022.
+<p>Last updated: 14 January 2023.
 </p>
 <p>Org-remark lets you highlight and annotate any text file with using Org mode.
 </p>
@@ -124,10 +124,15 @@ Next: <a href="#Getting-Started" accesskey="n" rel="next">Getting Started</a>, P
 <p>After installation, we suggest you put the setup below in your configuration.
 </p>
 <div class="example lisp">
-<pre class="lisp">(require 'org-remark-global-tracking)
-(org-remark-global-tracking-mode +1)
+<pre class="lisp">(org-remark-global-tracking-mode +1)
+
+;; Optional if you would like to highlight websites via eww-mode
+(with-eval-after-load 'eww
+  (org-remark-eww-mode +1))
 </pre></div>
 
+<p><code>org-remark-global-tracking-mode</code> automatically turns on <code>org-remark-mode</code> when you open a file or website via EWW <a id="DOCF1" href="#FOOT1"><sup>1</sup></a> that has a marginal notes file associated to it. This is useful to keep the location of your highlights correct across Emacs sessions after you shutdown Emacs.
+</p>
 <p>Unless you explicitly load <code>org</code> during Emacs initialization, we suggest to defer loading <code>org-remark</code> (thus there is no <code>(require 'org-remark)</code> in the example above). This is because it will also pull in <code>org</code>, which can slow down initialization. You can control the timing of loading <code>org-remark</code> by autoloading some commands in a similar way with the example keybindings below.
 </p>
 <p>Below are example keybindings you might like to consider:
@@ -160,6 +165,7 @@ Next: <a href="#Usage" accesskey="n" rel="next">Usage</a>, Previous: <a href="#I
 <li><a href="#Highlighting-and-Annotating" accesskey="1">Highlighting and Annotating</a></li>
 <li><a href="#Navigating-from-One-Highlight-to-Another" accesskey="2">Navigating from One Highlight to Another</a></li>
 <li><a href="#Create-Your-Own-Highlighter-Pens" accesskey="3">Create Your Own Highlighter Pens</a></li>
+<li><a href="#Highlight-and-Annotate-Websites-_0028new-in-latest-GNU_002ddevel-ELPA_003b-to-be-part-of-v110_0029" accesskey="4">Highlight and Annotate Websites (new in latest GNU-devel ELPA; to be part of v1.1.0)</a></li>
 </ul>
 <hr>
 <div class="section" id="Highlighting-and-Annotating">
@@ -213,7 +219,7 @@ Next: <a href="#Create-Your-Own-Highlighter-Pens" accesskey="n" rel="next">Creat
 <div class="section" id="Create-Your-Own-Highlighter-Pens">
 <div class="header">
 <p>
-Previous: <a href="#Navigating-from-One-Highlight-to-Another" accesskey="p" rel="prev">Navigating from One Highlight to Another</a>, Up: <a href="#Getting-Started" accesskey="u" rel="up">Getting Started</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#Highlight-and-Annotate-Websites-_0028new-in-latest-GNU_002ddevel-ELPA_003b-to-be-part-of-v110_0029" accesskey="n" rel="next">Highlight and Annotate Websites (new in latest GNU-devel ELPA; to be part of v1.1.0)</a>, Previous: <a href="#Navigating-from-One-Highlight-to-Another" accesskey="p" rel="prev">Navigating from One Highlight to Another</a>, Up: <a href="#Getting-Started" accesskey="u" rel="up">Getting Started</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
 <span id="Create-Your-Own-Highlighter-Pens-1"></span><h3 class="section">2.3 Create Your Own Highlighter Pens</h3>
 
@@ -236,6 +242,20 @@ Previous: <a href="#Navigating-from-One-Highlight-to-Another" accesskey="p" rel=
 <p>Org-remark lets you create your own custom pen functions with <code>org-remark-create</code>. Use the yellow and red line pens as examples, and create your own. For how to do it, <a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a>.
 </p>
 <p>This is all you need to get started. For more detail, refer to the rest of this user manual, especially <a href="#Usage">Usage</a> and <a href="#Customizing">Customizing</a> sections. There is more to the commands introduced in this section and more ways in which you can customize Org-remark.
+</p>
+<hr>
+</div>
+<div class="section" id="Highlight-and-Annotate-Websites-_0028new-in-latest-GNU_002ddevel-ELPA_003b-to-be-part-of-v110_0029">
+<div class="header">
+<p>
+Previous: <a href="#Create-Your-Own-Highlighter-Pens" accesskey="p" rel="prev">Create Your Own Highlighter Pens</a>, Up: <a href="#Getting-Started" accesskey="u" rel="up">Getting Started</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+</div>
+<span id="Highlight-and-Annotate-Websites-_0028new-in-latest-GNU_002ddevel-ELPA_003b-to-be-part-of-v1_002e1_002e0_0029"></span><h3 class="section">2.4 Highlight and Annotate Websites (new in latest GNU-devel ELPA; to be part of v1.1.0)</h3>
+
+<span id="index-Highlighting-websites-with-EWW"></span>
+<span id="index-org_002dremark_002deww_002dmode"></span>
+
+<p><code>org-remark-eww-mode</code> lets you highlight and annotate websites just like text files. It is a global minor mode. It does not require any additional configuration. All you need is to turn it on, visit a website with <code>eww-mode</code>, and select text and highlight it. Refer to the example of a basic setup given in <a href="#Installation">Instalaltion</a>.
 </p>
 <hr>
 </div>
@@ -382,10 +402,13 @@ Next: <a href="#How-to-Change-Where-Marginal-Notes-File-is-Saved" accesskey="n" 
 <span id="g_t_002amarginal_002dnotes_002a-Buffer-1"></span><h4 class="subsection">3.3.2 &lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</h4>
 
 <span id="index-_002amarginal-notes_002a-buffer"></span>
+<span id="index-Echo-text-_002f-Tool-tip-on-the-Highlight"></span>
 
 <p>When you display the marginal notes with <code>org-remark-view</code> or <code>org-remark-open</code> for a given highlight, Org-remark creates a cloned indirect buffer visiting the marginal notes file. By default, it is a dedicated side-window opened to the left part of the current frame, and it is named &lsquo;<samp>*marginal notes*</samp>&rsquo;. You can change the behavior of <code>display-buffer</code> function and the name of the buffer (<a href="#Customizing">Customizing</a>).
 </p>
 <p>Org-remark displays the marginal notes buffer narrowed to the highlight the cursor is on.
+</p>
+<p>After all the properties, you can freely write your notes for the highlight. Once you save the notes buffer, an excerpt of the text (currently up to 200 characters) gets updated back onto the highlight in the source buffer. You can hover your mouse over the highlight to see the excerpt displayed in the echo area (bottom of the screen) of Emacs. If you have <code>tooltip-mode</code> mode turned on, the excerpt is displayed as a took tip for the highlight <a id="DOCF2" href="#FOOT2"><sup>2</sup></a>.
 </p>
 <hr>
 </div>
@@ -400,7 +423,7 @@ Next: <a href="#How-to-Use-Relative-or-Absolute-File-Names-for-Links-in-Marginal
 
 <p>The location of the marginal notes file is specified by user option <code>org-remark-notes-file-name</code> and its default is &ldquo;marginalia.org&rdquo;. This means the marginal notes file will reside in the same directory as the source files as a separate file.
 </p>
-<p>If you use the <code>customize</code> command to customize <code>org-remark-notes-file-name</code>, you will have an option to choose a &lsquo;<samp>File</samp>&rsquo; or &lsquo;<samp>Function</samp>&rsquo; (customization group <code>org-remark</code>). The default is &lsquo;<samp>File</samp>&rsquo; with the default &ldquo;marginalial.org&rdquo; as noted above.  Use a string to specify the single file name; you can specify a relative path like the default or an absolute path.
+<p>If you use the <code>customize</code> command to customize <code>org-remark-notes-file-name</code>, you will have an option to choose a &lsquo;<samp>File</samp>&rsquo; or &lsquo;<samp>Function</samp>&rsquo; (customization group <code>org-remark</code>). The default is &lsquo;<samp>File</samp>&rsquo; with the default &ldquo;marginal.org&rdquo; as noted above.  Use a string to specify the single file name; you can specify a relative path like the default or an absolute path.
 </p>
 <p>If you would like to dynamically change the location based on the file and various different conditions, select the function as an option.  The default function is <code>org-remark-notes-file-name-function</code>. It adds &lsquo;<samp>-notes.org</samp>&rsquo; as a suffix to the source file&rsquo;s name without the extension. For example, for a file named &lsquo;<samp>my-source-file.txt</samp>&rsquo;,  Org-remark will store highlights in  &lsquo;<samp>my-source-file-notes.org</samp>&rsquo;.  You can create your own function and use it.
 </p>
@@ -608,6 +631,9 @@ Next: <a href="#Credits" accesskey="n" rel="next">Credits</a>, Previous: <a href
 </dd>
 <dt><span>Moving source files and marginal notes files</span></dt>
 <dd><p>Moving your files and remark file to another directory does not update the source paths and file names stored in the marginal notes file. One way to keep the links between the source files and marginal notes files is to use relative file names with <code>org-remark-source-file-name</code> (default).
+</p>
+</dd>
+<dd><p>With <code>org-remark-eww-mode</code>, highlights get displaced when the website is edited and its content changes.
 </p></dd>
 </dl>
 
@@ -673,6 +699,10 @@ Next: <a href="#Index-_002d-Commands" accesskey="n" rel="next">Index - Commands<
 <br>
 <a class="summary-letter" href="#Index-_002d-Features_cp_letter-C"><b>C</b></a>
  &nbsp; 
+<a class="summary-letter" href="#Index-_002d-Features_cp_letter-E"><b>E</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Index-_002d-Features_cp_letter-H"><b>H</b></a>
+ &nbsp; 
 <a class="summary-letter" href="#Index-_002d-Features_cp_letter-M"><b>M</b></a>
  &nbsp; 
 <a class="summary-letter" href="#Index-_002d-Features_cp_letter-O"><b>O</b></a>
@@ -691,6 +721,12 @@ Next: <a href="#Index-_002d-Commands" accesskey="n" rel="next">Index - Commands<
 <tr><td></td><td valign="top"><a href="#index-Custom-highlighter-pens">Custom highlighter pens</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Create-Your-Own-Highlighter-Pens">Create Your Own Highlighter Pens</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Custom-highlighter-pens-1">Custom highlighter pens</a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
+<tr><th id="Index-_002d-Features_cp_letter-E">E</th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-Echo-text-_002f-Tool-tip-on-the-Highlight">Echo text / Tool tip on the Highlight</a>:</td><td>&nbsp;</td><td valign="top"><a href="#g_t_002amarginal_002dnotes_002a-Buffer">&lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th id="Index-_002d-Features_cp_letter-H">H</th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-Highlighting-websites-with-EWW">Highlighting websites with EWW</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlight-and-Annotate-Websites-_0028new-in-latest-GNU_002ddevel-ELPA_003b-to-be-part-of-v110_0029">Highlight and Annotate Websites (new in latest GNU-devel ELPA; to be part of v110)</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index-_002d-Features_cp_letter-M">M</th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Marginal-notes-file">Marginal notes file</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlighting-and-Annotating">Highlighting and Annotating</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Marginal-notes-file-1">Marginal notes file</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Marginal-Notes-File">Marginal Notes File</a></td></tr>
@@ -708,6 +744,10 @@ Next: <a href="#Index-_002d-Commands" accesskey="n" rel="next">Index - Commands<
  &nbsp; 
 <br>
 <a class="summary-letter" href="#Index-_002d-Features_cp_letter-C"><b>C</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Index-_002d-Features_cp_letter-E"><b>E</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Index-_002d-Features_cp_letter-H"><b>H</b></a>
  &nbsp; 
 <a class="summary-letter" href="#Index-_002d-Features_cp_letter-M"><b>M</b></a>
  &nbsp; 
@@ -736,6 +776,7 @@ Next: <a href="#Index-_002d-User-Options" accesskey="n" rel="next">Index - User 
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dchange"><code>org-remark-change</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Other-Commands">Other Commands</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dcreate"><code>org-remark-create</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002ddelete"><code>org-remark-delete</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Remove-and-Delete-Highlights">How to Remove and Delete Highlights</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002deww_002dmode"><code>org-remark-eww-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlight-and-Annotate-Websites-_0028new-in-latest-GNU_002ddevel-ELPA_003b-to-be-part-of-v110_0029">Highlight and Annotate Websites (new in latest GNU-devel ELPA; to be part of v110)</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dglobal_002dtracking_002dmode"><code>org-remark-global-tracking-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Automatically-Turn-On-Highlights-after-Re_002dstarting-Emacs">How to Automatically Turn On Highlights after Re-starting Emacs</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark"><code>org-remark-mark</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlighting-and-Annotating">Highlighting and Annotating</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark-1"><code>org-remark-mark</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a></td></tr>
@@ -1264,9 +1305,21 @@ free software license, such as the GNU General Public License,
 to permit their use in free software.
 </p>
 
+<hr>
 </div>
 </div>
+<div class="Footnotes_element" id="SEC_Foot">
+<div class="header">
+<p>
+ &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+</div>
+<h4 class="footnotes-heading">Footnotes</h4>
 
+<h5><a id="FOOT1" href="#DOCF1">(1)</a></h5>
+<p>: Feature to highlight and annotate websites is new in the latest <a href="https://elpa.gnu.org/devel/org-remark.html">GNU-devel ELPA</a> and is planned to be part of v1.1.0.</p>
+<h5><a id="FOOT2" href="#DOCF2">(2)</a></h5>
+<p>: Feature to display an excerpt of the body of marginal notes is new in latest <a href="https://elpa.gnu.org/devel/org-remark.html">GNU-devel ELPA</a> and is planned to be part of v1.1.0.</p>
+</div>
 
 
 </body>

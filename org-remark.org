@@ -1,7 +1,7 @@
 #+title: Org-remark User Manual
 #+author: Noboru Ota <me@nobiot.com>
 #+macro: version 1.0.x
-#+macro: modified 24 April 2022
+#+macro: modified 14 January 2023
 #+language: en
 #+export_file_name: org-remark.texi
 #+texinfo_dir_category: Emacs
@@ -56,10 +56,16 @@ GNU ELPA should be already set up in your Emacs by default. If you wish to add G
 
 After installation, we suggest you put the setup below in your configuration.
 
+#+name: basic-setup
 #+begin_src emacs-lisp
-  (require 'org-remark-global-tracking)
   (org-remark-global-tracking-mode +1)
+
+  ;; Optional if you would like to highlight websites via eww-mode
+  (with-eval-after-load 'eww
+    (org-remark-eww-mode +1))
 #+end_src
+
+~org-remark-global-tracking-mode~ automatically turns on ~org-remark-mode~ when you open a file or website via EWW [fn:1] that has a marginal notes file associated to it. This is useful to keep the location of your highlights correct across Emacs sessions after you shutdown Emacs.
 
 Unless you explicitly load ~org~ during Emacs initialization, we suggest to defer loading ~org-remark~ (thus there is no ~(require 'org-remark)~ in the example above). This is because it will also pull in ~org~, which can slow down initialization. You can control the timing of loading ~org-remark~ by autoloading some commands in a similar way with the example keybindings below.
 
@@ -78,6 +84,8 @@ Below are example keybindings you might like to consider:
     (define-key org-remark-mode-map (kbd "C-c n [") #'org-remark-view-prev)
     (define-key org-remark-mode-map (kbd "C-c n r") #'org-remark-remove))
 #+end_src
+
+[fn:1]: Feature to highlight and annotate websites is new in the latest [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] and is planned to be part of v1.1.0.
 
 * Getting Started
 :PROPERTIES:
@@ -129,6 +137,13 @@ Org-remark has a default highlighter pen function, and comes with a set of two a
 Org-remark lets you create your own custom pen functions with ~org-remark-create~. Use the yellow and red line pens as examples, and create your own. For how to do it, [[#create-custom-pens][How to Create Custom Highlighter Pens]].
 
 This is all you need to get started. For more detail, refer to the rest of this user manual, especially [[#usage][Usage]] and [[#customizing][Customizing]] sections. There is more to the commands introduced in this section and more ways in which you can customize Org-remark.
+
+** Highlight and Annotate Websites (new in latest [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]]; to be part of v1.1.0)
+
+#+cindex: Highlighting websites with EWW
+#+findex: org-remark-eww-mode
+
+~org-remark-eww-mode~ lets you highlight and annotate websites just like text files. It is a global minor mode. It does not require any additional configuration. All you need is to turn it on, visit a website with ~eww-mode~, and select text and highlight it. Refer to the example of a basic setup given in [[#installation][Instalaltion]].
 
 * Usage
 :PROPERTIES:
@@ -223,10 +238,15 @@ In addition to the properties above that Org-remark reserves for itself, you can
 *** =*marginal-notes*= Buffer
 
 #+cindex: *marginal notes* buffer
+#+cindex: Echo text / Tool tip on the Highlight
 
 When you display the marginal notes with ~org-remark-view~ or ~org-remark-open~ for a given highlight, Org-remark creates a cloned indirect buffer visiting the marginal notes file. By default, it is a dedicated side-window opened to the left part of the current frame, and it is named =*marginal notes*=. You can change the behavior of ~display-buffer~ function and the name of the buffer ([[#customizing][Customizing]]).
 
 Org-remark displays the marginal notes buffer narrowed to the highlight the cursor is on.
+
+After all the properties, you can freely write your notes for the highlight. Once you save the notes buffer, an excerpt of the text (currently up to 200 characters) gets updated back onto the highlight in the source buffer. You can hover your mouse over the highlight to see the excerpt displayed in the echo area (bottom of the screen) of Emacs. If you have ~tooltip-mode~ mode turned on, the excerpt is displayed as a took tip for the highlight [fn:2].
+
+[fn:2]: Feature to display an excerpt of the body of marginal notes is new in latest [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] and is planned to be part of v1.1.0.
 
 *** How to Change Where Marginal Notes File is Saved
 :PROPERTIES:
@@ -237,7 +257,7 @@ Org-remark displays the marginal notes buffer narrowed to the highlight the curs
 
 The location of the marginal notes file is specified by user option ~org-remark-notes-file-name~ and its default is "marginalia.org". This means the marginal notes file will reside in the same directory as the source files as a separate file.
 
-If you use the ~customize~ command to customize ~org-remark-notes-file-name~, you will have an option to choose a =File= or =Function= (customization group ~org-remark~). The default is =File= with the default "marginalial.org" as noted above.  Use a string to specify the single file name; you can specify a relative path like the default or an absolute path.
+If you use the ~customize~ command to customize ~org-remark-notes-file-name~, you will have an option to choose a =File= or =Function= (customization group ~org-remark~). The default is =File= with the default "marginal.org" as noted above.  Use a string to specify the single file name; you can specify a relative path like the default or an absolute path.
 
 If you would like to dynamically change the location based on the file and various different conditions, select the function as an option.  The default function is ~org-remark-notes-file-name-function~. It adds =-notes.org= as a suffix to the source file's name without the extension. For example, for a file named =my-source-file.txt=,  Org-remark will store highlights in  =my-source-file-notes.org=.  You can create your own function and use it.
 
@@ -376,6 +396,8 @@ Org-remark's user options are available in the customization group ~org-remark~.
 - Undo highlight does not undo it :: Overlays are not part of the undo list; you cannot undo highlighting. Use ~org-remark-remove~ or ~org-remark-delete~ commands instead.
 
 - Moving source files and marginal notes files :: Moving your files and remark file to another directory does not update the source paths and file names stored in the marginal notes file. One way to keep the links between the source files and marginal notes files is to use relative file names with ~org-remark-source-file-name~ (default).
+
+- With ~org-remark-eww-mode~, highlights get displaced when the website is edited and its content changes.
 
 * Credits
 
