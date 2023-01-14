@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.0.5
 ;; Created: 22 December 2020
-;; Last modified: 13 January 2023
+;; Last modified: 14 January 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -804,7 +804,7 @@ This function assumes the current buffer is the source buffer."
 (defvar org-remark-notes-headline-functions
   '((default . ((1 . org-remark-highlight-add-source-headline-maybe)))))
 
-(make-obsolete #'org-remark-highlight-save #'org-remark-highlight-add "1.3.0")
+(make-obsolete #'org-remark-highlight-save #'org-remark-highlight-add "1.2.0")
 
 (defun org-remark-highlight-add (overlay source-buf notes-buf)
   "Add a single HIGHLIGHT in the marginal notes file.
