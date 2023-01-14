@@ -1,5 +1,6 @@
 Version 1.1.0-rc -- Current development version
-* Features:
+
+  Features:
 
   - feat: notes-and-source sync
           Previously, Org-remark was designed to create/update/delete
@@ -58,7 +59,7 @@ Version 1.1.0-rc -- Current development version
          Hook run when a note buffer is opened/visited. The current
          buffer is the note buffer.
 
-* Fixes:
+  Fixes:
 
   - refactor: change the default colors of yellow pen #52
          This is to cater to users who have dark theme that may render
@@ -160,53 +161,4 @@ Version 1.0.0
          returns a file name like this: "FILE-notes.org" by adding
          "-notes.org" as a suffix to the file name without the extension.
 
-
-Version 0.2.0
-  - add: org-remark-delete
-  - rm: Adding Org-ID automatically to file level when file is empty
-
-Version 0.1.0
-* Features & additions
-
-  - docs: comprehensive user manual (online - Info to be added on ELPA release)
-
-  - feat: org-remark-create macro to let users create their own custom pens
-
-  - feat: minor-mode menu for menu-bar-mode
-
-          This works as mouse context-menu for the new context-menu-mode (>=
-          Emacs 28)
-
-  - add: browse-next/prev: move and display next/prev marginal notes at the same
-         time
-
-  - add: view/open to display side-window by default (user option)
-
-  - add: org-remark-link property in marginal notes file with ::line-number
-         search option
-
-  - feat: org-remark-legacy-convert as a separate feature
-
-          This is for automatically converting legacy Org-marginalia file to
-          Org-remark.
-
-  - feat: Legacy data facility with org-remark-tracking
-
-* Changes
-
-  - chg: `remove' (and delete) only removes one highlight at a time instead of
-         remove all at point
-
-  - chg: Save marginal notes on `mark' instead of wainting for `save'
-
-  - chg: define org-remark-mark explicitly for autoload cookie
-
-  - chg: `org-remark-view' and `org-remark-open'. View will stay in the
-          current main note; open will move the cursor to the marginal notes
-          buffer for further editing.
-
-  - chg: When updating the existing headline and position properties, don't
-         update the headline text when it already exists. Let the user decide
-         how to manage headlines.
-
-  - doc: copyright assignment to FSF; copyright years
+[Older changes before v1.0.0 are in CHANGELOG file]

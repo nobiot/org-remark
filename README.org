@@ -96,7 +96,6 @@ Nan Jun Jie (@nanjj), @sgati-bodhi
 ** Documentation:
 @randomwangran
 
-
 * License
 
 This work is licensed under a GPLv3 license. For a full copy of the license, refer to [[./LICENSE][LICENSE]].
@@ -111,15 +110,3 @@ This section is created by Org-remark for the source file. It serves as an examp
 ** defmacro org-remark-create
 
 This macro was inspired by [[https://github.com/jkitchin/ov-highlight][Ov-highlight]].  It's by John Kitchin (author of Org-ref). Great UX for markers with hydra. Saves the marker info and comments directly within the Org file as Base64 encoded string. It uses overlays with using ~ov~ package.
-
-* org-remark
-:PROPERTIES:
-:org-remark-file: org-remark.el
-:END:
-
-** org-remark-notes-send-data
-
-** org-remark-highlights-load
-
-** goto
-This is no longer empty.
