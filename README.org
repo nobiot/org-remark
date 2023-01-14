@@ -6,7 +6,7 @@
 
 * Breaking Changes :noexport:
 
-- [18 January 2022] Package name change from Org-marginalia to Org-remark. See [[https://github.com/nobiot/org-remark/issues/11][detail on data conversion]].
+- [18 January 2022] Package name change from Org-marginalia to Org-remark. See [[https://github.com/nobiot/org-remark/issues/11][detail on data conversion]]. In most cases, no action is required for you.
 
 * Introduction
 
