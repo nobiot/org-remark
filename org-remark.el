@@ -736,7 +736,8 @@ round-trip back to the notes file."
         (filename (org-remark-source-find-file-name))
         (notes-props))
     (if (not filename)
-        (message "org-remark: Highlights not saved; buffer is not supported")
+        (message (format "org-remark: Highlights not saved.\
+ This buffer (%s) is not supported" (symbol-name major-mode)))
       (org-with-wide-buffer
        (overlay-put ov 'face (if face face 'org-remark-highlighter))
        (while properties
@@ -1197,30 +1198,31 @@ configuration.  It automatically turns on `org-remark-mode'.
 Otherwise, do not forget to turn on `org-remark-mode' manually to
 load the highlights"
   ;; Loop highlights and add them to the current buffer
-  (let ((notes-buf (find-file-noselect (org-remark-notes-get-file-name)))
-        (source-buf (current-buffer))
-        (overlays)) ;; highlight overlays
-    (dolist (highlight (org-remark-highlights-get notes-buf) overlays)
-      (let* ((location (plist-get highlight :location))
-             (beg (car location))
-             (end (cdr location))
-             (id (plist-get highlight :id))
-             (ov (org-remark-find-overlay-in beg end id)))
-        ;; In order to update the overlay, it is first gets deleted
-        ;; and newly loaded.  This way, we avoid duplicate of the same
-        ;; highlight.
+  (let (overlays) ;; highlight overlays
+    (when-let* ((notes-filename (org-remark-notes-get-file-name))
+                (notes-buf (find-file-noselect notes-filename))
+                (source-buf (current-buffer)))
+      (dolist (highlight (org-remark-highlights-get notes-buf) overlays)
+        (let* ((location (plist-get highlight :location))
+               (beg (car location))
+               (end (cdr location))
+               (id (plist-get highlight :id))
+               (ov (org-remark-find-overlay-in beg end id)))
+          ;; In order to update the overlay, it is first gets deleted
+          ;; and newly loaded.  This way, we avoid duplicate of the same
+          ;; highlight.
 
-        ;; FIXME Currently the when clause is used to guard against
-        ;; the case wheremarkre a highlight overlay is not found.  It should
-        ;; be an edge case but the highlight could have moved to a
-        ;; completely new location where the old location does not
-        ;; overlap with the new location at all.
-        (when ov (org-remark-highlight-clear ov))
-        (push (org-remark-highlight-load highlight) overlays)))
-    (unless update (org-remark-notes-setup notes-buf source-buf))
-    (run-hook-with-args 'org-remark-highlights-after-load-hook
-                        overlays notes-buf))
-  t)
+          ;; FIXME Currently the when clause is used to guard against
+          ;; the case wheremarkre a highlight overlay is not found.  It should
+          ;; be an edge case but the highlight could have moved to a
+          ;; completely new location where the old location does not
+          ;; overlap with the new location at all.
+          (when ov (org-remark-highlight-clear ov))
+          (push (org-remark-highlight-load highlight) overlays)))
+      (unless update (org-remark-notes-setup notes-buf source-buf))
+      (run-hook-with-args 'org-remark-highlights-after-load-hook
+                          overlays notes-buf)
+      t)))
 
 (defun org-remark-highlights-get-positions (&optional reverse)
   "Return list of the beginning point of all visible highlights in this buffer.

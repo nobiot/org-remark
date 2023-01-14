@@ -99,9 +99,12 @@ When the current buffer is visiting a file, the name of marginal
 notes file will be \"FILE-notes.org\", adding \"-notes.org\" as a
 suffix to the file name without the extension."
   (if buffer-file-name
-      (concat (file-name-sans-extension
-               (file-name-nondirectory (org-remark-source-find-file-name)))
-              "-notes.org")
+      (let ((source-filename (org-remark-source-find-file-name)))
+        (when (and (stringp source-filename)
+                   (file-exists-p source-filename))
+          (concat (file-name-sans-extension
+                   (file-name-nondirectory source-filename))
+                  "-notes.org")))
     ;; If buffer is not visiting a file, a default file name.  If this
     ;; file name is not suitable, either override the function or set
     ;; the user option to a custom function.
@@ -141,7 +144,8 @@ This function is meant to be added to `find-file-hook' by
 We use this filename to identify the source buffer in all
 operations related to marginal notes.
 Assumes that we are currently in the source buffer."
-  (let ((filename (or buffer-file-name
+  (let ((filename (or (and (not (derived-mode-p 'special-mode))
+                           buffer-file-name)
                       (run-hook-with-args-until-success
                        'org-remark-source-find-file-name-functions))))
     filename))
