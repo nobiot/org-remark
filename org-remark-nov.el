@@ -2,7 +2,7 @@
 
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 9 January 2023
-;; Last modified: 13 January 2023
+;; Last modified: 14 January 2023
 
 ;;; Commentary:
 
@@ -13,20 +13,38 @@
 (declare-function org-remark-highlights-load "org-remark")
 (defvar org-remark-notes-headline-functions)
 
-;; TODO add a minor mode to let user switch these hooks on and off.
-(add-hook 'org-remark-source-find-file-name-functions #'org-remark-get-epub-source)
-(add-hook 'org-remark-highlight-link-to-source-functions #'org-remark-nov-link)
-;; When users turn the page (document in nov-mode's terminology)
-;; `nov-mode' will erase the current buffer and render the new document
-;; content in the same buffer.  This means the highlights currently
-;; displayed get removed; the ones for the new document need to be
-;; loaded document after `nov-mode' renders the new document.
-(add-hook 'nov-post-html-render-hook #'org-remark-highlights-load)
-(add-hook 'org-remark-highlights-after-load-hook
-          #'org-remark-nov-highlight-adjust-positions)
-(add-to-list 'org-remark-notes-headline-functions
-  '(nov-mode . ((1 . org-remark-nov-highlight-add-book-headline-maybe)
-                (2 . org-remark-highlight-add-source-headline-maybe))))
+;;;###autoload
+(define-minor-mode org-remark-nov-mode
+  "Enable Org-remark to work with `nov-mode' for eub."
+  :global t
+  :group 'org-remark
+  (if org-remark-nov-mode
+      ;; Enable
+      (progn
+        (add-hook 'org-remark-source-find-file-name-functions
+                  #'org-remark-get-epub-source)
+        (add-hook 'org-remark-highlight-link-to-source-functions #'org-remark-nov-link)
+        ;; When users turn the page (document in nov-mode's terminology)
+        ;; `nov-mode' will erase the current buffer and render the new document
+        ;; content in the same buffer.  This means the highlights currently
+        ;; displayed get removed; the ones for the new document need to be
+        ;; loaded document after `nov-mode' renders the new document.
+        (add-hook 'nov-post-html-render-hook #'org-remark-highlights-load)
+        (add-hook 'org-remark-highlights-after-load-hook
+                  #'org-remark-highlights-adjust-positions)
+        (add-to-list 'org-remark-notes-headline-functions
+                     '(nov-mode . ((1 . org-remark-nov-highlight-add-book-headline-maybe)
+                                   (2 . org-remark-highlight-add-source-headline-maybe)))))
+    ;; Disable
+    (remove-hook 'org-remark-source-find-file-name-functions
+                 #'org-remark-get-epub-source)
+    (remove-hook 'org-remark-highlight-link-to-source-functions
+                 #'org-remark-nov-link)
+    (remove-hook 'nov-post-html-render-hook #'org-remark-highlights-load)
+    (remove-hook 'org-remark-highlights-after-load-hook
+                 #'org-remark-highlights-adjust-positions)
+    (setq org-remark-notes-headline-functions
+          (assq-delete-all 'nov-mode org-remark-notes-headline-functions))))
 
 (defun org-remark-get-epub-source ()
   "Return the path of the epub source from which the present session is initiated."
@@ -77,10 +95,32 @@ Assume the current buffer is NOTES-BUF."
             (org-set-property "org-remark-nov-file" filename)
             (org-back-to-heading) (point))))))
 
-(defun org-remark-nov-highlight-adjust-positions (overlays _notes-buf)
-  (dolist (ov overlays)
-    (let ((highlight-text (overlay-get ov '*org-remark-original-text)))
-      (when highlight-text (test/move-highlight ov highlight-text)))))
+;; navigate from notes to document
+(defun test/find-nov-file-buffer ()
+  (interactive)
+  (when-let* ((pos (point))
+              (base-buf (or (buffer-base-buffer) (current-buffer)))
+              (link (with-current-buffer base-buf
+                      (org-entry-get pos "org-remark-link")))
+              (path (with-temp-buffer
+                      (insert link) (beginning-of-buffer)
+                      (org-element-property :path (org-element-context))))
+              (file (if (string-match "^\\(.*\\)::\\([0-9]+\\):\\([0-9]+\\)$" path) ;; nov only
+                        (match-string 1 path)                                       ;; nov only
+                      (error "Invalid nov.el link")))                               ;; nov only
+              (index (string-to-number (match-string 2 path)))                      ;; nov only
+              (point (string-to-number (match-string 3 path)))                      ;; nov only
+              (source-buffers (with-current-buffer base-buf
+                                org-remark-notes-source-buffers))
+              (epub-buffer (seq-find
+                            (lambda (buf) (and (buffer-live-p buf)
+                                               (with-current-buffer buf
+                                                 (string= file nov-file-name))))    ;; nov only
+                            source-buffers)))
+    (pop-to-buffer epub-buffer)
+    ;; If FILE is nil, the current buffer is used.
+    (nov--find-file nil index point)))
+
 
 (provide 'org-remark-nov)
 ;;; org-remark-nov.el ends here
