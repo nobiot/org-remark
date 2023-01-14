@@ -1008,6 +1008,34 @@ It is a utility function to take care of both
   (setq org-remark-highlights (delete overlay org-remark-highlights))
   (delete-overlay overlay))
 
+(defun org-remark-highlight-adjust-position-after-load (highlight text)
+  "Adjust the position of highlight after loaded.
+Adjustment is done by TEXT, which should be the original text of the highlight."
+  ;; Load works. but need one for sync. Need to re-think
+  ;; ' and ’ are different in regex of course.
+
+  ;; This is probably not very good for text that you change; and change the highlights.
+  ;; if you change it, this will bring it back to the "original".
+  (let* ((beg (overlay-start highlight))
+         (end (overlay-end highlight))
+         (paragraph-beg)(paragraph-end)
+         ;; Cater to the case when the text is divided by a \n
+         ;; The regexp must look for space or \n
+         (text (replace-regexp-in-string " " "\[ \n\]" text)))
+    (org-with-wide-buffer
+     (unless (string= (buffer-substring beg end) text)
+       ;; Look at one paragraph ahead as it is possible that the
+       ;; position has been displaced across a paragraph
+       (goto-char beg) (backward-paragraph 2) (setq paragraph-beg (point))
+       (goto-char beg) (forward-paragraph 2) (setq paragraph-end (point))
+       (goto-char paragraph-beg)
+       ;; Search from the beginning of the previous paragraph to the end
+       ;; of next paragraph relative to the begining of the highlight
+       ;; overlay; this way, you don't need to look forward and backward
+       ;; separately.
+       (when (re-search-forward text paragraph-end :noerror)
+         (move-overlay highlight (match-beginning 0) (match-end 0)))))))
+
 
 ;;;;; org-remark-notes
 ;;    Private functions that work on marginal notes buffer (notes
@@ -1176,9 +1204,10 @@ base-buffer of the notes and not to the indirect buffer."
   "Update SOURCE-BUFFER with marginal notes properties.
 This function assumes the current buffer is one visiting the
 notes file (indrect or base)."
-  (let ((notes-buf (current-buffer)))
+  (let ((notes-buf (current-buffer))
+         (overlays)) ;; highlight overlays
     (with-current-buffer source-buffer
-      (dolist (highlight (org-remark-highlights-get notes-buf))
+      (dolist (highlight (org-remark-highlights-get notes-buf) overlays)
         (let* ((location (plist-get highlight :location))
                (beg (car location))
                (end (cdr location))
@@ -1194,7 +1223,12 @@ notes file (indrect or base)."
           ;; completely new location where the old location does not
           ;; overlap with the new location at all.
           (when ov (org-remark-highlight-clear ov))
-          (org-remark-highlight-load highlight))))))
+          (push (org-remark-highlight-load highlight) overlays)))
+      ;; TODO This function is pretty much the same as
+      ;; `org-remark-highlights-load'. Refactor into one?
+      (run-hook-with-args 'org-remark-highlights-after-load-hook
+                          overlays notes-buf))
+    t))
 
 (defun org-remark-notes-sync-with-source ()
   "Update sources from the current notes buffer.
@@ -1413,6 +1447,15 @@ Case 2. The overlay points to no buffer
     (unless (overlay-buffer ov)
       (setq org-remark-highlights (delete ov org-remark-highlights))))
   t)
+
+(defun org-remark-highlights-adjust-positions (overlays _notes-buf)
+  "
+Meant to be set to `org-remark-highlights-after-load-hook' by
+mode-specific extensions."
+  (dolist (ov overlays)
+    (let ((highlight-text (overlay-get ov '*org-remark-original-text)))
+      (when highlight-text (org-remark-highlight-adjust-position-after-load
+                            ov highlight-text)))))
 
 
 ;;;;; Other utilities
