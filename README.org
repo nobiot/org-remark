@@ -55,7 +55,6 @@ GNU ELPA should be already set up in your Emacs by default. If you wish to add G
 After installation, we suggest you put the setup below in your configuration.
 
 #+begin_src emacs-lisp
-  (require 'org-remark-global-tracking)
   (org-remark-global-tracking-mode +1)
 #+end_src
 
@@ -93,8 +92,8 @@ Thank you.
 ** Bug fixes:
 Nan Jun Jie (@nanjj), @sgati-bodhi
 
-** Documentation:
-@randomwangran
+** Documentation (including README, NEWS, CHANGELOG):
+@randomwangran, marty hiatt (@mooseyboots)
 
 * License
 

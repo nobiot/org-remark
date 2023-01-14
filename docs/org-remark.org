@@ -1,7 +1,7 @@
 #+title: Org-remark User Manual
 #+author: Noboru Ota <me@nobiot.com>
 #+macro: version 1.0.x
-#+macro: modified 24 April 2022
+#+macro: modified 14 January 2023
 #+language: en
 #+export_file_name: org-remark.texi
 #+texinfo_dir_category: Emacs
@@ -57,7 +57,6 @@ GNU ELPA should be already set up in your Emacs by default. If you wish to add G
 After installation, we suggest you put the setup below in your configuration.
 
 #+begin_src emacs-lisp
-  (require 'org-remark-global-tracking)
   (org-remark-global-tracking-mode +1)
 #+end_src
 
