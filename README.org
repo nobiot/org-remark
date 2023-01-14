@@ -13,8 +13,6 @@
 Org-remark lets you highlight and annotate text files and websites with
 using Org mode [fn:1].
 
-[fn:1]: Feature to highlight and annotate websites is new in the latest [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] and is planned to be part of v1.1.0.
-
 A user manual is available [[https://nobiot.github.io/org-remark/][online]] or Emacs in-system as an Info node `(org-remark)': (~C-h i~ and find the =Org-remark= node).
 
 For installation and minimum configuration, refer to [[#installation][Installation]] below or the user manual: [[https://nobiot.github.io/org-remark/#Installation][online]] or Info node `(org-remark) Installation'
@@ -24,6 +22,8 @@ Getting Started in the user manual will get you started in 5 minutes: [[https://
 For customization, refer to the customization group `org-remark' or user manual: [[https://nobiot.github.io/org-remark/#Customizing][online]] or Info node `(org-remark) Customizing'.
 
 An [[https://youtu.be/c8DHrAsFiLc][introductory video]] (8 minutes) is available on YouTube.
+
+[fn:1]: Feature to highlight and annotate websites is new in the latest [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] and is planned to be part of v1.1.0.
 
 * Features
 
