@@ -67,8 +67,6 @@ After installation, we suggest you put the setup below in your configuration.
 
 ~org-remark-global-tracking-mode~ automatically turns on ~org-remark-mode~ when you open a file or website via EWW [fn:1] that has a marginal notes file associated to it. This is useful to keep the location of your highlights correct across Emacs sessions after you shutdown Emacs.
 
-[fn:1]: Feature to highlight and annotate websites is new in the latest [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] and is planned to be part of v1.1.0.
-
 Unless you explicitly load ~org~ during Emacs initialization, we suggest to defer loading ~org-remark~ (thus there is no ~(require 'org-remark)~ in the example above). This is because it will also pull in ~org~, which can slow down initialization. You can control the timing of loading ~org-remark~ by autoloading some commands in a similar way with the example keybindings below.
 
 Below are example keybindings you might like to consider:
@@ -86,6 +84,8 @@ Below are example keybindings you might like to consider:
     (define-key org-remark-mode-map (kbd "C-c n [") #'org-remark-view-prev)
     (define-key org-remark-mode-map (kbd "C-c n r") #'org-remark-remove))
 #+end_src
+
+[fn:1]: Feature to highlight and annotate websites is new in the latest [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] and is planned to be part of v1.1.0.
 
 * Getting Started
 :PROPERTIES:
@@ -143,7 +143,7 @@ This is all you need to get started. For more detail, refer to the rest of this 
 #+cindex: Highlighting websites with EWW
 #+findex: org-remark-eww-mode
 
-~org-remark-eww-mode~ lets you highlight and annotate websites just like text files. It is a global minor mode. It does not require any additional configuration. All you need is to turn it on, visit a website with ~eww-mode~, and select text and highlight it. Refer to the example of a basic setup [[basic-setup]] given in [[#installation][Instalaltion]].
+~org-remark-eww-mode~ lets you highlight and annotate websites just like text files. It is a global minor mode. It does not require any additional configuration. All you need is to turn it on, visit a website with ~eww-mode~, and select text and highlight it. Refer to the example of a basic setup given in [[#installation][Instalaltion]].
 
 * Usage
 :PROPERTIES:
