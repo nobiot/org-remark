@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.0.5
 ;; Created: 22 December 2020
-;; Last modified: 14 January 2023
+;; Last modified: 29 January 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -394,7 +394,7 @@ marginal notes file.  The expected values are nil, :load and
                      '(:underline (:color "dark red" :style wave))
                      '(CATEGORY "review" help-echo "Review this"))
   (org-remark-create "yellow"
-                     '(:inherit default :underline "gold2")
+                     '(:underline "gold2")
                      '(CATEGORY "important")))
 
 (defun org-remark-save ()
