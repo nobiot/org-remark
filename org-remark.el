@@ -616,6 +616,7 @@ commands such as `org-remark-next' and `org-remark-prev'.
 
 Return t if the cursor has moved to next/prev.
 Return nil if not and outputs a message in the echo."
+  (org-remark-highlights-housekeep)
   (if (not org-remark-highlights)
       (progn (message "No highlights present in the buffer") nil)
     (let ((p (if next (org-remark-find-next-highlight)
