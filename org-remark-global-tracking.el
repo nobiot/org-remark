@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 15 August 2021
-;; Last modified: 14 January 2023
+;; Last modified: 15 April 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -97,7 +97,12 @@ This is the default function for the customizing variable
 
 When the current buffer is visiting a file, the name of marginal
 notes file will be \"FILE-notes.org\", adding \"-notes.org\" as a
-suffix to the file name without the extension."
+suffix to the file name without the extension.
+
+If the current buffer is not visiting a file, the file name will
+be marginalia.org in your `user-emacs-directory'.  If this file
+name is not suitable, either override the function or set the
+user option to use your own custom function."
   (if buffer-file-name
       (let ((source-filename (org-remark-source-find-file-name)))
         (when (and (stringp source-filename)
