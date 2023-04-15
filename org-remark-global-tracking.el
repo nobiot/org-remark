@@ -48,7 +48,9 @@ is an Org file.
 If it is a function, the default function is
 `org-remark-notes-file-name-function'.  It returns a file name
 like this: \"FILE-notes.org\" by adding \"-notes.org\" as a
-suffix to the file name without the extension."
+suffix to the file name without the extension. When the buffer is
+not visiting a file (e.g. a website via EWW), the file name will
+be \"marginalia.org\" in your `user-emacs-directory'."
   :group 'org-remark
   :safe #'stringp
   :type '(choice
