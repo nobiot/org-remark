@@ -1,7 +1,7 @@
 #+title: Org-remark User Manual
 #+author: Noboru Ota <me@nobiot.com>
 #+macro: version 1.0.x
-#+macro: modified 14 January 2023
+#+macro: modified 20 May 2023
 #+language: en
 #+export_file_name: org-remark.texi
 #+texinfo_dir_category: Emacs
@@ -85,7 +85,7 @@ Below are example keybindings you might like to consider:
     (define-key org-remark-mode-map (kbd "C-c n r") #'org-remark-remove))
 #+end_src
 
-[fn:1]: Feature to highlight and annotate websites is new in the latest [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] and is planned to be part of v1.1.0.
+[fn:1]: Feature to highlight and annotate websites is new in the latest [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] and is part of v1.1.0.
 
 * Getting Started
 :PROPERTIES:
@@ -246,7 +246,7 @@ Org-remark displays the marginal notes buffer narrowed to the highlight the curs
 
 After all the properties, you can freely write your notes for the highlight. Once you save the notes buffer, an excerpt of the text (currently up to 200 characters) gets updated back onto the highlight in the source buffer. You can hover your mouse over the highlight to see the excerpt displayed in the echo area (bottom of the screen) of Emacs. If you have ~tooltip-mode~ mode turned on, the excerpt is displayed as a took tip for the highlight [fn:2].
 
-[fn:2]: Feature to display an excerpt of the body of marginal notes is new in latest [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] and is planned to be part of v1.1.0.
+[fn:2]: Feature to display an excerpt of the body of marginal notes is new in latest [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] and is part of v1.1.0.
 
 *** How to Change Where Marginal Notes File is Saved
 :PROPERTIES:
