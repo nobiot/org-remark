@@ -861,11 +861,17 @@ buffer for automatic sync."
                   (assoc 'default org-remark-notes-headline-functions)))))
     (with-current-buffer notes-buf
       (org-with-wide-buffer
+       ;; Different major-mode extension may have different structure of notes file
+       ;; e.g. nov.el file: 1. source file; 2. book; 3 highlight
+       ;;      text file:   1. source file; 2. highlight
+       ;; Note the lowest level is always the highlight (common). And
+       ;; the top level is the "source" -- the file or URL, etc.
         (dolist (pair notes-headline-functions)
           (let ((level (car pair))
                 (fn (cdr pair)))
             (goto-char (funcall fn level source-buf notes-buf))
             (org-narrow-to-subtree)))
+        ;; Highlight Headline is common to all major-mode extensions
         (setq notes-props
               (org-remark-highlight-add-or-update-highlight-headline
                overlay source-buf notes-buf))))
@@ -959,7 +965,7 @@ beginning of source-headline, which should be one level up."
           ;; Add a properties
           (insert (concat (insert-char (string-to-char "*") level)
                           " " text "\n"))
-          ;; org-remark-original-text should be added onlyy when this
+          ;; org-remark-original-text should be added only when this
           ;; headline is created. No update afterwards
           (plist-put props "org-remark-original-text" text)
           (org-remark-notes-set-properties beg end props)
