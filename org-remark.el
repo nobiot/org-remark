@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 20 May 2023
+;; Last modified: 21 May 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -879,7 +879,7 @@ buffer for automatic sync."
 (defun org-remark-highlight-add-source-headline-maybe (level source-buf notes-buf)
   "Add a new source headline if not yet present in NOTES-BUF.
 Return the point of beginning of source headline regardless of it
-being newly added or already presented.
+being newly added or already present.
 
 SOURCE-BUF is the source buffer that contains highlights.
 
