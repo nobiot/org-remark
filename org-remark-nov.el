@@ -2,14 +2,13 @@
 
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 9 January 2023
-;; Last modified: 14 January 2023
+;; Last modified: 21 May 2023
 
 ;;; Commentary:
 
 ;;; Code:
 
 (require 'nov)
-;;(declare-function org-remark-auto-on "org-remark-global-tracking")
 (declare-function org-remark-highlights-load "org-remark")
 (defvar org-remark-notes-headline-functions)
 
@@ -22,7 +21,7 @@
       ;; Enable
       (progn
         (add-hook 'org-remark-source-find-file-name-functions
-                  #'org-remark-get-epub-source)
+                  #'org-remark-get-epub-filename)
         (add-hook 'org-remark-highlight-link-to-source-functions #'org-remark-nov-link)
         ;; When users turn the page (document in nov-mode's terminology)
         ;; `nov-mode' will erase the current buffer and render the new document
@@ -30,14 +29,12 @@
         ;; displayed get removed; the ones for the new document need to be
         ;; loaded document after `nov-mode' renders the new document.
         (add-hook 'nov-post-html-render-hook #'org-remark-highlights-load)
-        (add-hook 'org-remark-highlights-after-load-hook
-                  #'org-remark-highlights-adjust-positions)
         (add-to-list 'org-remark-notes-headline-functions
                      '(nov-mode . ((1 . org-remark-nov-highlight-add-book-headline-maybe)
                                    (2 . org-remark-highlight-add-source-headline-maybe)))))
     ;; Disable
     (remove-hook 'org-remark-source-find-file-name-functions
-                 #'org-remark-get-epub-source)
+                 #'org-remark-get-epub-filename)
     (remove-hook 'org-remark-highlight-link-to-source-functions
                  #'org-remark-nov-link)
     (remove-hook 'nov-post-html-render-hook #'org-remark-highlights-load)
@@ -53,6 +50,11 @@
      (file-name-nondirectory nov-file-name)
      "/"
      (file-name-base (cdr (aref nov-documents nov-documents-index))))))
+
+(defun org-remark-get-epub-filename ()
+  "Return the path of the epub source from which the present session is initiated."
+  (when (eq major-mode 'nov-mode)
+    nov-file-name))
 
 (defun org-remark-nov-link (_filname)
   "Return \"nov:\" link with current point in `nov-mode' buffer.

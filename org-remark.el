@@ -269,14 +269,18 @@ recommended to turn it on as part of Emacs initialization.
      (org-remark-mode
       ;; Activate
       (org-remark-highlights-load)
-      (add-hook 'after-save-hook #'org-remark-save nil t))
+      (add-hook 'after-save-hook #'org-remark-save nil t)
+      (add-hook 'org-remark-highlights-after-load-hook
+          #'org-remark-highlights-adjust-positions))
      (t
       ;; Deactivate
       (when org-remark-highlights
         (dolist (highlight org-remark-highlights)
           (delete-overlay highlight)))
       (setq org-remark-highlights nil)
-      (remove-hook 'after-save-hook #'org-remark-save t))))
+      (remove-hook 'after-save-hook #'org-remark-save t)
+      (remove-hook 'org-remark-highlights-after-load-hook
+                   #'org-remark-highlights-adjust-positions))))
 
 
 ;;;; Org-remark Menu
@@ -1243,8 +1247,6 @@ highlight is a property list in the following properties:
   (when-let ((source-file-name (org-remark-source-get-file-name
                                 (org-remark-source-find-file-name)))
              (notes-buf notes-buf))
-    ;; TODO check if there is any relevant notes for the current file
-    ;; This can be used for adding icon to the highlight
     (let ((highlights))
       (with-current-buffer notes-buf
         (when (featurep 'org-remark-convert-legacy)
@@ -1260,9 +1262,8 @@ highlight is a property list in the following properties:
              ;; ensures that it is the beginning of a headline
              (org-narrow-to-subtree)
              (org-show-children)
-             ;; It's important that the headline levels are fixed
-             ;; H1: File
-             ;; H2: Highlighted region (each one has a dedicated H2 subtree)
+             ;; Headline levels now can be dynamically changed via
+             ;; `org-remark-notes-headline-functions'
              (while (not (org-next-visible-heading 1))
                (when-let ((id (org-entry-get (point) org-remark-prop-id))
                           (beg (string-to-number
@@ -1429,13 +1430,12 @@ Case 2. The overlay points to no buffer
                (= (overlay-start ov) (overlay-end ov)))
       (when (and (not buffer-read-only)
                  (not (derived-mode-p 'special-mode)))
-                ;; buffer-size 0 happens for package like nov.el It
+                ;; buffer-size 0 happens for package like nov.el. It
                 ;; erases the buffer (size 0) and renders a new page in
                 ;; the same buffer.  In this case, buffer is writable.
         ;; Removing the notes here is meant to be automatically remove
         ;; notes when you delete a region that contains a higlight
         ;; overlay.
-
         ;; TODO Relying on the current major mode being derived from
         ;; special-mode is not the best.
         (org-remark-notes-remove (overlay-get ov 'org-remark-id)))

@@ -1,3 +1,10 @@
+Current development version
+  - feat: nov.el support for epub books
+  - feat: dynamic levels of notes
+  - feat: adjust positions after load
+  - feat: org-remark-highlights-after-load-hook
+
+
 Version 1.1.0
 
   Features:
