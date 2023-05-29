@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 21 May 2023
+;; Last modified: 29 May 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -886,6 +886,17 @@ buffer for automatic sync."
     ;;; Return notes-props
     notes-props))
 
+(defun org-remark-new-headline (level title props)
+  ""
+  ;; If file-headline does not exist, create one at the bottom
+  (goto-char (point-max))
+  ;; Ensure to be in the beginning of line to add a new headline
+  (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
+  (insert-char (string-to-char "*") level)
+  (insert (concat " " title "\n"))
+  (org-remark-notes-set-properties props)
+  (org-back-to-heading) (point))
+
 (defun org-remark-highlight-add-source-headline-maybe (level source-buf notes-buf)
   "Add a new source headline if not yet present in NOTES-BUF.
 Return the point of beginning of source headline regardless of it
@@ -905,15 +916,8 @@ Assume the current buffer is NOTES-BUF."
       ;; Return the beginning point of the headline. Create if not present
       (or (org-find-property
            org-remark-prop-source-file source-name)
-          (progn
-            ;; If file-headline does not exist, create one at the bottom
-            (goto-char (point-max))
-            ;; Ensure to be in the beginning of line to add a new headline
-            (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
-            (insert-char (string-to-char "*") level)
-            (insert (concat " " title "\n"))
-            (org-set-property org-remark-prop-source-file source-name)
-            (org-back-to-heading) (point))))))
+          (org-remark-new-headline
+           level title (list org-remark-prop-source-file source-name))))))
 
 (defun org-remark-highlight-add-or-update-highlight-headline (highlight source-buf notes-buf)
   "Add a new HIGHLIGHT headlne to the NOTES-BUF or update it.
@@ -944,6 +948,9 @@ beginning of source-headline, which should be one level up."
                    (run-hook-with-args-until-success
                     'org-remark-highlight-link-to-source-functions filename))
             orgid (org-remark-highlight-get-org-id beg))
+      ;; TODO ugly to add the beg end after setq above
+      (plist-put props org-remark-prop-source-beg (number-to-string beg))
+      (plist-put props org-remark-prop-source-end (number-to-string end))
       (when link (plist-put props "org-remark-link" link)))
     ;;; Make it explicit that we are now in the notes-buf, though it is
     ;;; functionally redundant.
@@ -958,7 +965,7 @@ beginning of source-headline, which should be one level up."
               ;; Don't update the headline text when it already exists
               ;; Let the user decide how to manage the headlines
               ;; (org-edit-headline text)
-              (org-remark-notes-set-properties beg end props))
+              (org-remark-notes-set-properties props))
           ;; No headline with the marginal notes ID property. Create a new one
           ;; at the end of the file's entry
           (org-narrow-to-subtree)
@@ -972,7 +979,7 @@ beginning of source-headline, which should be one level up."
           ;; org-remark-original-text should be added only when this
           ;; headline is created. No update afterwards
           (plist-put props "org-remark-original-text" text)
-          (org-remark-notes-set-properties beg end props)
+          (org-remark-notes-set-properties props)
           (when (and orgid org-remark-use-org-id)
             (insert (concat "[[id:" orgid "]" "[" title "]]"))))
         (list :body (org-remark-notes-get-body)
@@ -1134,7 +1141,7 @@ only one of the marginal notes buffer per session."
     ;; set the variable and return the indirect buffer
     (setq org-remark-last-notes-buffer ibuf)))
 
-(defun org-remark-notes-set-properties (beg end &optional props)
+(defun org-remark-notes-set-properties (props)
   "Set properties for the headline in the notes file.
 Return t.
 
@@ -1154,10 +1161,10 @@ drawer.
 In order to avoid adding org-remark-* overlay properties to Org
 properties, add prefix \"*\"."
 
-  (org-set-property org-remark-prop-source-beg
-                    (number-to-string beg))
-  (org-set-property org-remark-prop-source-end
-                    (number-to-string end))
+  ;; (org-set-property org-remark-prop-source-beg
+  ;;                   (number-to-string beg))
+  ;; (org-set-property org-remark-prop-source-end
+  ;;                   (number-to-string end))
 
   ;; Delete property.  Prefer `org-entry-delete' over
   ;; `org-delete-property' as the former is silent.
