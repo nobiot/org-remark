@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 15 August 2021
-;; Last modified: 21 May 2023
+;; Last modified: 24 June 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -112,9 +112,9 @@ user option to use your own custom function."
           (concat (file-name-sans-extension
                    (file-name-nondirectory source-filename))
                   "-notes.org")))
-    ;; If buffer is not visiting a file, a default file name.  If this
-    ;; file name is not suitable, either override the function or set
-    ;; the user option to a custom function.
+    ;; If buffer is not visiting a file, we use the default file name.
+    ;; If this file name is not suitable, either override the function
+    ;; or set the user option to a custom function.
     (expand-file-name "marginalia.org" user-emacs-directory)))
 
 (defalias
@@ -138,11 +138,17 @@ This function is meant to be added to `find-file-hook' by
 
 (defun org-remark-notes-get-file-name ()
   "Return the name of marginal notes file for current buffer."
+  (org-remark-notes-get-file-name-for-mode))
+
+(cl-defgeneric org-remark-notes-get-file-name-for-mode ()
+  "Return the name of marginal notes file for current buffer.
+This method is major modes derived from text-mode.")
+
+(cl-defmethod org-remark-notes-get-file-name-for-mode ()
+  "Return the name of marginal notes file for current buffer.
+This method is major modes derived from text-mode."
   (if (functionp org-remark-notes-file-name)
       (funcall org-remark-notes-file-name)
-    ;; If not function, assume string and return it as the file name.
-    ;; TODO when buffer is not visitng a file, assume file resides in
-    ;; `user-emacs-directory'
     (if buffer-file-name org-remark-notes-file-name
       (expand-file-name org-remark-notes-file-name user-emacs-directory))))
 

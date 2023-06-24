@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 29 May 2023
+;; Last modified: 24 June 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -271,7 +271,9 @@ recommended to turn it on as part of Emacs initialization.
       (org-remark-highlights-load)
       (add-hook 'after-save-hook #'org-remark-save nil t)
       (add-hook 'org-remark-highlights-after-load-hook
-          #'org-remark-highlights-adjust-positions))
+                #'org-remark-highlights-adjust-positions)
+      (add-hook 'org-remark-highlight-link-to-source-functions
+                #'org-remark-highlight-link-to-source-default 80))
      (t
       ;; Deactivate
       (when org-remark-highlights
@@ -280,7 +282,9 @@ recommended to turn it on as part of Emacs initialization.
       (setq org-remark-highlights nil)
       (remove-hook 'after-save-hook #'org-remark-save t)
       (remove-hook 'org-remark-highlights-after-load-hook
-                   #'org-remark-highlights-adjust-positions))))
+                   #'org-remark-highlights-adjust-positions)
+      (remove-hook 'org-remark-highlight-link-to-source-functions
+                   #'org-remark-highlight-link-to-source-default))))
 
 
 ;;;; Org-remark Menu
@@ -928,7 +932,7 @@ HIGHLIGHT is an overlay from the SOURCE-BUF.
 Assume the current buffer is NOTES-BUF and point is placed on the
 beginning of source-headline, which should be one level up."
   ;; Add org-remark-link with updated line-num as a property
-  (let (title beg end props id text filename line-num link orgid)
+  (let (title beg end props id text filename link orgid)
     (with-current-buffer source-buf
       (setq title (org-remark-highlight-get-title)
             beg (overlay-start highlight)
@@ -941,12 +945,8 @@ beginning of source-headline, which should be one level up."
                    (buffer-substring-no-properties beg end)))
             filename (org-remark-source-get-file-name
                       (org-remark-source-find-file-name))
-            line-num (org-current-line beg)
-            link (if buffer-file-name
-                     (concat "[[file:" filename
-                             (when line-num (format "::%d" line-num)) "]]")
-                   (run-hook-with-args-until-success
-                    'org-remark-highlight-link-to-source-functions filename))
+            link (run-hook-with-args-until-success
+                  'org-remark-highlight-link-to-source-functions filename beg)
             orgid (org-remark-highlight-get-org-id beg))
       ;; TODO ugly to add the beg end after setq above
       (plist-put props org-remark-prop-source-beg (number-to-string beg))
@@ -1055,6 +1055,13 @@ Adjustment is done by TEXT, which should be the original text of the highlight."
        (when (re-search-forward text paragraph-end :noerror)
          (move-overlay highlight (match-beginning 0) (match-end 0)))))))
 
+(defun org-remark-highlight-link-to-source-default (filename point)
+  "Return Org link string for the source when adding a highlight.
+Default function for `org-remark-highlight-link-to-source-functions'."
+  (if buffer-file-name
+      (let ((line-num (org-current-line point)))
+        (concat "[[file:" filename
+                (when line-num (format "::%d" line-num)) "]]"))))
 
 ;;;;; org-remark-notes
 ;;    Private functions that work on marginal notes buffer (notes
@@ -1310,7 +1317,9 @@ load the highlights"
   ;; Loop highlights and add them to the current buffer
   (let (overlays) ;; highlight overlays
     (when-let* ((notes-filename (org-remark-notes-get-file-name))
-                (notes-buf (find-file-noselect notes-filename))
+                (default-dir default-directory)
+                (notes-buf (or (find-buffer-visiting notes-filename)
+                               (find-file-noselect notes-filename)))
                 (source-buf (current-buffer)))
       (dolist (highlight (org-remark-highlights-get notes-buf) overlays)
         (let* ((location (plist-get highlight :location))
