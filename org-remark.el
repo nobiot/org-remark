@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 24 June 2023
+;; Last modified: 25 June 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -1466,8 +1466,14 @@ Meant to be set to `org-remark-highlights-after-load-hook' by
 mode-specific extensions."
   (dolist (ov overlays)
     (let ((highlight-text (overlay-get ov '*org-remark-original-text)))
-      (when highlight-text (org-remark-highlight-adjust-position-after-load
-                            ov highlight-text)))))
+      ;; original text exists AND
+      ;; it is different to the current
+      (when (and highlight-text
+                 (not (string= highlight-text
+                               (buffer-substring-no-properties
+                                (overlay-start ov) (overlay-end ov)))))
+        (org-remark-highlight-adjust-position-after-load
+         ov highlight-text)))))
 
 
 ;;;;; Other utilities
