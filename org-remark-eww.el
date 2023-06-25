@@ -6,7 +6,7 @@
 ;;          Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 23 December 2022
-;; Last modified: 14 January 2023
+;; Last modified: 25 June 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -66,7 +66,7 @@ This function is meant to be set to hook
     (let ((url-parsed (url-generic-parse-url (eww-current-url))))
       (concat (url-host url-parsed) (url-filename url-parsed)))))
 
-(defun org-remark-eww-highlight-link-to-source (filename)
+(defun org-remark-eww-highlight-link-to-source (filename _point)
   "Return URL pointinting to the source website (FILENAME).
 It assumes https:
 This function is meant to be set to hook
