@@ -60,9 +60,9 @@
 
 (defface org-remark-highlighter-warning
   '((((class color) (min-colors 88) (background light))
-     :background "#fff3da")
+     :foreground "#604000" :background "#fff29a")
     (((class color) (min-colors 88) (background dark))
-     :background "#fff3da")
+     :foreground: "#e2d980" :background "#693200")
     (t
      :inherit warning))
   "Face for highlighter warning.
@@ -1030,7 +1030,8 @@ Assume the current buffer is the source buffer."
   (overlay-put highlight '*org-remark-note-body
                (plist-get plist :body))
   (when (plist-get plist :body)
-    (overlay-put highlight 'after-string (propertize "📔" 'face 'org-remark-highlighter)))
+    (let ((face (overlay-get highlight 'face)))
+      (overlay-put highlight 'after-string (propertize "⁽*⁾" 'face face))))
   (overlay-put highlight '*org-remark-original-text
                (plist-get plist :original-text)))
 
@@ -1069,8 +1070,10 @@ Adjustment is done by TEXT, which should be the original text of the highlight."
        (when (re-search-forward text paragraph-end :noerror)
          (move-overlay highlight (match-beginning 0) (match-end 0))))
      ;; Even if the new location could not be found, indicate that it is different to the original
-     (overlay-put highlight 'after-string
-                  (propertize "!?" 'face 'org-remark-highlighter-warning)))))
+     (let ((afterstring (overlay-get highlight 'after-string)))
+       (overlay-put highlight 'after-string
+                    (concat afterstring
+                            (propertize "⁽ᵟ⁾" 'face 'org-remark-highlighter-warning)))))))
 
 (defun org-remark-highlight-link-to-source-default (filename point)
   "Return Org link string for the source when adding a highlight.
@@ -1332,6 +1335,16 @@ configuration.  It automatically turns on `org-remark-mode'.
 
 Otherwise, do not forget to turn on `org-remark-mode' manually to
 load the highlights"
+  ;; Some major modes such as nov.el reuse the buffer for a different
+  ;; "file". In this case, obsolete highlight overlays linger when you
+  ;; switch from one file to another. Thus, we need to begin loading by
+  ;; clearing the highlight overlays first.
+  ;;(org-remark-highlights-housekeep)
+  ;; In order to update the overlay, it is first gets deleted
+  ;; and newly loaded.  This way, we avoid duplicate of the same
+  ;; highlight.
+  (dolist (ov org-remark-highlights)
+    (org-remark-highlight-clear ov))
   ;; Loop highlights and add them to the current buffer
   (let (overlays) ;; highlight overlays
     (when-let* ((notes-filename (org-remark-notes-get-file-name))
@@ -1343,18 +1356,7 @@ load the highlights"
         (let* ((location (plist-get highlight :location))
                (beg (car location))
                (end (cdr location))
-               (id (plist-get highlight :id))
-               (ov (org-remark-find-overlay-in beg end id)))
-          ;; In order to update the overlay, it is first gets deleted
-          ;; and newly loaded.  This way, we avoid duplicate of the same
-          ;; highlight.
-
-          ;; FIXME Currently the when clause is used to guard against
-          ;; the case where a highlight overlay is not found.  It should
-          ;; be an edge case but the highlight could have moved to a
-          ;; completely new location where the old location does not
-          ;; overlap with the new location at all.
-          (when ov (org-remark-highlight-clear ov))
+               (id (plist-get highlight :id)))
           (push (org-remark-highlight-load highlight) overlays)))
       (unless update (org-remark-notes-setup notes-buf source-buf))
       (if overlays
