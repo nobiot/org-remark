@@ -58,6 +58,18 @@
      :inherit highlight))
   "Face for the default highlighter pen.")
 
+(defface org-remark-highlighter-warning
+  '((((class color) (min-colors 88) (background light))
+     :background "#fff3da")
+    (((class color) (min-colors 88) (background dark))
+     :background "#fff3da")
+    (t
+     :inherit warning))
+  "Face for highlighter warning.
+For example, it is used by the characters that indicate the
+location of the highlight has been automatically adjusted from its
+original.")
+
 (defcustom org-remark-create-default-pen-set t
   "When non-nil, Org-remark creates default pen set.
 Set to nil if you prefer for it not to."
@@ -1055,7 +1067,10 @@ Adjustment is done by TEXT, which should be the original text of the highlight."
        ;; overlay; this way, you don't need to look forward and backward
        ;; separately.
        (when (re-search-forward text paragraph-end :noerror)
-         (move-overlay highlight (match-beginning 0) (match-end 0)))))))
+         (move-overlay highlight (match-beginning 0) (match-end 0))))
+     ;; Even if the new location could not be found, indicate that it is different to the original
+     (overlay-put highlight 'after-string
+                  (propertize "!?" 'face 'org-remark-highlighter-warning)))))
 
 (defun org-remark-highlight-link-to-source-default (filename point)
   "Return Org link string for the source when adding a highlight.
@@ -1335,16 +1350,20 @@ load the highlights"
           ;; highlight.
 
           ;; FIXME Currently the when clause is used to guard against
-          ;; the case wheremarkre a highlight overlay is not found.  It should
+          ;; the case where a highlight overlay is not found.  It should
           ;; be an edge case but the highlight could have moved to a
           ;; completely new location where the old location does not
           ;; overlap with the new location at all.
           (when ov (org-remark-highlight-clear ov))
           (push (org-remark-highlight-load highlight) overlays)))
       (unless update (org-remark-notes-setup notes-buf source-buf))
-      (run-hook-with-args 'org-remark-highlights-after-load-hook
-                          overlays notes-buf)
-      t)))
+      (if overlays
+          (progn (run-hook-with-args 'org-remark-highlights-after-load-hook
+                                     overlays notes-buf)
+                 ;; Return t
+                 t)
+        ;; if there is no overlays loaded, return nil
+        nil))))
 
 (defun org-remark-highlights-get-positions (&optional reverse)
   "Return list of the beginning point of all visible highlights in this buffer.
