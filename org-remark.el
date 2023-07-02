@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 25 June 2023
+;; Last modified: 02 July 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -1199,7 +1199,7 @@ properties, add prefix \"*\"."
                ;; (org-end-of-meta-data :full) took us to next org heading):
                (or (looking-at org-heading-regexp)
                    (eobp)) ;; end of buffer
-               "[empty entry]"
+               nil ;; no body text for the annotation
              (buffer-substring-no-properties
               (point)
               (org-end-of-subtree))))))
@@ -1279,22 +1279,23 @@ highlight is a property list in the following properties:
              ;; Headline levels now can be dynamically changed via
              ;; `org-remark-notes-headline-functions'
              (while (not (org-next-visible-heading 1))
-               (when-let ((id (org-entry-get (point) org-remark-prop-id))
-                          (beg (string-to-number
-                                (org-entry-get (point)
-                                               org-remark-prop-source-beg)))
-                          (end (string-to-number
-                                (org-entry-get (point)
-                                               org-remark-prop-source-end)))
-                          (body (org-remark-notes-get-body)))
-                 (push (list :id id
-                             :location (cons beg end)
-                             :label    (org-entry-get (point) "org-remark-label")
-                             :props    (list
-                                        :original-text
-                                        (org-entry-get (point) "org-remark-original-text")
-                                        :body body))
-                       highlights))))
+               (let ((id (org-entry-get (point) org-remark-prop-id))
+                     (beg (string-to-number
+                           (org-entry-get (point)
+                                          org-remark-prop-source-beg)))
+                     (end (string-to-number
+                           (org-entry-get (point)
+                                          org-remark-prop-source-end)))
+                     (body (org-remark-notes-get-body)))
+                 (when (and id beg end)
+                   (push (list :id id
+                               :location (cons beg end)
+                               :label    (org-entry-get (point) "org-remark-label")
+                               :props    (list
+                                          :original-text
+                                          (org-entry-get (point) "org-remark-original-text")
+                                          :body body))
+                         highlights)))))
            highlights))))))
 
 (defvar org-remark-highlights-after-load-hook nil
