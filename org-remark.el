@@ -1017,6 +1017,8 @@ Assume the current buffer is the source buffer."
     (overlay-put highlight 'help-echo (plist-get plist :body)))
   (overlay-put highlight '*org-remark-note-body
                (plist-get plist :body))
+  (when (plist-get plist :body)
+    (overlay-put highlight 'after-string (propertize "📔" 'face 'org-remark-highlighter)))
   (overlay-put highlight '*org-remark-original-text
                (plist-get plist :original-text)))
 
