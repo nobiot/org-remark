@@ -2,7 +2,7 @@
 
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 9 January 2023
-;; Last modified: 24 June 2023
+;; Last modified: 04 July 2023
 
 ;;; Commentary:
 
@@ -33,12 +33,15 @@
         ;; displayed get removed; the ones for the new document need to be
         ;; loaded document after `nov-mode' renders the new document.
         (add-hook 'nov-post-html-render-hook #'org-remark-highlights-load)
+        ;; (add-to-list 'org-remark-notes-headline-functions
+        ;;              '(nov-mode . ((1 . org-remark-nov-highlight-add-book-headline-maybe)
+        ;;                            (2 . org-remark-nov-add-source-headline-maybe))))
         (add-to-list 'org-remark-notes-headline-functions
-                     '(nov-mode . ((1 . org-remark-nov-highlight-add-book-headline-maybe)
-                                   (2 . org-remark-nov-add-source-headline-maybe)))))
+                     '(nov-mode . ((1 . test/org-remark-nov-highlight-headlines))))
+        )
     ;; Disable
     (remove-hook 'org-remark-source-find-file-name-functions
-                 #'org-remark-get-epub-filename)
+                 #'org-remark-get-epub-source)
     (remove-hook 'org-remark-highlight-link-to-source-functions
                  #'org-remark-nov-link)
     (remove-hook 'org-remark-highlight-link-to-source-functions
@@ -84,16 +87,13 @@
 (defun org-remark-nov-get-epub-document-title ()
   "Return the path of the epub source from which the present session is initiated."
   (when (eq major-mode 'nov-mode)
-    (let ((document-info-pair (aref nov-documents nov-documents-index)))
-      (concat
-       (symbol-name (car document-info-pair)) ;; id
-       "/"
-       (file-name-base (cdr document-info-pair)))))) ;; temp file
+    (let ((temp-filename (cdr (aref nov-documents nov-documents-index))))
+      (file-name-base temp-filename))))
 
-(defun org-remark-get-epub-filename ()
-  "Return the path of the epub source from which the present session is initiated."
-  (when (eq major-mode 'nov-mode)
-    nov-file-name))
+;; (defun org-remark-get-epub-filename ()
+;;   "Return the path of the epub source from which the present session is initiated."
+;;   (when (eq major-mode 'nov-mode)
+;;     nov-file-name))
 
 (defun org-remark-nov-link (_filname _point)
   "Return \"nov:\" link with current point in `nov-mode' buffer.
@@ -105,55 +105,105 @@ buffer."
   (when (eq major-mode 'nov-mode)
     (org-store-link nil)))
 
-(defun org-remark-nov-highlight-add-book-headline-maybe (level source-buf notes-buf)
-  "Add a book headline if not present in NOTES-BUF for epub file.
-Return the point of beginning of book headline regardless of it
-being newly added or already present.
+(defun test/org-remark-nov-highlight-headlines (_level source-buf notes-buf)
+  (org-remark-nov-highlight-new-headline-maybe source-buf notes-buf))
 
-LEVEL is the headline level when one is to be added.
+(defun org-remark-nov-highlight-new-headline-maybe (source-buf notes-buf)
+  (let* ((headline-1 (list 1
+                           (lambda () nov-file-name)
+                           (lambda () (cdr (assoc 'title nov-metadata)))
+                           "org-remark-nov-file"))
+         (headline-2 (list 2
+                           #'org-remark-get-epub-source
+                           #'org-remark-nov-get-epub-document-title
+                           org-remark-prop-source-file))
+         (headline-constructs (list headline-1 headline-2)))
+    (org-remark-highlight-new-headline-maybe headline-constructs source-buf notes-buf)))
 
-SOURCE-BUF is a `nov-mode' buffer visiting a document within an
-epub file.
+;; (defun org-remark-highlight-new-headline-maybe (headline-constructs source-buf notes-buf)
+;;   "'((1 filename-fn title-fn prop-to-find)
+;;      (2 filename-fn title-fn prop-to-find))"
+;;   (dolist (headline headline-constructs point)
+;;     (let ((level (nth 0 headline))
+;;           (filename-fn (nth 1 headline))
+;;           (title-fn (nth 2 headline))
+;;           (prop-to-find (nth 3 headline))
+;;           (filename nil)
+;;           (title nil))
+;;       (with-current-buffer source-buf
+;;         (setq filename (funcall filename-fn))
+;;         (setq title (funcall title-fn)))
+;;       (with-current-buffer notes-buf
+;;         ;; We need to return the point to outside the dolist loop.
+;;         ;; and return from this function.
+;;         (setq point
+;;               (or (org-find-property
+;;                    prop-to-find filename)
+;;                   (org-remark-new-headline
+;;                    level title (list prop-to-find filename))))))))
 
-Assume the current buffer is NOTES-BUF."
-  (let (filename title)
-    (with-current-buffer source-buf
-      ;; The nov variables are only locally set in the source buffer.
-      (setq filename nov-file-name
-            title (cdr (assoc 'title nov-metadata))))
-    ;; Back in the notes buffer, return the point of the beginning of
-    ;; the headline
-    (with-current-buffer notes-buf
-      (or (org-find-property "org-remark-nov-file" filename)
-          (progn
-            ;; If the book entry does not exist, create one at the bottom of notes buffer
-            (goto-char (point-max))
-            ;; Ensure to be in the beginning of line to add a new headline
-            (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
-            (insert-char (string-to-char "*") level)
-            ;; Title is assumed to present but the program won't fail even if it is nil.
-            (insert (concat " " title "\n"))
-            (org-set-property "org-remark-nov-file" filename)
-            (org-back-to-heading) (point))))))
+(defun org-remark-highlight-new-headline-maybe (headline-constructs source-buf notes-buf)
+  "'((1 filename-fn title-fn prop-to-find)
+     (2 filename-fn title-fn prop-to-find))"
+  (cl-loop for (level filename-fn title-fn prop-to-find) in headline-constructs
+           ;; This variable "point" is set in order to be returned at
+           ;; the end of the loop.
+           with point = nil
+           do (let (filename title)
+                (with-current-buffer source-buf
+                  (setq filename (funcall filename-fn))
+                  (setq title (funcall title-fn)))
+                (with-current-buffer notes-buf
+                  (setq point
+                        (or (org-find-property
+                             prop-to-find filename)
+                            (org-remark-new-headline
+                             level title (list prop-to-find filename))))))
+           ;; Need to return the point at the end of the loop.
+           finally return point))
 
-(defun org-remark-nov-add-source-headline-maybe (level source-buf notes-buf)
-  "Add a new source headline if not yet present in NOTES-BUF.
-Return the point of beginning of source headline regardless of it
-being newly added or already present.
+;; (defun org-remark-nov-highlight-add-book-headline-maybe (level source-buf notes-buf)
+;;   "Add a book headline if not present in NOTES-BUF for epub file.
+;; Return the point of beginning of book headline regardless of it
+;; being newly added or already present.
 
-SOURCE-BUF is the source buffer that contains highlights.
+;; LEVEL is the headline level qwhen one is to be added.
 
-Assume the current buffer is NOTES-BUF."
-  (let (source-name title)
-    (with-current-buffer source-buf
-      (setq source-name (org-remark-get-epub-source))
-      (setq title (org-remark-nov-get-epub-document-title)))
-    (with-current-buffer notes-buf
-      ;; Return the beginning point of the headline. Create if not present
-      (or (org-find-property
-           org-remark-prop-source-file source-name)
-          (org-remark-new-headline
-           level title (list org-remark-prop-source-file source-name))))))
+;; SOURCE-BUF is a `nov-mode' buffer visiting a document within an
+;; epub file.
+
+;; Assume the current buffer is NOTES-BUF."
+;;   (let (filename title)
+;;     (with-current-buffer source-buf
+;;       ;; The nov variables are only locally set in the source buffer.
+;;       (setq filename nov-file-name)
+;;       (setq title (cdr (assoc 'title nov-metadata))))
+;;     ;; Back in the notes buffer, return the point of the beginning of
+;;     ;; the headline
+;;     (with-current-buffer notes-buf
+;;       (or (org-find-property
+;;            "org-remark-nov-file" filename)
+;;           (org-remark-new-headline
+;;            level title (list "org-remark-nov-file" filename))))))
+
+;; (defun org-remark-nov-add-source-headline-maybe (level source-buf notes-buf)
+;;   "Add a new source headline if not yet present in NOTES-BUF.
+;; Return the point of beginning of source headline regardless of it
+;; being newly added or already present.
+
+;; SOURCE-BUF is the source buffer that contains highlights.
+
+;; Assume the current buffer is NOTES-BUF."
+;;   (let (source-name title)
+;;     (with-current-buffer source-buf
+;;       (setq source-name (org-remark-get-epub-source))
+;;       (setq title (org-remark-nov-get-epub-document-title)))
+;;     (with-current-buffer notes-buf
+;;       ;; Return the beginning point of the headline. Create if not present
+;;       (or (org-find-property
+;;            org-remark-prop-source-file source-name)
+;;           (org-remark-new-headline
+;;            level title (list org-remark-prop-source-file source-name))))))
 
 ;; navigate from notes to document
 (defun test/find-nov-file-buffer ()
