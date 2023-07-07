@@ -1352,14 +1352,16 @@ highlight is a property list in the following properties:
              ;; `org-remark-notes-headline-functions'
              (while (not (org-next-visible-heading 1))
                (let ((id (org-entry-get (point) org-remark-prop-id))
-                     (beg (string-to-number
-                           (org-entry-get (point)
-                                          org-remark-prop-source-beg)))
-                     (end (string-to-number
-                           (org-entry-get (point)
-                                          org-remark-prop-source-end)))
+                     (beg (org-entry-get (point)
+                                         org-remark-prop-source-beg))
+                     (end (org-entry-get (point)
+                                         org-remark-prop-source-end))
                      (body (org-remark-notes-get-body)))
+                 ;; beg and end must exist. If either is nil
+                 ;; `string-to-number' errors
                  (when (and id beg end)
+                   (setq beg (string-to-number beg))
+                   (setq end (string-to-number end))
                    (push (list :id id
                                :location (cons beg end)
                                :label    (org-entry-get (point) "org-remark-label")

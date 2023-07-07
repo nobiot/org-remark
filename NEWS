@@ -4,6 +4,12 @@ Current development version
   - feat: adjust positions after load
   - feat: org-remark-highlights-after-load-hook
 
+  - fix: highlights-get existence check beg and end
+
+         beg and end must exist. If either is nil, `number-to-string`
+         errors and load stops prematurely. This can happen when the
+         user manually manages the notes file and accidentally deletes
+         the beg/end props.
 
 Version 1.1.0
 
