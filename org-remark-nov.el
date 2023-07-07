@@ -2,7 +2,7 @@
 
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 9 January 2023
-;; Last modified: 06 July 2023
+;; Last modified: 07 July 2023
 
 ;;; Commentary:
 
@@ -32,13 +32,7 @@
         ;; content in the same buffer.  This means the highlights currently
         ;; displayed get removed; the ones for the new document need to be
         ;; loaded document after `nov-mode' renders the new document.
-        (add-hook 'nov-post-html-render-hook #'org-remark-highlights-load)
-        ;; (add-to-list 'org-remark-notes-headline-functions
-        ;;              '(nov-mode . ((1 . org-remark-nov-highlight-add-book-headline-maybe)
-        ;;                            (2 . org-remark-nov-add-source-headline-maybe))))
-        (add-to-list 'org-remark-notes-headline-functions
-                     '(nov-mode . ((1 . test/org-remark-nov-highlight-headlines))))
-        )
+        (add-hook 'nov-post-html-render-hook #'org-remark-highlights-load))
     ;; Disable
     (remove-hook 'org-remark-source-find-file-name-functions
                  #'org-remark-get-epub-source)
@@ -46,9 +40,7 @@
                  #'org-remark-nov-link)
     (remove-hook 'org-remark-highlight-link-to-source-functions
               #'org-remark-nov-link)
-    (remove-hook 'nov-post-html-render-hook #'org-remark-highlights-load)
-    (setq org-remark-notes-headline-functions
-          (assq-delete-all 'nov-mode org-remark-notes-headline-functions))))
+    (remove-hook 'nov-post-html-render-hook #'org-remark-highlights-load)))
 
 (cl-defmethod org-remark-notes-get-file-name-for-mode (&context (major-mode nov-mode))
   "For nov.el mode, do something"
@@ -108,7 +100,7 @@ buffer."
 (defun test/org-remark-nov-highlight-headlines (_level source-buf notes-buf)
   (org-remark-nov-highlight-new-headline-maybe source-buf notes-buf))
 
-(cl-defmethod org-remark-highlights-get-constructors (&context (major-mode nov-mode))
+(cl-defmethod org-remark-highlight-get-constructors (&context (major-mode nov-mode))
   "Dev needs to define a mode-specific headline constructors.
 `(level source-filename-fn title-fn prop-to-find)`'"
   (let* ((headline-1 (list 1

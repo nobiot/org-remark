@@ -820,35 +820,9 @@ This function assumes the current buffer is the source buffer."
   (and org-remark-use-org-id
        (org-entry-get point "ID" :inherit)))
 
-;;; TODO When design finalizes, move to top of file.  Probably should
-;;; not be a user option, and leave it to the extension developer to add
-;;; a mode-specific entry.
-(defvar org-remark-notes-headline-functions
-  '((default . ((1 . org-remark-highlight-add-source-headline-maybe)))))
-
 (make-obsolete #'org-remark-highlight-save #'org-remark-highlight-add "1.2.0")
 
-(defun org-remark-highlight-new-headline-maybe (headline-constructs source-buf notes-buf)
-  "'((1 filename-fn title-fn prop-to-find)
-     (2 filename-fn title-fn prop-to-find))"
-  (cl-loop for (level filename-fn title-fn prop-to-find) in headline-constructs
-           ;; This variable "point" is set in order to be returned at
-           ;; the end of the loop.
-           with point = nil
-           do (let (filename title)
-                (with-current-buffer source-buf
-                  (setq filename (funcall filename-fn))
-                  (setq title (funcall title-fn)))
-                (with-current-buffer notes-buf
-                  (setq point
-                        (or (org-find-property
-                             prop-to-find filename)
-                            (org-remark-new-headline
-                             level title (list prop-to-find filename))))))
-           ;; Need to return the point at the end of the loop.
-           finally return point))
-
-(cl-defgeneric org-remark-highlights-get-constructors ()
+(cl-defgeneric org-remark-highlight-get-constructors ()
   "Dev needs to define a mode-specific headline constructors.
 `(level source-filename-fn title-fn prop-to-find)`'"
   (let* ((headline-1 (list 1
@@ -859,28 +833,6 @@ This function assumes the current buffer is the source buffer."
                            org-remark-prop-source-file))
          (headline-constructors (list headline-1)))
     headline-constructors))
-
-;; (defun org-remark-highlight-add-source-headline-maybe (level source-buf notes-buf)
-;;   "Add a new source headline if not yet present in NOTES-BUF.
-;; Return the point of beginning of source headline regardless of it
-;; being newly added or already present.
-
-;; SOURCE-BUF is the source buffer that contains highlights.
-
-;; Assume the current buffer is NOTES-BUF."
-;;   (let (source-name title)
-;;     (with-current-buffer source-buf
-;;       (setq source-name (org-remark-source-get-file-name
-;;                          (org-remark-source-find-file-name)))
-;;       (setq title (org-remark-highlight-get-title)))
-;;     (with-current-buffer notes-buf
-;;       ;; Transparent org-marginalia data conversion to org-remark
-;;       (when (featurep 'org-remark-convert-legacy) (org-remark-convert-legacy-data))
-;;       ;; Return the beginning point of the headline. Create if not present
-;;       (or (org-find-property
-;;            org-remark-prop-source-file source-name)
-;;           (org-remark-new-headline
-;;            level title (list org-remark-prop-source-file source-name))))))
 
 (defun org-remark-highlight-add (overlay source-buf notes-buf)
   "Add a single HIGHLIGHT in the marginal notes file.
@@ -933,7 +885,7 @@ buffer for automatic sync."
         (notes-props nil)
         ;; Does this have to be explicitly in with-current buffer clause?
         (headline-constructors (with-current-buffer source-buf
-                                 (org-remark-highlights-get-constructors))))
+                                 (org-remark-highlight-get-constructors))))
     (with-current-buffer notes-buf
       (org-with-wide-buffer
        ;; Different major-mode extension may have different structure of notes file
@@ -1349,7 +1301,7 @@ highlight is a property list in the following properties:
              (org-narrow-to-subtree)
              (org-show-children)
              ;; Headline levels now can be dynamically changed via
-             ;; `org-remark-notes-headline-functions'
+             ;; highlight-constructors.
              (while (not (org-next-visible-heading 1))
                (let ((id (org-entry-get (point) org-remark-prop-id))
                      (beg (org-entry-get (point)
