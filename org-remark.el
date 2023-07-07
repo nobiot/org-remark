@@ -893,33 +893,29 @@ buffer for automatic sync."
        ;;      text file:   1. source file; 2. highlight
        ;; Note the lowest level is always the highlight (common). And
        ;; the top level is the "source" -- the file or URL, etc.
-       (setq point
-             (cl-loop for (level filename-fn title-fn prop-to-find) in headline-constructors
-                      ;; This variable "point" is set in order to be returned at
-                      ;; the end of the loop.
-                      with point = nil
-                      do (let (filename title)
-                           (with-current-buffer source-buf
-                             (setq filename (funcall filename-fn))
-                             (setq title (funcall title-fn)))
-                           (with-current-buffer notes-buf
-                             (setq point
-                                   (or (org-find-property
-                                        prop-to-find filename)
-                                       (org-remark-new-headline
-                                        level title (list prop-to-find filename))))))
-                      finally return point))
-       ;; FIXME For now, the highlight gets in the wrong structure in
-       ;; notes and disappears from the source if the point moves after
-       ;; the loop. I suspect
-       ;; `org-remark-highlight-add-or-update-highlight-headline' needs
-       ;; the point to be a certain place withint the notes strucuture.
-       ;; This should be fixed when we refactor this function.
-       (goto-char point)
-       ;; Highlight Headline is common to all major-mode extensions
-       (setq notes-props
-             (org-remark-highlight-add-or-update-highlight-headline
-              overlay source-buf notes-buf))))
+       (cl-loop for (level filename-fn title-fn prop-to-find) in headline-constructors
+                ;; This variable "point" is set in order to be returned at
+                ;; the end of the loop.
+                with point = nil
+                do (let (filename title)
+                     (with-current-buffer source-buf
+                       (setq filename (funcall filename-fn))
+                       (setq title (funcall title-fn)))
+                     (with-current-buffer notes-buf
+                       (setq point
+                             (or (org-find-property
+                                  prop-to-find filename)
+                                 (org-remark-new-headline
+                                  level title (list prop-to-find filename))))))
+                ;; Add the hightlight/note nodes after the headline loop.
+                finally (progn
+                          ;; need to move to the point at the end
+                          ;; of loop
+                          (goto-char point)
+                          ;; Highlight Headline is common to all major-mode extensions
+                          (setq notes-props
+                                (org-remark-highlight-add-or-update-highlight-headline
+                                 overlay source-buf notes-buf))))))
     ;;; Set up notes buffer for sync for the source buffer
     (with-current-buffer source-buf
       (unless org-remark-source-setup-done
@@ -927,8 +923,9 @@ buffer for automatic sync."
     ;;; Return notes-props
     notes-props))
 
-(defun org-remark-new-headline (level title props)
-  ""
+(defun org-remark-new-headline (level title props &rest args)
+  "
+Return the point of beginning of current heading."
   ;; If file-headline does not exist, create one at the bottom
   (org-narrow-to-subtree)
   (goto-char (point-max))
