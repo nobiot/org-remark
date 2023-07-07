@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 02 July 2023
+;; Last modified: 07 July 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -828,6 +828,60 @@ This function assumes the current buffer is the source buffer."
 
 (make-obsolete #'org-remark-highlight-save #'org-remark-highlight-add "1.2.0")
 
+(defun org-remark-highlight-new-headline-maybe (headline-constructs source-buf notes-buf)
+  "'((1 filename-fn title-fn prop-to-find)
+     (2 filename-fn title-fn prop-to-find))"
+  (cl-loop for (level filename-fn title-fn prop-to-find) in headline-constructs
+           ;; This variable "point" is set in order to be returned at
+           ;; the end of the loop.
+           with point = nil
+           do (let (filename title)
+                (with-current-buffer source-buf
+                  (setq filename (funcall filename-fn))
+                  (setq title (funcall title-fn)))
+                (with-current-buffer notes-buf
+                  (setq point
+                        (or (org-find-property
+                             prop-to-find filename)
+                            (org-remark-new-headline
+                             level title (list prop-to-find filename))))))
+           ;; Need to return the point at the end of the loop.
+           finally return point))
+
+(cl-defgeneric org-remark-highlights-get-constructors ()
+  "Dev needs to define a mode-specific headline constructors.
+`(level source-filename-fn title-fn prop-to-find)`'"
+  (let* ((headline-1 (list 1
+                           (lambda ()
+                             (org-remark-source-get-file-name
+                              (org-remark-source-find-file-name)))
+                           #'org-remark-highlight-get-title
+                           org-remark-prop-source-file))
+         (headline-constructors (list headline-1)))
+    headline-constructors))
+
+;; (defun org-remark-highlight-add-source-headline-maybe (level source-buf notes-buf)
+;;   "Add a new source headline if not yet present in NOTES-BUF.
+;; Return the point of beginning of source headline regardless of it
+;; being newly added or already present.
+
+;; SOURCE-BUF is the source buffer that contains highlights.
+
+;; Assume the current buffer is NOTES-BUF."
+;;   (let (source-name title)
+;;     (with-current-buffer source-buf
+;;       (setq source-name (org-remark-source-get-file-name
+;;                          (org-remark-source-find-file-name)))
+;;       (setq title (org-remark-highlight-get-title)))
+;;     (with-current-buffer notes-buf
+;;       ;; Transparent org-marginalia data conversion to org-remark
+;;       (when (featurep 'org-remark-convert-legacy) (org-remark-convert-legacy-data))
+;;       ;; Return the beginning point of the headline. Create if not present
+;;       (or (org-find-property
+;;            org-remark-prop-source-file source-name)
+;;           (org-remark-new-headline
+;;            level title (list org-remark-prop-source-file source-name))))))
+
 (defun org-remark-highlight-add (overlay source-buf notes-buf)
   "Add a single HIGHLIGHT in the marginal notes file.
 
@@ -875,10 +929,11 @@ source with using ORGID.
 When the current source buffer is not set up for sync with notes,
 this function calls `org-remark-notes-setup' to prepare the notes
 buffer for automatic sync."
-  (let ((notes-props)
-        (notes-headline-functions
-         (cdr (or (assoc major-mode org-remark-notes-headline-functions)
-                  (assoc 'default org-remark-notes-headline-functions)))))
+  (let ((point nil)
+        (notes-props nil)
+        ;; Does this have to be explicitly in with-current buffer clause?
+        (headline-constructors (with-current-buffer source-buf
+                                 (org-remark-highlights-get-constructors))))
     (with-current-buffer notes-buf
       (org-with-wide-buffer
        ;; Different major-mode extension may have different structure of notes file
@@ -886,15 +941,33 @@ buffer for automatic sync."
        ;;      text file:   1. source file; 2. highlight
        ;; Note the lowest level is always the highlight (common). And
        ;; the top level is the "source" -- the file or URL, etc.
-        (dolist (pair notes-headline-functions)
-          (let ((level (car pair))
-                (fn (cdr pair)))
-            (goto-char (funcall fn level source-buf notes-buf))
-            (org-narrow-to-subtree)))
-        ;; Highlight Headline is common to all major-mode extensions
-        (setq notes-props
-              (org-remark-highlight-add-or-update-highlight-headline
-               overlay source-buf notes-buf))))
+       (setq point
+             (cl-loop for (level filename-fn title-fn prop-to-find) in headline-constructors
+                      ;; This variable "point" is set in order to be returned at
+                      ;; the end of the loop.
+                      with point = nil
+                      do (let (filename title)
+                           (with-current-buffer source-buf
+                             (setq filename (funcall filename-fn))
+                             (setq title (funcall title-fn)))
+                           (with-current-buffer notes-buf
+                             (setq point
+                                   (or (org-find-property
+                                        prop-to-find filename)
+                                       (org-remark-new-headline
+                                        level title (list prop-to-find filename))))))
+                      finally return point))
+       ;; FIXME For now, the highlight gets in the wrong structure in
+       ;; notes and disappears from the source if the point moves after
+       ;; the loop. I suspect
+       ;; `org-remark-highlight-add-or-update-highlight-headline' needs
+       ;; the point to be a certain place withint the notes strucuture.
+       ;; This should be fixed when we refactor this function.
+       (goto-char point)
+       ;; Highlight Headline is common to all major-mode extensions
+       (setq notes-props
+             (org-remark-highlight-add-or-update-highlight-headline
+              overlay source-buf notes-buf))))
     ;;; Set up notes buffer for sync for the source buffer
     (with-current-buffer source-buf
       (unless org-remark-source-setup-done
@@ -905,6 +978,7 @@ buffer for automatic sync."
 (defun org-remark-new-headline (level title props)
   ""
   ;; If file-headline does not exist, create one at the bottom
+  (org-narrow-to-subtree)
   (goto-char (point-max))
   ;; Ensure to be in the beginning of line to add a new headline
   (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
@@ -912,28 +986,6 @@ buffer for automatic sync."
   (insert (concat " " title "\n"))
   (org-remark-notes-set-properties props)
   (org-back-to-heading) (point))
-
-(defun org-remark-highlight-add-source-headline-maybe (level source-buf notes-buf)
-  "Add a new source headline if not yet present in NOTES-BUF.
-Return the point of beginning of source headline regardless of it
-being newly added or already present.
-
-SOURCE-BUF is the source buffer that contains highlights.
-
-Assume the current buffer is NOTES-BUF."
-  (let (source-name title)
-    (with-current-buffer source-buf
-      (setq source-name (org-remark-source-get-file-name
-                      (org-remark-source-find-file-name)))
-      (setq title (org-remark-highlight-get-title)))
-    (with-current-buffer notes-buf
-      ;; Transparent org-marginalia data conversion to org-remark
-      (when (featurep 'org-remark-convert-legacy) (org-remark-convert-legacy-data))
-      ;; Return the beginning point of the headline. Create if not present
-      (or (org-find-property
-           org-remark-prop-source-file source-name)
-          (org-remark-new-headline
-           level title (list org-remark-prop-source-file source-name))))))
 
 (defun org-remark-highlight-add-or-update-highlight-headline (highlight source-buf notes-buf)
   "Add a new HIGHLIGHT headlne to the NOTES-BUF or update it.
