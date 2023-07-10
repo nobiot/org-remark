@@ -1428,8 +1428,12 @@ check the current hidden state, thus not interactive.  Use
 state."
   (when-let ((highlights org-remark-highlights))
     (dolist (highlight highlights)
+      ;; Faces
       (overlay-put highlight '*org-remark-face (overlay-get highlight 'face))
       (overlay-put highlight 'face nil)
+      ;; Icons
+      (overlay-put highlight '*org-remark-icons (overlay-get highlight 'after-string))
+      (overlay-put highlight 'after-string nil)
       (overlay-put highlight '*org-remark-hidden t))
     (setq org-remark-highlights-hidden t)))
 
@@ -1441,8 +1445,12 @@ interactive.  Use `org-remark-toggle' command to manually toggle
 the show/hide state."
   (when-let ((highlights org-remark-highlights))
     (dolist (highlight highlights)
+      ;; Faces
       (overlay-put highlight '*org-remark-hidden nil)
-      (overlay-put highlight 'face (overlay-get highlight '*org-remark-face)))
+      (overlay-put highlight 'face (overlay-get highlight '*org-remark-face))
+      ;; Icons
+      (overlay-put highlight 'after-string (overlay-get highlight '*org-remark-icons))
+      (overlay-put highlight '*org-remark-icons nil))
     (setq org-remark-highlights-hidden nil)))
 
 (defun org-remark-highlights-housekeep ()
