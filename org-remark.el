@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 09 July 2023
+;; Last modified: 10 July 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -126,6 +126,16 @@ manually or some other function to either the headline or file."
   "Hook run when a note buffer is opened/visited.
 The current buffer is the note buffer."
   :type 'hook)
+
+(defcustom org-remark-icon-notes "⁽*⁾"
+  "String to be displayed when notes exist for a given highlight
+Nil means no icon is to be displayed."
+  :type 'string)
+
+(defcustom org-remark-icon-position-adjusted "⁽ᵟ⁾"
+  "String to be displayed when a highlight position adjusted.
+Nil means no icon is to be displayed."
+  :type 'string)
 
 
 ;;;; Variables
@@ -1507,14 +1517,18 @@ mode-specific extensions."
     (let ((propertized-string nil)
           (note-body (overlay-get ov '*org-remark-note-body))
           (position-adjusted (overlay-get ov '*org-remark-position-adjusted)))
-      (when note-body
+      (when (and note-body org-remark-icon-notes)
         (let ((face (overlay-get ov 'face)))
-          (setq propertized-string (concat propertized-string (propertize "⁽*⁾" 'face face)))))
-      ;; Even if the new location could not be found, indicate that it is different to the original
-      (when position-adjusted
+          (setq propertized-string (concat propertized-string
+                                           (propertize org-remark-icon-notes
+                                                       'face face)))))
+      ;; Even if the new location could not be found, indicate that it
+      ;; is different to the original
+      (when (and position-adjusted org-remark-icon-position-adjusted)
         (setq propertized-string
               (concat propertized-string
-                (propertize "⁽ᵟ⁾" 'face 'org-remark-highlighter-warning))))
+                      (propertize org-remark-icon-position-adjusted
+                                  'face 'org-remark-highlighter-warning))))
       (when propertized-string
         (overlay-put ov 'after-string
                      propertized-string)))))
