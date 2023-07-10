@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 15 August 2021
-;; Last modified: 24 June 2023
+;; Last modified: 09 July 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -136,17 +136,12 @@ This function is meant to be added to `find-file-hook' by
       (unless (featurep 'org-remark) (require 'org-remark))
       (org-remark-mode +1))))
 
-(defun org-remark-notes-get-file-name ()
-  "Return the name of marginal notes file for current buffer."
-  (org-remark-notes-get-file-name-for-mode))
+(cl-defgeneric org-remark-notes-get-file-name ()
+  "Return the name of marginal notes file for current buffer.")
 
-(cl-defgeneric org-remark-notes-get-file-name-for-mode ()
+(cl-defmethod org-remark-notes-get-file-name ()
   "Return the name of marginal notes file for current buffer.
-This method is major modes derived from text-mode.")
-
-(cl-defmethod org-remark-notes-get-file-name-for-mode ()
-  "Return the name of marginal notes file for current buffer.
-This method is major modes derived from text-mode."
+This method is major modes derived from `text-mode'."
   (if (functionp org-remark-notes-file-name)
       (funcall org-remark-notes-file-name)
     (if buffer-file-name org-remark-notes-file-name
