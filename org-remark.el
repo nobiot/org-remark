@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 10 July 2023
+;; Last modified: 11 July 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -842,12 +842,15 @@ This function assumes the current buffer is the source buffer."
 (cl-defgeneric org-remark-highlight-get-constructors ()
   "Dev needs to define a mode-specific headline constructors.
 `(level source-filename-fn title-fn prop-to-find)`'"
-  (let* ((headline-1 (list 1
-                           (lambda ()
-                             (org-remark-source-get-file-name
-                              (org-remark-source-find-file-name)))
-                           #'org-remark-highlight-get-title
-                           org-remark-prop-source-file))
+  (let* ((headline-1 (list
+                      ;; SOURCE-FILENAME-FN
+                      (lambda ()
+                        (org-remark-source-get-file-name
+                         (org-remark-source-find-file-name)))
+                      ;; TITLE-FN
+                      #'org-remark-highlight-get-title
+                      ;; PROP-TO-FIND
+                      org-remark-prop-source-file))
          (headline-constructors (list headline-1)))
     headline-constructors))
 
@@ -908,7 +911,8 @@ buffer for automatic sync."
        ;;      text file:   1. source file; 2. highlight
        ;; Note the lowest level is always the highlight (common). And
        ;; the top level is the "source" -- the file or URL, etc.
-       (cl-loop for (level filename-fn title-fn prop-to-find) in headline-constructors
+       (cl-loop for index from 1
+                for (filename-fn title-fn prop-to-find) in headline-constructors
                 ;; This variable "point" is set in order to be returned at
                 ;; the end of the loop.
                 with point = nil
@@ -921,7 +925,7 @@ buffer for automatic sync."
                              (or (org-find-property
                                   prop-to-find filename)
                                  (org-remark-new-headline
-                                  level title (list prop-to-find filename))))))
+                                  index title (list prop-to-find filename))))))
                 ;; Add the hightlight/note nodes after the headline loop.
                 finally (progn
                           ;; need to move to the point at the end

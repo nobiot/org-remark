@@ -2,13 +2,14 @@
 
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 9 January 2023
-;; Last modified: 09 July 2023
+;; Last modified: 12 July 2023
 
 ;;; Commentary:
 
 ;;; Code:
 
-(require 'nov nil 'NOERROR)
+(if (locate-library "nov") (require 'nov)
+  (error "Org-remark: package `nov' is missing"))
 (require 'org-remark)
 
 ;;;###autoload
@@ -90,15 +91,21 @@ buffer."
 
 (cl-defmethod org-remark-highlight-get-constructors (&context (major-mode nov-mode))
   "Dev needs to define a mode-specific headline constructors.
-`(level source-filename-fn title-fn prop-to-find)`'"
-  (let* ((headline-1 (list 1
-                           (lambda () nov-file-name)
-                           (lambda () (cdr (assoc 'title nov-metadata)))
-                           "org-remark-nov-file"))
-         (headline-2 (list 2
-                           #'org-remark-get-epub-source
-                           #'org-remark-nov-get-epub-document-title
-                           org-remark-prop-source-file))
+`(SOURCE-FILENAME-FN TITLE-FN PROP-TO-FIND)`'"
+  (let* ((headline-1 (list
+                      ;; SOURCE-FILENAME-FN
+                      (lambda () nov-file-name)
+                      ;; TITLE-FN
+                      (lambda () (cdr (assoc 'title nov-metadata)))
+                      ;; PROP-TO-FIND
+                      "org-remark-nov-file"))
+         (headline-2 (list
+                      ;; SOURCE-FILENAME-FN
+                      #'org-remark-get-epub-source
+                      ;; TITLE-FN
+                      #'org-remark-nov-get-epub-document-title
+                      ;; PROP-TO-FIND
+                      org-remark-prop-source-file))
          (headline-constructors (list headline-1 headline-2)))
     headline-constructors))
 
