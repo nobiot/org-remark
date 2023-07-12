@@ -1375,16 +1375,19 @@ process."
                 (notes-buf (or (find-buffer-visiting notes-filename)
                                (find-file-noselect notes-filename)))
                 (source-buf (current-buffer)))
-      (dolist (highlight (org-remark-highlights-get notes-buf))
-        (push (org-remark-highlight-load highlight) overlays))
-      (unless update (org-remark-notes-setup notes-buf source-buf))
-      (if overlays
-          (progn (run-hook-with-args 'org-remark-highlights-after-load-hook
-                                     overlays notes-buf)
-                 ;; Return t
-                 t)
-        ;; if there is no overlays loaded, return nil
-        nil))))
+      (with-demoted-errors
+          "Org-remark: error during loading highlights: %S"
+        ;; Load highlights
+        (dolist (highlight (org-remark-highlights-get notes-buf))
+          (push (org-remark-highlight-load highlight) overlays))
+        (unless update (org-remark-notes-setup notes-buf source-buf))
+        (if overlays
+            (progn (run-hook-with-args 'org-remark-highlights-after-load-hook
+                                       overlays notes-buf)
+                   ;; Return t
+                   t)
+          ;; if there is no overlays loaded, return nil
+          nil)))))
 
 (defun org-remark-highlights-get-positions (&optional reverse)
   "Return list of the beginning point of all visible highlights in this buffer.
