@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 11 July 2023
+;; Last modified: 12 July 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -1074,12 +1074,15 @@ It searches for TEXT, which should be the original text of the highlight."
   ;; if you change it, this will bring it back to the "original".
   (let* ((beg (overlay-start highlight))
          (end (overlay-end highlight))
-         (paragraph-beg)(paragraph-end)
-         ;; Cater to the case when the text is divided by a \n
-         ;; The regexp must look for space or \n
-         (text (replace-regexp-in-string " " "\[ \n\]" text)))
+         (paragraph-beg)(paragraph-end))
     (org-with-wide-buffer
-     (unless (string= (buffer-substring beg end) text)
+     (unless (string=
+              ;; Cater to the case when the text is divided by a newline
+              ;; character \n. Remove all spaces and newline chars
+              ;; before comparing the strings.
+              (replace-regexp-in-string "[\n ]" ""
+                                        (buffer-substring beg end))
+              (replace-regexp-in-string "[\n ]" "" text))
        ;; Look at one paragraph ahead as it is possible that the
        ;; position has been displaced across a paragraph
        (goto-char beg) (backward-paragraph 2) (setq paragraph-beg (point))
