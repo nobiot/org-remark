@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 12 July 2023
+;; Last modified: 14 July 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -127,12 +127,12 @@ manually or some other function to either the headline or file."
 The current buffer is the note buffer."
   :type 'hook)
 
-(defcustom org-remark-icon-notes "⁽*⁾"
+(defcustom org-remark-icon-notes "(*)"
   "String to be displayed when notes exist for a given highlight
 Nil means no icon is to be displayed."
   :type 'string)
 
-(defcustom org-remark-icon-position-adjusted "⁽ᵟ⁾"
+(defcustom org-remark-icon-position-adjusted "(d)"
   "String to be displayed when a highlight position adjusted.
 Nil means no icon is to be displayed."
   :type 'string)
