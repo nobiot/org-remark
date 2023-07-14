@@ -1,7 +1,7 @@
 #+title: Org-remark User Manual
 #+author: Noboru Ota <me@nobiot.com>
 #+macro: version 1.0.x
-#+macro: modified 20 May 2023
+#+macro: modified 14 July 2023
 #+language: en
 #+export_file_name: org-remark.texi
 #+texinfo_dir_category: Emacs
@@ -63,9 +63,13 @@ After installation, we suggest you put the setup below in your configuration.
   ;; Optional if you would like to highlight websites via eww-mode
   (with-eval-after-load 'eww
     (org-remark-eww-mode +1))
+
+  ;; Optional if you would like to highlight EPUB books via nov.el
+  (with-eval-after-load 'nov
+    (org-remark-nov-mode +1))
 #+end_src
 
-~org-remark-global-tracking-mode~ automatically turns on ~org-remark-mode~ when you open a file or website via EWW [fn:1] that has a marginal notes file associated to it. This is useful to keep the location of your highlights correct across Emacs sessions after you shutdown Emacs.
+~org-remark-global-tracking-mode~ automatically turns on ~org-remark-mode~ when you open a file, website via EWW, EPUB book via nov.el [fn:1], or other supported buffer that has a marginal notes file associated with it. This is useful to keep the location of your highlights correct across Emacs sessions after you shutdown Emacs.
 
 Unless you explicitly load ~org~ during Emacs initialization, we suggest to defer loading ~org-remark~ (thus there is no ~(require 'org-remark)~ in the example above). This is because it will also pull in ~org~, which can slow down initialization. You can control the timing of loading ~org-remark~ by autoloading some commands in a similar way with the example keybindings below.
 
@@ -85,7 +89,7 @@ Below are example keybindings you might like to consider:
     (define-key org-remark-mode-map (kbd "C-c n r") #'org-remark-remove))
 #+end_src
 
-[fn:1]: Feature to highlight and annotate websites is new in the latest [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] and is part of v1.1.0.
+[fn:1]: Feature to highlight and annotate EPUB books will be new in the latest [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] (when the dev/nov branch is merged with main) and is planned to be part of v1.2.0.
 
 * Getting Started
 :PROPERTIES:
@@ -145,7 +149,7 @@ This is all you need to get started. For more detail, refer to the rest of this 
 
 ~org-remark-eww-mode~ lets you highlight and annotate websites just like text files. It is a global minor mode. It does not require any additional configuration. All you need is to turn it on, visit a website with ~eww-mode~, and select text and highlight it. Refer to the example of a basic setup given in [[#installation][Installation]].
 
-* Usage
+* Usage, Features, Concepts
 :PROPERTIES:
 :CUSTOM_ID: usage
 :END:
@@ -323,8 +327,42 @@ The delete function will prompt for confirmation if it detects any notes present
   This function will prompt for confirmation if there is any notes present in the marginal notes buffer.  When the marginal notes buffer is not displayed in the current frame, it will be temporarily displayed together with the prompt for the user to see the notes.
   If there is no notes, this function will not prompt for confirmation and will remove the highlight and deletes the entry in the marginal notes buffer. This command is identical with passing a universal argument to `org-remark-remove'.
 
-** Other Commands
+** What is Automatic Adjustment of Highlight Positions?
+:PROPERTIES:
+:CUSTOM_ID: auto-adjust
+:END:
+#+cindex: Org-remark automatically adjusts positions of highlights
+#+vindex: org-remark-icon-position-adjusted
+#+vindex: org-remark-highlighter-warning
 
+Org-remark by default attempts to automatically adjust the position of highlights when they are loaded. This is useful especially for EPUB books read by nov.el. It renders tables in different sizes depending on the available space of the window to maximize their readability.
+
+This is a good feature for reading; however, it also changes the positions of subsequent text elements depending on the window size when the page is rendered. It can result in dislocating the positions of highlights, different from they are originally created.
+
+Org-remark attempts to automatically corrects the highlights dislocated. This is a general feature so Org-remark attempts to correct minor edits to websites (for EWW).
+
+More technically, it works as follows.
+
+1. When you create a new highlight, Org-remark records the original text highlighted in the Org property named "~org-remark-original-text~".
+
+2. Next time when you open a new file (EPUB book as an example), Org-remark loads the highlights from the notes Org buffer.
+
+3. For each highlight, it compares the currently highlighted text with the value of ~org-remark-original-text~ property.
+
+4. If they are the same, Org-remark does nothing.
+
+5. If different, Org-remark by default looks for the same text string +- two paragraphs. When it finds the *first* matching text string, it automatically moves the highlight to the matched text string.
+
+6. Org-remark adds an icon to the auto-adjusted highlight to make it clear that the position of highlight has been adjusted.
+
+7. This adjustment is temporary. If you prefer to change the position permanently, you can do so by manually changing the ~org-remark-beg~ and ~org-remark-end~ properties in the notes buffer and save. You can also choose to alter the value of ~org-remark-original-text~ if you have adjusted the range of highlighted text.
+
+You can customize the icon itself and its face with the following customizing variables:
+
+- Option: ~org-remark-icon-position-adjusted~
+- Face: ~org-remark-highlighter-warning~
+
+** Other Commands
 #+findex: org-remark-toggle
 #+findex: org-remark-change
 #+findex: org-remark-next
@@ -359,6 +397,11 @@ To navigate through highlights in the current buffer, you can use ~org-remark-vi
 #+vindex: org-remark-notes-buffer-name
 #+vindex: org-remark-source-file-name
 #+vindex: org-remark-use-org-id
+#+vindex: org-remark-open-hook
+#+vindex: org-remark-icon-notes
+#+vindex: org-remark-icon-position-adjusted
+#+vindex: org-remark-highlights-after-load-functions
+#+vindex: org-remark-highlighter-warning
 
 Org-remark's user options are available in the customization group ~org-remark~.
 
@@ -386,6 +429,30 @@ Org-remark's user options are available in the customization group ~org-remark~.
 
 - Option: ~org-remark-use-org-id~ ::
   When non-nil, Org-remark adds an Org-ID link to marginal notes. The link points at the relevant Org-ID in the source file. Org-remark does not create this ID, which needs to be added manually or some other function to either the headline or file.
+
+- Option: ~org-remark-icon-notes~ ::
+  It's the icon used to indicate that a given highlight has its associated notes entry. The default is a combination of ascii characters to be comatible with terminal and others. If it is preferred, you can set an emoji to it. The author has not experienmented well with icon fonts and other means of displaying graphic elements. The face of the icon becomes the same as the highlight, thus it does not have its own face definition.
+
+  By setting it to ~nil~, you can disable the icon altogether.
+
+  ~org-remark-toggle~ also toggles the icon along with the highlight
+
+- Option: org-remark-icon-position-adjusted :
+  It's the icon used to indicate that the position of a given highlight has been automatically adjusted by Org-remark. The default is a combination of ascii characters to be comatible with terminal and others. If it is preferred, you can set an emoji to it. The author has not experienmented well with icon fonts and other means of displaying graphic elements.
+
+  By setting it to ~nil~, you can disable the icon altogether.
+
+  ~org-remark-toggle~ also toggles the icon along with the highlight
+
+- Face: org-remark-highlighter-warning ::
+  This face is used by the icon to indicate that the position of a given highlight has been adjusted. To know more about the feature itself, refer to [[#auto-adjust][What is Automatic Adjustment of Highlight Positions?]].
+
+- Option: ~org-remark-open-hook~ ::
+  Hook run when a note buffer is opened/visited. It gets run with no additional argument but the current buffer will become the note buffer.
+
+- Option org-remark-highlights-after-load-functions ::
+  Abnormal hook run after Org-remark loads the highlights from the note org buffer. It is run with OVERLAYS and NOTES-BUF as arguments. OVERLAYS are
+highlights. It is run with the source buffer as current buffer. This hook is used by the automatic adjustment feature. To know more about the feature itself, refer to [[#auto-adjust][What is Automatic Adjustment of Highlight Positions?]].
 
 * Known Limitations
 
