@@ -128,7 +128,7 @@ The current buffer is the note buffer."
   :type 'hook)
 
 (defcustom org-remark-icon-notes "(*)"
-  "String to be displayed when notes exist for a given highlight
+  "String to be displayed when notes exist for a given highlight.
 Nil means no icon is to be displayed."
   :type 'string)
 
@@ -141,7 +141,7 @@ Nil means no icon is to be displayed."
   "Abnormal hook run after `org-remark-highlights-load'.
 It is run with OVERLAYS and NOTES-BUF as arguments. OVERLAYS are
 highlights. It is run with the source buffer as current buffer."
-  :type hook)
+  :type 'hook)
 
 
 ;;;; Variables
@@ -846,8 +846,11 @@ This function assumes the current buffer is the source buffer."
 (make-obsolete #'org-remark-highlight-save #'org-remark-highlight-add "1.2.0")
 
 (cl-defgeneric org-remark-highlight-get-constructors ()
-  "Dev needs to define a mode-specific headline constructors.
-`(level source-filename-fn title-fn prop-to-find)`'"
+  "Construct lists for creating MAJOR-MODE specific hierarchy.
+
+This is the default one. Return the value in a alist like this:
+
+   (SOURCE-FILENAME-FN TITLE-FN PROP-TO-FIND)"
   (let* ((headline-1 (list
                       ;; SOURCE-FILENAME-FN
                       (lambda ()
@@ -1383,7 +1386,7 @@ process."
           (push (org-remark-highlight-load highlight) overlays))
         (unless update (org-remark-notes-setup notes-buf source-buf))
         (if overlays
-            (progn (run-functions-with-args 'org-remark-highlights-after-load-functions
+            (progn (run-hook-with-args 'org-remark-highlights-after-load-functions
                                        overlays notes-buf)
                    ;; Return t
                    t)
@@ -1516,13 +1519,20 @@ Case 2. The overlay points to no buffer
   t)
 
 (defun org-remark-highlights-adjust-positions (overlays _notes-buf)
-  "
-Meant to be set to `org-remark-highlights-after-load-functions' by
-mode-specific extensions."
+  "Run dolist and delgate the actual adjustment to another function.
+
+OVERLAYS are highlights.
+
+Check the original text property exits and not the same as the
+current highlighted text.
+
+Meant to be set to `org-remark-highlights-after-load-functions' by mode-specific
+extensions."
   (dolist (ov overlays)
     (let ((highlight-text (overlay-get ov '*org-remark-original-text)))
       ;; original text exists AND
       ;; it is different to the current
+      ;; TODO fix the highlight comparision logic
       (when (and highlight-text
                  (not (string= highlight-text
                                (buffer-substring-no-properties
@@ -1531,7 +1541,8 @@ mode-specific extensions."
          ov highlight-text)))))
 
 (defun org-remark-highlights-add-icons (overlays _notes-buf)
-  "Add icons to highlights."
+  "Add icons to OVERLAYS.
+Each overlay is a highlight."
   (dolist (ov overlays)
     (let ((propertized-string nil)
           (note-body (overlay-get ov '*org-remark-note-body))

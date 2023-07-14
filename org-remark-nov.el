@@ -2,7 +2,7 @@
 
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 9 January 2023
-;; Last modified: 12 July 2023
+;; Last modified: 14 July 2023
 
 ;;; Commentary:
 
@@ -11,6 +11,11 @@
 (if (locate-library "nov") (require 'nov)
   (error "Org-remark: package `nov' is missing"))
 (require 'org-remark)
+;; To silence flymake
+(defvar nov-file-name)
+(defvar nov-documents)
+(defvar nov-documents-index)
+(defvar nov-metadata)
 
 ;;;###autoload
 (define-minor-mode org-remark-nov-mode
@@ -90,8 +95,10 @@ buffer."
     (org-store-link nil)))
 
 (cl-defmethod org-remark-highlight-get-constructors (&context (major-mode nov-mode))
-  "Dev needs to define a mode-specific headline constructors.
-`(SOURCE-FILENAME-FN TITLE-FN PROP-TO-FIND)`'"
+  "Construct lists for creating MAJOR-MODE specific hierarchy.
+Return the value in a alist like this:
+
+   (SOURCE-FILENAME-FN TITLE-FN PROP-TO-FIND)"
   (let* ((headline-1 (list
                       ;; SOURCE-FILENAME-FN
                       (lambda () nov-file-name)
