@@ -122,7 +122,7 @@ Org-remark does not create this ID, which needs to be added
 manually or some other function to either the headline or file."
   :type 'boolean)
 
-(defcustom  org-remark-open-hook nil
+(defcustom org-remark-open-hook nil
   "Hook run when a note buffer is opened/visited.
 The current buffer is the note buffer."
   :type 'hook)
@@ -136,6 +136,12 @@ Nil means no icon is to be displayed."
   "String to be displayed when a highlight position adjusted.
 Nil means no icon is to be displayed."
   :type 'string)
+
+(defcustom org-remark-highlights-after-load-functions nil
+  "Abnormal hook run after `org-remark-highlights-load'.
+It is run with OVERLAYS and NOTES-BUF as arguments. OVERLAYS are
+highlights. It is run with the source buffer as current buffer."
+  :type hook)
 
 
 ;;;; Variables
@@ -292,12 +298,12 @@ recommended to turn it on as part of Emacs initialization.
       ;; Activate
       (org-remark-highlights-load)
       (add-hook 'after-save-hook #'org-remark-save nil t)
-      (add-hook 'org-remark-highlights-after-load-hook
+      (add-hook 'org-remark-highlights-after-load-functions
                 #'org-remark-highlights-adjust-positions)
       ;; Add-icons should be after all after-load-hook functions because
       ;; some of them make adjustment that's relevant for an icon --
       ;; e.g. adjust-positon.
-      (add-hook 'org-remark-highlights-after-load-hook
+      (add-hook 'org-remark-highlights-after-load-functions
                 #'org-remark-highlights-add-icons 80)
       (add-hook 'org-remark-highlight-link-to-source-functions
                 #'org-remark-highlight-link-to-source-default 80))
@@ -308,9 +314,9 @@ recommended to turn it on as part of Emacs initialization.
           (delete-overlay highlight)))
       (setq org-remark-highlights nil)
       (remove-hook 'after-save-hook #'org-remark-save t)
-      (remove-hook 'org-remark-highlights-after-load-hook
+      (remove-hook 'org-remark-highlights-after-load-functions
                    #'org-remark-highlights-adjust-positions)
-      (remove-hook 'org-remark-highlights-after-load-hook
+      (remove-hook 'org-remark-highlights-after-load-functions
                    #'org-remark-highlights-add-icons)
       (remove-hook 'org-remark-highlight-link-to-source-functions
                    #'org-remark-highlight-link-to-source-default))))
@@ -1346,11 +1352,6 @@ highlight is a property list in the following properties:
                          highlights)))))
            highlights))))))
 
-(defvar org-remark-highlights-after-load-hook nil
-  "Hook run after `org-remark-highlights-load'.
-It is run with OVERLAYS and NOTES-BUF as arguments.  OVERLAYS are
-highlights.  It is run with the source buffer as current buffer.")
-
 (defun org-remark-highlights-load (&optional update)
   "Visit notes file & load the saved highlights onto current buffer.
 If there is no highlights or annotations for current buffer,
@@ -1382,7 +1383,7 @@ process."
           (push (org-remark-highlight-load highlight) overlays))
         (unless update (org-remark-notes-setup notes-buf source-buf))
         (if overlays
-            (progn (run-hook-with-args 'org-remark-highlights-after-load-hook
+            (progn (run-functions-with-args 'org-remark-highlights-after-load-functions
                                        overlays notes-buf)
                    ;; Return t
                    t)
@@ -1516,7 +1517,7 @@ Case 2. The overlay points to no buffer
 
 (defun org-remark-highlights-adjust-positions (overlays _notes-buf)
   "
-Meant to be set to `org-remark-highlights-after-load-hook' by
+Meant to be set to `org-remark-highlights-after-load-functions' by
 mode-specific extensions."
   (dolist (ov overlays)
     (let ((highlight-text (overlay-get ov '*org-remark-original-text)))

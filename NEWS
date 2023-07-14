@@ -6,7 +6,7 @@ Current development version
 
           + The highlight position auto-adjusted (d)
 
-          + Uses the new `org-remark-highlights-after-load-hook'
+          + Uses the new `org-remark-highlights-after-load-functions'
 
           + Icons are customizable. You can also disable icons by setting
             the respective customizing variable to nil
@@ -36,7 +36,8 @@ Current development version
          + The fact that a given highlight has been automatically moved
            is indicated by an icon
 
-  - feat: org-remark-highlights-after-load-hook
+  - feat: org-remark-highlights-after-load-functions
+          Abnormal hook
 
   - fix: Make load process robust
 
