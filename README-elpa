@@ -21,8 +21,8 @@ _________________
 1 Introduction
 ==============
 
-  Org-remark lets you highlight and annotate text files and websites
-  with using Org mode [1].
+  Org-remark lets you highlight and annotate text files, websites, and
+  EPUB books with using Org mode [1].
 
   A user manual is available [online] or Emacs in-system as an Info node
   `(org-remark)': (`C-h i' and find the `Org-remark' node).
@@ -37,7 +37,8 @@ _________________
   For customization, refer to the customization group `org-remark' or
   user manual: [online] or Info node `(org-remark) Customizing'.
 
-  An [introductory video] (8 minutes) is available on YouTube.
+  An [introductory video] (8 minutes) and [V1.1.0 release introduction]
+  (12 minutes) are available on YouTube.
 
 
 [online] <https://nobiot.github.io/org-remark/>
@@ -52,24 +53,30 @@ _________________
 
 [introductory video] <https://youtu.be/c8DHrAsFiLc>
 
+[V1.1.0 release introduction] <https://youtu.be/BTFuS21N00k>
+
 
 2 Features
 ==========
 
   - Highlight and annotate any text file. The highlights and notes are
-    kepted in an Org file as the plain text database. This lets you
-    easily manage your marginal notes and use the built-in Org
-    fecilities on them -- e.g. create a sparse tree based on the
-    category of the notes
-
-  - Have the same highlighting and annotating functionality for websites
-    when you use EWW to browse them (new in latest [GNU-devel ELPA] and
-    is planned to be part of v1.1.0.)
+    kept in an Org file as the plain text database. This lets you easily
+    manage your marginal notes and use the built-in Org facilities on
+    them -- e.g. create a sparse tree based on the category of the notes
 
   - Create your your own highlighter pens with different colors, type
     (e.g. underline, squiggle, etc. optionally with Org's category for
     search and filter on your highlights and notes)
 
+  - Have the same highlighting and annotating functionality for
+
+    + Websites when you use EWW to browse them
+
+    + EPUB books with [nov.el] (latest [GNU-devel ELPA] and is planned
+      to be part of v1.2.0.)
+
+
+[nov.el] <https://depp.brause.cc/nov.el/>
 
 [GNU-devel ELPA] <https://elpa.gnu.org/devel/org-remark.html>
 
@@ -191,6 +198,6 @@ _________________
 Footnotes
 _________
 
-[1] : Feature to highlight and annotate websites is new in the latest
-[GNU-devel ELPA] (<https://elpa.gnu.org/devel/org-remark.html>) and is
-part of v1.1.0.
+[1] : Feature to highlight and annotate EPUB books is new in the
+latest [GNU-devel ELPA] (<https://elpa.gnu.org/devel/org-remark.html>)
+and is planned to be part of v1.2.0.

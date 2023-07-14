@@ -1,15 +1,65 @@
 Current development version
+
+  - feat: icons for additional information for highlights
+
+          + Notes exists for the highlight (*)
+
+          + The highlight position auto-adjusted (d)
+
+          + Uses the new `org-remark-highlights-after-load-hook'
+
+          + Icons are customizable. You can also disable icons by setting
+            the respective customizing variable to nil
+
+          + The face of auto-adjusted is customizable with face
+            `org-remark-highlighter-warning'
+
+          + `org-remark-toggle' also toggles the icon display
+
   - feat: nov.el support for epub books
-  - feat: dynamic levels of notes
-  - feat: adjust positions after load
+
+         + The link is added to the notes org file correctly pointing
+           back to epub's highlight location with using :nov link type
+           added by nov.el.l
+
+  - feat: Adjust positions after load
+
+         + This is useful especially for epubs via nov.el. Nov.el
+           renders tables on differently depending on the size of the
+           window. This causes the positions of subsequent text elements
+           to move depending on the window size when the page is
+           rendered, dislocating the positions of highlights. This
+           feature attemps to auto-correct the location on the fly. The
+           feature works generically, so Org-remark attemps to correct
+           minior edits to websites (for EWW).
+
+         + The fact that a given highlight has been automatically moved
+           is indicated by an icon
+
   - feat: org-remark-highlights-after-load-hook
 
-  - fix: highlights-get existence check beg and end
+  - fix: Make load process robust
 
-         beg and end must exist. If either is nil, `number-to-string`
-         errors and load stops prematurely. This can happen when the
-         user manually manages the notes file and accidentally deletes
-         the beg/end props.
+         + When error occurs during the load process, instead of
+           emitting an error, Org-remark now halts the load process and
+           returns without an error. This has been proven useful
+           especially for epub support with nov.el. Nov.el renders by
+           reusing the same buffer instead of generating a new one. When
+           error occurs during the load process (e.g. user accidentally
+           deletes some property data in the notes org buffer), the
+           error would cause nov.el to not properly render the epub
+           book. This could override the epub archive file wiht a plain
+           text file of a single file from the book, errasing the entire
+           book. With this change, Org-remark does not cause the error
+           when loading highlights from the notes org file to preven
+           this distructive process from happening.
+
+         + `org-remark-highlights-get' existence checks beg and end
+
+           beg and end must exist. If either is nil, `number-to-string`
+           errors and load stops prematurely. This can happen when the
+           user manually manages the notes file and accidentally deletes
+           the beg/end props.
 
 Version 1.1.0
 
