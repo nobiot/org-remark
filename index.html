@@ -683,7 +683,7 @@ This means that when the &lsquo;<samp>Relative file name</samp>&rsquo; option is
 <p><code>org-remark-toggle</code> also toggles the icon along with the highlight
 </p>
 </dd>
-<dd><p>Option: org-remark-icon-position-adjusted :
+<dd><p>Option: <code>org-remark-icon-position-adjusted</code> :
 It&rsquo;s the icon used to indicate that the position of a given highlight has been automatically adjusted by Org-remark. The default is a combination of ascii characters to be comatible with terminal and others. If it is preferred, you can set an emoji to it. The author has not experienmented well with icon fonts and other means of displaying graphic elements.
 </p>
 <p>By setting it to <code>nil</code>, you can disable the icon altogether.
@@ -691,7 +691,7 @@ It&rsquo;s the icon used to indicate that the position of a given highlight has 
 <p><code>org-remark-toggle</code> also toggles the icon along with the highlight
 </p>
 </dd>
-<dt><span>Face: org-remark-highlighter-warning</span></dt>
+<dt><span>Face: <code>org-remark-highlighter-warning</code></span></dt>
 <dd><p>This face is used by the icon to indicate that the position of a given highlight has been adjusted. To know more about the feature itself, refer to <a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f-_0028new-feature-being-developed-as-of-2023_002d07_002d15-and-available-only-when-the-branch-dev_002fnov-is-merged-with-the-main_0029">What is Automatic Adjustment of Highlight Positions?</a>.
 </p>
 </dd>
@@ -699,7 +699,7 @@ It&rsquo;s the icon used to indicate that the position of a given highlight has 
 <dd><p>Hook run when a note buffer is opened/visited. It gets run with no additional argument but the current buffer will become the note buffer.
 </p>
 </dd>
-<dt><span>Option org-remark-highlights-after-load-functions</span></dt>
+<dt><span>Option <code>org-remark-highlights-after-load-functions</code></span></dt>
 <dd><p>Abnormal hook run after Org-remark loads the highlights from the note org buffer. It is run with OVERLAYS and NOTES-BUF as arguments. OVERLAYS are highlights. It is run with the source buffer as current buffer. This hook is used by the automatic adjustment feature. To know more about the feature itself, refer to <a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f-_0028new-feature-being-developed-as-of-2023_002d07_002d15-and-available-only-when-the-branch-dev_002fnov-is-merged-with-the-main_0029">What is Automatic Adjustment of Highlight Positions?</a>.
 </p></dd>
 </dl>

@@ -442,20 +442,20 @@ Org-remark's user options are available in the customization group ~org-remark~.
 
   ~org-remark-toggle~ also toggles the icon along with the highlight
 
-- Option: org-remark-icon-position-adjusted :
+- Option: ~org-remark-icon-position-adjusted~ :
   It's the icon used to indicate that the position of a given highlight has been automatically adjusted by Org-remark. The default is a combination of ascii characters to be comatible with terminal and others. If it is preferred, you can set an emoji to it. The author has not experienmented well with icon fonts and other means of displaying graphic elements.
 
   By setting it to ~nil~, you can disable the icon altogether.
 
   ~org-remark-toggle~ also toggles the icon along with the highlight
 
-- Face: org-remark-highlighter-warning ::
+- Face: ~org-remark-highlighter-warning~ ::
   This face is used by the icon to indicate that the position of a given highlight has been adjusted. To know more about the feature itself, refer to [[#auto-adjust][What is Automatic Adjustment of Highlight Positions?]].
 
 - Option: ~org-remark-open-hook~ ::
   Hook run when a note buffer is opened/visited. It gets run with no additional argument but the current buffer will become the note buffer.
 
-- Option org-remark-highlights-after-load-functions ::
+- Option ~org-remark-highlights-after-load-functions~ ::
   Abnormal hook run after Org-remark loads the highlights from the note org buffer. It is run with OVERLAYS and NOTES-BUF as arguments. OVERLAYS are highlights. It is run with the source buffer as current buffer. This hook is used by the automatic adjustment feature. To know more about the feature itself, refer to [[#auto-adjust][What is Automatic Adjustment of Highlight Positions?]].
 
 * Known Limitations
