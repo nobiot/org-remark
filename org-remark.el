@@ -137,10 +137,15 @@ Nil means no icon is to be displayed."
 Nil means no icon is to be displayed."
   :type 'string)
 
-(defcustom org-remark-highlights-after-load-functions nil
+
+(defcustom org-remark-highlights-after-load-functions
+  '(org-remark-highlights-adjust-positions org-remark-highlights-add-icons)
   "Abnormal hook run after `org-remark-highlights-load'.
 It is run with OVERLAYS and NOTES-BUF as arguments. OVERLAYS are
-highlights. It is run with the source buffer as current buffer."
+highlights. It is run with the source buffer as current buffer.
+
+Add-icons should be the last function because other functions may
+do something relevant for an icon -- e.g. adjust-positon."
   :type 'hook)
 
 
@@ -298,13 +303,6 @@ recommended to turn it on as part of Emacs initialization.
       ;; Activate
       (org-remark-highlights-load)
       (add-hook 'after-save-hook #'org-remark-save nil t)
-      (add-hook 'org-remark-highlights-after-load-functions
-                #'org-remark-highlights-adjust-positions)
-      ;; Add-icons should be after all after-load-hook functions because
-      ;; some of them make adjustment that's relevant for an icon --
-      ;; e.g. adjust-positon.
-      (add-hook 'org-remark-highlights-after-load-functions
-                #'org-remark-highlights-add-icons 80)
       (add-hook 'org-remark-highlight-link-to-source-functions
                 #'org-remark-highlight-link-to-source-default 80))
      (t
@@ -314,10 +312,6 @@ recommended to turn it on as part of Emacs initialization.
           (delete-overlay highlight)))
       (setq org-remark-highlights nil)
       (remove-hook 'after-save-hook #'org-remark-save t)
-      (remove-hook 'org-remark-highlights-after-load-functions
-                   #'org-remark-highlights-adjust-positions)
-      (remove-hook 'org-remark-highlights-after-load-functions
-                   #'org-remark-highlights-add-icons)
       (remove-hook 'org-remark-highlight-link-to-source-functions
                    #'org-remark-highlight-link-to-source-default))))
 
