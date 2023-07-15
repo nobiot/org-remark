@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 14 July 2023
+;; Last modified: 15 July 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -1085,13 +1085,7 @@ It searches for TEXT, which should be the original text of the highlight."
          (end (overlay-end highlight))
          (paragraph-beg)(paragraph-end))
     (org-with-wide-buffer
-     (unless (string=
-              ;; Cater to the case when the text is divided by a newline
-              ;; character \n. Remove all spaces and newline chars
-              ;; before comparing the strings.
-              (replace-regexp-in-string "[\n ]" ""
-                                        (buffer-substring beg end))
-              (replace-regexp-in-string "[\n ]" "" text))
+     (unless (org-remark-string= (buffer-substring-no-properties beg end) text)
        ;; Look at one paragraph ahead as it is possible that the
        ;; position has been displaced across a paragraph
        (goto-char beg) (backward-paragraph 2) (setq paragraph-beg (point))
@@ -1534,9 +1528,10 @@ extensions."
       ;; it is different to the current
       ;; TODO fix the highlight comparision logic
       (when (and highlight-text
-                 (not (string= highlight-text
-                               (buffer-substring-no-properties
-                                (overlay-start ov) (overlay-end ov)))))
+                 (not (org-remark-string=
+                       highlight-text
+                       (buffer-substring-no-properties
+                        (overlay-start ov) (overlay-end ov)))))
         (org-remark-highlight-adjust-position-after-load
          ov highlight-text)))))
 
@@ -1600,6 +1595,15 @@ function extends the behavior and looks for the word at point"
                     end large)))
           (list beg end))
       (user-error "No region selected and the cursor is not on a word"))))
+
+(defun org-remark-string= (s1 s2)
+  "Like `string=' but remove newlines and spaces before compare."
+  (string=
+   ;; Cater to the case when the text is divided by a newline
+   ;; character \n. Remove all spaces and newline chars
+   ;; before comparing the strings.
+   (replace-regexp-in-string "[\n ]" "" s1)
+   (replace-regexp-in-string "[\n ]" "" s2)))
 
 
 ;;;; Footer
