@@ -456,8 +456,7 @@ Org-remark's user options are available in the customization group ~org-remark~.
   Hook run when a note buffer is opened/visited. It gets run with no additional argument but the current buffer will become the note buffer.
 
 - Option org-remark-highlights-after-load-functions ::
-  Abnormal hook run after Org-remark loads the highlights from the note org buffer. It is run with OVERLAYS and NOTES-BUF as arguments. OVERLAYS are
-highlights. It is run with the source buffer as current buffer. This hook is used by the automatic adjustment feature. To know more about the feature itself, refer to [[#auto-adjust][What is Automatic Adjustment of Highlight Positions?]].
+  Abnormal hook run after Org-remark loads the highlights from the note org buffer. It is run with OVERLAYS and NOTES-BUF as arguments. OVERLAYS are highlights. It is run with the source buffer as current buffer. This hook is used by the automatic adjustment feature. To know more about the feature itself, refer to [[#auto-adjust][What is Automatic Adjustment of Highlight Positions?]].
 
 * Known Limitations
 
