@@ -255,7 +255,7 @@ When you display the marginal notes with ~org-remark-view~ or ~org-remark-open~ 
 
 Org-remark displays the marginal notes buffer narrowed to the highlight the cursor is on.
 
-After all the properties, you can freely write your notes for the highlight. Once you save the notes buffer, an excerpt of the text (currently up to 200 characters) gets updated back onto the highlight in the source buffer. You can hover your mouse over the highlight to see the excerpt displayed in the echo area (bottom of the screen) of Emacs. If you have ~tooltip-mode~ mode turned on, the excerpt is displayed as a took tip for the highlight [fn:2].
+After all the properties, you can freely write your notes for the highlight. Once you save the notes buffer, an excerpt of the text (currently up to 200 characters) gets updated back onto the highlight in the source buffer. You can hover your mouse over the highlight to see the excerpt displayed in the echo area (bottom of the screen) of Emacs. If you have ~tooltip-mode~ mode turned on, the excerpt is displayed as a took tip for the highlight.
 
 *** How to Change Where Marginal Notes File is Saved
 :PROPERTIES:
