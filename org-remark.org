@@ -1,7 +1,7 @@
 #+title: Org-remark User Manual
 #+author: Noboru Ota <me@nobiot.com>
-#+macro: version 1.0.x
-#+macro: modified 14 July 2023
+#+macro: version 1.1.x
+#+macro: modified 15 July 2023
 #+language: en
 #+export_file_name: org-remark.texi
 #+texinfo_dir_category: Emacs
@@ -10,11 +10,11 @@
 #+texinfo: @paragraphindent asis
 #+options: toc:nil ':t
 
-This manual is for Org-remark version {{{version}}}.
+This manual is for Org-remark version {{{version}}}. Some new features are mentioned in this manual that are currently in development; these are mentioned clearly as such.
 
 Last updated: {{{modified}}}.
 
-Org-remark lets you highlight and annotate any text file with using Org mode.
+Org-remark lets you highlight and annotate text files and websites (EWW).
 
 #+texinfo: @insertcopying
 
@@ -142,12 +142,19 @@ Org-remark lets you create your own custom pen functions with ~org-remark-create
 
 This is all you need to get started. For more detail, refer to the rest of this user manual, especially [[#usage][Usage]] and [[#customizing][Customizing]] sections. There is more to the commands introduced in this section and more ways in which you can customize Org-remark.
 
-** Highlight and Annotate Websites (new in latest [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]]; to be part of v1.1.0)
+** Highlight and Annotate Websites
 
 #+cindex: Highlighting websites with EWW
 #+findex: org-remark-eww-mode
 
-~org-remark-eww-mode~ lets you highlight and annotate websites just like text files. It is a global minor mode. It does not require any additional configuration. All you need is to turn it on, visit a website with ~eww-mode~, and select text and highlight it. Refer to the example of a basic setup given in [[#installation][Installation]].
+~org-remark-eww-mode~ lets you highlight and annotate websites just like text files. It is a global minor mode. It does not require any additional configuration. All you need is to turn it on, visit a website with ~eww-mode~, and select text and highlight it. Refer to the example of a basic setup given in [[#installation][Installation]]. Org-remark can attempt to automatically adjust the position of highlights when a websites get edited. Lear more about the feature in [[#auto-adjust][What is Automatic Adjustment of Highlight Positions?]]
+
+** Highlight and Annotate EPUB Books (new feature being developed as of 2023-07-15 and available only when the branch dev/nov is merged with the main)
+
+#+cindex: Highlighting EPUB Books with nov.el
+#+findex: org-remark-nov-mode
+
+~org-remark-nov-mode~ lets you highlight and annotate EPUB books just like text files. It is a global minor mode. It does not require any additional configuration. All you need is to turn it on, open a EPUB book with ~nov-mode~, and select text and highlight it. Refer to the example of a basic setup given in [[#installation][Installation]]. If you read books with tables, it is useful to learn about the feature that automatically adjust the highlight positions: [[#auto-adjust][What is Automatic Adjustment of Highlight Positions?]]
 
 * Usage, Features, Concepts
 :PROPERTIES:
@@ -248,9 +255,7 @@ When you display the marginal notes with ~org-remark-view~ or ~org-remark-open~ 
 
 Org-remark displays the marginal notes buffer narrowed to the highlight the cursor is on.
 
-After all the properties, you can freely write your notes for the highlight. Once you save the notes buffer, an excerpt of the text (currently up to 200 characters) gets updated back onto the highlight in the source buffer. You can hover your mouse over the highlight to see the excerpt displayed in the echo area (bottom of the screen) of Emacs. If you have ~tooltip-mode~ mode turned on, the excerpt is displayed as a took tip for the highlight [fn:2].
-
-[fn:2]: Feature to display an excerpt of the body of marginal notes is new in latest [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] and is part of v1.1.0.
+After all the properties, you can freely write your notes for the highlight. Once you save the notes buffer, an excerpt of the text (currently up to 200 characters) gets updated back onto the highlight in the source buffer. You can hover your mouse over the highlight to see the excerpt displayed in the echo area (bottom of the screen) of Emacs. If you have ~tooltip-mode~ mode turned on, the excerpt is displayed as a took tip for the highlight.
 
 *** How to Change Where Marginal Notes File is Saved
 :PROPERTIES:
@@ -327,7 +332,7 @@ The delete function will prompt for confirmation if it detects any notes present
   This function will prompt for confirmation if there is any notes present in the marginal notes buffer.  When the marginal notes buffer is not displayed in the current frame, it will be temporarily displayed together with the prompt for the user to see the notes.
   If there is no notes, this function will not prompt for confirmation and will remove the highlight and deletes the entry in the marginal notes buffer. This command is identical with passing a universal argument to `org-remark-remove'.
 
-** What is Automatic Adjustment of Highlight Positions?
+** What is Automatic Adjustment of Highlight Positions? (new feature being developed as of 2023-07-15 and available only when the branch dev/nov is merged with the main)
 :PROPERTIES:
 :CUSTOM_ID: auto-adjust
 :END:
