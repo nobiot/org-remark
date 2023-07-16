@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 15 July 2023
+;; Last modified: 16 July 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -918,12 +918,13 @@ buffer for automatic sync."
                 for (filename-fn title-fn prop-to-find) in headline-constructors
                 ;; This variable "point" is set in order to be returned at
                 ;; the end of the loop.
-                with point = nil
+                with point = 1
                 do (let (filename title)
                      (with-current-buffer source-buf
                        (setq filename (funcall filename-fn))
                        (setq title (funcall title-fn)))
                      (with-current-buffer notes-buf
+                       (goto-char point)
                        (setq point
                              (or (org-find-property
                                   prop-to-find filename)
@@ -955,6 +956,7 @@ title. PROPS is the alist of properties to be added to the headline.
 
 Return the point of begining of current heading."
   ;; If file-headline does not exist, create one at the bottom
+  (goto-char (point-max))
   (org-narrow-to-subtree)
   (goto-char (point-max))
   ;; Ensure to be in the beginning of line to add a new headline
