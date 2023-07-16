@@ -2,7 +2,7 @@
 
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 9 January 2023
-;; Last modified: 14 July 2023
+;; Last modified: 16 July 2023
 
 ;;; Commentary:
 
@@ -26,7 +26,7 @@
       ;; Enable
       (progn
         (add-hook 'org-remark-source-find-file-name-functions
-                  #'org-remark-get-epub-source)
+                  #'org-remark-nov-get-epub-source)
         (add-hook 'org-remark-highlight-link-to-source-functions
                   #'org-remark-nov-link)
         ;; When users turn the page (document in nov-mode's terminology)
@@ -38,7 +38,7 @@
         (add-hook 'nov-post-html-render-hook #'org-remark-highlights-load))
     ;; Disable
     (remove-hook 'org-remark-source-find-file-name-functions
-                 #'org-remark-get-epub-source)
+                 #'org-remark-nov-get-epub-source)
     (remove-hook 'org-remark-highlight-link-to-source-functions
                  #'org-remark-nov-link)
     (remove-hook 'nov-post-html-render-hook #'org-remark-highlights-load)))
@@ -70,7 +70,7 @@ This method is for `nov-mode' MAJOR-MODE."
       (setq filename (expand-file-name filename (file-name-directory nov-file-name))))
     filename))
 
-(defun org-remark-get-epub-source ()
+(defun org-remark-nov-get-epub-source ()
   "Return the path of the epub source from which the present session is initiated."
   (when (eq major-mode 'nov-mode)
     (concat
@@ -108,7 +108,7 @@ Return the value in a alist like this:
                       "org-remark-nov-file"))
          (headline-2 (list
                       ;; SOURCE-FILENAME-FN
-                      #'org-remark-get-epub-source
+                      #'org-remark-nov-get-epub-source
                       ;; TITLE-FN
                       #'org-remark-nov-get-epub-document-title
                       ;; PROP-TO-FIND
