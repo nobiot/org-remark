@@ -956,7 +956,6 @@ title. PROPS is the alist of properties to be added to the headline.
 
 Return the point of begining of current heading."
   ;; If file-headline does not exist, create one at the bottom
-  (goto-char (point-max))
   (org-narrow-to-subtree)
   (goto-char (point-max))
   ;; Ensure to be in the beginning of line to add a new headline
