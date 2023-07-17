@@ -4,7 +4,7 @@
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
-;; Last modified: 29 May 2023
+;; Last modified: 17 July 2023
 ;; Created: 16 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal notes
@@ -90,7 +90,7 @@ solely by Org-marginalia."
          (org-delete-property "marginalia-source-beg")
          (org-delete-property "marginalia-source-end")
          (org-set-property org-remark-prop-id id)
-         (let ((props))
+         (let ((props '()))
            (plist-put props org-remark-prop-source-beg (number-to-string beg))
            (plist-put props org-remark-prop-source-end (number-to-string end))
            (org-remark-notes-set-properties props))))
