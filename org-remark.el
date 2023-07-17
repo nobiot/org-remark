@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 16 July 2023
+;; Last modified: 17 July 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -956,7 +956,11 @@ title. PROPS is the alist of properties to be added to the headline.
 
 Return the point of begining of current heading."
   ;; If file-headline does not exist, create one at the bottom
-  (org-narrow-to-subtree)
+  (unless (= level 1)
+    ;; If top node, narrowing headline results in level 2 being
+    ;; prepended. By not narrowing at level 1, the new level 2
+    ;; headings will be appended at the bottom of the buffer.
+    (org-narrow-to-subtree))
   (goto-char (point-max))
   ;; Ensure to be in the beginning of line to add a new headline
   (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
