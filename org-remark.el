@@ -837,7 +837,9 @@ This function assumes the current buffer is the source buffer."
   (and org-remark-use-org-id
        (org-entry-get point "ID" :inherit)))
 
-(make-obsolete #'org-remark-highlight-save #'org-remark-highlight-add "1.2.0")
+(define-obsolete-function-alias #'org-remark-highlight-save #'org-remark-highlight-add "1.2.0"
+  "Save a single HIGHLIGHT in the marginal notes file. We no longer
+save the notes file to disk; hence the name change")
 
 (cl-defgeneric org-remark-highlight-get-constructors ()
   "Construct lists for creating MAJOR-MODE specific hierarchy.
