@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 17 July 2023
+;; Last modified: 18 July 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -428,11 +428,11 @@ marginal notes file.  The expected values are nil, :load and
 (when org-remark-create-default-pen-set
   ;; Create default pen set.
   (org-remark-create "red-line"
-                     '(:underline (:color "dark red" :style wave))
-                     '(CATEGORY "review" help-echo "Review this"))
+                     `(:underline (:color "dark red" :style wave))
+                     `(CATEGORY "review" help-echo "Review this"))
   (org-remark-create "yellow"
-                     '(:underline "gold2")
-                     '(CATEGORY "important")))
+                     `(:underline "gold2")
+                     `(CATEGORY "important")))
 
 (defun org-remark-save ()
   "Save all the highlights tracked in current buffer to notes buffer.
