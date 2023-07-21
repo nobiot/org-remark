@@ -72,6 +72,10 @@ After installation, we suggest you put the setup below in your configuration.
   ;; Optional if you would like to highlight websites via eww-mode
   (with-eval-after-load 'eww
     (org-remark-eww-mode +1))
+
+  ;; Optional if you would like to highlight EPUB books via nov.el
+  (with-eval-after-load 'nov
+    (org-remark-nov-mode +1))
 #+end_src
 
 Unless you explicitly load ~org~ during Emacs initialization, I suggest to defer loading ~org-remark~ (thus there is no ~(require 'org-remark)~ in the example above). This is because it will also pull in ~org~, which can slow down initialization. You can control the timing of loading ~org-remark~ by autoloading some commands in a similar way with the example keybindings below.
