@@ -2,7 +2,7 @@
 
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 16 January 2023
-;; Last modified: 16 July 2023
+;; Last modified: 21 July 2023
 
 ;;; Commentary:
 
@@ -10,7 +10,9 @@
 
 (require 'ol-info)
 (require 'info)
+(require 'org-remark-global-tracking)
 (defvar org-remark-prop-source-file)
+(declare-function org-remark-highlights-load "org-remark")
 
 ;;;###autoload
 (define-minor-mode org-remark-info-mode
@@ -23,12 +25,22 @@
           (add-hook 'org-remark-source-find-file-name-functions
                     #'org-remark-info-get-node)
           (add-hook 'org-remark-highlight-link-to-source-functions
-                  #'org-remark-info-link))
+                    #'org-remark-info-link)
+          (advice-add #'Info-find-node :after #'org-remark-info-highlights-load))
     ;; Disable
     (remove-hook 'org-remark-source-find-file-name-functions
                  #'org-remark-info-get-node)
     (remove-hook 'org-remark-highlight-link-to-source-functions
-                 #'org-remark-info-link)))
+                 #'org-remark-info-link)
+    (advice-remove #'Info-find-node #'org-remark-info-highlights-load)))
+
+(defun org-remark-info-highlights-load (&rest _args)
+  "Wrapper for `org-remark-highlights-load'.
+It is necessary as this function is intended to be used as part
+of advice for `Info-goto-node', which gets arguments passed to
+it. `org-remark-highlights-load' should be called with no
+arguments for the purpose of `org-remark-info-mode'."
+  (org-remark-highlights-load))
 
 (defun org-remark-info-get-node ()
   "Return the current Info file/node."
@@ -58,7 +70,6 @@ Return the value in a alist like this:
    (SOURCE-FILENAME-FN TITLE-FN PROP-TO-FIND)"
   (let* ((headline-1 (list
                       ;; SOURCE-FILENAME-FN
-
                       ;; Don't include the full directory path for Info
                       ;; node. This may change when Emacs version or
                       ;; package version changes.
