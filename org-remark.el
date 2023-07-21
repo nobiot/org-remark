@@ -1350,6 +1350,7 @@ highlight is a property list in the following properties:
                          highlights)))))
            highlights))))))
 
+;;;###autoload
 (defun org-remark-highlights-load (&optional update)
   "Visit notes file & load the saved highlights onto current buffer.
 If there is no highlights or annotations for current buffer,
