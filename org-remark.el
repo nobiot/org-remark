@@ -129,14 +129,37 @@ The current buffer is the note buffer."
 
 (defcustom org-remark-icon-notes "(*)"
   "String to be displayed when notes exist for a given highlight.
+
+You can set a function to this user option. In this case, the
+function must take one argument, which is FACE. FACE can be a
+named face (a symbol), or an anonymous face (plist of face
+attributes). The function can ignore them and set its own face
+and/or text-property to the string. This means you can return a
+string with a display property to show an SVG icon instead of the
+underlying string.
+
 Nil means no icon is to be displayed."
-  :type 'string)
+  :safe #'stringp
+  :type '(choice
+          (string "(*)")
+          (function)))
 
 (defcustom org-remark-icon-position-adjusted "(d)"
   "String to be displayed when a highlight position adjusted.
-Nil means no icon is to be displayed."
-  :type 'string)
 
+You can set a function to this user option. In this case, the
+function must take one argument, which is FACE. FACE can be a
+named face (a symbol), or an anonymous face (plist of face
+attributes). The function can ignore them and set its own face
+and/or text-property to the string. This means you can return a
+string with a display property to show an SVG icon instead of the
+underlying string.
+
+Nil means no icon is to be displayed."
+  :safe #'stringp
+  :type '(choice
+          (string "(d)")
+          (function)))
 
 (defcustom org-remark-highlights-after-load-functions
   '(org-remark-highlights-adjust-positions org-remark-highlights-add-icons)
@@ -1546,16 +1569,18 @@ Each overlay is a highlight."
           (position-adjusted (overlay-get ov '*org-remark-position-adjusted)))
       (when (and note-body org-remark-icon-notes)
         (let ((face (overlay-get ov 'face)))
-          (setq propertized-string (concat propertized-string
-                                           (propertize org-remark-icon-notes
-                                                       'face face)))))
+          (setq propertized-string
+                (concat propertized-string
+                        (org-remark-icon-propertize
+                         org-remark-icon-notes face)))))
       ;; Even if the new location could not be found, indicate that it
       ;; is different to the original
       (when (and position-adjusted org-remark-icon-position-adjusted)
         (setq propertized-string
               (concat propertized-string
-                      (propertize org-remark-icon-position-adjusted
-                                  'face 'org-remark-highlighter-warning))))
+                      (org-remark-icon-propertize
+                       org-remark-icon-position-adjusted
+                       'org-remark-highlighter-warning))))
       (when propertized-string
         (overlay-put ov 'after-string
                      propertized-string)))))
@@ -1606,6 +1631,16 @@ function extends the behavior and looks for the word at point"
    ;; before comparing the strings.
    (replace-regexp-in-string "[\n ]" "" s1)
    (replace-regexp-in-string "[\n ]" "" s2)))
+
+(defun org-remark-icon-propertize (icon face)
+  "Return a propertized string.
+ICON can be either a function or string. FACE is either named
+face or anonymous. FACE is passed to ICON when it is a function.
+In this case, there is no expectation that the function should
+use it. It can disregard the FACE."
+  (if (functionp icon)
+      (funcall icon face)
+    (propertize icon 'face face)))
 
 
 ;;;; Footer
