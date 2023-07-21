@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 18 July 2023
+;; Last modified: 21 July 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -53,7 +53,7 @@
   '((((class color) (min-colors 88) (background light))
      :underline "#aecf90" :background "#ecf7ed")
     (((class color) (min-colors 88) (background dark))
-     :underline "#00422a" :background "#001904")
+     :underline "#00422a" :background "#1d3c25")
     (t
      :inherit highlight))
   "Face for the default highlighter pen.")

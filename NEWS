@@ -62,6 +62,11 @@ Current development version
            user manually manages the notes file and accidentally deletes
            the beg/end props.
 
+   - fix: default highlighter color for dark theme
+
+          No functional change. Changed the default color of the
+          highlighter to be more visible in the dark theme.
+
 Version 1.1.0
 
   Features:
