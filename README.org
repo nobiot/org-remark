@@ -106,6 +106,9 @@ Thank you.
 
 * Contributors
 - New features ::
+
+- EPUB books (nov.el) support would not have been possible without
+  collaboration with @sati-bodhi
 - ~echo-text~ update from the marginal notes to the source buffer by marty hiatt (@mooseyboots)
 - Support for websites with ~eww-mode~ by Vedang Manerikar (@vedang)
 
@@ -113,7 +116,7 @@ Thank you.
 Nan Jun Jie (@nanjj), @sgati-bodhi
 
 - Documentation (including README, NEWS, CHANGELOG) ::
-@randomwangran, marty hiatt (@mooseyboots)
+@randomwangran, marty hiatt (@mooseyboots), @jsntn
 
 - All the comments, issues, and questions on GitHub ::
 @randomwangran, @karthink, @holtzermann17, @shombando, @magthe, @linwaytin, @rtrppl, @ryanprior, @ericsfraga, @darcamo, @zhewy, @QMeqGR, @Vidianos-Giannitsis, @AtomicNess123, @mooseyboots, @ouboub, @dian-yu-luo, @SylvianHemus, @basaran, @Ypot, @oatmealm, @sati-bodhi
