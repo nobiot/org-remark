@@ -1,10 +1,48 @@
 ;;; org-remark-nov.el --- Compatibility with nov-mode -*- lexical-binding: t; -*-
 
+;; Copyright (C) 2021-2023 Free Software Foundation, Inc.
+
+;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 9 January 2023
-;; Last modified: 16 July 2023
+;; Last modified: 23 July 2023
+;; Package-Requires: ((emacs "27.1") (org "9.4"))
+;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
+
+;; This file is not part of GNU Emacs.
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or (at
+;; your option) any later version.
+
+;; This program is distributed in the hope that it will be useful, but
+;; WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+;; General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
+;;
+;;  This feature would not have been possible without the collaboration
+;;  with Tan Yin Hoe (GitHub user sati-bodhi).
+;;
+;;  This file is an Org-remark extension to add highlights and
+;;  annotation support for EPUB books rendered by nov.el [1]. Org-remark
+;;  does not automatically install nov.el. Users are expected to obtain
+;;  it separately, for example, via MELPA.
+;;
+;;  The extension can be enabled globally with `org-remark-nov-mode'.
+;;  You will need to use it in conjunction with
+;;  `org-remark-global-tracking-mode' and `org-remark-mode'. For more,
+;;  refer to the following Info node:
+;;
+;; - Info node `(org-remark) Installation'
+;; - Info node `(org-remark) Getting Started'
+;;
+;;  [1]: <https://depp.brause.cc/nov.el/>
 
 ;;; Code:
 
