@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 21 July 2023
+;; Last modified: 29 July 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -327,7 +327,8 @@ recommended to turn it on as part of Emacs initialization.
       (org-remark-highlights-load)
       (add-hook 'after-save-hook #'org-remark-save nil t)
       (add-hook 'org-remark-highlight-link-to-source-functions
-                #'org-remark-highlight-link-to-source-default 80))
+                #'org-remark-highlight-link-to-source-default 80)
+      (add-hook 'after-revert-hook #'org-remark-highlights-load))
      (t
       ;; Deactivate
       (when org-remark-highlights
@@ -336,7 +337,8 @@ recommended to turn it on as part of Emacs initialization.
       (setq org-remark-highlights nil)
       (remove-hook 'after-save-hook #'org-remark-save t)
       (remove-hook 'org-remark-highlight-link-to-source-functions
-                   #'org-remark-highlight-link-to-source-default))))
+                   #'org-remark-highlight-link-to-source-default)
+      (remove-hook 'after-revert-hook #'org-remark-highlights-load))))
 
 
 ;;;; Org-remark Menu
@@ -1385,12 +1387,11 @@ process."
   ;; "file". In this case, obsolete highlight overlays linger when you
   ;; switch from one file to another. Thus, we need to begin loading by
   ;; clearing the highlight overlays first.
-  ;;(org-remark-highlights-housekeep)
-  ;; In order to update the overlay, it is first gets deleted
-  ;; and newly loaded.  This way, we avoid duplicate of the same
+
+  ;; In order to update the highlight overlays, it is first gets deleted
+  ;; and newly loaded. This way, we avoid duplicate of the same
   ;; highlight.
-  (dolist (ov org-remark-highlights)
-    (org-remark-highlight-clear ov))
+  (org-remark-highlights-clear)
   ;; Loop highlights and add them to the current buffer
   (let (overlays) ;; highlight overlays
     (when-let* ((notes-filename (org-remark-notes-get-file-name))
@@ -1411,6 +1412,16 @@ process."
                    t)
           ;; if there is no overlays loaded, return nil
           nil)))))
+
+(defun org-remark-highlights-clear ()
+  "Delete all highlights in the buffer.
+
+This function also set `org-remark-highlights' to nil."
+  (setq org-remark-highlights nil)
+  (org-with-wide-buffer
+   (dolist (ov (overlays-in (point-min) (point-max)))
+     (when (overlay-get ov 'org-remark-id)
+       (delete-overlay ov)))))
 
 (defun org-remark-highlights-get-positions (&optional reverse)
   "Return list of the beginning point of all visible highlights in this buffer.
@@ -1624,7 +1635,8 @@ function extends the behavior and looks for the word at point"
       (user-error "No region selected and the cursor is not on a word"))))
 
 (defun org-remark-string= (s1 s2)
-  "Like `string=' but remove newlines and spaces before compare."
+  "Like `string=' but remove newlines and spaces before compare.
+Return t if S1 and S2 are an identical string."
   (string=
    ;; Cater to the case when the text is divided by a newline
    ;; character \n. Remove all spaces and newline chars
