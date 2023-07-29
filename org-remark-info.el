@@ -1,10 +1,56 @@
 ;;; org-remark-info.el --- Support Org-roam with Info-mode -*- lexical-binding: t; -*-
 
+;; Copyright (C) 2021-2023 Free Software Foundation, Inc.
+
+;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
-;; Created: 16 January 2023
-;; Last modified: 21 July 2023
+;; Created: 16 July 2023
+;; Last modified: 29 July 2023
+;; Package-Requires: ((emacs "27.1") (org "9.4"))
+;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
+
+;; This file is not part of GNU Emacs.
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or (at
+;; your option) any later version.
+
+;; This program is distributed in the hope that it will be useful, but
+;; WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+;; General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
+;;
+;;  This file is an Org-remark extension to add highlights and
+;;  annotation support for Info-mode.
+;;
+;;  The extension can be enabled globally with `org-remark-info-mode'
+;;
+;;  Highlights will include the links to the original with using
+;;  `ol-info' (Org mode's info: link type). By default, it opens the
+;;  node within the same window as the Org buffer, which is not
+;;  convenient for the purpose of Org-remark. You can configure Emacs to
+;;  open info: link into another window. See an example of such a
+;;  customization below:
+;;
+;;    (setopt switch-to-buffer-obey-display-actions t)
+;;    (add-to-list 'display-buffer-alist
+;;               '("\*info\*.*"
+;;                 (display-buffer-reuse-mode-window)
+;;                 (mode . Info-mode)))
+;;
+;;  You will need to use `org-remark-info-mode' in conjunction with
+;;  `org-remark-global-tracking-mode' and `org-remark-mode'. For more,
+;;  refer to the following Info node:
+;;
+;; - Info node `(org-remark) Installation'
+;; - Info node `(org-remark) Getting Started'
+
 
 ;;; Code:
 
