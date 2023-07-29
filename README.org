@@ -72,6 +72,10 @@ After installation, we suggest you put the setup below in your configuration.
   ;; Optional if you would like to highlight websites via eww-mode
   (with-eval-after-load 'eww
     (org-remark-eww-mode +1))
+
+  ;; Optional if you would like to highlight EPUB books via nov.el
+  (with-eval-after-load 'nov
+    (org-remark-nov-mode +1))
 #+end_src
 
 Unless you explicitly load ~org~ during Emacs initialization, I suggest to defer loading ~org-remark~ (thus there is no ~(require 'org-remark)~ in the example above). This is because it will also pull in ~org~, which can slow down initialization. You can control the timing of loading ~org-remark~ by autoloading some commands in a similar way with the example keybindings below.
@@ -102,6 +106,9 @@ Thank you.
 
 * Contributors
 - New features ::
+
+- EPUB books (nov.el) support would not have been possible without
+  collaboration with @sati-bodhi
 - ~echo-text~ update from the marginal notes to the source buffer by marty hiatt (@mooseyboots)
 - Support for websites with ~eww-mode~ by Vedang Manerikar (@vedang)
 
@@ -109,7 +116,7 @@ Thank you.
 Nan Jun Jie (@nanjj), @sgati-bodhi
 
 - Documentation (including README, NEWS, CHANGELOG) ::
-@randomwangran, marty hiatt (@mooseyboots)
+@randomwangran, marty hiatt (@mooseyboots), @jsntn
 
 - All the comments, issues, and questions on GitHub ::
 @randomwangran, @karthink, @holtzermann17, @shombando, @magthe, @linwaytin, @rtrppl, @ryanprior, @ericsfraga, @darcamo, @zhewy, @QMeqGR, @Vidianos-Giannitsis, @AtomicNess123, @mooseyboots, @ouboub, @dian-yu-luo, @SylvianHemus, @basaran, @Ypot, @oatmealm, @sati-bodhi
