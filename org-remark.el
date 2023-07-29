@@ -1571,30 +1571,43 @@ extensions."
         (org-remark-highlight-adjust-position-after-load
          ov highlight-text)))))
 
+(defvar org-remark-icons
+  (list
+   (list 'notes
+         (lambda (ov)
+           (overlay-get ov '*org-remark-note-body))
+         nil)
+   (list 'position-adjusted
+         (lambda (ov)
+           (overlay-get ov '*org-remark-position-adjusted))
+         'org-remark-highlighter-warning))
+  "List of icons enabled.
+It is an alist. Each element is a list of this form:
+ (ICON-NAME PREDICATE DEFAULT-FACE)
+
+ICON-NAME must be a symbol such as 'notes' and 'position-adjusted'.
+They are used as a suffix to be added to 'org-remark-icon-' to
+form a customizing variable such as `org-remark-icon-notes' and
+`org-remark-icon-adjusted'.
+
+PREDICATE must be a function that accepts one argument OV, which
+is the highlight overlay. If PREDICATE returns non-nil, the icon
+for ICON-NAME will be added to the highlight.
+
+DEFAULT FACE must be a named face. It is optinal and can be nil.")
+
 (defun org-remark-highlights-add-icons (overlays _notes-buf)
   "Add icons to OVERLAYS.
 Each overlay is a highlight."
   (dolist (ov overlays)
-    (let ((propertized-string nil)
-          (note-body (overlay-get ov '*org-remark-note-body))
-          (position-adjusted (overlay-get ov '*org-remark-position-adjusted)))
-      (when (and note-body org-remark-icon-notes)
-        (let ((face (overlay-get ov 'face)))
-          (setq propertized-string
-                (concat propertized-string
-                        (org-remark-icon-propertize
-                         org-remark-icon-notes face)))))
-      ;; Even if the new location could not be found, indicate that it
-      ;; is different to the original
-      (when (and position-adjusted org-remark-icon-position-adjusted)
-        (setq propertized-string
-              (concat propertized-string
-                      (org-remark-icon-propertize
-                       org-remark-icon-position-adjusted
-                       'org-remark-highlighter-warning))))
-      (when propertized-string
-        (overlay-put ov 'after-string
-                     propertized-string)))))
+    (cl-flet ((add-icon-maybe (icon)
+                (cl-destructuring-bind
+                    (icon-name pred default-face) icon
+                  (when (funcall pred ov)
+                    (org-remark-icon-propertize icon-name ov default-face)))))
+      (let ((icon-string
+             (mapconcat #'add-icon-maybe org-remark-icons)))
+        (when icon-string (overlay-put ov 'after-string icon-string))))))
 
 
 ;;;;; Other utilities
@@ -1644,15 +1657,19 @@ Return t if S1 and S2 are an identical string."
    (replace-regexp-in-string "[\n ]" "" s1)
    (replace-regexp-in-string "[\n ]" "" s2)))
 
-(defun org-remark-icon-propertize (icon face)
+(defun org-remark-icon-propertize (icon-name highlight default-face)
   "Return a propertized string.
 ICON can be either a function or string. FACE is either named
 face or anonymous. FACE is passed to ICON when it is a function.
 In this case, there is no expectation that the function should
 use it. It can disregard the FACE."
-  (if (functionp icon)
-      (funcall icon face)
-    (propertize icon 'face face)))
+  (let ((icon (symbol-value (intern (concat "org-remark-icon-"
+                                            (symbol-name icon-name)))))
+        (highlight-face (overlay-get highlight 'face))
+        (default-face default-face))
+    (if (functionp icon)
+        (funcall icon icon-name highlight-face)
+      (propertize icon 'face (if default-face default-face highlight-face)))))
 
 
 ;;;; Footer
