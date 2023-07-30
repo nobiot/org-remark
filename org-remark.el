@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 29 July 2023
+;; Last modified: 30 July 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -164,6 +164,24 @@ killed so that this needs to be checked with `buffer-live-p'.")
 It is meant to exist only one of these in each Emacs session.")
 
 (defvar org-remark-available-pens nil)
+
+(defvar org-remark-highlights-toggle-hide-functions nil
+  "Functions to be called when toggling to hide highlights.
+Each function is called with one argument HIGHLIGHT, which is an
+overlay that shows the highlight. It also stores properties to
+control visibility such as \\=':face\\='.
+
+This variable is an abnormal hook and is intended to be used to
+add additional controls for the overlay properties.")
+
+(defvar org-remark-highlights-toggle-show-functions nil
+  "Functions to be called when toggling to show highlights.
+Each function is called with one argument HIGHLIGHT, which is an
+overlay that shows the highlight. It also stores properties to
+control visibility such as \\=':face\\='.
+
+This variable is an abnormal hook and is intended to be used to
+add additional controls for the overlay properties")
 
 ;; Const for the names of properties in Org Mode
 (defconst org-remark-prop-id "org-remark-id")
@@ -920,7 +938,7 @@ buffer for automatic sync."
                        (setq point
                              (or (org-find-property
                                   prop-to-find filename)
-                                 (org-remark-new-headline
+                                 (org-remark-notes-new-headline
                                   index title (list prop-to-find filename))))))
                 ;; Add the hightlight/note nodes after the headline loop.
                 finally (progn
@@ -937,29 +955,6 @@ buffer for automatic sync."
         (org-remark-notes-setup notes-buf source-buf)))
     ;;; Return notes-props
     notes-props))
-
-(defun org-remark-new-headline (level title props)
-  "Add a new headline in the note buffer.
-
-This function assumes that the point is in the notes buffer.
-
-LEVEL is the headline level to be added. TITLE is the headline
-title. PROPS is the alist of properties to be added to the headline.
-
-Return the point of begining of current heading."
-  ;; If file-headline does not exist, create one at the bottom
-  (unless (= level 1)
-    ;; If top node, narrowing headline results in level 2 being
-    ;; prepended. By not narrowing at level 1, the new level 2
-    ;; headings will be appended at the bottom of the buffer.
-    (org-narrow-to-subtree))
-  (goto-char (point-max))
-  ;; Ensure to be in the beginning of line to add a new headline
-  (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
-  (insert-char (string-to-char "*") level)
-  (insert (concat " " title "\n"))
-  (org-remark-notes-set-properties props)
-  (org-back-to-heading) (point))
 
 (defun org-remark-highlight-add-or-update-highlight-headline (highlight source-buf notes-buf)
   "Add a new HIGHLIGHT headlne to the NOTES-BUF or update it.
@@ -1000,7 +995,7 @@ beginning of source-headline, which should be one level up."
             (progn
               (goto-char highlight-headline)
               ;; Update the existing headline and position properties
-              ;; Don't update the headline text when it already exists
+              ;; Don't update the headline text when it already exists.
               ;; Let the user decide how to manage the headlines
               ;; (org-edit-headline text)
               (org-remark-notes-set-properties props))
@@ -1059,13 +1054,13 @@ Assume the current buffer is the source buffer."
 
 (defun org-remark-highlight-clear (overlay)
   "Clear a single highlight OVERLAY.
-It is a utility function to take care of both
-`org-remark-highlights' and a highlight overlay at the same time."
+It is a utility function to take care of both variabel
+`org-remark-highlights' and a highlight OVERLAY at the same time."
   (setq org-remark-highlights (delete overlay org-remark-highlights))
   (delete-overlay overlay))
 
 (defun org-remark-highlight-adjust-position-after-load (highlight text)
-  "Adjust the position of HIGHLIGHT (an overlay) after loaded.
+  "Adjust the position of a HIGHLIGHT overlay after loaded.
 It searches for TEXT, which should be the original text of the highlight."
   ;; Load works. but need one for sync. Need to re-think
   ;; ' and ’ are different in regex of course.
@@ -1113,12 +1108,34 @@ Default function for `org-remark-highlight-link-to-source-functions'."
 ;;    CATEGORY, which can be set as a property for Org-remark's custom
 ;;    highlighter pens.
 
-;;    The Org file database has the following data structure and thus
-;;    headline levels are fixed:
+;;    The tree structure of the Org file database can be flexible and
+;;    defined per major mode by their respective extension. Examples
+;;    include `org-remark-nov' and `org-remark-info'. Org-remark search
+;;    specific Org properties to determine where to store newly created
+;;    highlights. :org-remark-file: and :org-remark-id: are the most
+;;    important properties that Org-remark search.
 
-;;        H1: File (for non-file visiting buffer, file name equivalent
-;;            such as URL for a website)
-;;        H2: Highlight (each one has a dedicated H2 subtree)
+;;    - The default tree structure:
+
+;;        H1: File (:org-remark-file:) for non-file visiting buffer, file
+;;            name equivalent such as URL for a website
+
+;;        H2: Highlight (:org-remark-id:) each one has a dedicated H2
+;;            subtree
+
+;;   - The tree structure for `org-remark-nov'
+
+;;        H1: Book (:org-remark-nov-file:) The EPUB file, which
+;;            is the zip file.
+
+;;        H2: Chapter (:org-remark-file:) Each HTML file contained in
+;;            the EPUB file
+
+;;        H3: Highlight (:org-remark-id:)
+
+;;    The highlight (:org-remark-id:) is the lowest level of the tree,
+;;    whose parent/ancestor must be a node that has :org-remark-file:
+;;    property.
 
 ;;    In general, -notes-* functions assume the current buffer is the
 ;;    notes buffer.  One remark on a subtlety: Org-remark clones an
@@ -1126,6 +1143,29 @@ Default function for `org-remark-highlight-link-to-source-functions'."
 ;;    convenience. Users might interact with either the indirect buffer
 ;;    or directly with the base buffer.  For automatic sync
 ;;    functionality, Org-remark interacts directly with the base buffer.
+
+(defun org-remark-notes-new-headline (level title props)
+  "Add a new headline in the note buffer.
+
+This function assumes that the point is in the notes buffer.
+
+LEVEL is the headline level to be added. TITLE is the headline
+title. PROPS is the alist of properties to be added to the headline.
+
+Return the point of begining of current heading."
+  ;; If file-headline does not exist, create one at the bottom
+  (unless (= level 1)
+    ;; If top node, narrowing headline results in level 2 being
+    ;; prepended. By not narrowing at level 1, the new level 2
+    ;; headings will be appended at the bottom of the buffer.
+    (org-narrow-to-subtree))
+  (goto-char (point-max))
+  ;; Ensure to be in the beginning of line to add a new headline
+  (when (eolp) (open-line 1) (forward-line 1) (beginning-of-line))
+  (insert-char (string-to-char "*") level)
+  (insert (concat " " title "\n"))
+  (org-remark-notes-set-properties props)
+  (org-back-to-heading) (point))
 
 (defun org-remark-notes-remove (id &optional delete)
   "Remove the note entry for highlight ID.
@@ -1170,9 +1210,9 @@ Do you really want to delete the notes?"))
     t))
 
 (defun org-remark-notes-buffer-get-or-create ()
-  "Return marginal notes buffer.
+  "Return marginal notes buffer. Create one if it does not exist.
 It's a cloned indirect buffer of a buffer visiting the marginal
-notes file of the current buffer.  This function ensures there is
+notes file of the current buffer. This function ensures there is
 only one of the marginal notes buffer per session."
   ;; Compare the target marginal notes buffer and current marginal notes buffer.
   ;; For the latter, we need the base buffer of an indirect buffer.
@@ -1207,12 +1247,6 @@ drawer.
 
 In order to avoid adding org-remark-* overlay properties to Org
 properties, add prefix \"*\"."
-
-  ;; (org-set-property org-remark-prop-source-beg
-  ;;                   (number-to-string beg))
-  ;; (org-set-property org-remark-prop-source-end
-  ;;                   (number-to-string end))
-
   ;; Delete property.  Prefer `org-entry-delete' over
   ;; `org-delete-property' as the former is silent.
   (org-entry-delete nil "CATEGORY")
@@ -1348,14 +1382,12 @@ output a message in the echo.
 
 Non-nil value for UPDATE is passed for the notes-source sync
 process."
-  ;; Some major modes such as nov.el reuse the buffer for a different
-  ;; "file". In this case, obsolete highlight overlays linger when you
-  ;; switch from one file to another. Thus, we need to begin loading by
-  ;; clearing the highlight overlays first.
-
-  ;; In order to update the highlight overlays, it is first gets deleted
-  ;; and newly loaded. This way, we avoid duplicate of the same
-  ;; highlight.
+  ;; Some major modes such as nov.el reuse the current buffer, deleting
+  ;; the buffer content and insert a different file's content. In this
+  ;; case, obsolete highlight overlays linger when you switch from one
+  ;; file to another. Thus, in order to update the highlight overlays we
+  ;; need to begin loading by clearing them first. This way, we avoid
+  ;; duplicate of the same highlight.
   (org-remark-highlights-clear)
   ;; Loop highlights and add them to the current buffer
   (let (overlays) ;; highlight overlays
@@ -1366,7 +1398,8 @@ process."
                 (source-buf (current-buffer)))
       (with-demoted-errors
           "Org-remark: error during loading highlights: %S"
-        ;; Load highlights
+        ;; Load highlights with demoted errors -- this makes the loading
+        ;; robust against errors in loading.
         (dolist (highlight (org-remark-highlights-get notes-buf))
           (push (org-remark-highlight-load highlight) overlays))
         (unless update (org-remark-notes-setup notes-buf source-buf))
@@ -1428,11 +1461,8 @@ It returns t when sorting is done."
                        org-remark-highlights))
     t))
 
-(defvar org-remark-highlights-toggle-hide-functions nil)
-(defvar org-remark-highlights-toggle-show-functions nil)
-
 (defun org-remark-highlights-hide ()
-  "Hide highlights.
+  "Hide highlights when toggling their visibility.
 This function removes the font-lock-face of all the highlights,
 and add *org-remark-hidden property with value t. It does not
 check the current hidden state, thus not interactive.  Use
@@ -1448,7 +1478,7 @@ state."
     (setq org-remark-highlights-hidden t)))
 
 (defun org-remark-highlights-show ()
-  "Show highlights.
+  "Show highlights when toggling their visibility.
 This function adds the font-lock-face to all the highlighted text
 regions.  It does not check the current hidden state, thus not
 interactive.  Use `org-remark-toggle' command to manually toggle
@@ -1498,15 +1528,16 @@ Case 2. The overlay points to no buffer
                (= (overlay-start ov) (overlay-end ov)))
       (when (and (not buffer-read-only)
                  (not (derived-mode-p 'special-mode)))
-                ;; buffer-size 0 happens for package like nov.el. It
-                ;; erases the buffer (size 0) and renders a new page in
-                ;; the same buffer.  In this case, buffer is writable.
-        ;; Removing the notes here is meant to be automatically remove
-        ;; notes when you delete a region that contains a higlight
-        ;; overlay.
+        ;; Buffer-size 0 happens for a package like nov.el. It erases
+        ;; the buffer (size 0) and renders a new page in the same
+        ;; buffer. In this case, buffer is writable.
+        ;;
         ;; TODO Relying on the current major mode being derived from
-        ;; special-mode is not the best.
+        ;; special-mode may not be the best.
         (org-remark-notes-remove (overlay-get ov 'org-remark-id)))
+      ;; Removing the notes here is meant to be to automatically remove
+      ;; notes when you delete a region that contains a higlight
+      ;; overlay.
       (delete-overlay ov))
     (unless (overlay-buffer ov)
       (setq org-remark-highlights (delete ov org-remark-highlights))))
@@ -1524,9 +1555,8 @@ Meant to be set to `org-remark-highlights-after-load-functions' by mode-specific
 extensions."
   (dolist (ov overlays)
     (let ((highlight-text (overlay-get ov '*org-remark-original-text)))
-      ;; original text exists AND
-      ;; it is different to the current
-      ;; TODO fix the highlight comparision logic
+      ;; Check that the original text exists AND it is different to the
+      ;; current text
       (when (and highlight-text
                  (not (org-remark-string=
                        highlight-text
@@ -1589,7 +1619,3 @@ Return t if S1 and S2 are an identical string."
 (provide 'org-remark)
 
 ;;; org-remark.el ends here
-
-;; Local Variables:
-;; org-remark-notes-file-name: "README.org"
-;; End:

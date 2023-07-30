@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 29 July 2023
-;; Last modified: 29 July 2023
+;; Last modified: 30 July 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -147,7 +147,7 @@ use it. It can disregard the FACE."
         (highlight-face (overlay-get highlight 'face))
         (default-face default-face))
     (if (functionp icon)
-        (funcall icon icon-name highlight-face)
+        (funcall icon icon-name highlight-face default-face)
       (propertize icon 'face (if default-face default-face highlight-face)))))
 
 (provide 'org-remark-icon)
