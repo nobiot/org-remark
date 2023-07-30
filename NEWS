@@ -2,12 +2,12 @@ Current development version
 
   - feat(info): Org-remark supports Info
 
+          Advice has been implemented. It is added and removed by
+          `org-remark-info-mode`.
+
           No suitable hook is avaialble to trigger a function after the Info node
           is rendered. This is necessary as Info renders a new node in the same
           buffer (in the same way as Nov.el does).
-
-          Advice has been implemented. It is added and removed by
-          `org-remark-info-mode`.
 
   - feat: icons for additional information for highlights
 
@@ -20,8 +20,8 @@ Current development version
           + Icons are customizable. You can also disable icons by setting
             the respective customizing variable to nil
 
-          + The face of auto-adjusted is customizable with face
-            `org-remark-highlighter-warning'
+          + The default face of auto-adjusted icon is customizable with
+            face `org-remark-highlighter-warning'
 
           + `org-remark-toggle' also toggles the icon display
 
