@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 16 July 2023
-;; Last modified: 29 July 2023
+;; Last modified: 30 July 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -86,7 +86,16 @@ It is necessary as this function is intended to be used as part
 of advice for `Info-goto-node', which gets arguments passed to
 it. `org-remark-highlights-load' should be called with no
 arguments for the purpose of `org-remark-info-mode'."
-  (org-remark-highlights-load))
+  ;; Enabling `org-remark-mode' runs `org-remark-highlight', which would
+  ;; result in duplicating the highlights if
+  ;; `org-remark-highlights-load' is run again. As this function must be
+  ;; run only once for initial load and only once for subsequent
+  ;; re-load, initial load and re-load needs to be differentiated. This
+  ;; `if' clause is meant to do this.
+  (if (or (not (featurep 'org-remark))
+          (not org-remark-mode))
+      (org-remark-mode +1)
+    (org-remark-highlights-load)))
 
 (defun org-remark-info-get-node ()
   "Return the current Info file/node."
