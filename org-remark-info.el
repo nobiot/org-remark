@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 16 July 2023
-;; Last modified: 30 July 2023
+;; Last modified: 31 July 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -72,13 +72,15 @@
                     #'org-remark-info-get-node)
           (add-hook 'org-remark-highlight-link-to-source-functions
                     #'org-remark-info-link)
-          (advice-add #'Info-find-node :after #'org-remark-info-highlights-load))
+          (advice-add #'Info-find-node :after #'org-remark-info-highlights-load)
+          (advice-add #'Info-search :after #'org-remark-info-highlights-load))
     ;; Disable
     (remove-hook 'org-remark-source-find-file-name-functions
                  #'org-remark-info-get-node)
     (remove-hook 'org-remark-highlight-link-to-source-functions
                  #'org-remark-info-link)
-    (advice-remove #'Info-find-node #'org-remark-info-highlights-load)))
+    (advice-remove #'Info-find-node #'org-remark-info-highlights-load)
+    (advice-remove #'Info-search #'org-remark-info-highlights-load)))
 
 (defun org-remark-info-highlights-load (&rest _args)
   "Wrapper for `org-remark-highlights-load'.

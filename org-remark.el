@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 30 July 2023
+;; Last modified: 31 July 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -310,7 +310,8 @@ recommended to turn it on as part of Emacs initialization.
       (add-hook 'after-save-hook #'org-remark-save nil t)
       (add-hook 'org-remark-highlight-link-to-source-functions
                 #'org-remark-highlight-link-to-source-default 80)
-      (add-hook 'after-revert-hook #'org-remark-highlights-load))
+      (add-hook 'after-revert-hook #'org-remark-highlights-load)
+      (add-hook 'clone-buffer-hook #'org-remark-highlights-load 80 :local))
      (t
       ;; Deactivate
       (when org-remark-highlights
@@ -321,7 +322,8 @@ recommended to turn it on as part of Emacs initialization.
       (remove-hook 'after-save-hook #'org-remark-save t)
       (remove-hook 'org-remark-highlight-link-to-source-functions
                    #'org-remark-highlight-link-to-source-default)
-      (remove-hook 'after-revert-hook #'org-remark-highlights-load))))
+      (remove-hook 'after-revert-hook #'org-remark-highlights-load)
+      (remove-hook 'clone-buffer-hook #'org-remark-highlights-load :local))))
 
 
 ;;;; Org-remark Menu
