@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 29 July 2023
-;; Last modified: 30 July 2023
+;; Last modified: 31 July 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -78,27 +78,33 @@ The icons currently available are defined in `org-remark-icons'."
   (if org-remark-icon-mode
       ;; Enable
       (progn
-        (add-hook 'org-remark-highlights-toggle-hide-functions #'org-remark-icon-toggle-hide)
-        (add-hook 'org-remark-highlights-toggle-show-functions #'org-remark-icon-toggle-show)
+        (add-hook 'org-remark-highlights-toggle-hide-functions
+                  #'org-remark-icon-toggle-hide nil :local)
+        (add-hook 'org-remark-highlights-toggle-show-functions
+                  #'org-remark-icon-toggle-show :local)
         ;; Add-icons should be the last function because other functions may do
         ;; something relevant for an icon -- e.g. adjust-positon."
         (add-hook 'org-remark-highlights-after-load-functions
-                  #'org-remark-highlights-add-icons 80))
+                  #'org-remark-highlights-add-icons 80 :local))
     ;; Disable
-    (remove-hook 'org-remark-highlights-toggle-hide-functions #'org-remark-icon-toggle-hide)
-    (remove-hook 'org-remark-highlights-toggle-show-functions #'org-remark-icon-toggle-show)
+    (remove-hook 'org-remark-highlights-toggle-hide-functions
+                 #'org-remark-icon-toggle-hide :local)
+    (remove-hook 'org-remark-highlights-toggle-show-functions
+                 #'org-remark-icon-toggle-show :local)
     (remove-hook 'org-remark-highlights-after-load-functions
-                 #'org-remark-highlights-add-icons 80)))
+                 #'org-remark-highlights-add-icons 80 :local)))
 
 (defvar org-remark-icons
   (list
    (list 'notes
          (lambda (ov)
-           (overlay-get ov '*org-remark-note-body))
+           (and org-remark-icon-notes
+                (overlay-get ov '*org-remark-note-body)))
          nil)
    (list 'position-adjusted
          (lambda (ov)
-           (overlay-get ov '*org-remark-position-adjusted))
+           (and org-remark-icon-position-adjusted
+                (overlay-get ov '*org-remark-position-adjusted)))
          'org-remark-highlighter-warning))
   "List of icons enabled.
 It is an alist. Each element is a list of this form:
@@ -138,10 +144,28 @@ Each overlay is a highlight."
 
 (defun org-remark-icon-propertize (icon-name highlight default-face)
   "Return a propertized string.
-ICON can be either a function or string. FACE is either named
-face or anonymous. FACE is passed to ICON when it is a function.
-In this case, there is no expectation that the function should
-use it. It can disregard the FACE."
+
+ICON-NAME is a symbol such as \\='notes\\=' and
+\\='position-adjusted\\='. They are used as a suffix to be added
+to \\='org-remark-icon-\\=' to form an ICON, which is a
+customizing variable such as `org-remark-icon-notes' and
+`org-remark-icon-position-adjusted'.
+
+HIGHLIGHT is the current highlight overlay being worked on. It is
+useful to obtain its face to add the matching face to the
+icon (HIGHLIGHT-FACE).
+
+DEFAULT-FACE is the default face for the ICON. It can be nil, in
+which case the face of the HIGHLIGHT should be used. This
+depends on the value of ICON.
+
+ICON is a customizing variable, it can be set to a string. In
+this case, the DEFAULT-FACE is used when available; if not,
+HIGHLIGHT-FACE. ICON can also be a function. In this case, three
+arguments are pass to it: ICON-NAME, HIGHLIGHT-FACE, and
+DEFAULT-FACE. It is up to the function whether or not to use any
+of them. All it needs to do is to return a string that represents
+an icon, typically propertized with a face."
   (let ((icon (symbol-value (intern (concat "org-remark-icon-"
                                             (symbol-name icon-name)))))
         (highlight-face (overlay-get highlight 'face))
