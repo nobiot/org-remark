@@ -163,7 +163,12 @@ killed so that this needs to be checked with `buffer-live-p'.")
   "The cloned indirect buffer visiting the notes file.
 It is meant to exist only one of these in each Emacs session.")
 
-(defvar org-remark-available-pens nil)
+(defvar org-remark-available-pens (list #'org-remark-mark)
+  "A list of pens available.
+Each pen is a function. Users can create a new custom pen with
+using `org-remark-create', which automatically add a new pen
+function this list. It is used by `org-remark-change' as a
+selection list.")
 
 (defvar org-remark-highlights-toggle-hide-functions nil
   "Functions to be called when toggling to hide highlights.
@@ -399,8 +404,6 @@ recommended to turn it on as part of Emacs initialization.
 
 
 ;;;; Commands
-
-(add-to-list 'org-remark-available-pens #'org-remark-mark)
 
 ;;;###autoload
 (defun org-remark-mark (beg end &optional id mode)
