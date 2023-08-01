@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 31 July 2023
+;; Last modified: 01 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -978,9 +978,11 @@ beginning of source-headline, which should be one level up."
             props (overlay-properties highlight)
             id (plist-get props 'org-remark-id)
             text (org-with-wide-buffer
-                  (replace-regexp-in-string
-                   "\n" " "
-                   (buffer-substring-no-properties beg end)))
+                  (if (string= "line" (overlay-get highlight 'org-remark-type))
+                      "Line highlight" ;; for now
+                    (replace-regexp-in-string
+                     "\n" " "
+                     (buffer-substring-no-properties beg end))))
             filename (org-remark-source-get-file-name
                       (org-remark-source-find-file-name))
             link (run-hook-with-args-until-success
@@ -1530,6 +1532,7 @@ Case 2. The overlay points to no buffer
     ;; this, we check if the buffer is write-able and only remove the
     ;; annotation when it is.
     (when (and (overlay-buffer ov)
+               (not (string= "line" (overlay-get ov 'org-remark-type)))
                (= (overlay-start ov) (overlay-end ov)))
       (when (and (not buffer-read-only)
                  (not (derived-mode-p 'special-mode)))
@@ -1563,6 +1566,7 @@ extensions."
       ;; Check that the original text exists AND it is different to the
       ;; current text
       (when (and highlight-text
+                 (not (string= "line" (overlay-get ov 'org-remark-type)))
                  (not (org-remark-string=
                        highlight-text
                        (buffer-substring-no-properties
