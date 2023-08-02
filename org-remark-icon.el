@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 29 July 2023
-;; Last modified: 31 July 2023
+;; Last modified: 01 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -133,14 +133,16 @@ DEFAULT FACE must be a named face. It is optinal and can be nil.")
   "Add icons to OVERLAYS.
 Each overlay is a highlight."
   (dolist (ov overlays)
-    (cl-flet ((add-icon-maybe (icon)
-                (cl-destructuring-bind
-                    (icon-name pred default-face) icon
-                  (when (funcall pred ov)
-                    (org-remark-icon-propertize icon-name ov default-face)))))
-      (let ((icon-string
-             (mapconcat #'add-icon-maybe org-remark-icons)))
-        (when icon-string (overlay-put ov 'after-string icon-string))))))
+    (unless (string= "line" (overlay-get ov 'org-remark-type))
+      ;; icons added to line highlighters differently from normal ones.
+      (cl-flet ((add-icon-maybe (icon)
+                  (cl-destructuring-bind
+                      (icon-name pred default-face) icon
+                    (when (funcall pred ov)
+                      (org-remark-icon-propertize icon-name ov default-face)))))
+        (let ((icon-string
+               (mapconcat #'add-icon-maybe org-remark-icons)))
+          (when icon-string (overlay-put ov 'after-string icon-string)))))))
 
 (defun org-remark-icon-propertize (icon-name highlight default-face)
   "Return a propertized string.

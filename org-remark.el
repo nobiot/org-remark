@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 01 August 2023
+;; Last modified: 02 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -39,6 +39,8 @@
 (require 'org-id)
 (require 'org-remark-global-tracking)
 (declare-function org-remark-convert-legacy-data "org-remark-convert-legacy")
+
+(defvar org-remark-find-dwim-functions (list #'org-remark-find-overlay-at-point))
 
 
 ;;;; Customization
@@ -430,10 +432,10 @@ MODE is also an argument which can be passed from Elisp.  It
 determines whether or not highlight is to be saved in the
 marginal notes file.  The expected values are nil, :load and
 :change."
-  (interactive (org-remark-region-or-word))
-  ;; FIXME
-  ;; Adding "nil" is different to removing a prop
-  ;; This will do for now
+  (interactive (org-remark-beg-end nil)) ;; passing org-remark-type nil
+    ;; FIXME
+    ;; Adding "nil" is different to removing a prop
+    ;; This will do for now
   (org-remark-highlight-mark beg end id mode
                              nil nil
                              (list 'org-remark-label "nil")))
@@ -495,7 +497,8 @@ current buffer.
 This function ensures that there is only one cloned buffer for
 notes file by tracking it."
   (interactive "d\nP")
-  (when-let ((id (get-char-property point 'org-remark-id))
+  (when-let ((id (overlay-get (org-remark-find-dwim point)
+                              'org-remark-id))
              (ibuf (org-remark-notes-buffer-get-or-create))
              (cbuf (current-buffer)))
     (pop-to-buffer ibuf org-remark-notes-display-buffer-action)
@@ -699,6 +702,23 @@ Look through `org-remark-highlights' list (in descending order)."
       ;; `org-remark-highlights' is sorted in the descending order .
     (seq-find (lambda (p) (< p (point))) points (nth 0 points))))
 
+(defun org-remark-find-dwim (&optional point)
+  "Return one highlight overlay for the context.
+
+It is a generic wrapper function to get and return as what the
+context requires. This is achieved via abnormal hook that passed
+the POINT as a single argument.
+
+The highligh to be returned can be the range-highlight at point.
+POINT is optional and if not passed, the current point is used.
+It can also be a line-highlight for the line, which is a zero
+length overlay put to the beginning of the line. For the latter,
+the user's point can be anywhere."
+  (or (run-hook-with-args-until-success
+       'org-remark-find-dwim-functions point)
+      ;; Fallback
+      (org-remark-find-overlay-at-point point)))
+
 (defun org-remark-find-overlay-at-point (&optional point)
   "Return one org-remark overlay at POINT.
 When point is nil, use the current point.
@@ -742,6 +762,11 @@ Optionally ID can be passed to find the exact ID match."
 ;;   functions here mostly assume the current buffer is the source
 ;;   buffer.
 
+(cl-defgeneric org-remark-highlight-mark-overlay ((org-remark-type)))
+
+(cl-defmethod org-remark-highlight-mark-overlay (ov face (org-remark-type (eql nil)))
+  (overlay-put ov 'face (if face face 'org-remark-highlighter)))
+
 (defun org-remark-highlight-mark
     (beg end &optional id mode label face properties)
   "Apply the FACE to the region selected by BEG and END.
@@ -780,12 +805,13 @@ round-trip back to the notes file."
   (let ((ov (make-overlay beg end nil :front-advance))
         ;; UUID is too long; does not have to be the full length
         (id (if id id (substring (org-id-uuid) 0 8)))
-        (filename (org-remark-source-find-file-name)))
+        (filename (org-remark-source-find-file-name))
+        (org-remark-type (plist-get properties 'org-remark-type)))
     (if (not filename)
         (message (format "org-remark: Highlights not saved.\
  This buffer (%s) is not supported" (symbol-name major-mode)))
       (org-with-wide-buffer
-       (overlay-put ov 'face (if face face 'org-remark-highlighter))
+       (org-remark-highlight-mark-overlay ov face org-remark-type)
        (while properties
          (let ((prop (pop properties))
                (val (pop properties)))
@@ -1264,6 +1290,7 @@ properties, add prefix \"*\"."
     (let ((p (pop props))
           (v (pop props)))
       (when (symbolp p) (setq p (symbol-name p)))
+      (when (symbolp v) (setq v (symbol-name v)))
       (when (or (string-equal "CATEGORY" (upcase p))
                 (and (> (length p) 11)
                      (string-equal "org-remark-" (downcase (substring p 0 11)))))
@@ -1590,6 +1617,15 @@ If FILENAME is nil, return nil."
     (with-current-buffer (find-file-noselect (org-remark-notes-get-file-name))
       (funcall org-remark-source-file-name filename))))
 
+;; (defvar org-remark-beg-end-dwim-functions '(org-remark-region-or-word))
+
+;; (defun org-remark-beg-end-dwim ()
+;;   (run-hook-with-args-until-success
+;;    'org-remark-beg-end-dwim-functions))
+
+(cl-defgeneric org-remark-beg-end (org-remark-type)
+  (org-remark-region-or-word))
+
 (defun org-remark-region-or-word ()
   "Return beg and end of the active region or of the word at point.
 It is meant to be used within `interactive' in place for \"r\"
@@ -1621,6 +1657,8 @@ Return t if S1 and S2 are an identical string."
    ;; before comparing the strings.
    (replace-regexp-in-string "[\n ]" "" s1)
    (replace-regexp-in-string "[\n ]" "" s2)))
+
+(load-file "~/src/org-remark/org-remark-line-highlighter.el")
 
 
 ;;;; Footer
