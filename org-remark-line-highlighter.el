@@ -41,6 +41,8 @@
 
 (defvar org-remark-line-icon "*")
 
+(defvar org-remark-line-ellipsis "…")
+
 (defun org-remark-line-pos-bol (pos)
   "Return the beginning of the line position for POS."
   (save-excursion
@@ -110,7 +112,16 @@ by `overlays-in'."
                       (move-overlay ov (1+ beg) (1+ beg))))))
 
 (cl-defmethod org-remark-highlight-headline-text (ov (org-remark-type (eql 'line)))
-  "Line highlight")
+  "Return the first x characters of the line.
+If the line is shorter than x, then up to the newline char."
+  (let ((line-text (buffer-substring-no-properties
+                    (overlay-start ov) (pos-eol))))
+    (if (or (eq line-text nil)
+            (string= line-text ""))
+        "Empty line highlight"
+      (setq line-text (string-trim-left line-text))
+      (if (length<  line-text 40) line-text
+        (concat (substring line-text 0 39) org-remark-line-ellipsis)))))
 
 (provide 'org-remark-line)
 ;;; org-remark-line.el ends here
