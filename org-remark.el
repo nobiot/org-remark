@@ -497,10 +497,10 @@ current buffer.
 This function ensures that there is only one cloned buffer for
 notes file by tracking it."
   (interactive "d\nP")
-  (when-let ((id (overlay-get (org-remark-find-dwim point)
-                              'org-remark-id))
-             (ibuf (org-remark-notes-buffer-get-or-create))
-             (cbuf (current-buffer)))
+  (when-let* ((ov (org-remark-find-dwim point))
+              (id (overlay-get ov 'org-remark-id))
+              (ibuf (org-remark-notes-buffer-get-or-create))
+              (cbuf (current-buffer)))
     (pop-to-buffer ibuf org-remark-notes-display-buffer-action)
     (widen)
     (when-let (p (org-find-property org-remark-prop-id id))

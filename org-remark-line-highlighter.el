@@ -64,7 +64,10 @@ by `overlays-in'."
          (highlights (overlays-in bol bol)))
     (seq-find #'org-remark-line-highlight-p highlights)))
 
-(add-hook 'org-remark-find-dwim-functions #'org-remark-line-find)
+;; Depth is deeper than the default one for range highlight. This is to
+;; prioritize it over line-highlight when the fomer is at point and yet
+;; on the same line of another line-highlight.
+(add-hook 'org-remark-find-dwim-functions #'org-remark-line-find 80)
 
 (add-hook 'window-size-change-functions
           #'(lambda (&rest args)
