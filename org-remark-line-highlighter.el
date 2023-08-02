@@ -30,6 +30,17 @@
 
 ;;(require 'org-remark)
 
+(defface org-remark-line-highlighter
+  '((((class color) (min-colors 88) (background light))
+     :foreground "#e2d980")
+    (((class color) (min-colors 88) (background dark))
+     :foreground "#e2d980")
+    (t
+     :inherit highlight))
+  "Face for the default line highlighter pen.")
+
+(defvar org-remark-line-icon "*")
+
 (defun org-remark-line-pos-bol (pos)
   "Return the beginning of the line position for POS."
   (save-excursion
@@ -57,28 +68,6 @@ by `overlays-in'."
           #'(lambda (&rest args)
               (set-window-margins nil 2)))
 
-(defun test/overlay-put-line-highlight (ov)
-  (let* ((left-margin (or (car (window-margins))
-                          ;; when nil = no margin, set to 1
-                          (progn (set-window-margins nil 2)
-                                 2)))
-         (spaces (- left-margin 2))
-         (string (with-temp-buffer (insert-char ?\s spaces)
-                                   (insert "•")
-                                   (buffer-string))))
-    (overlay-put ov 'before-string (propertize "! " 'display
-                                               `((margin left-margin)
-                                                 ,(propertize string 'face 'modus-themes-diff-refine-removed))))
-    ;;(overlay-put ov 'category "org-remark-line") ;; need to fix property add logic
-    ov))
-
-(defun org-remark-line-highlight-modified (ov after-p beg end &optional length)
-  "This is good! Move the overlay to follow the point when ENTER in the line."
-  (when after-p
-    (save-excursion (goto-char beg)
-                    (when (looking-at "\n")
-                      (move-overlay ov (1+ beg) (1+ beg))))))
-
 ;;;###autoload
 (defun org-remark-mark-line (beg end &optional id mode)
   (interactive (org-remark-beg-end 'line))
@@ -90,72 +79,38 @@ by `overlays-in'."
                              ;; to call this correct function
                              (list 'org-remark-type 'line)))
 
-;; (add-hook 'org-remark-beg-end-dwim-functions #'org-remark-line-beg-end)
-;; This is not a good solution. The normal highlight gets zero length with this.
-;; It needs to be "type" differentiated by a defmethod, etc.
-
-;; (remove-hook 'org-remark-beg-end-dwim-functions #'org-remark-line-beg-end)
-
-;; (defun org-remark-line-beg-end ()
-;;   "Return a list of beg and end both being the bol."
-;;   (let ((bol (org-remark-line-pos-bol (point))))
-;;     (list bol bol)))
-
 (cl-defmethod org-remark-beg-end ((org-remark-type (eql 'line)))
     (let ((bol (org-remark-line-pos-bol (point))))
       (list bol bol)))
 
 (cl-defmethod org-remark-highlight-mark-overlay (ov face (org-remark-type (eql 'line)))
-  (test/overlay-put-line-highlight ov) ;; LINE
+  (org-remark-line-highlight-overlay-put ov face) ;; LINE
   (overlay-put ov 'insert-in-front-hooks (list 'org-remark-line-highlight-modified)))
 
-;; (defun org-remark-line-highlight-mark
-;;     (beg end &optional id mode label face properties)
-;;   "Apply the FACE to the whole line that contains BEG."
-;;   ;; Ensure to turn on the local minor mode
-;;   (unless org-remark-mode (org-remark-mode +1))
-;;   ;; When highlights are toggled hidden, only the new one gets highlighted in
-;;   ;; the wrong toggle state.
-;;   (when org-remark-highlights-hidden (org-remark-highlights-show))
-;;   (let ((ov (make-overlay beg end nil :front-advance))
-;;         ;; UUID is too long; does not have to be the full length
-;;         (id (if id id (substring (org-id-uuid) 0 8)))
-;;         (filename (org-remark-source-find-file-name)))
-;;     (if (not filename)
-;;         (message (format "org-remark: Highlights not saved.\
-;;  This buffer (%s) is not supported" (symbol-name major-mode)))
-;;       (org-with-wide-buffer
-;;        (org-remark-highlight-mark-overlay ov face 'line)
-;;        (while properties
-;;          (let ((prop (pop properties))
-;;                (val (pop properties)))
-;;            (overlay-put ov prop val)))
-;;        (when label (overlay-put ov 'org-remark-label label))
-;;        (overlay-put ov 'org-remark-id id)
-;;        ;; Keep track of the overlay in a local variable. It's a list that is
-;;        ;; guaranteed to contain only org-remark overlays as opposed to the one
-;;        ;; returned by `overlay-lists' that lists all overlays.
-;;        (push ov org-remark-highlights)
-;;        ;; for mode, nil and :change result in saving the highlight.  :load
-;;        ;; bypasses save.
-;;        (unless (eq mode :load)
-;;          (let* ((notes-buf (find-file-noselect
-;;                             (org-remark-notes-get-file-name)))
-;;                 (source-buf (current-buffer))
-;;                 ;; Get props for create and change modes
-;;                 (notes-props
-;;                  (org-remark-highlight-add ov source-buf notes-buf)))
-;;            (when notes-props
-;;              (org-remark-highlight-put-props ov notes-props))
-;;            ;; Save the notes buffer when not loading
-;;           (unless (eq notes-buf (current-buffer))
-;;                        (with-current-buffer notes-buf (save-buffer))))))
-;;       (deactivate-mark)
-;;       (org-remark-highlights-housekeep)
-;;       (org-remark-highlights-sort)
-;;       (setq org-remark-source-setup-done t)
-;;       ;; Return overlay
-;;       ov)))
+(defun org-remark-line-highlight-overlay-put (ov face)
+  (let* ((face (or face 'org-remark-line-highlighter))
+         (left-margin (or (car (window-margins))
+                          ;; when nil = no margin, set to 1
+                          (progn (set-window-margins nil 2)
+                                 2)))
+         (spaces (- left-margin 2))
+         (string (with-temp-buffer (insert-char ?\s spaces)
+                                   (insert org-remark-line-icon)
+                                   (buffer-string))))
+    (overlay-put ov 'before-string (propertize "! " 'display
+                                               `((margin left-margin)
+                                                 ,(propertize string 'face face))))
+    ov))
+
+(defun org-remark-line-highlight-modified (ov after-p beg end &optional length)
+  "This is good! Move the overlay to follow the point when ENTER in the line."
+  (when after-p
+    (save-excursion (goto-char beg)
+                    (when (looking-at "\n")
+                      (move-overlay ov (1+ beg) (1+ beg))))))
+
+(cl-defmethod org-remark-highlight-headline-text (ov (org-remark-type (eql 'line)))
+  "Line highlight")
 
 (provide 'org-remark-line)
 ;;; org-remark-line.el ends here

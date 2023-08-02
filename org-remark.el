@@ -619,7 +619,7 @@ If you have done so by error, you could still `undo' it in the
 marginal notes buffer, but not in the current buffer as adding
 and removing overlays are not part of the undo tree."
   (interactive "d\nP")
-  (when-let ((ov (org-remark-find-overlay-at-point point))
+  (when-let ((ov (org-remark-find-dwim point))
              (id (overlay-get ov 'org-remark-id)))
     ;; Remove the highlight overlay and id Where there is more than one,
     ;; remove only one.  It should be last-in-first-out in general but
@@ -987,6 +987,14 @@ buffer for automatic sync."
     ;;; Return notes-props
     notes-props))
 
+(cl-defgeneric org-remark-highlight-headline-text ((org-remark-type)))
+
+(cl-defmethod org-remark-highlight-headline-text (ov (org-remark-type (eql nil)))
+  "Assume it is called within `org-with-wide-buffer' of the source."
+  (replace-regexp-in-string
+   "\n" " "
+   (buffer-substring-no-properties (overlay-start ov) (overlay-end ov))))
+
 (defun org-remark-highlight-add-or-update-highlight-headline (highlight source-buf notes-buf)
   "Add a new HIGHLIGHT headlne to the NOTES-BUF or update it.
 Return notes-props as a property list.
@@ -996,19 +1004,16 @@ HIGHLIGHT is an overlay from the SOURCE-BUF.
 Assume the current buffer is NOTES-BUF and point is placed on the
 beginning of source-headline, which should be one level up."
   ;; Add org-remark-link with updated line-num as a property
-  (let (title beg end props id text filename link orgid)
+  (let (title beg end props id text filename link orgid org-remark-type)
     (with-current-buffer source-buf
       (setq title (org-remark-highlight-get-title)
             beg (overlay-start highlight)
             end (overlay-end highlight)
             props (overlay-properties highlight)
             id (plist-get props 'org-remark-id)
+            org-remark-type (overlay-get highlight 'org-remark-type)
             text (org-with-wide-buffer
-                  (if (string= "line" (overlay-get highlight 'org-remark-type))
-                      "Line highlight" ;; for now
-                    (replace-regexp-in-string
-                     "\n" " "
-                     (buffer-substring-no-properties beg end))))
+                  (org-remark-highlight-headline-text highlight org-remark-type))
             filename (org-remark-source-get-file-name
                       (org-remark-source-find-file-name))
             link (run-hook-with-args-until-success
