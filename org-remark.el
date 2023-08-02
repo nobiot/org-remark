@@ -1663,8 +1663,6 @@ Return t if S1 and S2 are an identical string."
    (replace-regexp-in-string "[\n ]" "" s1)
    (replace-regexp-in-string "[\n ]" "" s2)))
 
-(load-file "~/src/org-remark/org-remark-line-highlighter.el")
-
 
 ;;;; Footer
 
