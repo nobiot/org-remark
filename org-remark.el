@@ -1,4 +1,4 @@
-;;; org-remark.el --- Highlight & annotate any text files -*- lexical-binding: t; -*-
+ ;;; org-remark.el --- Highlight & annotate any text files -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020-2023 Free Software Foundation, Inc.
 
@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 02 August 2023
+;; Last modified: 03 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -762,9 +762,9 @@ Optionally ID can be passed to find the exact ID match."
 ;;   functions here mostly assume the current buffer is the source
 ;;   buffer.
 
-(cl-defgeneric org-remark-highlight-mark-overlay ((org-remark-type)))
+;; (cl-defgeneric org-remark-highlight-mark-overlay (_org-remark-type))
 
-(cl-defmethod org-remark-highlight-mark-overlay (ov face (org-remark-type (eql nil)))
+(cl-defmethod org-remark-highlight-mark-overlay (ov face (_org-remark-type (eql nil)))
   (overlay-put ov 'face (if face face 'org-remark-highlighter)))
 
 (defun org-remark-highlight-mark
@@ -987,7 +987,7 @@ buffer for automatic sync."
     ;;; Return notes-props
     notes-props))
 
-(cl-defgeneric org-remark-highlight-headline-text ((org-remark-type)))
+(cl-defgeneric org-remark-highlight-headline-text (_ov _org-remark-type))
 
 (cl-defmethod org-remark-highlight-headline-text (ov (org-remark-type (eql nil)))
   "Assume it is called within `org-with-wide-buffer' of the source."
@@ -1538,7 +1538,9 @@ Return t.
 This is a private function; house keep is automatically done on
 mark, save, and remove -- before sort-highlights.
 
-Case 1. Both start and end of an overlay are identical
+Case 1. Both start and end of an overlay are identical _and_ it's
+        not a line-highlight, which is designed to be zero length
+        with the start and end identical
 
         This should not happen when you manually mark a text
         region.  A typical cause of this case is when you delete a
@@ -1563,25 +1565,48 @@ Case 2. The overlay points to no buffer
     ;; the overlay-start and overlay-end properties. To guard against
     ;; this, we check if the buffer is write-able and only remove the
     ;; annotation when it is.
-    (when (and (overlay-buffer ov)
-               (not (string= "line" (overlay-get ov 'org-remark-type)))
-               (= (overlay-start ov) (overlay-end ov)))
-      (when (and (not buffer-read-only)
-                 (not (derived-mode-p 'special-mode)))
-        ;; Buffer-size 0 happens for a package like nov.el. It erases
-        ;; the buffer (size 0) and renders a new page in the same
-        ;; buffer. In this case, buffer is writable.
-        ;;
-        ;; TODO Relying on the current major mode being derived from
-        ;; special-mode may not be the best.
-        (org-remark-notes-remove (overlay-get ov 'org-remark-id)))
-      ;; Removing the notes here is meant to be to automatically remove
-      ;; notes when you delete a region that contains a higlight
-      ;; overlay.
-      (delete-overlay ov))
-    (unless (overlay-buffer ov)
-      (setq org-remark-highlights (delete ov org-remark-highlights))))
+    (let ((org-remark-type (overlay-get ov 'org-remark-type)))
+      (when (and (overlay-buffer ov)
+                 (= (overlay-start ov) (overlay-end ov))
+                 (org-remark-highlights-housekeep-delete-p
+                  ov org-remark-type))
+        ;; When the buffer is writable and visitnig a file to change it.
+        ;; That is, a "normal" buffer. If it is writable and yet derived
+        ;; from a special mode, we consider the case to be in the
+        ;; rendering process of the mode, and thus do not want to put into
+        ;; the bin as part of housekeeping.
+        (when (and (not buffer-read-only)
+                   (not (derived-mode-p 'special-mode)))
+          ;; Buffer-size 0 happens for a package like nov.el. It erases
+          ;; the buffer (size 0) and renders a new page in the same
+          ;; buffer. In this case, buffer is writable.
+          ;;
+          ;; TODO Relying on the current major mode being derived from
+          ;; special-mode may not be the best.
+          ;; Removing the notes here is meant to be to automatically remove
+          ;; notes when you delete a region that contains a higlight
+          ;; overlay.
+          (org-remark-notes-remove (overlay-get ov 'org-remark-id)))
+        (delete-overlay ov))
+      ;; Before deleting `org-remark-highlights', add a handler per
+      ;; org-remark-type
+      (org-remark-highlights-housekeep-remark-type ov org-remark-type)
+      ;; Update `org-remark-highlights' by removing the deleted overlays
+      (unless (overlay-buffer ov)
+        (setq org-remark-highlights (delete ov org-remark-highlights)))))
   t)
+
+(cl-defgeneric org-remark-highlights-housekeep-delete-p (_ov _org-remark-type)
+  "Additional predicate to delete during housekeep.
+Default is always t. Implement method specific to
+\\='\org-remark-type\=' and return nil the highlight must be
+kept.
+
+The current buffer is source buffer."
+  t)
+
+(cl-defgeneric org-remark-highlights-housekeep-remark-type (_ov _org-remark-type)
+  (ignore))
 
 (defun org-remark-highlights-adjust-positions (overlays _notes-buf)
   "Run dolist and delgate the actual adjustment to another function.
@@ -1597,14 +1622,20 @@ extensions."
     (let ((highlight-text (overlay-get ov '*org-remark-original-text)))
       ;; Check that the original text exists AND it is different to the
       ;; current text
-      (when (and highlight-text
-                 (not (string= "line" (overlay-get ov 'org-remark-type)))
-                 (not (org-remark-string=
-                       highlight-text
-                       (buffer-substring-no-properties
-                        (overlay-start ov) (overlay-end ov)))))
+      (when
+          (and (org-remark-highlights-adjust-positions-p (overlay-get ov 'org-remark-type))
+               highlight-text
+               (not (org-remark-string=
+                     highlight-text
+                     (buffer-substring-no-properties
+                      (overlay-start ov) (overlay-end ov)))))
         (org-remark-highlight-adjust-position-after-load
          ov highlight-text)))))
+
+(cl-defgeneric org-remark-highlights-adjust-positions-p (_org-remark-type)
+  "Return t if adjust-positions feature is relevant
+Default is t and evaluated per ORG-REMARK-TYPE."
+  t)
 
 
 ;;;;; Other utilities
@@ -1628,7 +1659,7 @@ If FILENAME is nil, return nil."
 ;;   (run-hook-with-args-until-success
 ;;    'org-remark-beg-end-dwim-functions))
 
-(cl-defgeneric org-remark-beg-end (org-remark-type)
+(cl-defgeneric org-remark-beg-end (_org-remark-type)
   (org-remark-region-or-word))
 
 (defun org-remark-region-or-word ()

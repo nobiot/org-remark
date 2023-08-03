@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 01 August 2023
-;; Last modified: 02 August 2023
+;; Last modified: 03 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -41,6 +41,8 @@
 
 (defvar org-remark-line-icon "*")
 
+(defvar org-remark-line-heading-title-max-length 40)
+
 (defvar org-remark-line-ellipsis "…")
 
 (defun org-remark-line-pos-bol (pos)
@@ -52,7 +54,7 @@
 (defun org-remark-line-highlight-p (highlight)
   "Return t if HIGHLIGHT is one for the line.
 HIGHLIGHT is an overlay."
-  (string= "line" (overlay-get highlight 'org-remark-type)))
+  (eql 'line (overlay-get highlight 'org-remark-type)))
 
 (defun org-remark-line-find (&optional point)
   "Return the line-highight (overlay) of the current line.
@@ -123,8 +125,37 @@ If the line is shorter than x, then up to the newline char."
             (string= line-text ""))
         "Empty line highlight"
       (setq line-text (string-trim-left line-text))
-      (if (length<  line-text 40) line-text
-        (concat (substring line-text 0 39) org-remark-line-ellipsis)))))
+      (if (length<  line-text
+                    (1+ org-remark-line-heading-title-max-length))
+          line-text
+        (concat (substring line-text 0 org-remark-line-heading-title-max-length)
+                org-remark-line-ellipsis)))))
+
+(cl-defmethod org-remark-highlights-adjust-positions-p ((org-remark-type (eql 'line)))
+  nil)
+
+(cl-defmethod org-remark-highlights-housekeep-delete-p (_ov
+                                                        (org-remark-type (eql 'line)))
+  "Always return nil when ORG-REMARK-TYPE is \\='line\\='.
+Line-highlights are designed to be zero length with the start and
+end of overlay being identical."
+  nil)
+
+(cl-defmethod org-remark-highlights-housekeep-remark-type (ov
+                                                           (org-remark-type (eql 'line)))
+  "Ensure line-highlight OV is always at the beginning of line."
+  ;; if `pos-bol' is used to move, you can actually get the highlight to
+  ;; always follow the point, keeping the original place unless you
+  ;; directly change the notes. That's not really an intutive behaviour,
+  ;; though in some cases, it imay be useful.
+  (let* ((ov-start (overlay-start ov))
+         (ov-line-bol (org-remark-line-pos-bol ov-start)))
+    (unless (= ov-start ov-line-bol)
+      (move-overlay ov ov-line-bol ov-line-bol))))
+
+;; (defun org-remark-line-inspect-overlay ()
+;;   (interactive)
+;;   (car (overlays-in (point) (point))))
 
 (provide 'org-remark-line)
 ;;; org-remark-line.el ends here
