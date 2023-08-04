@@ -141,8 +141,8 @@ Line-highlights are designed to be zero length with the start and
 end of overlay being identical."
   nil)
 
-(cl-defmethod org-remark-highlights-housekeep-remark-type (ov
-                                                           (org-remark-type (eql 'line)))
+(cl-defmethod org-remark-highlights-housekeep-per-type (ov
+                                                        (org-remark-type (eql 'line)))
   "Ensure line-highlight OV is always at the beginning of line."
   ;; if `pos-bol' is used to move, you can actually get the highlight to
   ;; always follow the point, keeping the original place unless you

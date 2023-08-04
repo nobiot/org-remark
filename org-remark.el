@@ -1590,7 +1590,7 @@ Case 2. The overlay points to no buffer
         (delete-overlay ov))
       ;; Before deleting `org-remark-highlights', add a handler per
       ;; org-remark-type
-      (org-remark-highlights-housekeep-remark-type ov org-remark-type)
+      (org-remark-highlights-housekeep-per-type ov org-remark-type)
       ;; Update `org-remark-highlights' by removing the deleted overlays
       (unless (overlay-buffer ov)
         (setq org-remark-highlights (delete ov org-remark-highlights)))))
@@ -1605,7 +1605,7 @@ kept.
 The current buffer is source buffer."
   t)
 
-(cl-defgeneric org-remark-highlights-housekeep-remark-type (_ov _org-remark-type)
+(cl-defgeneric org-remark-highlights-housekeep-per-type (_ov _org-remark-type)
   (ignore))
 
 (defun org-remark-highlights-adjust-positions (overlays _notes-buf)
