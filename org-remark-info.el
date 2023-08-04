@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 16 July 2023
-;; Last modified: 31 July 2023
+;; Last modified: 04 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -88,12 +88,14 @@ It is necessary as this function is intended to be used as part
 of advice for `Info-goto-node', which gets arguments passed to
 it. `org-remark-highlights-load' should be called with no
 arguments for the purpose of `org-remark-info-mode'."
-  ;; Enabling `org-remark-mode' runs `org-remark-highlight', which would
-  ;; result in duplicating the highlights if
-  ;; `org-remark-highlights-load' is run again. As this function must be
-  ;; run only once for initial load and only once for subsequent
-  ;; re-load, initial load and re-load needs to be differentiated. This
-  ;; `if' clause is meant to do this.
+  ;; Enabling `org-remark-mode' runs `org-remark-highlights-load', which
+  ;; would result in duplicating the highlights. As this function should
+  ;; be run only once for initial load or only once for subsequent
+  ;; re-load. This `if' statement is to differentiate the initial load
+  ;; when no Info node has been opened from subsequent reloads when the
+  ;; user moves to another Info node. In addition, `featurep' is used
+  ;; because variable `org-remark-mode' may not have been loaded yet to
+  ;; avoid symbol void.
   (if (or (not (featurep 'org-remark))
           (not org-remark-mode))
       (org-remark-mode +1)
@@ -108,9 +110,7 @@ arguments for the purpose of `org-remark-info-mode'."
 
 (defun org-remark-info-link (_filname _point)
   "Return \"info:\" link with current point in `Info-mode' buffer.
-
 This function only works when the mode is `Info-mode'.
-
 Assume the point is on the highlight in source Info document
 buffer and `ol-info' is loaded. The latter is necessary for
 `org-store-link' to work wiht Info buffer."
@@ -119,11 +119,8 @@ buffer and `ol-info' is loaded. The latter is necessary for
 
 (cl-defmethod org-remark-highlight-get-constructors (&context (major-mode Info-mode))
   "Construct lists for creating MAJOR-MODE specific hierarchy.
-
-This method is for `Info-mode'.
-
-Return the value in a alist like this:
-
+This method is for `Info-mode'. Return the value in a alist like
+this:
    (SOURCE-FILENAME-FN TITLE-FN PROP-TO-FIND)"
   (let* ((headline-1 (list
                       ;; SOURCE-FILENAME-FN
