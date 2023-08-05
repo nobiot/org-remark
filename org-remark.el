@@ -1,4 +1,4 @@
- ;;; org-remark.el --- Highlight & annotate any text files -*- lexical-binding: t; -*-
+;;; org-remark.el --- Highlight & annotate any text files -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020-2023 Free Software Foundation, Inc.
 
@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 03 August 2023
+;; Last modified: 05 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -198,7 +198,6 @@ add additional controls for the overlay properties")
 
 
 ;;;; Macros to create user-defined highlighter pen functions
-
 (defmacro org-remark-create (label &optional face properties)
   "Create and register new highlighter pen functions.
 
@@ -247,7 +246,8 @@ highlight.  In this case, no new ID gets generated.
 When the pen itself defines the help-echo property, it will have
 the priority over the excerpt of the marginal notes."
                   (or face "`org-remark-highlighter'") properties)
-         (interactive (org-remark-region-or-word))
+         (interactive (org-remark-beg-end
+                       (quote ,(plist-get (eval properties) 'org-remark-type))))
          (org-remark-highlight-mark beg end id mode ,label ,face ,properties))
 
        ;; Register to `org-remark-available-pens'
@@ -266,7 +266,9 @@ the priority over the excerpt of the marginal notes."
                      (lambda ()
                        (interactive)
                        (org-remark-change
-                        #',(intern (format "org-remark-mark-%s" label)))))))))
+                        #',(intern (format "org-remark-mark-%s" label))))
+                     :enable (org-remark-pen-same-type-at-point-p
+                              (quote ,(plist-get (eval properties) 'org-remark-type))))))))
 
 
 ;;;; Minor mode
@@ -340,35 +342,42 @@ recommended to turn it on as part of Emacs initialization.
 (define-key-after org-remark-menu-map
   [org-remark-open]
   '(menu-item "Open" org-remark-open
-              :help "Display and move to marginal notes for highlight at point"))
+              :help "Display and move to marginal notes for highlight at point"
+              :enable (org-remark-find-dwim)))
 
 (define-key-after org-remark-menu-map
   [org-remark-view]
   '(menu-item "View" org-remark-view
-              :help "Display marginal notes for highlight at point; stay in current buffer"))
+              :help "Display marginal notes for highlight at point; stay in current buffer"
+              :enable (org-remark-find-dwim)))
 
 (define-key-after org-remark-menu-map
   [org-remark-view-next]
-  '(menu-item "View next" org-remark-view-next))
+  '(menu-item "View next" org-remark-view-next
+              :enable org-remark-highlights))
 
 (define-key-after org-remark-menu-map
   [org-remark-view-prev]
-  '(menu-item "View previous" org-remark-view-prev))
+  '(menu-item "View previous" org-remark-view-prev
+              :enable org-remark-highlights))
 
 (define-key-after org-remark-menu-map
   [org-remark-toggle]
   '(menu-item "Toggle" org-remark-toggle
-              :help "Toggle showing/hiding of highlights in current buffer"))
+              :help "Toggle showing/hiding of highlights in current buffer"
+              :enable org-remark-highlights))
 
 (define-key-after org-remark-menu-map
   [org-remark-remove]
   '(menu-item "Remove" org-remark-remove
-              :help "Remove highlight at point, keeping the marginal notes entry"))
+              :help "Remove highlight at point, keeping the marginal notes entry"
+              :enable (org-remark-find-dwim)))
 
 (define-key-after org-remark-menu-map
   [org-remark-delete]
   '(menu-item "Delete" org-remark-delete
-              :help "Delete highlight at point and the marginal notes entry"))
+              :help "Delete highlight at point and the marginal notes entry"
+              :enable (org-remark-find-dwim)))
 
 ;; Make pen functions menu
 (defvar org-remark-pen-map
@@ -384,15 +393,18 @@ recommended to turn it on as part of Emacs initialization.
 
 (define-key-after org-remark-change-pen-map
   [org-remark-change]
-  '(menu-item "default pen" (lambda ()
-                              (interactive)
-                              (org-remark-change #'org-remark-mark))))
+  '(menu-item "default pen"
+              (lambda ()
+                (interactive)
+                (org-remark-change #'org-remark-mark))
+              :enable (org-remark-pen-same-type-at-point-p nil)))
 
 ;; Add change menu to the parent menu
 (define-key-after org-remark-menu-map
   [org-remark-change-pens]
-  (list 'menu-item "Change to..." org-remark-change-pen-map)
-  'org-remark-toggle)
+  `(menu-item "Change to..." ,org-remark-change-pen-map
+        :enable (org-remark-find-dwim)
+  'org-remark-toggle))
 
 ;; Add pen menu to the parent menu
 (define-key org-remark-menu-map
@@ -403,6 +415,11 @@ recommended to turn it on as part of Emacs initialization.
 (define-key org-remark-mode-map
             [menu-bar org-remark]
             (list 'menu-item "Org-remark" org-remark-menu-map))
+
+(defun org-remark-pen-same-type-at-point-p (org-remark-type)
+  "Return t if the highlight's type is the same as ORG-REMARK-TYPE."
+  (eql org-remark-type
+       (overlay-get (org-remark-find-dwim (point)) 'org-remark-type)))
 
 
 ;;;; Commands
@@ -1652,12 +1669,6 @@ If FILENAME is nil, return nil."
   (when filename ; fix #23
     (with-current-buffer (find-file-noselect (org-remark-notes-get-file-name))
       (funcall org-remark-source-file-name filename))))
-
-;; (defvar org-remark-beg-end-dwim-functions '(org-remark-region-or-word))
-
-;; (defun org-remark-beg-end-dwim ()
-;;   (run-hook-with-args-until-success
-;;    'org-remark-beg-end-dwim-functions))
 
 (cl-defgeneric org-remark-beg-end (_org-remark-type)
   (org-remark-region-or-word))
