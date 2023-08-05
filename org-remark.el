@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 05 August 2023
+;; Last modified: 06 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -219,11 +219,13 @@ property drawer from the highlighter pen.  To do this, prefix
 property names with \"org-remark-\" or use \"CATEGORY\"."
   (if (or (not label) (stringp label)
           (user-error "org-remark-create: Label is missing or not string"))
-    `(progn
-       ;; Define custom pen function
-       (defun ,(intern (format "org-remark-mark-%s" label))
-           (beg end &optional id mode)
-         ,(format "Apply the following face to the region selected by BEG and END.
+      (let ((org-remark-type
+             (symbol-name (plist-get (eval properties) 'org-remark-type))))
+        `(progn
+           ;; Define custom pen function
+           (defun ,(intern (format "org-remark-mark-%s" label))
+               (beg end &optional id mode)
+             ,(format "Apply the following face to the region selected by BEG and END.
 
 %s
 
@@ -245,30 +247,35 @@ highlight.  In this case, no new ID gets generated.
 
 When the pen itself defines the help-echo property, it will have
 the priority over the excerpt of the marginal notes."
-                  (or face "`org-remark-highlighter'") properties)
-         (interactive (org-remark-beg-end
-                       (quote ,(plist-get (eval properties) 'org-remark-type))))
-         (org-remark-highlight-mark beg end id mode ,label ,face ,properties))
+                      (or face "`org-remark-highlighter'") properties)
+             (interactive (org-remark-beg-end (intern ,org-remark-type)))
+             (org-remark-highlight-mark beg end id mode ,label ,face ,properties))
 
-       ;; Register to `org-remark-available-pens'
-       (add-to-list 'org-remark-available-pens
-                    (intern (format "org-remark-mark-%s" ,label)))
+           ;; Register to `org-remark-available-pens'
+           (add-to-list 'org-remark-available-pens
+                        (intern (format "org-remark-mark-%s" ,label)))
 
-       ;; Add the custom pen function to the minor-mode menu
-       (define-key-after org-remark-pen-map
-         [,(intern (format "org-remark-mark-%s" label))]
-         '(menu-item ,(format "%s pen" label) ,(intern (format "org-remark-mark-%s" label))))
+           ;; Add function prop This is for `org-remark-change' to show
+           ;; only the pens of the same type
+           (when 'org-remark-type (function-put
+                                   (intern (format "org-remark-mark-%s" ,label))
+                                   'org-remark-type
+                                   (intern ,org-remark-type)))
 
-       ;; Add the custom pen change function to the minor-mode menu
-       (define-key-after org-remark-change-pen-map
-         [,(intern (format "org-remark-change-to-%s" label))]
-         '(menu-item ,(format "%s pen" label)
-                     (lambda ()
-                       (interactive)
-                       (org-remark-change
-                        #',(intern (format "org-remark-mark-%s" label))))
-                     :enable (org-remark-pen-same-type-at-point-p
-                              (quote ,(plist-get (eval properties) 'org-remark-type))))))))
+           ;; Add the custom pen function to the minor-mode menu
+           (define-key-after org-remark-pen-map
+             [,(intern (format "org-remark-mark-%s" label))]
+             '(menu-item ,(format "%s pen" label) ,(intern (format "org-remark-mark-%s" label))))
+
+           ;; Add the custom pen change function to the minor-mode menu
+           (define-key-after org-remark-change-pen-map
+             [,(intern (format "org-remark-change-to-%s" label))]
+             '(menu-item ,(format "%s pen" label)
+                         (lambda ()
+                           (interactive)
+                           (org-remark-change
+                            #',(intern (format "org-remark-mark-%s" label))))
+                         :enable (org-remark-pen-same-type-at-point-p (intern ,org-remark-type))))))))
 
 
 ;;;; Minor mode
