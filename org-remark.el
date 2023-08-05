@@ -315,6 +315,7 @@ recommended to turn it on as part of Emacs initialization.
      (org-remark-mode
       ;; Activate
       (org-remark-icon-mode +1) ;; automatically enabled by default
+      (org-remark-line-mode +1)
       (org-remark-highlights-load)
       (add-hook 'after-save-hook #'org-remark-save nil t)
       (add-hook 'org-remark-highlight-link-to-source-functions
@@ -328,6 +329,7 @@ recommended to turn it on as part of Emacs initialization.
           (delete-overlay highlight)))
       (setq org-remark-highlights nil)
       (org-remark-icon-mode -1)
+      (org-remark-line-mode -1)
       (remove-hook 'after-save-hook #'org-remark-save t)
       (remove-hook 'org-remark-highlight-link-to-source-functions
                    #'org-remark-highlight-link-to-source-default)

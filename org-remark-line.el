@@ -45,6 +45,47 @@
 
 (defvar org-remark-line-ellipsis "…")
 
+;;;###autoload
+(define-minor-mode org-remark-line-mode
+  "Enable Org-remark to highlight and annotate the whole line."
+  :global nil
+  :group 'org-remark
+  (if org-remark-line-mode
+      ;; Enable
+      (progn
+        ;; Depth is deeper than the default one for range highlight.
+        ;; This is to prioritize it over line-highlight when the fomer
+        ;; is at point and yet on the same line of another
+        ;; line-highlight.
+        (add-hook 'org-remark-find-dwim-functions
+                  #'org-remark-line-find 80 :local)
+        (add-hook 'window-size-change-functions
+                  #'org-remark-line-set-window-margins nil :local)
+        ;; (add-hook 'text-scale-mode-hook
+        ;;           #'org-remark-line-set-buffer-windows nil :local)
+        (org-remark-line-set-buffer-windows))
+    (remove-hook 'org-remark-find-dwim-functions #'org-remark-line-find :local)
+    (remove-hook 'window-size-change-functions
+                 #'org-remark-line-set-window-margins :local)
+    (remove-hook 'text-scale-mode-hook
+                  #'org-remark-line-set-buffer-windows :local)))
+
+(defun org-remark-line-set-buffer-windows ()
+  "
+Adapted from Olivetti mode"
+  (mapc #'org-remark-line-set-window-margins
+        (get-buffer-window-list nil nil 'visible)))
+
+(defun org-remark-line-set-window-margins (window-or-frame)
+  "Set the margins of current window that displays current buffer.
+Return a cons of the form (LEFT-WIDTH . RIGHT-WIDTH). If a
+marginal area does not exist, its width will be returned as nil."
+  (when (and (windowp window-or-frame) org-remark-line-mode)
+    (cl-destructuring-bind (left-width . right-width) (window-margins)
+      (when (or (eq left-width nil) (< left-width 3))
+        (set-window-margins nil 3))
+      (window-margins))))
+
 (defun org-remark-line-pos-bol (pos)
   "Return the beginning of the line position for POS."
   (save-excursion
@@ -66,14 +107,6 @@ by `overlays-in'."
          (highlights (overlays-in bol bol)))
     (seq-find #'org-remark-line-highlight-p highlights)))
 
-;; Depth is deeper than the default one for range highlight. This is to
-;; prioritize it over line-highlight when the fomer is at point and yet
-;; on the same line of another line-highlight.
-(add-hook 'org-remark-find-dwim-functions #'org-remark-line-find 80)
-
-(add-hook 'window-size-change-functions
-          #'(lambda (&rest args)
-              (set-window-margins nil 2)))
 
 ;;;###autoload
 ;; (defun org-remark-mark-line (beg end &optional id mode)
@@ -100,13 +133,11 @@ by `overlays-in'."
 
 (defun org-remark-line-highlight-overlay-put (ov face &optional string)
   (let* ((face (or face 'org-remark-line-highlighter))
-         (left-margin (or (car (window-margins))
-                          ;; when nil = no margin, set to 1
-                          (progn (set-window-margins nil 2)
-                                 2)))
-         (spaces (- left-margin 2))
+         (left-margin (car (org-remark-line-set-window-margins
+                            (get-buffer-window))))
+         ;;(spaces (- left-margin 1))
          (string (or string
-                     (with-temp-buffer (insert-char ?\s spaces)
+                     (with-temp-buffer ;;(insert-char ?\s spaces)
                                        (insert org-remark-line-icon)
                                        (buffer-string)))))
     (overlay-put ov 'before-string (propertize "! " 'display
