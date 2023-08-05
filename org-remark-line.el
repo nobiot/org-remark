@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 01 August 2023
-;; Last modified: 04 August 2023
+;; Last modified: 05 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -156,6 +156,15 @@ end of overlay being identical."
          (ov-line-bol (org-remark-line-pos-bol ov-start)))
     (unless (= ov-start ov-line-bol)
       (move-overlay ov ov-line-bol ov-line-bol))))
+
+(cl-defmethod org-remark-icon-overlay-put (ov icon-string (org-remark-type (eql 'line)))
+  ;; If the icon-string has a display properties, assume it is an icon image
+  (let ((display-prop (get-text-property 0 'display icon-string)))
+    (when display-prop
+      (let* ((display-prop (list '(margin left-margin) display-prop))
+             (icon-string (propertize "* " 'display display-prop))
+             (icon-string (propertize icon-string face 'org-remark-line-highligther)))
+        (overlay-put ov 'before-string icon-string)))))
 
 ;; (defun org-remark-line-inspect-overlay ()
 ;;   (interactive)
