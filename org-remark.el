@@ -781,7 +781,7 @@ Optionally ID can be passed to find the exact ID match."
 ;;   functions here mostly assume the current buffer is the source
 ;;   buffer.
 
-;; (cl-defgeneric org-remark-highlight-mark-overlay (_org-remark-type))
+(cl-defgeneric org-remark-highlight-mark-overlay (_org-remark-type))
 
 (cl-defmethod org-remark-highlight-mark-overlay (ov face (_org-remark-type (eql nil)))
   (overlay-put ov 'face (if face face 'org-remark-highlighter)))
