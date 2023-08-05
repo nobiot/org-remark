@@ -85,26 +85,22 @@ The icons currently available are defined in `org-remark-icons'."
         ;; Add-icons should be the last function because other functions may do
         ;; something relevant for an icon -- e.g. adjust-positon."
         (add-hook 'org-remark-highlights-after-load-functions
-                  #'org-remark-highlights-add-icons 80 :local))
+                  #'org-remark-highlights-add-icons-maybe 80 :local))
     ;; Disable
     (remove-hook 'org-remark-highlights-toggle-hide-functions
                  #'org-remark-icon-toggle-hide :local)
     (remove-hook 'org-remark-highlights-toggle-show-functions
                  #'org-remark-icon-toggle-show :local)
     (remove-hook 'org-remark-highlights-after-load-functions
-                 #'org-remark-highlights-add-icons 80 :local)))
+                 #'org-remark-highlights-add-icons-maybe :local)))
 
 (defvar org-remark-icons
   (list
    (list 'notes
-         (lambda (ov)
-           (and org-remark-icon-notes
-                (overlay-get ov '*org-remark-note-body)))
+         #'org-remark-icon-notes-p
          nil)
    (list 'position-adjusted
-         (lambda (ov)
-           (and org-remark-icon-position-adjusted
-                (overlay-get ov '*org-remark-position-adjusted)))
+         #'org-remark-icon-position-adjusted-p
          'org-remark-highlighter-warning))
   "List of icons enabled.
 It is an alist. Each element is a list of this form:
@@ -121,6 +117,14 @@ for ICON-NAME will be added to the highlight.
 
 DEFAULT FACE must be a named face. It is optinal and can be nil.")
 
+(defun org-remark-icon-notes-p (ov)
+  (and org-remark-icon-notes
+       (overlay-get ov '*org-remark-note-body)))
+
+(defun org-remark-icon-position-adjusted-p (ov)
+  (and org-remark-icon-position-adjusted
+       (overlay-get ov '*org-remark-position-adjusted)))
+
 (defun org-remark-icon-toggle-hide (highlight)
   (overlay-put highlight '*org-remark-icons (overlay-get highlight 'after-string))
   (overlay-put highlight 'after-string nil))
@@ -129,7 +133,7 @@ DEFAULT FACE must be a named face. It is optinal and can be nil.")
   (overlay-put highlight 'after-string (overlay-get highlight '*org-remark-icons))
   (overlay-put highlight '*org-remark-icons nil))
 
-(defun org-remark-highlights-add-icons (overlays _notes-buf)
+(defun org-remark-highlights-add-icons-maybe (overlays _notes-buf)
   "Add icons to OVERLAYS.
 Each overlay is a highlight."
   (dolist (ov overlays)
@@ -141,9 +145,21 @@ Each overlay is a highlight."
                     (org-remark-icon-propertize icon-name ov default-face)))))
       (let ((icon-string
              (mapconcat #'add-icon-maybe org-remark-icons)))
-        (when icon-string (org-remark-icon-overlay-put
-                           ov icon-string
-                           (overlay-get ov 'org-remark-type)))))))
+        ;; `mapconcat' returns "" when all function calls for SEQUENCE
+        ;; return nil, I guess to guarantee the result is a string
+        (when (and icon-string
+                   (not (string= icon-string "")))
+          (org-remark-icon-overlay-put
+           ov icon-string
+           (overlay-get ov 'org-remark-type)))))))
+
+;; (defun org-remark-icon-image-p (icon-string)
+;;   "Return t when ICON-STRING contains a display property.
+;; The string may be empty like \"\" but it may have a display
+;; property to display an icon image. In this case, we should not
+;; consider it an empty string. This is important to know when an
+;; image icon is used instead of a string."
+;;   (when (get-text-property 0 'display icon-string)))
 
 (cl-defgeneric org-remark-icon-overlay-put (ov icon-string _org-remark-type)
   "Default method to deal with icon.

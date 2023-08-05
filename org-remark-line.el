@@ -98,16 +98,17 @@ by `overlays-in'."
   (org-remark-line-highlight-overlay-put ov face) ;; LINE
   (overlay-put ov 'insert-in-front-hooks (list 'org-remark-line-highlight-modified)))
 
-(defun org-remark-line-highlight-overlay-put (ov face)
+(defun org-remark-line-highlight-overlay-put (ov face &optional string)
   (let* ((face (or face 'org-remark-line-highlighter))
          (left-margin (or (car (window-margins))
                           ;; when nil = no margin, set to 1
                           (progn (set-window-margins nil 2)
                                  2)))
          (spaces (- left-margin 2))
-         (string (with-temp-buffer (insert-char ?\s spaces)
-                                   (insert org-remark-line-icon)
-                                   (buffer-string))))
+         (string (or string
+                     (with-temp-buffer (insert-char ?\s spaces)
+                                       (insert org-remark-line-icon)
+                                       (buffer-string)))))
     (overlay-put ov 'before-string (propertize "! " 'display
                                                `((margin left-margin)
                                                  ,(propertize string 'face face))))
@@ -160,15 +161,19 @@ end of overlay being identical."
 (cl-defmethod org-remark-icon-overlay-put (ov icon-string (org-remark-type (eql 'line)))
   ;; If the icon-string has a display properties, assume it is an icon image
   (let ((display-prop (get-text-property 0 'display icon-string)))
-    (when display-prop
-      (let* ((display-prop (list '(margin left-margin) display-prop))
-             (icon-string (propertize "* " 'display display-prop))
-             (icon-string (propertize icon-string face 'org-remark-line-highligther)))
-        (overlay-put ov 'before-string icon-string)))))
-
-;; (defun org-remark-line-inspect-overlay ()
-;;   (interactive)
-;;   (car (overlays-in (point) (point))))
+    (cond (display-prop
+           (let* ((display-prop (list '(margin left-margin) display-prop))
+                  (icon-string (propertize "* " 'display display-prop)))
+             (setq icon-string (propertize icon-string
+                                           'face 'org-remark-line-highlighter))
+             (overlay-put ov 'before-string icon-string)))
+          (icon-string
+           (setq icon-string (propertize icon-string
+                                         'face 'org-remark-line-highlighter))
+           (org-remark-line-highlight-overlay-put ov
+                                                  'org-remark-line-highlighter
+                                                  icon-string))
+          (t (ignore)))))
 
 (provide 'org-remark-line)
 ;;; org-remark-line.el ends here
