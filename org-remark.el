@@ -622,15 +622,27 @@ and the current source buffer."
 This function will show you a list of available pens to choose
 from."
   (interactive)
-  (when-let* ((ov (org-remark-find-overlay-at-point))
-              (id (overlay-get ov 'org-remark-id))
-              (beg (overlay-start ov))
-              (end (overlay-end ov)))
-    (let ((new-pen (if pen pen
-                     (intern
-                      (completing-read "Which pen?:" org-remark-available-pens)))))
-      (org-remark-highlight-clear ov)
-      (funcall new-pen beg end id :change))))
+  (if-let* ((ov (org-remark-find-dwim))
+            (id (overlay-get ov 'org-remark-id))
+            (beg (overlay-start ov))
+            (end (overlay-end ov)))
+      (let* ((available-pens (seq-filter
+                              (lambda (pen-fn)
+                                (let ((type (overlay-get ov 'org-remark-type)))
+                                  (eql type (function-get pen-fn 'org-remark-type))))
+                              org-remark-available-pens))
+             (new-pen
+              (if pen pen
+                (intern
+                 ;; To guard against minibuffer quit error when
+                 ;; the user quit without selecting any pen.
+                 (unwind-protect
+                     (completing-read "Which pen?:"
+                                      available-pens))))))
+        (org-remark-highlight-clear ov)
+        (funcall new-pen beg end id :change))
+    ;; if ov or any other variables are not found
+    (message "No highlight here.")))
 
 (defun org-remark-remove (point &optional delete)
   "Remove the highlight at POINT.
