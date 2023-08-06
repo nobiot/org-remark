@@ -220,7 +220,7 @@ property names with \"org-remark-\" or use \"CATEGORY\"."
   (if (or (not label) (stringp label)
           (user-error "org-remark-create: Label is missing or not string"))
       (let ((org-remark-type
-             (symbol-name (plist-get (eval properties) 'org-remark-type))))
+             `(quote ,(plist-get (eval properties) 'org-remark-type))))
         `(progn
            ;; Define custom pen function
            (defun ,(intern (format "org-remark-mark-%s" label))
@@ -248,7 +248,7 @@ highlight.  In this case, no new ID gets generated.
 When the pen itself defines the help-echo property, it will have
 the priority over the excerpt of the marginal notes."
                       (or face "`org-remark-highlighter'") properties)
-             (interactive (org-remark-beg-end (intern ,org-remark-type)))
+             (interactive (org-remark-beg-end ,org-remark-type))
              (org-remark-highlight-mark beg end id mode ,label ,face ,properties))
 
            ;; Register to `org-remark-available-pens'
@@ -260,7 +260,7 @@ the priority over the excerpt of the marginal notes."
            (when 'org-remark-type (function-put
                                    (intern (format "org-remark-mark-%s" ,label))
                                    'org-remark-type
-                                   (intern ,org-remark-type)))
+                                   ,org-remark-type))
 
            ;; Add the custom pen function to the minor-mode menu
            (define-key-after org-remark-pen-map
@@ -275,7 +275,7 @@ the priority over the excerpt of the marginal notes."
                            (interactive)
                            (org-remark-change
                             #',(intern (format "org-remark-mark-%s" label))))
-                         :enable (org-remark-pen-same-type-at-point-p (intern ,org-remark-type))))))))
+                         :enable (org-remark-pen-same-type-at-point-p ,org-remark-type)))))))
 
 
 ;;;; Minor mode
