@@ -61,14 +61,10 @@
                   #'org-remark-line-find 80 :local)
         (add-hook 'window-size-change-functions
                   #'org-remark-line-set-window-margins nil :local)
-        ;; (add-hook 'text-scale-mode-hook
-        ;;           #'org-remark-line-set-buffer-windows nil :local)
         (org-remark-line-set-buffer-windows))
     (remove-hook 'org-remark-find-dwim-functions #'org-remark-line-find :local)
     (remove-hook 'window-size-change-functions
-                 #'org-remark-line-set-window-margins :local)
-    (remove-hook 'text-scale-mode-hook
-                  #'org-remark-line-set-buffer-windows :local)))
+                 #'org-remark-line-set-window-margins :local)))
 
 (defun org-remark-line-set-buffer-windows ()
   "
@@ -184,11 +180,10 @@ end of overlay being identical."
   ;; always follow the point, keeping the original place unless you
   ;; directly change the notes. That's not really an intutive behaviour,
   ;; though in some cases, it imay be useful.
-  (org-with-wide-buffer
-   (let* ((ov-start (overlay-start ov))
-          (ov-line-bol (org-remark-line-pos-bol ov-start)))
-     (unless (= ov-start ov-line-bol)
-       (move-overlay ov ov-line-bol ov-line-bol)))))
+  (let* ((ov-start (overlay-start ov))
+         (ov-line-bol (org-remark-line-pos-bol ov-start)))
+    (unless (= ov-start ov-line-bol)
+      (move-overlay ov ov-line-bol ov-line-bol))))
 
 (cl-defmethod org-remark-icon-overlay-put (ov icon-string (org-remark-type (eql 'line)))
   ;; If the icon-string has a display properties, assume it is an icon image
