@@ -804,9 +804,13 @@ Optionally ID can be passed to find the exact ID match."
 ;;   functions here mostly assume the current buffer is the source
 ;;   buffer.
 
-(cl-defgeneric org-remark-highlight-mark-overlay (_org-remark-type))
+(cl-defgeneric org-remark-highlight-mark-overlay (_org-remark-type)
+  "Put FACE and other necessary properties to the highlight OV")
 
 (cl-defmethod org-remark-highlight-mark-overlay (ov face (_org-remark-type (eql nil)))
+  "Put FACE and other necessary properties to the highlight OV.
+This is a method for highlights of default ORG-REMARK-TYPE, that
+is for a character range."
   (overlay-put ov 'face (if face face 'org-remark-highlighter)))
 
 (defun org-remark-highlight-mark

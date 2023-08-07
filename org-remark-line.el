@@ -112,7 +112,9 @@ by `overlays-in'."
       (list bol bol)))
 
 (cl-defmethod org-remark-highlight-mark-overlay (ov face (org-remark-type (eql 'line)))
-  (org-remark-line-highlight-overlay-put ov face) ;; LINE
+  "Put FACE and other necessary properties to the highlight OV.
+This is a method for highlights of ORG-REMARK-TYPE \\='line\\='."
+  (org-remark-line-highlight-overlay-put ov face)
   (overlay-put ov 'insert-in-front-hooks (list 'org-remark-line-highlight-modified)))
 
 (defun org-remark-line-highlight-overlay-put (ov face &optional string)
