@@ -873,7 +873,13 @@ round-trip back to the notes file."
              (org-remark-highlight-put-props ov notes-props))
            ;; Save the notes buffer when not loading
            (unless (eq notes-buf (current-buffer))
-             (with-current-buffer notes-buf (save-buffer))))))
+             ;; Force tiggering the update save for :change: operation
+             ;; line-icons do not get updated because it does not
+             ;; involve buffer modificaiton and thus the sync does not
+             ;; get triggered to update icons.
+             (with-current-buffer notes-buf
+               (unless (buffer-modified-p) (restore-buffer-modified-p t))
+               (save-buffer))))))
       (deactivate-mark)
       (org-remark-highlights-housekeep)
       (org-remark-highlights-sort)
