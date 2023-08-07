@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 29 July 2023
-;; Last modified: 05 August 2023
+;; Last modified: 07 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -161,13 +161,13 @@ Each overlay is a highlight."
 ;; image icon is used instead of a string."
 ;;   (when (get-text-property 0 'display icon-string)))
 
-(cl-defgeneric org-remark-icon-overlay-put (ov icon-string _org-remark-type)
+(cl-defgeneric org-remark-icon-overlay-put (_ov _icon-string _org-remark-type)
   "Default method to deal with icon.
  This is used when a method specific \\='org-remark-type\\=' not
  implemented."
   (ignore))
 
-(cl-defmethod org-remark-icon-overlay-put (ov icon-string (org-remark-type (eql nil)))
+(cl-defmethod org-remark-icon-overlay-put (ov icon-string (_org-remark-type (eql nil)))
   (overlay-put ov 'after-string icon-string))
 
 (defun org-remark-icon-propertize (icon-name highlight default-face)

@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 06 August 2023
+;; Last modified: 07 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -39,8 +39,6 @@
 (require 'org-id)
 (require 'org-remark-global-tracking)
 (declare-function org-remark-convert-legacy-data "org-remark-convert-legacy")
-
-(defvar org-remark-find-dwim-functions (list #'org-remark-find-overlay-at-point))
 
 
 ;;;; Customization
@@ -139,6 +137,21 @@ highlights. It is run with the source buffer as current buffer."
 
 ;;;; Variables
 
+(defvar org-remark-default-features '(org-remark-icon org-remark-line))
+(defvar org-remark-default-feature-modes '(org-remark-icon-mode org-remark-line-mode))
+(defvar org-remark-find-dwim-functions '(org-remark-find-overlay-at-point))
+
+(defvar org-remark-last-notes-buffer nil
+  "The cloned indirect buffer visiting the notes file.
+It is meant to exist only one of these in each Emacs session.")
+
+(defvar org-remark-available-pens (list #'org-remark-mark)
+  "A list of pens available.
+Each pen is a function. Users can create a new custom pen with
+using `org-remark-create', which automatically add a new pen
+function this list. It is used by `org-remark-change' as a
+selection list.")
+
 (defvar-local org-remark-highlights '()
   "All the highlights in current source buffer.
 It is a local variable and is a list of overlays.  Each overlay
@@ -161,18 +174,7 @@ killed so that this needs to be checked with `buffer-live-p'.")
 (defvar-local org-remark-source-setup-done nil
   "Local indicator that sync with notes buffer is set up.")
 
-(defvar org-remark-last-notes-buffer nil
-  "The cloned indirect buffer visiting the notes file.
-It is meant to exist only one of these in each Emacs session.")
-
-(defvar org-remark-available-pens (list #'org-remark-mark)
-  "A list of pens available.
-Each pen is a function. Users can create a new custom pen with
-using `org-remark-create', which automatically add a new pen
-function this list. It is used by `org-remark-change' as a
-selection list.")
-
-(defvar org-remark-highlights-toggle-hide-functions nil
+(defvar-local org-remark-highlights-toggle-hide-functions nil
   "Functions to be called when toggling to hide highlights.
 Each function is called with one argument HIGHLIGHT, which is an
 overlay that shows the highlight. It also stores properties to
@@ -181,7 +183,7 @@ control visibility such as \\=':face\\='.
 This variable is an abnormal hook and is intended to be used to
 add additional controls for the overlay properties.")
 
-(defvar org-remark-highlights-toggle-show-functions nil
+(defvar-local org-remark-highlights-toggle-show-functions nil
   "Functions to be called when toggling to show highlights.
 Each function is called with one argument HIGHLIGHT, which is an
 overlay that shows the highlight. It also stores properties to
@@ -321,8 +323,10 @@ recommended to turn it on as part of Emacs initialization.
     (cond
      (org-remark-mode
       ;; Activate
-      (org-remark-icon-mode +1) ;; automatically enabled by default
-      (org-remark-line-mode +1)
+      (dolist (feature org-remark-default-features)
+        (unless (featurep feature) (require feature)))
+      (dolist (feature-mode org-remark-default-feature-modes)
+        (funcall feature-mode +1))
       (org-remark-highlights-load)
       (add-hook 'after-save-hook #'org-remark-save nil t)
       (add-hook 'org-remark-highlight-link-to-source-functions
@@ -335,8 +339,8 @@ recommended to turn it on as part of Emacs initialization.
         (dolist (highlight org-remark-highlights)
           (delete-overlay highlight)))
       (setq org-remark-highlights nil)
-      (org-remark-icon-mode -1)
-      (org-remark-line-mode -1)
+      (dolist (feature-mode org-remark-default-feature-modes)
+        (funcall feature-mode -1))
       (remove-hook 'after-save-hook #'org-remark-save t)
       (remove-hook 'org-remark-highlight-link-to-source-functions
                    #'org-remark-highlight-link-to-source-default)
@@ -873,10 +877,10 @@ round-trip back to the notes file."
              (org-remark-highlight-put-props ov notes-props))
            ;; Save the notes buffer when not loading
            (unless (eq notes-buf (current-buffer))
-             ;; Force tiggering the update save for :change: operation
-             ;; line-icons do not get updated because it does not
-             ;; involve buffer modificaiton and thus the sync does not
-             ;; get triggered to update icons.
+             ;; Force tiggering the update save for :change:operation.
+             ;; The line-icons do not get updated because :change: to
+             ;; the same pen does not involve buffer modificaiton and
+             ;; thus the sync does not get triggered to update icons.
              (with-current-buffer notes-buf
                (unless (buffer-modified-p) (restore-buffer-modified-p t))
                (save-buffer))))))
