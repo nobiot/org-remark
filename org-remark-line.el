@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 01 August 2023
-;; Last modified: 06 August 2023
+;; Last modified: 07 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -102,18 +102,6 @@ by `overlays-in'."
          (bol (org-remark-line-pos-bol point))
          (highlights (overlays-in bol bol)))
     (seq-find #'org-remark-line-highlight-p highlights)))
-
-
-;;;###autoload
-;; (defun org-remark-mark-line (beg end &optional id mode)
-;;   (interactive (org-remark-beg-end 'line))
-;;   (org-remark-highlight-mark beg end id mode  ;; LINE line function different
-;;                              ;; LINE needs to be the suffix of a
-;;                              ;; function: `org-remark-mark-'
-;;                              "line" nil ;; LINE important to put
-;;                              ;; the suffix of the label
-;;                              ;; to call this correct function
-;;                              (list 'org-remark-type 'line)))
 
 (org-remark-create "line"
                    'org-remark-line-highlighter
