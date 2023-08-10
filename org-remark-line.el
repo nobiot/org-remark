@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 01 August 2023
-;; Last modified: 07 August 2023
+;; Last modified: 10 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -45,6 +45,13 @@
 
 (defvar org-remark-line-ellipsis "…")
 
+(defvar-local org-remark-line-delayed-put-overlay-functions '()
+  "List of lambda functions that add a highlight.
+We need to delay adding highlight overlays until window is
+available for the current buffer. When the buffer visits a
+filefor the first time, the window has not been created before
+`org-remark-highlight-mark-overlay' is called.")
+
 ;;;###autoload
 (define-minor-mode org-remark-line-mode
   "Enable Org-remark to highlight and annotate the whole line."
@@ -60,8 +67,9 @@
         (add-hook 'org-remark-find-dwim-functions
                   #'org-remark-line-find 80 :local)
         (add-hook 'window-size-change-functions
-                  #'org-remark-line-set-window-margins nil :local)
-        (org-remark-line-set-buffer-windows))
+                 #'org-remark-line-set-window-margins nil :local)
+        ;;(org-remark-line-set-buffer-windows))
+        )
     (remove-hook 'org-remark-find-dwim-functions #'org-remark-line-find :local)
     (remove-hook 'window-size-change-functions
                  #'org-remark-line-set-window-margins :local)))
@@ -77,8 +85,15 @@ Adapted from Olivetti mode"
 Return a cons of the form (LEFT-WIDTH . RIGHT-WIDTH). If a
 marginal area does not exist, its width will be returned as nil."
   (when (and (windowp window-or-frame) org-remark-line-mode)
+    ;;(message "size change used with a window argument")
+    (when org-remark-line-delayed-put-overlay-functions
+      (dolist (fn (reverse org-remark-line-delayed-put-overlay-functions))
+        (funcall fn))
+      (setq org-remark-line-delayed-put-overlay-functions nil))
     (cl-destructuring-bind (left-width . right-width) (window-margins)
       (when (or (eq left-width nil) (< left-width 3))
+        (setq left-margin-width 3)
+        (set-window-buffer (get-buffer-window) (current-buffer) 'keep-margins)
         (set-window-margins nil 3))
       (window-margins))))
 
@@ -114,13 +129,19 @@ by `overlays-in'."
 (cl-defmethod org-remark-highlight-mark-overlay (ov face (org-remark-type (eql 'line)))
   "Put FACE and other necessary properties to the highlight OV.
 This is a method for highlights of ORG-REMARK-TYPE \\='line\\='."
-  (org-remark-line-highlight-overlay-put ov face)
-  (overlay-put ov 'insert-in-front-hooks (list 'org-remark-line-highlight-modified)))
+  (if (get-buffer-window)
+      ;; When revert-buffer is called, the window is already available
+      ;; but window size won't change.
+      (org-remark-line-highlight-overlay-put ov face)
+    (push (lambda ()
+            (org-remark-line-highlight-overlay-put ov face))
+        org-remark-line-delayed-put-overlay-functions)))
 
 (defun org-remark-line-highlight-overlay-put (ov face &optional string)
   (let* ((face (or face 'org-remark-line-highlighter))
-         (left-margin (car (org-remark-line-set-window-margins
-                            (get-buffer-window))))
+         ;;(left-margin (car (org-remark-line-set-window-margins
+         ;;                   (get-buffer-window))))
+         ;;(left-margin 3)
          ;;(spaces (- left-margin 1))
          (string (or string
                      (with-temp-buffer ;;(insert-char ?\s spaces)
@@ -129,6 +150,7 @@ This is a method for highlights of ORG-REMARK-TYPE \\='line\\='."
     (overlay-put ov 'before-string (propertize "! " 'display
                                                `((margin left-margin)
                                                  ,(propertize string 'face face))))
+    (overlay-put ov 'insert-in-front-hooks (list 'org-remark-line-highlight-modified))
     ov))
 
 (defun org-remark-line-highlight-modified (ov after-p beg end &optional length)
@@ -154,6 +176,8 @@ If the line is shorter than x, then up to the newline char."
                 org-remark-line-ellipsis)))))
 
 (cl-defmethod org-remark-highlights-adjust-positions-p ((org-remark-type (eql 'line)))
+  "
+For line-highlights, adjust-positions is not relevant."
   nil)
 
 (cl-defmethod org-remark-highlights-housekeep-delete-p (_ov
@@ -175,12 +199,12 @@ end of overlay being identical."
     (unless (= ov-start ov-line-bol)
       (move-overlay ov ov-line-bol ov-line-bol))))
 
-(cl-defmethod org-remark-icon-overlay-put (ov icon-string (org-remark-type (eql 'line)))
+(defun org-remark-line-icon-overlay-put (ov icon-string)
   ;; If the icon-string has a display properties, assume it is an icon image
   (let ((display-prop (get-text-property 0 'display icon-string)))
     (cond (display-prop
            (let* ((display-prop (list '(margin left-margin) display-prop))
-                  (icon-string (propertize "* " 'display display-prop)))
+                  (icon-string (propertize " " 'display display-prop)))
              (setq icon-string (propertize icon-string
                                            'face 'org-remark-line-highlighter))
              (overlay-put ov 'before-string icon-string)))
@@ -191,6 +215,13 @@ end of overlay being identical."
                                                   'org-remark-line-highlighter
                                                   icon-string))
           (t (ignore)))))
+
+(cl-defmethod org-remark-icon-overlay-put (ov icon-string (org-remark-type (eql 'line)))
+  (if (get-buffer-window)
+      (org-remark-line-icon-overlay-put ov icon-string)
+    (push
+     (lambda () (org-remark-line-icon-overlay-put ov icon-string))
+     org-remark-line-delayed-put-overlay-functions)))
 
 (provide 'org-remark-line)
 ;;; org-remark-line.el ends here
