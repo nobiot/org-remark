@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 29 July 2023
-;; Last modified: 07 August 2023
+;; Last modified: 14 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -137,7 +137,7 @@ DEFAULT FACE must be a named face. It is optinal and can be nil.")
   "Add icons to OVERLAYS.
 Each overlay is a highlight."
   (dolist (ov overlays)
-      ;; icons added to line highlighters differently from normal ones.
+    ;; icons added to line highlighters differently from normal ones.
     (cl-flet ((add-icon-maybe (icon)
                 (cl-destructuring-bind
                     (icon-name pred default-face) icon

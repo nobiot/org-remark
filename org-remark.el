@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 07 August 2023
+;; Last modified: 14 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -804,14 +804,18 @@ Optionally ID can be passed to find the exact ID match."
 ;;   functions here mostly assume the current buffer is the source
 ;;   buffer.
 
-(cl-defgeneric org-remark-highlight-mark-overlay (_org-remark-type)
-  "Put FACE and other necessary properties to the highlight OV")
+(cl-defgeneric org-remark-highlight-make-overlay (_beg _end _face _org-remark-type)
+  "Make overlay and return it
+Put FACE and other necessary properties to the highlight OV")
 
-(cl-defmethod org-remark-highlight-mark-overlay (ov face (_org-remark-type (eql nil)))
+(cl-defmethod org-remark-highlight-make-overlay (beg end face
+                                                     (_org-remark-type (eql nil)))
   "Put FACE and other necessary properties to the highlight OV.
 This is a method for highlights of default ORG-REMARK-TYPE, that
 is for a character range."
-  (overlay-put ov 'face (if face face 'org-remark-highlighter)))
+  (let ((ov (make-overlay beg end nil :front-advance)))
+    (overlay-put ov 'face (if face face 'org-remark-highlighter))
+    ov))
 
 (defun org-remark-highlight-mark
     (beg end &optional id mode label face properties)
@@ -848,16 +852,16 @@ round-trip back to the notes file."
   ;; When highlights are toggled hidden, only the new one gets highlighted in
   ;; the wrong toggle state.
   (when org-remark-highlights-hidden (org-remark-highlights-show))
-  (let ((ov (make-overlay beg end nil :front-advance))
-        ;; UUID is too long; does not have to be the full length
-        (id (if id id (substring (org-id-uuid) 0 8)))
-        (filename (org-remark-source-find-file-name))
-        (org-remark-type (plist-get properties 'org-remark-type)))
-    (if (not filename)
-        (message (format "org-remark: Highlights not saved.\
+  (org-with-wide-buffer
+   (let* ((org-remark-type (plist-get properties 'org-remark-type))
+          (ov (org-remark-highlight-make-overlay beg end face org-remark-type))
+          ;;(make-overlay beg end nil :front-advance))
+          ;; UUID is too long; does not have to be the full length
+          (id (if id id (substring (org-id-uuid) 0 8)))
+          (filename (org-remark-source-find-file-name)))
+     (if (not filename)
+         (message (format "org-remark: Highlights not saved.\
  This buffer (%s) is not supported" (symbol-name major-mode)))
-      (org-with-wide-buffer
-       (org-remark-highlight-mark-overlay ov face org-remark-type)
        (while properties
          (let ((prop (pop properties))
                (val (pop properties)))
@@ -888,12 +892,12 @@ round-trip back to the notes file."
              (with-current-buffer notes-buf
                (unless (buffer-modified-p) (restore-buffer-modified-p t))
                (save-buffer))))))
-      (deactivate-mark)
-      (org-remark-highlights-housekeep)
-      (org-remark-highlights-sort)
-      (setq org-remark-source-setup-done t)
-      ;; Return overlay
-      ov)))
+     (deactivate-mark)
+     (org-remark-highlights-housekeep)
+     (org-remark-highlights-sort)
+     (setq org-remark-source-setup-done t)
+     ;; Return overlay
+     ov)))
 
 (defun org-remark-highlight-get-title ()
   "Return the title of the source buffer.
@@ -1479,28 +1483,31 @@ process."
   ;; file to another. Thus, in order to update the highlight overlays we
   ;; need to begin loading by clearing them first. This way, we avoid
   ;; duplicate of the same highlight.
-  (org-remark-highlights-clear)
-  ;; Loop highlights and add them to the current buffer
-  (let (overlays) ;; highlight overlays
-    (when-let* ((notes-filename (org-remark-notes-get-file-name))
-                (default-dir default-directory)
-                (notes-buf (or (find-buffer-visiting notes-filename)
-                               (find-file-noselect notes-filename)))
-                (source-buf (current-buffer)))
-      (with-demoted-errors
-          "Org-remark: error during loading highlights: %S"
-        ;; Load highlights with demoted errors -- this makes the loading
-        ;; robust against errors in loading.
-        (dolist (highlight (org-remark-highlights-get notes-buf))
-          (push (org-remark-highlight-load highlight) overlays))
-        (unless update (org-remark-notes-setup notes-buf source-buf))
-        (if overlays
-            (progn (run-hook-with-args 'org-remark-highlights-after-load-functions
-                                       overlays notes-buf)
-                   ;; Return t
-                   t)
-          ;; if there is no overlays loaded, return nil
-          nil)))))
+  (if (not (get-buffer-window))
+      ;; TODO
+      (add-hook 'window-state-change-functions #'org-remark-line-reload 95 'local)
+    (org-remark-highlights-clear)
+    ;; Loop highlights and add them to the current buffer
+    (let (overlays) ;; highlight overlays
+      (when-let* ((notes-filename (org-remark-notes-get-file-name))
+                  (default-dir default-directory)
+                  (notes-buf (or (find-buffer-visiting notes-filename)
+                                 (find-file-noselect notes-filename)))
+                  (source-buf (current-buffer)))
+        (with-demoted-errors
+            "Org-remark: error during loading highlights: %S"
+          ;; Load highlights with demoted errors -- this makes the loading
+          ;; robust against errors in loading.
+          (dolist (highlight (org-remark-highlights-get notes-buf))
+            (push (org-remark-highlight-load highlight) overlays))
+          (unless update (org-remark-notes-setup notes-buf source-buf))
+          (if overlays
+              (progn (run-hook-with-args 'org-remark-highlights-after-load-functions
+                                         overlays notes-buf)
+                     ;; Return t
+                     t)
+            ;; if there is no overlays loaded, return nil
+            nil))))))
 
 (defun org-remark-highlights-clear ()
   "Delete all highlights in the buffer.
