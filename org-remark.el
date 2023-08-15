@@ -862,6 +862,10 @@ round-trip back to the notes file."
      (if (not filename)
          (message (format "org-remark: Highlights not saved.\
  This buffer (%s) is not supported" (symbol-name major-mode)))
+       ;; OV may not be created for line-highlights when the user opens
+       ;; the buffer for the first time, as the window may not have been
+       ;; created to display the buffer yet. This is necessary for the
+       ;; margin width to be calculated.
        (when ov
          (while properties
            (let ((prop (pop properties))
@@ -1471,6 +1475,13 @@ highlight is a property list in the following properties:
                          highlights)))))
            highlights))))))
 
+(defun org-remark-highlights-delay-load (window)
+  "Delay load until window for current buffer is created."
+  (when (windowp window)
+    (remove-hook 'window-state-change-functions
+                 #'org-remark-highlights-delay-load 'local)
+    (org-remark-highlights-load)))
+
 ;;;###autoload
 (defun org-remark-highlights-load (&optional update)
   "Visit notes file & load the saved highlights onto current buffer.
@@ -1479,16 +1490,15 @@ output a message in the echo.
 
 Non-nil value for UPDATE is passed for the notes-source sync
 process."
-  ;; Some major modes such as nov.el reuse the current buffer, deleting
-  ;; the buffer content and insert a different file's content. In this
-  ;; case, obsolete highlight overlays linger when you switch from one
-  ;; file to another. Thus, in order to update the highlight overlays we
-  ;; need to begin loading by clearing them first. This way, we avoid
-  ;; duplicate of the same highlight.
   (if (not (get-buffer-window))
-      ;;(not (or (car (window-margins)) (cdr (window-margins)))))
-      ;; TODO
-      (add-hook 'window-state-change-functions #'org-remark-line-reload 95 'local)
+      (add-hook 'window-state-change-functions
+                #'org-remark-highlights-delay-load 95 'local)
+    ;; Some major modes such as nov.el reuse the current buffer, deleting
+    ;; the buffer content and insert a different file's content. In this
+    ;; case, obsolete highlight overlays linger when you switch from one
+    ;; file to another. Thus, in order to update the highlight overlays we
+    ;; need to begin loading by clearing them first. This way, we avoid
+    ;; duplicate of the same highlight.
     (org-remark-highlights-clear)
     ;; Loop highlights and add them to the current buffer
     (let (overlays) ;; highlight overlays
@@ -1502,10 +1512,9 @@ process."
           ;; Load highlights with demoted errors -- this makes the loading
           ;; robust against errors in loading.
           (dolist (highlight (org-remark-highlights-get notes-buf))
-            (push (org-remark-highlight-load highlight) overlays))
+            (let ((ov (org-remark-highlight-load highlight)))
+              (when ov (push ov overlays))))
           (unless update (org-remark-notes-setup notes-buf source-buf))
-          ;; remove nil
-          (setq overlays (cl-remove-if nil overlays))
           (if overlays
               (progn (run-hook-with-args 'org-remark-highlights-after-load-functions
                                          overlays notes-buf)

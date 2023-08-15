@@ -97,10 +97,12 @@ marginal area does not exist, its width will be returned as nil."
     ;;     (funcall fn))
     ;;   (setq org-remark-line-delayed-put-overlay-functions nil))
     (cl-destructuring-bind (left-width . right-width) (window-margins)
+      ;; TODO make this part compatible with right margin
       (if (or (eq left-width nil) (< left-width
                                      org-remark-line-minimum-margin-width))
           (progn
-            (setq left-margin-width org-remark-line-minimum-margin-width))
+            (setq left-margin-width org-remark-line-minimum-margin-width)
+            (setq right-margin-width org-remark-line-minimum-margin-width))
         (setq left-margin-width left-width)
         (setq right-margin-width right-width))
       (set-window-buffer (get-buffer-window) (current-buffer) 'keep-margins)
@@ -147,22 +149,23 @@ Return OV"
       (org-remark-line-highlight-overlay-put beg end face)
     ;; window is still not created and assigned to the current buffer.
     ;; Reload when it is.
-    (add-hook 'window-state-change-functions #'org-remark-line-reload 95 'local)
+    ;; (add-hook 'window-state-change-functions #'org-remark-line-reload 95 'local)
     ;;(push (lambda ()
     ;;        (org-remark-line-highlight-overlay-put beg end face))
     ;;      org-remark-line-delayed-put-overlay-functions)
     nil))
 
-(defun org-remark-line-reload (window)
-  (when (windowp window)
-    (remove-hook 'window-state-change-functions
-                 #'org-remark-line-reload 'local)
-    (org-remark-highlights-load)))
+;; (defun org-remark-line-reload (window)
+;;   (when (windowp window)
+;;     (remove-hook 'window-state-change-functions
+;;                  #'org-remark-line-reload 'local)
+;;     (org-remark-highlights-load)))
 
 (defun org-remark-line-highlight-overlay-put (beg end face &optional string)
   ;;(when (or (car (window-margins)) (cdr (window-margins)))
   (let* ((face (or face 'org-remark-line-highlighter))
          ;; We need to be sure where the minimum-margin-width is set to the buffer
+         ;; TODO rigth margin
          (left-margin (or (car (window-margins)) left-margin-width))
          (string (or string
                      (with-temp-buffer ;;(insert-char ?\s spaces)
@@ -243,11 +246,11 @@ end of overlay being identical."
   ;; always follow the point, keeping the original place unless you
   ;; directly change the notes. That's not really an intutive behaviour,
   ;; though in some cases, it imay be useful.
-  (if (not (overlay-start ov)) (delete-overlay ov)
-    (let* ((ov-start (overlay-start ov))
-           (ov-line-bol (org-remark-line-pos-bol ov-start)))
-      (unless (= ov-start ov-line-bol)
-        (move-overlay ov ov-line-bol ov-line-bol)))))
+  ;; (if (not (overlay-start ov)) (delete-overlay ov)
+  (let* ((ov-start (overlay-start ov))
+         (ov-line-bol (org-remark-line-pos-bol ov-start)))
+    (unless (= ov-start ov-line-bol)
+      (move-overlay ov ov-line-bol ov-line-bol))))
 
 (defun org-remark-line-icon-overlay-put (ov icon-string)
   ;; If the icon-string has a display properties, assume it is an icon image
