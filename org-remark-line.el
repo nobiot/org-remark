@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 01 August 2023
-;; Last modified: 14 August 2023
+;; Last modified: 15 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -74,7 +74,7 @@ filefor the first time, the window has not been created before
         ;; olivetti sets DEPTH to t (=90). We need go lower priority than it
         (add-hook 'window-size-change-functions
                   #'org-remark-line-set-window-margins 95 :local)
-        (setq left-margin-width org-remark-line-minimum-margin-width)
+        ;;(setq left-margin-width org-remark-line-minimum-margin-width)
         ;;(org-remark-line-set-buffer-windows))
         )
     (remove-hook 'org-remark-find-dwim-functions #'org-remark-line-find :local)
@@ -97,11 +97,14 @@ marginal area does not exist, its width will be returned as nil."
     ;;     (funcall fn))
     ;;   (setq org-remark-line-delayed-put-overlay-functions nil))
     (cl-destructuring-bind (left-width . right-width) (window-margins)
-      (when (or (eq left-width nil) (< left-width
-                                       org-remark-line-minimum-margin-width))
-        ;; (setq left-margin-width org-remark-line-minimum-margin-width)
-        (set-window-buffer (get-buffer-window) (current-buffer) 'keep-margins)
-        (set-window-margins nil org-remark-line-minimum-margin-width))
+      (if (or (eq left-width nil) (< left-width
+                                     org-remark-line-minimum-margin-width))
+          (progn
+            (setq left-margin-width org-remark-line-minimum-margin-width))
+        (setq left-margin-width left-width)
+        (setq right-margin-width right-width))
+      (set-window-buffer (get-buffer-window) (current-buffer) 'keep-margins)
+      (set-window-margins nil left-margin-width right-margin-width)
       (org-remark-highlights-load)
       (window-margins))))
 
@@ -144,7 +147,7 @@ Return OV"
       (org-remark-line-highlight-overlay-put beg end face)
     ;; window is still not created and assigned to the current buffer.
     ;; Reload when it is.
-    (add-hook 'window-state-change-functions #'org-remark-line-reload 80 'local)
+    (add-hook 'window-state-change-functions #'org-remark-line-reload 95 'local)
     ;;(push (lambda ()
     ;;        (org-remark-line-highlight-overlay-put beg end face))
     ;;      org-remark-line-delayed-put-overlay-functions)
@@ -160,7 +163,7 @@ Return OV"
   ;;(when (or (car (window-margins)) (cdr (window-margins)))
   (let* ((face (or face 'org-remark-line-highlighter))
          ;; We need to be sure where the minimum-margin-width is set to the buffer
-         (left-margin (or (car (window-margins)) org-remark-line-minimum-margin-width))
+         (left-margin (or (car (window-margins)) left-margin-width))
          (string (or string
                      (with-temp-buffer ;;(insert-char ?\s spaces)
                        (insert org-remark-line-icon)

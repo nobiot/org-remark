@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 14 August 2023
+;; Last modified: 15 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -331,7 +331,7 @@ recommended to turn it on as part of Emacs initialization.
       (add-hook 'after-save-hook #'org-remark-save nil t)
       (add-hook 'org-remark-highlight-link-to-source-functions
                 #'org-remark-highlight-link-to-source-default 80)
-      (add-hook 'after-revert-hook #'org-remark-highlights-load)
+      (add-hook 'after-revert-hook #'org-remark-highlights-load :local)
       (add-hook 'clone-buffer-hook #'org-remark-highlights-load 80 :local))
      (t
       ;; Deactivate
@@ -344,7 +344,7 @@ recommended to turn it on as part of Emacs initialization.
       (remove-hook 'after-save-hook #'org-remark-save t)
       (remove-hook 'org-remark-highlight-link-to-source-functions
                    #'org-remark-highlight-link-to-source-default)
-      (remove-hook 'after-revert-hook #'org-remark-highlights-load)
+      (remove-hook 'after-revert-hook #'org-remark-highlights-load :local)
       (remove-hook 'clone-buffer-hook #'org-remark-highlights-load :local))))
 
 
@@ -862,42 +862,43 @@ round-trip back to the notes file."
      (if (not filename)
          (message (format "org-remark: Highlights not saved.\
  This buffer (%s) is not supported" (symbol-name major-mode)))
-       (while properties
-         (let ((prop (pop properties))
-               (val (pop properties)))
-           (overlay-put ov prop val)))
-       (when label (overlay-put ov 'org-remark-label label))
-       (overlay-put ov 'org-remark-id id)
-       ;; Keep track of the overlay in a local variable. It's a list that is
-       ;; guaranteed to contain only org-remark overlays as opposed to the one
-       ;; returned by `overlay-lists' that lists all overlays.
-       (push ov org-remark-highlights)
-       ;; for mode, nil and :change result in saving the highlight.  :load
-       ;; bypasses save.
-       (unless (eq mode :load)
-         (let* ((notes-buf (find-file-noselect
-                            (org-remark-notes-get-file-name)))
-                (source-buf (current-buffer))
-                ;; Get props for create and change modes
-                (notes-props
-                 (org-remark-highlight-add ov source-buf notes-buf)))
-           (when notes-props
-             (org-remark-highlight-put-props ov notes-props))
-           ;; Save the notes buffer when not loading
-           (unless (eq notes-buf (current-buffer))
-             ;; Force tiggering the update save for :change:operation.
-             ;; The line-icons do not get updated because :change: to
-             ;; the same pen does not involve buffer modificaiton and
-             ;; thus the sync does not get triggered to update icons.
-             (with-current-buffer notes-buf
-               (unless (buffer-modified-p) (restore-buffer-modified-p t))
-               (save-buffer))))))
-     (deactivate-mark)
-     (org-remark-highlights-housekeep)
-     (org-remark-highlights-sort)
-     (setq org-remark-source-setup-done t)
-     ;; Return overlay
-     ov)))
+       (when ov
+         (while properties
+           (let ((prop (pop properties))
+                 (val (pop properties)))
+             (overlay-put ov prop val)))
+         (when label (overlay-put ov 'org-remark-label label))
+         (overlay-put ov 'org-remark-id id)
+         ;; Keep track of the overlay in a local variable. It's a list that is
+         ;; guaranteed to contain only org-remark overlays as opposed to the one
+         ;; returned by `overlay-lists' that lists all overlays.
+         (push ov org-remark-highlights)
+         ;; for mode, nil and :change result in saving the highlight.  :load
+         ;; bypasses save.
+         (unless (eq mode :load)
+           (let* ((notes-buf (find-file-noselect
+                              (org-remark-notes-get-file-name)))
+                  (source-buf (current-buffer))
+                  ;; Get props for create and change modes
+                  (notes-props
+                   (org-remark-highlight-add ov source-buf notes-buf)))
+             (when notes-props
+               (org-remark-highlight-put-props ov notes-props))
+             ;; Save the notes buffer when not loading
+             (unless (eq notes-buf (current-buffer))
+               ;; Force tiggering the update save for :change:operation.
+               ;; The line-icons do not get updated because :change: to
+               ;; the same pen does not involve buffer modificaiton and
+               ;; thus the sync does not get triggered to update icons.
+               (with-current-buffer notes-buf
+                 (unless (buffer-modified-p) (restore-buffer-modified-p t))
+                 (save-buffer))))))
+       (deactivate-mark)
+       (org-remark-highlights-housekeep)
+       (org-remark-highlights-sort)
+       (setq org-remark-source-setup-done t)
+       ;; Return overlay
+       ov))))
 
 (defun org-remark-highlight-get-title ()
   "Return the title of the source buffer.
@@ -1129,7 +1130,8 @@ Assume the current buffer is the source buffer."
     (let ((fn (intern (concat "org-remark-mark-" label))))
       (unless (functionp fn) (setq fn #'org-remark-mark))
       (setq ov (funcall fn beg end id :load))
-      (org-remark-highlight-put-props ov props)
+      (when ov
+        (org-remark-highlight-put-props ov props))
       ;; Return highlight overlay
       ov)))
 
@@ -1484,6 +1486,7 @@ process."
   ;; need to begin loading by clearing them first. This way, we avoid
   ;; duplicate of the same highlight.
   (if (not (get-buffer-window))
+      ;;(not (or (car (window-margins)) (cdr (window-margins)))))
       ;; TODO
       (add-hook 'window-state-change-functions #'org-remark-line-reload 95 'local)
     (org-remark-highlights-clear)
@@ -1501,6 +1504,8 @@ process."
           (dolist (highlight (org-remark-highlights-get notes-buf))
             (push (org-remark-highlight-load highlight) overlays))
           (unless update (org-remark-notes-setup notes-buf source-buf))
+          ;; remove nil
+          (setq overlays (cl-remove-if nil overlays))
           (if overlays
               (progn (run-hook-with-args 'org-remark-highlights-after-load-functions
                                          overlays notes-buf)
