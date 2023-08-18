@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 29 July 2023
-;; Last modified: 14 August 2023
+;; Last modified: 18 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -196,11 +196,19 @@ of them. All it needs to do is to return a string that represents
 an icon, typically propertized with a face."
   (let ((icon (symbol-value (intern (concat "org-remark-icon-"
                                             (symbol-name icon-name)))))
-        (highlight-face (overlay-get highlight 'face))
+        (highlight-face (org-remark-icon-highlight-get-face
+                         highlight
+                         (overlay-get highlight 'org-remark-type)))
         (default-face default-face))
     (if (functionp icon)
         (funcall icon icon-name highlight-face default-face)
       (propertize icon 'face (if default-face default-face highlight-face)))))
+
+(cl-defgeneric org-remark-icon-highlight-get-face (highlight _org-remark-type)
+  "Return the face of the HIGHLIGHT overlay.
+This is default method for range-highlights."
+  (overlay-get highlight 'face))
+
 
 (provide 'org-remark-icon)
 ;;; org-remark-icon.el ends here

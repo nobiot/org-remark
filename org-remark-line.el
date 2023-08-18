@@ -241,14 +241,22 @@ Return nil when no window is created for current buffer."
       (cond (display-prop
              (let* ((display-prop (list '(margin left-margin) display-prop))
                     (icon-string (propertize " " 'display display-prop)))
-               (setq icon-string (propertize icon-string
-                                             'face 'org-remark-line-highlighter))
+              ;; (setq icon-string (propertize icon-string
+              ;;                               'face 'org-remark-line-highlighter))
                (overlay-put ov 'before-string icon-string)))
             (icon-string
-             (let ((icon-string (propertize icon-string
-                                            'face 'org-remark-line-highlighter)))
+             (let ((icon-string icon-string))
+                    ;;(propertize icon-string
+                    ;;                        'face 'org-remark-line-highlighter)))
                (overlay-put ov 'before-string (propertize " " 'display (list '(margin left-margin) icon-string)))))
             (t (ignore))))))
+
+
+(cl-defmethod org-remark-icon-highlight-get-face (highlight (_org-remark-type (eql 'line)))
+  "Return the face of the line-highilght in a margin."
+  (get-text-property 0 'face
+                     (cadr (get-text-property 0 'display
+                                              (overlay-get highlight 'before-string)))))
 
 (provide 'org-remark-line)
 ;;; org-remark-line.el ends here
