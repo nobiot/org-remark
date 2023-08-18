@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 01 August 2023
-;; Last modified: 15 August 2023
+;; Last modified: 18 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -50,12 +50,21 @@
 (defvar org-remark-line-margin-padding 1
   "Padding between the main text area the icon on the margin")
 
-(defvar-local org-remark-line-delayed-put-overlay-functions '()
-  "List of lambda functions that add a highlight.
-We need to delay adding highlight overlays until window is
-available for the current buffer. When the buffer visits a
-filefor the first time, the window has not been created before
-`org-remark-highlight-mark-overlay' is called.")
+(defvar-local org-remark-line-margins-original '()
+  "Original window margin width values.
+It is the original margins returned by function `window-margins'
+in cons cell (or nil) before function
+`org-remark-line-set-window-margins' set margins.")
+
+(defvar-local org-remark-line-margins-set-p nil
+  "State if margins are set by `org-remark-line' for current buffer.")
+
+;; (defvar-local org-remark-line-delayed-put-overlay-functions '()
+;;   "List of lambda functions that add a highlight.
+;; We need to delay adding highlight overlays until window is
+;; available for the current buffer. When the buffer visits a
+;; filefor the first time, the window has not been created before
+;; `org-remark-highlight-mark-overlay' is called.")
 
 ;;;###autoload
 (define-minor-mode org-remark-line-mode
@@ -79,7 +88,13 @@ filefor the first time, the window has not been created before
         )
     (remove-hook 'org-remark-find-dwim-functions #'org-remark-line-find :local)
     (remove-hook 'window-size-change-functions
-                 #'org-remark-line-set-window-margins :local)))
+                 #'org-remark-line-set-window-margins :local)
+    (when org-remark-line-margins-set-p
+      (setq left-margin-width (car org-remark-line-margins-original))
+      (setq right-marign-width (cdr org-remark-line-margins-original))
+      (set-window-margins nil left-margin-width right-margin-width)
+      (set-window-buffer (get-buffer-window) (current-buffer) nil)
+      (setq org-remark-line-margins-set-p nil))))
 
 ;; (defun org-remark-line-set-buffer-windows ()
 ;;   "
@@ -91,13 +106,11 @@ filefor the first time, the window has not been created before
 Return a cons of the form (LEFT-WIDTH . RIGHT-WIDTH). If a
 marginal area does not exist, its width will be returned as nil."
   (when (and (windowp window) org-remark-line-mode)
-    ;;(message "size change used with a window argument")
-    ;; (when org-remark-line-delayed-put-overlay-functions
-    ;;   (dolist (fn (reverse org-remark-line-delayed-put-overlay-functions))
-    ;;     (funcall fn))
-    ;;   (setq org-remark-line-delayed-put-overlay-functions nil))
     (cl-destructuring-bind (left-width . right-width) (window-margins)
       ;; TODO make this part compatible with right margin
+      (unless org-remark-line-margins-set-p
+        (setq org-remark-line-margins-original (window-margins))
+        (setq org-remark-line-margins-set-p t))
       (if (or (eq left-width nil) (< left-width
                                      org-remark-line-minimum-margin-width))
           (progn
@@ -105,8 +118,8 @@ marginal area does not exist, its width will be returned as nil."
             (setq right-margin-width org-remark-line-minimum-margin-width))
         (setq left-margin-width left-width)
         (setq right-margin-width right-width))
-      (set-window-buffer (get-buffer-window) (current-buffer) 'keep-margins)
       (set-window-margins nil left-margin-width right-margin-width)
+      (set-window-buffer window (current-buffer) 'keep-margins)
       (org-remark-highlights-load)
       (window-margins))))
 
@@ -144,9 +157,11 @@ by `overlays-in'."
 This is a method for highlights of ORG-REMARK-TYPE \\='line\\='.
 Return OV"
   (if (get-buffer-window)
-      ;; When revert-buffer is called, the window is already available
-      ;; but window size won't change.
-      (org-remark-line-highlight-overlay-put beg end face)
+      (progn
+        (unless org-remark-line-mode (org-remark-line-mode +1))
+        ;; When revert-buffer is called, the window is already available
+        ;; but window size won't change.
+        (org-remark-line-highlight-overlay-put beg end face))
     ;; window is still not created and assigned to the current buffer.
     ;; Reload when it is.
     ;; (add-hook 'window-state-change-functions #'org-remark-line-reload 95 'local)

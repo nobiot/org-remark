@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 15 August 2023
+;; Last modified: 18 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -138,7 +138,7 @@ highlights. It is run with the source buffer as current buffer."
 ;;;; Variables
 
 (defvar org-remark-default-features '(org-remark-icon org-remark-line))
-(defvar org-remark-default-feature-modes '(org-remark-icon-mode org-remark-line-mode))
+(defvar org-remark-default-feature-modes '(org-remark-icon-mode))
 (defvar org-remark-find-dwim-functions '(org-remark-find-overlay-at-point))
 
 (defvar org-remark-last-notes-buffer nil
