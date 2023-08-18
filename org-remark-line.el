@@ -39,7 +39,7 @@
      :inherit highlight))
   "Face for the default line highlighter pen.")
 
-(defvar org-remark-line-icon "*")
+(defvar org-remark-line-icon " * ")
 
 (defvar org-remark-line-heading-title-max-length 40)
 
@@ -106,8 +106,8 @@ marginal area does not exist, its width will be returned as nil."
           (setq left-margin-width left-width)
           (setq right-margin-width right-width))
         ;;(org-remark-highlights-load)
-        (set-window-margins window left-margin-width right-margin-width)
-        (set-window-buffer window (current-buffer) 'keep-margins)
+        (set-window-margins nil left-margin-width right-margin-width)
+        (set-window-buffer nil (current-buffer) 'keep-margins)
         (window-margins)))))
 
 (defun org-remark-line-pos-bol (pos)
