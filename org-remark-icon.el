@@ -46,7 +46,16 @@ and/or text-property to the string. This means you can return a
 string with a display property to show an SVG icon instead of the
 underlying string.
 
-Nil means no icon is to be displayed."
+Nil means no icon is to be displayed.
+
+If you wants to use image icons (e.g. SVG image icon created with
+package `icons', available Emacs 29.1 or higher), you're limited
+to a single character with no space before and after the
+character. This limitation does not apply to string of characters
+without images, but it is generally assumed that the the value
+set to this customizing variable will be a short string (e.g 3
+characters long with a pair of parentheses before and after a
+single character, such as the default value.)"
   :safe #'stringp
   :type '(choice
           (string "(*)")
@@ -63,7 +72,16 @@ and/or text-property to the string. This means you can return a
 string with a display property to show an SVG icon instead of the
 underlying string.
 
-Nil means no icon is to be displayed."
+Nil means no icon is to be displayed.
+
+If you wants to use image icons (e.g. SVG image icon created with
+package `icons', available Emacs 29.1 or higher), you're limited
+to a single character with no space before and after the
+character. This limitation does not apply to string of characters
+without images, but it is generally assumed that the the value
+set to this customizing variable will be a short string (e.g 3
+characters long with a pair of parentheses before and after a
+single character, such as the default value."
   :safe #'stringp
   :type '(choice
           (string "(d)")

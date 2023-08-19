@@ -30,6 +30,25 @@
 
 (require 'org-remark)
 
+(defcustom org-remark-line-icon " * "
+  "Glyph displayed on the margin to indicate the line-highlight.
+If you wants to use image icons (e.g. SVG image icon created with
+package `icons', available Emacs 29.1 or higher), you're limited
+to a single character with no space before and after the
+character. This limitation does not apply to string of characters
+without images, but it is generally assumed that the the value
+set to this customizing variable will be a short string (e.g 3
+characters long with a padding spaces before and after a single
+character, such as the default value.)"
+  :local t
+  :type 'string
+  :safe 'stringp)
+
+(defvar org-remark-line-minimum-margin-width 3)
+
+(defvar org-remark-line-margin-padding 1
+  "Padding between the main text area the icon on the margin")
+
 (defcustom org-remark-line-margin-side 'left-margin
   "The side of margin to display line highlights.
 Left or rigth can be chosen."
@@ -37,6 +56,10 @@ Left or rigth can be chosen."
   :type '(radio
           (const :tag "Left margin" left-margin)
           (const :tag "Right margin" right-margin)))
+
+(defvar org-remark-line-heading-title-max-length 40)
+
+(defvar org-remark-line-ellipsis "…")
 
 (defface org-remark-line-highlighter
   '((((class color) (min-colors 88) (background light))
@@ -46,8 +69,6 @@ Left or rigth can be chosen."
     (t
      :inherit highlight))
   "Face for the default line highlighter pen.")
-
-(defvar org-remark-line-icon " * ")
 
 (defvar org-remark-line-heading-title-max-length 40)
 
@@ -171,10 +192,7 @@ by `overlays-in'."
   "Return a spacer overlay."
   (let* ((left-margin (or (car (window-margins)) left-margin-width))
          (right-margin (or (cdr (window-margins)) right-margin-width))
-         (string (with-temp-buffer
-                   (insert org-remark-line-icon)
-                   (buffer-string)))
-         (string-length (length string))
+         (string-length (length org-remark-line-icon))
          (spaces-base-length (if (eql org-remark-line-margin-side 'right-margin)
                                  org-remark-line-margin-padding
                                (- left-margin
@@ -216,22 +234,32 @@ by `overlays-in'."
              (org-remark-highlights-housekeep)
              (org-remark-highlights-sort))))))))
 
+(defun org-remark-line-highlight-propertize (ov icon-string)
+  ;; If the icon-string has a display properties, assume it is an icon image
+  (let ((display-prop (get-text-property 0 'display icon-string)))
+    (cond (display-prop ; svg-based icon
+           (let* ((display-prop (list `(margin ,org-remark-line-margin-side) display-prop))
+                  (icon-face (get-text-property 0 'face icon-string))
+                  (icon-string (propertize " " 'display display-prop)))
+             (when icon-face
+               (setq icon-string (propertize icon-string 'face icon-face)))
+             (overlay-put ov 'before-string icon-string)))
+          (icon-string ; text/string-based icon
+           (let ((icon-string icon-string))
+             (overlay-put ov 'before-string (propertize " " 'display (list `(margin ,org-remark-line-margin-side) icon-string)))))
+          (t (ignore)))))
+
 (cl-defmethod org-remark-highlight-make-overlay (beg end face (_org-remark-type (eql 'line)))
   "Make and return a highlight overlay for line-highlight.
 Return nil when no window is created for current buffer."
   (when (get-buffer-window)
     (unless org-remark-line-mode (org-remark-line-mode +1))
     (let* ((face (or face 'org-remark-line-highlighter))
-           (string (with-temp-buffer
-                     (insert org-remark-line-icon)
-                     (buffer-string)))
+           (string (propertize org-remark-line-icon 'face face))
            (spacer-ov (org-remark-line-make-spacer-overlay beg))
            (ov (make-overlay beg end nil :front-advance)))
       ;; line-highlight overlay
-      (overlay-put ov 'before-string
-                   (propertize " " 'display
-                               `((margin ,org-remark-line-margin-side)
-                                 ,(propertize string 'face face))))
+      (org-remark-line-highlight-propertize ov string)
       ;; Let highlight overlay to take care of the spacer movement
       (overlay-put ov 'insert-in-front-hooks (list 'org-remark-line-highlight-modified))
       ;; Copy spacer overlay. It is put after the line-highlight to
@@ -303,28 +331,24 @@ end of overlay being identical."
         (move-overlay ov ov-line-bol ov-line-bol)))))
 
 (cl-defmethod org-remark-icon-overlay-put (ov icon-string (_org-remark-type (eql 'line)))
-  "
+  "Add icons to OV.
+  Each overlay is a highlight.
 Return nil when no window is created for current buffer."
   (when (get-buffer-window)
-    ;; If the icon-string has a display properties, assume it is an icon image
-    (let ((display-prop (get-text-property 0 'display icon-string)))
-      (cond (display-prop ; svg-based icon
-             (let* ((display-prop (list `(margin ,org-remark-line-margin-side) display-prop))
-                    (icon-face (get-text-property 0 'face icon-string))
-                    (icon-string (propertize " " 'display display-prop)))
-               (when icon-face
-                 (setq icon-string (propertize icon-string 'face icon-face)))
-               (overlay-put ov 'before-string icon-string)))
-            (icon-string ; text/string-based icon
-             (let ((icon-string icon-string))
-               (overlay-put ov 'before-string (propertize " " 'display (list `(margin ,org-remark-line-margin-side) icon-string)))))
-            (t (ignore))))))
+    (org-remark-line-highlight-propertize ov icon-string)))
 
 (cl-defmethod org-remark-icon-highlight-get-face (highlight (_org-remark-type (eql 'line)))
   "Return the face of the line-highilght in a margin."
-  (get-text-property 0 'face
-                     (cadr (get-text-property 0 'display
-                                              (overlay-get highlight 'before-string)))))
+  (let* ((before-string (overlay-get highlight 'before-string))
+         (face (get-text-property 0 'face before-string)))
+    ;; When the highlight already is an SVG icon, face is in the display
+    ;; property of before-string
+    (unless face
+      (let ((display-string
+             (cadr (get-text-property 0 'display before-string))))
+        (when (stringp display-string)
+          (setq face (get-text-property 0 'face display-string)))))
+    face))
 
 (provide 'org-remark-line)
 ;;; org-remark-line.el ends here
