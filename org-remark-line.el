@@ -30,6 +30,12 @@
 
 (require 'org-remark)
 
+(defgroup org-remark-line nil
+  "Enable`org-remark' to highlight and annotate whole lines. "
+  :group 'org-remark
+  :prefix "org-remark-line"
+  :link '(url-link :tag "GitHub" "https://github.com/nobiot/org-remark"))
+
 (defcustom org-remark-line-icon " * "
   "Glyph displayed on the margin to indicate the line-highlight.
 If you wants to use image icons (e.g. SVG image icon created with
@@ -45,7 +51,7 @@ character, such as the default value.)"
   :safe 'stringp)
 
 (defcustom org-remark-line-minimum-margin-width 3
-  "Margin width in number.
+  "Margin width in an integer or cons cell.
 It can be a single number or a cons cell. When it is a single
 number, both the left and right margin widths will be the same.
 When this customizing variable is a cons cell, the format is as
@@ -57,8 +63,10 @@ one."
           (integer :tag "Minimum margin width for both left and right margins" 3)
           (cons :tag "Left and right margin widths" integer integer)))
 
-(defvar org-remark-line-margin-padding 1
-  "Padding between the main text area the icon on the margin")
+(defcustom org-remark-line-margin-padding 1
+  "Padding between the main text area the glyph/icon on the margin"
+  :local t
+  :type 'integer)
 
 (defcustom org-remark-line-margin-side 'left-margin
   "The side of margin to display line highlights.
@@ -68,9 +76,15 @@ Left or rigth can be chosen."
           (const :tag "Left margin" left-margin)
           (const :tag "Right margin" right-margin)))
 
-(defvar org-remark-line-heading-title-max-length 40)
+(defcustom org-remark-line-heading-title-max-length 40
+  "Maximum length of string included as the highlight title."
+  :type 'integer)
 
-(defvar org-remark-line-ellipsis "…")
+(defcustom org-remark-line-ellipsis "…"
+  "Ellipsis used when the highlight title is longer than maximum.
+The maximum is set in `org-remark-line-heading-title-max-length'."
+  :type 'string
+  :safe 'stringp)
 
 (defface org-remark-line-highlighter
   '((((class color) (min-colors 88) (background light))
@@ -81,9 +95,11 @@ Left or rigth can be chosen."
      :inherit highlight))
   "Face for the default line highlighter pen.")
 
-(defvar-local org-remark-line-left-margin-width nil)
+(defvar-local org-remark-line-minimum-left-margin-width nil
+  "Computed minimum left-margin width.")
 
-(defvar-local org-remark-line-right-margin-width nil)
+(defvar-local org-remark-line-minimum-right-margin-width nil
+  "Computed minimum right-margin width.")
 
 (defvar-local org-remark-line-margins-original '()
   "Original window margin width values.
@@ -126,8 +142,8 @@ in cons cell (or nil) before function
       (setq right-margin-width (cdr org-remark-line-margins-original))
       (set-window-margins nil left-margin-width right-margin-width)
       (set-window-buffer (get-buffer-window) (current-buffer) nil)
-      (setq org-remark-line-left-margin-width nil)
-      (setq org-remark-line-right-margin-width nil)
+      (setq org-remark-line-minimum-left-margin-width nil)
+      (setq org-remark-line-minimum-right-margin-width nil)
       (setq org-remark-line-margins-set-p nil))))
 
 ;; Default line-highlighter pen
@@ -145,22 +161,22 @@ marginal area does not exist, its width will be returned as nil."
         (unless org-remark-line-margins-set-p
           (setq org-remark-line-margins-original (window-margins))
           (setq org-remark-line-margins-set-p t)
-          (setq org-remark-line-left-margin-width
+          (setq org-remark-line-minimum-left-margin-width
                 (if (numberp org-remark-line-minimum-margin-width)
                        org-remark-line-minimum-margin-width
                      (car org-remark-line-minimum-margin-width)))
-          (setq org-remark-line-right-margin-width
+          (setq org-remark-line-minimum-right-margin-width
                 (+ (if (numberp org-remark-line-minimum-margin-width)
                        org-remark-line-minimum-margin-width
                      (cdr org-remark-line-minimum-margin-width))
                    org-remark-line-margin-padding)))
         (if (or (eq left-width nil) (< left-width
-                                       org-remark-line-left-margin-width))
-            (setq left-margin-width org-remark-line-left-margin-width)
+                                       org-remark-line-minimum-left-margin-width))
+            (setq left-margin-width org-remark-line-minimum-left-margin-width)
           (setq left-margin-width left-width))
         (if (or (eq right-width nil) (< right-width
-                                        org-remark-line-right-margin-width))
-            (setq right-margin-width org-remark-line-right-margin-width)
+                                        org-remark-line-minimum-right-margin-width))
+            (setq right-margin-width org-remark-line-minimum-right-margin-width)
           (setq right-margin-width right-width))
         ;; For `set-window-margins' window should be specified.
         ;; Howerver, `set-window-buffer' should get nil for window.
@@ -201,7 +217,7 @@ by `overlays-in'."
 (defun org-remark-line-make-spacer-overlay (pos)
   "Return a spacer overlay."
   (let* ((left-margin (or (car (window-margins)) left-margin-width))
-         (right-margin (or (cdr (window-margins)) right-margin-width))
+         ;;(right-margin (or (cdr (window-margins)) right-margin-width))
          (string-length (length org-remark-line-icon))
          (spaces-base-length (if (eql org-remark-line-margin-side 'right-margin)
                                  org-remark-line-margin-padding
@@ -248,7 +264,8 @@ by `overlays-in'."
   ;; If the icon-string has a display properties, assume it is an icon image
   (let ((display-prop (get-text-property 0 'display icon-string)))
     (cond (display-prop ; svg-based icon
-           (let* ((display-prop (list `(margin ,org-remark-line-margin-side) display-prop))
+           (let* ((display-prop
+                   (list `(margin ,org-remark-line-margin-side) display-prop))
                   (icon-face (get-text-property 0 'face icon-string))
                   (icon-string (propertize " " 'display display-prop)))
              (when icon-face
@@ -256,7 +273,12 @@ by `overlays-in'."
              (overlay-put ov 'before-string icon-string)))
           (icon-string ; text/string-based icon
            (let ((icon-string icon-string))
-             (overlay-put ov 'before-string (propertize " " 'display (list `(margin ,org-remark-line-margin-side) icon-string)))))
+             (overlay-put
+              ov
+              'before-string
+              (propertize
+               " " 'display
+               (list `(margin ,org-remark-line-margin-side) icon-string)))))
           (t (ignore)))))
 
 (cl-defmethod org-remark-highlight-make-overlay (beg end face (_org-remark-type (eql 'line)))
@@ -302,8 +324,17 @@ Return nil when no window is created for current buffer."
                           (move-overlay (pop spacers) (1+ beg) (1+ beg))))))))
 
 (cl-defmethod org-remark-highlight-headline-text (ov (_org-remark-type (eql 'line)))
-  "Return the first x characters of the line.
-If the line is shorter than x, then up to the newline char."
+  "Return the first N characters of the highlighted line.
+N is customized with `org-remark-line-heading-title-max-length'.
+If the line starts with any space or tab, they will be trimmed.
+If the line (after trimming) is shorter than N, then this
+function will include the charcters up to the newline char.
+
+In addition, if the text happens to be empty, the function uses
+\"Empty line highlight\" as the fallback; headlines with no title
+is not considered valid for the purpose of `org-remark' and thus
+risks unexpected results (mostly the highlight skipped when
+loading highlights)."
   (let ((line-text (buffer-substring-no-properties
                     (overlay-start ov) (pos-eol))))
     (if (or (eq line-text nil)
