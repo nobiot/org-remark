@@ -112,7 +112,6 @@ marginal area does not exist, its width will be returned as nil."
   (let ((window (or window (get-buffer-window))))
     (when (and (windowp window) (not (window-minibuffer-p window)))
       (cl-destructuring-bind (left-width . right-width) (window-margins)
-        ;; TODO make this part compatible with right margin
         (unless org-remark-line-margins-set-p
           (setq org-remark-line-margins-original (window-margins))
           (setq org-remark-line-margins-set-p t))
