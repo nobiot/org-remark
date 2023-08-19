@@ -65,7 +65,7 @@ in cons cell (or nil) before function
 `org-remark-line-set-window-margins' set margins.")
 
 (defvar-local org-remark-line-margins-set-p nil
-  "State if margins are set by `org-remark-line' for current buffer.")
+  "Status indicating if margins are set by `org-remark-line'.")
 
 ;;;###autoload
 (define-minor-mode org-remark-line-mode
@@ -86,13 +86,13 @@ in cons cell (or nil) before function
                   #'org-remark-line-set-window-margins 95 :local)
         ;; Need to reload to cater to margin changes done by `olivetti'.
         (add-hook 'window-size-change-functions
-                  #'org-remark-line-redraw-highlights 96 :local)
+                  #'org-remark-line-highlights-redraw 96 :local)
         (org-remark-line-set-window-margins))
     (remove-hook 'org-remark-find-dwim-functions #'org-remark-line-find :local)
     (remove-hook 'window-size-change-functions
                  #'org-remark-line-set-window-margins :local)
     (remove-hook 'window-size-change-functions
-                 #'org-remark-line-redraw-highlights :local)
+                 #'org-remark-line-highlights-redraw :local)
     (when org-remark-line-margins-set-p
       (setq left-margin-width (car org-remark-line-margins-original))
       (setq right-margin-width (cdr org-remark-line-margins-original))
@@ -161,7 +161,35 @@ by `overlays-in'."
     (let ((bol (org-remark-line-pos-bol (point))))
       (list bol bol)))
 
-(defun org-remark-line-redraw-highlights (&optional window)
+(defun org-remark-line-make-spacer-overlay (pos)
+  "Return a spacer overlay."
+  (let* ((left-margin (or (car (window-margins)) left-margin-width))
+         (right-margin (or (cdr (window-margins)) right-margin-width))
+         (string (with-temp-buffer
+                   (insert org-remark-line-icon)
+                   (buffer-string)))
+         (string-length (length string))
+         (spaces-base-length (if (eql org-remark-line-margin-side 'right-margin)
+                                 org-remark-line-margin-padding
+                               (- left-margin
+                                  (+ string-length org-remark-line-margin-padding))))
+         (spaces-length (if (> spaces-base-length 0) spaces-base-length 0))
+         (spaces (with-temp-buffer (insert-char ?\s spaces-length)
+                                   (buffer-string)))
+         (spacer-ov (make-overlay pos pos nil :front-advance)))
+    ;; Add a spacing overlay before the line-highlight overlay but we
+    ;; only need one of these; remove it if one already exits
+    (remove-overlays (overlay-start spacer-ov) (overlay-end spacer-ov)
+                     'category 'org-remark-spacer)
+    (overlay-put spacer-ov 'before-string
+                 (propertize " "
+                             'display
+                             `((margin ,org-remark-line-margin-side)
+                               ,spaces)))
+    (overlay-put spacer-ov 'category 'org-remark-spacer)
+    spacer-ov))
+
+(defun org-remark-line-highlights-redraw (&optional window)
   (let ((window (or window (get-buffer-window))))
     (when (and (windowp window) (not (window-minibuffer-p window)))
       (org-with-wide-buffer
@@ -169,31 +197,8 @@ by `overlays-in'."
               (seq-filter (lambda (ov) (eql 'line (overlay-get ov 'org-remark-type)))
                           org-remark-highlights)))
          (dolist (ov highlights)
-           ;; The following is almost the same as `org-remark-highlight-make-overlay'.
-           ;; TODO Rationalize these two
            (let* ((beg (overlay-start ov))
-                  (left-margin (or (car (window-margins)) left-margin-width))
-                  (right-margin (or (cdr (window-margins)) right-margin-width))
-                  (string (with-temp-buffer
-                            (insert org-remark-line-icon)
-                            (buffer-string)))
-                  (string-length (length string))
-                  (spaces-base-length (if (eql org-remark-line-margin-side 'right-margin)
-                                          org-remark-line-margin-padding
-                                        (- left-margin
-                                           (+ string-length org-remark-line-margin-padding))))
-                  (spaces-length (if (> spaces-base-length 0) spaces-base-length 0))
-                  (spaces (with-temp-buffer (insert-char ?\s spaces-length)
-                                            (buffer-string)))
-                  (spacer-ov (make-overlay beg beg nil :front-advance)))
-             (remove-overlays (overlay-start spacer-ov) (overlay-end spacer-ov)
-                              'category 'org-remark-spacer)
-             (overlay-put spacer-ov 'before-string
-                          (propertize " "
-                                      'display
-                                      `((margin ,org-remark-line-margin-side)
-                                        ,spaces)))
-             (overlay-put spacer-ov 'category 'org-remark-spacer)
+                  (spacer-ov (org-remark-line-make-spacer-overlay beg)))
              (push (copy-overlay ov) org-remark-highlights)
              (copy-overlay spacer-ov)
              (delete-overlay ov)
@@ -206,40 +211,17 @@ Return nil when no window is created for current buffer."
   (when (get-buffer-window)
     (unless org-remark-line-mode (org-remark-line-mode +1))
     (let* ((face (or face 'org-remark-line-highlighter))
-           (left-margin (or (car (window-margins)) left-margin-width))
-           (right-margin (or (cdr (window-margins)) right-margin-width))
            (string (with-temp-buffer
                      (insert org-remark-line-icon)
                      (buffer-string)))
-           (string-length (length string))
-           (spaces-base-length (if (eql org-remark-line-margin-side 'right-margin)
-                                   org-remark-line-margin-padding
-                                 (- left-margin
-                                    (+ string-length org-remark-line-margin-padding))))
-           (spaces-length (if (> spaces-base-length 0) spaces-base-length 0))
-           (spaces (with-temp-buffer (insert-char ?\s spaces-length)
-                                     (buffer-string)))
-           (spacer-ov (make-overlay beg end nil :front-advance))
+           (spacer-ov (org-remark-line-make-spacer-overlay beg))
            (ov (make-overlay beg end nil :front-advance)))
-      ;; Add a spacing overlay before the line-highlight overlay but we
-      ;; only need one of these; remove it if one already exits
-      (remove-overlays (overlay-start spacer-ov) (overlay-end spacer-ov)
-                       'category 'org-remark-spacer)
-      (overlay-put spacer-ov 'before-string
-                   (propertize " "
-                               'display
-                               `((margin ,org-remark-line-margin-side)
-                                 ,spaces)))
-      (overlay-put spacer-ov 'category 'org-remark-spacer)
-      ;; Let highlight overlay to take care of the spacer movement
-      ;;(overlay-put spacer-ov 'insert-in-front-hooks
-      ;;             (list 'org-remark-line-highlight-modified))
-
       ;; line-highlight overlay
       (overlay-put ov 'before-string
                    (propertize " " 'display
                                `((margin ,org-remark-line-margin-side)
                                  ,(propertize string 'face face))))
+      ;; Let highlight overlay to take care of the spacer movement
       (overlay-put ov 'insert-in-front-hooks (list 'org-remark-line-highlight-modified))
       ;; Copy spacer overlay. It is put after the line-highlight to
       ;; limit and reset the face added by the line-highlight back to
