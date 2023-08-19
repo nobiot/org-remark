@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 01 August 2023
-;; Last modified: 18 August 2023
+;; Last modified: 19 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -76,10 +76,15 @@ in cons cell (or nil) before function
         ;; olivetti sets DEPTH to t (=90). We need go lower priority than it
         (add-hook 'window-size-change-functions
                   #'org-remark-line-set-window-margins 95 :local)
+        ;; Need to reload to cater to margin changes done by `olivetti'.
+        (add-hook 'window-size-change-functions
+                  #'org-remark-highlights-load 96 :local)
         (org-remark-line-set-window-margins))
     (remove-hook 'org-remark-find-dwim-functions #'org-remark-line-find :local)
     (remove-hook 'window-size-change-functions
                  #'org-remark-line-set-window-margins :local)
+    (remove-hook 'window-size-change-functions
+                 #'org-remark-highlights-load :local)
     (when org-remark-line-margins-set-p
       (setq left-margin-width (car org-remark-line-margins-original))
       (setq right-margin-width (cdr org-remark-line-margins-original))
@@ -92,7 +97,7 @@ in cons cell (or nil) before function
 Return a cons of the form (LEFT-WIDTH . RIGHT-WIDTH). If a
 marginal area does not exist, its width will be returned as nil."
   (let ((window (or window (get-buffer-window))))
-    (when (windowp window)
+    (when (and (windowp window) (not (window-minibuffer-p window)))
       (cl-destructuring-bind (left-width . right-width) (window-margins)
         ;; TODO make this part compatible with right margin
         (unless org-remark-line-margins-set-p
@@ -105,8 +110,14 @@ marginal area does not exist, its width will be returned as nil."
               (setq right-margin-width org-remark-line-minimum-margin-width))
           (setq left-margin-width left-width)
           (setq right-margin-width right-width))
-        ;;(org-remark-highlights-load)
-        (set-window-margins nil left-margin-width right-margin-width)
+        ;; For `set-window-margins' window should be specified.
+        ;; Howerver, `set-window-buffer' should get nil for window.
+        ;; Otherwise, the minibuffer also gets the margins. It's a
+        ;; little tricky behaviour. Both functions seem to be required.
+        ;; The former changes the current window's margin display
+        ;; immediately. The latter makes the margin widths the default
+        ;; for future, when window gets split, etc.
+        (set-window-margins window left-margin-width right-margin-width)
         (set-window-buffer nil (current-buffer) 'keep-margins)
         (window-margins)))))
 
