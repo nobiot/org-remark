@@ -30,6 +30,14 @@
 
 (require 'org-remark)
 
+(defcustom org-remark-line-margin-side 'left-margin
+  "The side of margin to display line highlights.
+Left or rigth can be chosen."
+  :local t
+  :type '(radio
+          (const :tag "Left margin" left-margin)
+          (const :tag "Right margin" right-margin)))
+
 (defface org-remark-line-highlighter
   '((((class color) (min-colors 88) (background light))
      :foreground "#dbba3f")
@@ -77,14 +85,14 @@ in cons cell (or nil) before function
         (add-hook 'window-size-change-functions
                   #'org-remark-line-set-window-margins 95 :local)
         ;; Need to reload to cater to margin changes done by `olivetti'.
-        ;;(add-hook 'window-size-change-functions
-        ;;          #'org-remark-highlights-load 96 :local)
+        (add-hook 'window-size-change-functions
+                  #'org-remark-line-redraw-highlights 96 :local)
         (org-remark-line-set-window-margins))
     (remove-hook 'org-remark-find-dwim-functions #'org-remark-line-find :local)
     (remove-hook 'window-size-change-functions
                  #'org-remark-line-set-window-margins :local)
-;;    (remove-hook 'window-size-change-functions
-;;                 #'org-remark-highlights-load :local)
+    (remove-hook 'window-size-change-functions
+                 #'org-remark-line-redraw-highlights :local)
     (when org-remark-line-margins-set-p
       (setq left-margin-width (car org-remark-line-margins-original))
       (setq right-margin-width (cdr org-remark-line-margins-original))
@@ -152,6 +160,45 @@ by `overlays-in'."
 (cl-defmethod org-remark-beg-end ((_org-remark-type (eql 'line)))
     (let ((bol (org-remark-line-pos-bol (point))))
       (list bol bol)))
+
+(defun org-remark-line-redraw-highlights (&optional window)
+  (let ((window (or window (get-buffer-window))))
+    (when (and (windowp window) (not (window-minibuffer-p window)))
+      (org-with-wide-buffer
+       (let ((highlights
+              (seq-filter (lambda (ov) (eql 'line (overlay-get ov 'org-remark-type)))
+                          org-remark-highlights)))
+         (dolist (ov highlights)
+           ;; The following is almost the same as `org-remark-highlight-make-overlay'.
+           ;; TODO Rationalize these two
+           (let* ((beg (overlay-start ov))
+                  (left-margin (or (car (window-margins)) left-margin-width))
+                  (right-margin (or (cdr (window-margins)) right-margin-width))
+                  (string (with-temp-buffer
+                            (insert org-remark-line-icon)
+                            (buffer-string)))
+                  (string-length (length string))
+                  (spaces-base-length (if (eql org-remark-line-margin-side 'right-margin)
+                                          org-remark-line-margin-padding
+                                        (- left-margin
+                                           (+ string-length org-remark-line-margin-padding))))
+                  (spaces-length (if (> spaces-base-length 0) spaces-base-length 0))
+                  (spaces (with-temp-buffer (insert-char ?\s spaces-length)
+                                            (buffer-string)))
+                  (spacer-ov (make-overlay beg beg nil :front-advance)))
+             (remove-overlays (overlay-start spacer-ov) (overlay-end spacer-ov)
+                              'category 'org-remark-spacer)
+             (overlay-put spacer-ov 'before-string
+                          (propertize " "
+                                      'display
+                                      `((margin ,org-remark-line-margin-side)
+                                        ,spaces)))
+             (overlay-put spacer-ov 'category 'org-remark-spacer)
+             (push (copy-overlay ov) org-remark-highlights)
+             (copy-overlay spacer-ov)
+             (delete-overlay ov)
+             (org-remark-highlights-housekeep)
+             (org-remark-highlights-sort))))))))
 
 (cl-defmethod org-remark-highlight-make-overlay (beg end face (_org-remark-type (eql 'line)))
   "Make and return a highlight overlay for line-highlight.
@@ -256,10 +303,11 @@ end of overlay being identical."
   ;; directly change the notes. That's not really an intutive behaviour,
   ;; though in some cases, it imay be useful.
   ;; (if (not (overlay-start ov)) (delete-overlay ov)
-  (let* ((ov-start (overlay-start ov))
-         (ov-line-bol (org-remark-line-pos-bol ov-start)))
-    (unless (= ov-start ov-line-bol)
-      (move-overlay ov ov-line-bol ov-line-bol))))
+  (when (overlay-buffer ov)
+    (let* ((ov-start (overlay-start ov))
+           (ov-line-bol (org-remark-line-pos-bol ov-start)))
+      (unless (= ov-start ov-line-bol)
+        (move-overlay ov ov-line-bol ov-line-bol)))))
 
 (cl-defmethod org-remark-icon-overlay-put (ov icon-string (_org-remark-type (eql 'line)))
   "
