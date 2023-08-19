@@ -59,14 +59,6 @@ in cons cell (or nil) before function
 (defvar-local org-remark-line-margins-set-p nil
   "State if margins are set by `org-remark-line' for current buffer.")
 
-(defcustom org-remark-line-margin-side 'left-margin
-  "The side of margin to display line highlights.
-Left or rigth can be chosen."
-  :local t
-  :type '(radio
-          (const :tag "Left margin" left-margin)
-          (const :tag "Right margin" right-margin)))
-
 ;;;###autoload
 (define-minor-mode org-remark-line-mode
   "Enable Org-remark to highlight and annotate the whole line."
@@ -85,20 +77,25 @@ Left or rigth can be chosen."
         (add-hook 'window-size-change-functions
                   #'org-remark-line-set-window-margins 95 :local)
         ;; Need to reload to cater to margin changes done by `olivetti'.
-        (add-hook 'window-size-change-functions
-                  #'org-remark-highlights-load 96 :local)
+        ;;(add-hook 'window-size-change-functions
+        ;;          #'org-remark-highlights-load 96 :local)
         (org-remark-line-set-window-margins))
     (remove-hook 'org-remark-find-dwim-functions #'org-remark-line-find :local)
     (remove-hook 'window-size-change-functions
                  #'org-remark-line-set-window-margins :local)
-    (remove-hook 'window-size-change-functions
-                 #'org-remark-highlights-load :local)
+;;    (remove-hook 'window-size-change-functions
+;;                 #'org-remark-highlights-load :local)
     (when org-remark-line-margins-set-p
       (setq left-margin-width (car org-remark-line-margins-original))
       (setq right-margin-width (cdr org-remark-line-margins-original))
       (set-window-margins nil left-margin-width right-margin-width)
       (set-window-buffer (get-buffer-window) (current-buffer) nil)
       (setq org-remark-line-margins-set-p nil))))
+
+;; Default line-highlighter pen
+(org-remark-create "line"
+                   `org-remark-line-highlighter
+                   `(org-remark-type line))
 
 (defun org-remark-line-set-window-margins (&optional window)
   "Set the margins of current window that displays current buffer.
@@ -152,10 +149,6 @@ by `overlays-in'."
          (highlights (overlays-in bol bol)))
     (seq-find #'org-remark-line-highlight-p highlights)))
 
-(org-remark-create "line"
-                   `org-remark-line-highlighter
-                   `(org-remark-type line))
-
 (cl-defmethod org-remark-beg-end ((_org-remark-type (eql 'line)))
     (let ((bol (org-remark-line-pos-bol (point))))
       (list bol bol)))
@@ -163,7 +156,7 @@ by `overlays-in'."
 (cl-defmethod org-remark-highlight-make-overlay (beg end face (_org-remark-type (eql 'line)))
   "Make and return a highlight overlay for line-highlight.
 Return nil when no window is created for current buffer."
-(when (get-buffer-window)
+  (when (get-buffer-window)
     (unless org-remark-line-mode (org-remark-line-mode +1))
     (let* ((face (or face 'org-remark-line-highlighter))
            (left-margin (or (car (window-margins)) left-margin-width))
@@ -191,8 +184,10 @@ Return nil when no window is created for current buffer."
                                `((margin ,org-remark-line-margin-side)
                                  ,spaces)))
       (overlay-put spacer-ov 'category 'org-remark-spacer)
-      (overlay-put spacer-ov 'insert-in-front-hooks
-                   (list 'org-remark-line-highlight-modified))
+      ;; Let highlight overlay to take care of the spacer movement
+      ;;(overlay-put spacer-ov 'insert-in-front-hooks
+      ;;             (list 'org-remark-line-highlight-modified))
+
       ;; line-highlight overlay
       (overlay-put ov 'before-string
                    (propertize " " 'display
@@ -208,21 +203,25 @@ Return nil when no window is created for current buffer."
       (copy-overlay spacer-ov)
       ov)))
 
-(defun org-remark-line-highlight-find-spacer (pos)
+(defun org-remark-line-highlight-find-spacers (pos)
+  "Find the two spacers for POS."
   (let ((highlights (overlays-in pos pos)))
-    (seq-find (lambda (ov)
-                (eql 'org-remark-spacer (overlay-get ov 'category)))
-              highlights)))
+    (seq-filter (lambda (ov)
+                  (eql 'org-remark-spacer (overlay-get ov 'category)))
+                highlights)))
 
 (defun org-remark-line-highlight-modified (ov after-p beg _end &optional _length)
   "Move the overlay to follow the point when ENTER in the line."
   (when after-p
     (save-excursion (goto-char beg)
                     (when (looking-at "\n")
-                      ;; Spacer needs to move before the hightlight to keep the sequence.
-                      (let ((spacer (org-remark-line-highlight-find-spacer beg)))
-                        (when spacer (move-overlay spacer (1+ beg) (1+ beg))))
-                      (move-overlay ov (1+ beg) (1+ beg))))))
+                      ;; The sequence must be 1. spacer; 2. highlight 3. spacer
+                      (let ((spacers (org-remark-line-highlight-find-spacers beg)))
+                        (when spacers
+                          (move-overlay (pop spacers) (1+ beg) (1+ beg)))
+                        (move-overlay ov (1+ beg) (1+ beg))
+                        (when spacers
+                          (move-overlay (pop spacers) (1+ beg) (1+ beg))))))))
 
 (cl-defmethod org-remark-highlight-headline-text (ov (_org-remark-type (eql 'line)))
   "Return the first x characters of the line.
@@ -279,7 +278,6 @@ Return nil when no window is created for current buffer."
              (let ((icon-string icon-string))
                (overlay-put ov 'before-string (propertize " " 'display (list `(margin ,org-remark-line-margin-side) icon-string)))))
             (t (ignore))))))
-
 
 (cl-defmethod org-remark-icon-highlight-get-face (highlight (_org-remark-type (eql 'line)))
   "Return the face of the line-highilght in a margin."
