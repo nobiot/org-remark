@@ -59,6 +59,14 @@ in cons cell (or nil) before function
 (defvar-local org-remark-line-margins-set-p nil
   "State if margins are set by `org-remark-line' for current buffer.")
 
+(defcustom org-remark-line-margin-side 'left-margin
+  "The side of margin to display line highlights.
+Left or rigth can be chosen."
+  :local t
+  :type '(radio
+          (const :tag "Left margin" left-margin)
+          (const :tag "Right margin" right-margin)))
+
 ;;;###autoload
 (define-minor-mode org-remark-line-mode
   "Enable Org-remark to highlight and annotate the whole line."
@@ -105,11 +113,13 @@ marginal area does not exist, its width will be returned as nil."
           (setq org-remark-line-margins-set-p t))
         (if (or (eq left-width nil) (< left-width
                                        org-remark-line-minimum-margin-width))
-            (progn
-              (setq left-margin-width org-remark-line-minimum-margin-width)
-              (setq right-margin-width org-remark-line-minimum-margin-width))
-          (setq left-margin-width left-width)
-          (setq right-margin-width right-width))
+            (setq left-margin-width org-remark-line-minimum-margin-width)
+          (setq left-margin-width left-width))
+        (if (or (eq right-width nil) (< right-width
+                                       org-remark-line-minimum-margin-width))
+            (setq right-margin-width (+ org-remark-line-minimum-margin-width
+                                        org-remark-line-margin-padding))
+          (setq right-margin-width (+ right-width org-remark-line-margin-padding)))
         ;; For `set-window-margins' window should be specified.
         ;; Howerver, `set-window-buffer' should get nil for window.
         ;; Otherwise, the minibuffer also gets the margins. It's a
@@ -153,19 +163,19 @@ by `overlays-in'."
 (cl-defmethod org-remark-highlight-make-overlay (beg end face (_org-remark-type (eql 'line)))
   "Make and return a highlight overlay for line-highlight.
 Return nil when no window is created for current buffer."
-  (when (get-buffer-window)
+(when (get-buffer-window)
     (unless org-remark-line-mode (org-remark-line-mode +1))
     (let* ((face (or face 'org-remark-line-highlighter))
-           ;; We need to be sure where the minimum-margin-width is set to the buffer
-           ;; TODO rigth margin
            (left-margin (or (car (window-margins)) left-margin-width))
-           ;; TODO we might want another string per line-highlight pen
+           (right-margin (or (cdr (window-margins)) right-margin-width))
            (string (with-temp-buffer
                      (insert org-remark-line-icon)
                      (buffer-string)))
            (string-length (length string))
-           (spaces-base-length (- left-margin
-                                  (+ string-length org-remark-line-margin-padding)))
+           (spaces-base-length (if (eql org-remark-line-margin-side 'right-margin)
+                                   org-remark-line-margin-padding
+                                 (- left-margin
+                                    (+ string-length org-remark-line-margin-padding))))
            (spaces-length (if (> spaces-base-length 0) spaces-base-length 0))
            (spaces (with-temp-buffer (insert-char ?\s spaces-length)
                                      (buffer-string)))
@@ -175,18 +185,27 @@ Return nil when no window is created for current buffer."
       ;; only need one of these; remove it if one already exits
       (remove-overlays (overlay-start spacer-ov) (overlay-end spacer-ov)
                        'category 'org-remark-spacer)
-      (overlay-put spacer-ov 'before-string (propertize " "
-                                                        'display
-                                                        `((margin left-margin)
-                                                          ,spaces)))
+      (overlay-put spacer-ov 'before-string
+                   (propertize " "
+                               'display
+                               `((margin ,org-remark-line-margin-side)
+                                 ,spaces)))
       (overlay-put spacer-ov 'category 'org-remark-spacer)
       (overlay-put spacer-ov 'insert-in-front-hooks
                    (list 'org-remark-line-highlight-modified))
       ;; line-highlight overlay
-      (overlay-put ov 'before-string (propertize " " 'display
-                                                 `((margin left-margin)
-                                                   ,(propertize string 'face face))))
+      (overlay-put ov 'before-string
+                   (propertize " " 'display
+                               `((margin ,org-remark-line-margin-side)
+                                 ,(propertize string 'face face))))
       (overlay-put ov 'insert-in-front-hooks (list 'org-remark-line-highlight-modified))
+      ;; Copy spacer overlay. It is put after the line-highlight to
+      ;; limit and reset the face added by the line-highlight back to
+      ;; default. This is especially done for RTL languages and when the
+      ;; face include a background color different from that of default.
+      ;; Without it, the background color goes all the way to the end of
+      ;; the right margin.
+      (copy-overlay spacer-ov)
       ov)))
 
 (defun org-remark-line-highlight-find-spacer (pos)
@@ -250,7 +269,7 @@ Return nil when no window is created for current buffer."
     ;; If the icon-string has a display properties, assume it is an icon image
     (let ((display-prop (get-text-property 0 'display icon-string)))
       (cond (display-prop ; svg-based icon
-             (let* ((display-prop (list '(margin left-margin) display-prop))
+             (let* ((display-prop (list `(margin ,org-remark-line-margin-side) display-prop))
                     (icon-face (get-text-property 0 'face icon-string))
                     (icon-string (propertize " " 'display display-prop)))
                (when icon-face
@@ -258,7 +277,7 @@ Return nil when no window is created for current buffer."
                (overlay-put ov 'before-string icon-string)))
             (icon-string ; text/string-based icon
              (let ((icon-string icon-string))
-               (overlay-put ov 'before-string (propertize " " 'display (list '(margin left-margin) icon-string)))))
+               (overlay-put ov 'before-string (propertize " " 'display (list `(margin ,org-remark-line-margin-side) icon-string)))))
             (t (ignore))))))
 
 
