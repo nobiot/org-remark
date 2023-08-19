@@ -196,6 +196,7 @@ by `overlays-in'."
     spacer-ov))
 
 (defun org-remark-line-highlights-redraw (&optional window)
+  "Redraw line-highlights to adjust the spaces/padding."
   (let ((window (or window (get-buffer-window))))
     (when (and (windowp window) (not (window-minibuffer-p window)))
       (org-with-wide-buffer
@@ -204,8 +205,12 @@ by `overlays-in'."
                           org-remark-highlights)))
          (dolist (ov highlights)
            (let* ((beg (overlay-start ov))
-                  (spacer-ov (org-remark-line-make-spacer-overlay beg)))
-             (push (copy-overlay ov) org-remark-highlights)
+                  (spacer-ov (org-remark-line-make-spacer-overlay beg))
+                  (copied-highlight (copy-overlay ov))
+                  (display-props
+                   (get-text-property 0 'display (overlay-get copied-highlight 'before-string))))
+             (setf (car display-props) `(margin ,org-remark-line-margin-side))
+             (push copied-highlight org-remark-highlights)
              (copy-overlay spacer-ov)
              (delete-overlay ov)
              (org-remark-highlights-housekeep)
