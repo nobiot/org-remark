@@ -58,6 +58,8 @@ Left or rigth can be chosen."
 (defvar org-remark-line-margin-padding 1
   "Padding between the main text area the icon on the margin")
 
+(defvar-local org-remark-line-right-margin-width nil)
+
 (defvar-local org-remark-line-margins-original '()
   "Original window margin width values.
 It is the original margins returned by function `window-margins'
@@ -79,6 +81,10 @@ in cons cell (or nil) before function
         ;; This is to prioritize it over line-highlight when the fomer
         ;; is at point and yet on the same line of another
         ;; line-highlight.
+        (unless org-remark-line-right-margin-width
+          (setq org-remark-line-right-margin-width
+                (+ org-remark-line-minimum-margin-width
+                   org-remark-line-margin-padding)))
         (add-hook 'org-remark-find-dwim-functions
                   #'org-remark-line-find 80 :local)
         ;; olivetti sets DEPTH to t (=90). We need go lower priority than it
@@ -88,6 +94,8 @@ in cons cell (or nil) before function
         (add-hook 'window-size-change-functions
                   #'org-remark-line-highlights-redraw 96 :local)
         (org-remark-line-set-window-margins))
+    ;; Disable
+    (setq org-remark-line-right-margin-width nil)
     (remove-hook 'org-remark-find-dwim-functions #'org-remark-line-find :local)
     (remove-hook 'window-size-change-functions
                  #'org-remark-line-set-window-margins :local)
@@ -121,9 +129,8 @@ marginal area does not exist, its width will be returned as nil."
           (setq left-margin-width left-width))
         (if (or (eq right-width nil) (< right-width
                                        org-remark-line-minimum-margin-width))
-            (setq right-margin-width (+ org-remark-line-minimum-margin-width
-                                        org-remark-line-margin-padding))
-          (setq right-margin-width (+ right-width org-remark-line-margin-padding)))
+            (setq right-margin-width org-remark-line-right-margin-width)
+          (setq right-margin-width right-width))
         ;; For `set-window-margins' window should be specified.
         ;; Howerver, `set-window-buffer' should get nil for window.
         ;; Otherwise, the minibuffer also gets the margins. It's a
