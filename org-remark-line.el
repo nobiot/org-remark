@@ -44,7 +44,18 @@ character, such as the default value.)"
   :type 'string
   :safe 'stringp)
 
-(defvar org-remark-line-minimum-margin-width 3)
+(defcustom org-remark-line-minimum-margin-width 3
+  "Margin width in number.
+It can be a single number or a cons cell. When it is a single
+number, both the left and right margin widths will be the same.
+When this customizing variable is a cons cell, the format is as
+follows: (LEFT-MARGIN-WIDTH . RIGHT-MARGIN-WIDTH). The first
+value is the left margin width and the secon value is the right
+one."
+  :local t
+  :type '(choice
+          (integer :tag "Minimum margin width for both left and right margins" 3)
+          (cons :tag "Left and right margin widths" integer integer)))
 
 (defvar org-remark-line-margin-padding 1
   "Padding between the main text area the icon on the margin")
@@ -70,14 +81,7 @@ Left or rigth can be chosen."
      :inherit highlight))
   "Face for the default line highlighter pen.")
 
-(defvar org-remark-line-heading-title-max-length 40)
-
-(defvar org-remark-line-ellipsis "…")
-
-(defvar org-remark-line-minimum-margin-width 3)
-
-(defvar org-remark-line-margin-padding 1
-  "Padding between the main text area the icon on the margin")
+(defvar-local org-remark-line-left-margin-width nil)
 
 (defvar-local org-remark-line-right-margin-width nil)
 
@@ -102,10 +106,6 @@ in cons cell (or nil) before function
         ;; This is to prioritize it over line-highlight when the fomer
         ;; is at point and yet on the same line of another
         ;; line-highlight.
-        (unless org-remark-line-right-margin-width
-          (setq org-remark-line-right-margin-width
-                (+ org-remark-line-minimum-margin-width
-                   org-remark-line-margin-padding)))
         (add-hook 'org-remark-find-dwim-functions
                   #'org-remark-line-find 80 :local)
         ;; olivetti sets DEPTH to t (=90). We need go lower priority than it
@@ -116,7 +116,6 @@ in cons cell (or nil) before function
                   #'org-remark-line-highlights-redraw 96 :local)
         (org-remark-line-set-window-margins))
     ;; Disable
-    (setq org-remark-line-right-margin-width nil)
     (remove-hook 'org-remark-find-dwim-functions #'org-remark-line-find :local)
     (remove-hook 'window-size-change-functions
                  #'org-remark-line-set-window-margins :local)
@@ -127,6 +126,8 @@ in cons cell (or nil) before function
       (setq right-margin-width (cdr org-remark-line-margins-original))
       (set-window-margins nil left-margin-width right-margin-width)
       (set-window-buffer (get-buffer-window) (current-buffer) nil)
+      (setq org-remark-line-left-margin-width nil)
+      (setq org-remark-line-right-margin-width nil)
       (setq org-remark-line-margins-set-p nil))))
 
 ;; Default line-highlighter pen
@@ -143,13 +144,22 @@ marginal area does not exist, its width will be returned as nil."
       (cl-destructuring-bind (left-width . right-width) (window-margins)
         (unless org-remark-line-margins-set-p
           (setq org-remark-line-margins-original (window-margins))
-          (setq org-remark-line-margins-set-p t))
+          (setq org-remark-line-margins-set-p t)
+          (setq org-remark-line-left-margin-width
+                (if (numberp org-remark-line-minimum-margin-width)
+                       org-remark-line-minimum-margin-width
+                     (car org-remark-line-minimum-margin-width)))
+          (setq org-remark-line-right-margin-width
+                (+ (if (numberp org-remark-line-minimum-margin-width)
+                       org-remark-line-minimum-margin-width
+                     (cdr org-remark-line-minimum-margin-width))
+                   org-remark-line-margin-padding)))
         (if (or (eq left-width nil) (< left-width
-                                       org-remark-line-minimum-margin-width))
-            (setq left-margin-width org-remark-line-minimum-margin-width)
+                                       org-remark-line-left-margin-width))
+            (setq left-margin-width org-remark-line-left-margin-width)
           (setq left-margin-width left-width))
         (if (or (eq right-width nil) (< right-width
-                                       org-remark-line-minimum-margin-width))
+                                        org-remark-line-right-margin-width))
             (setq right-margin-width org-remark-line-right-margin-width)
           (setq right-margin-width right-width))
         ;; For `set-window-margins' window should be specified.
