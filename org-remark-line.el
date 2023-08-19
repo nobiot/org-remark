@@ -249,16 +249,15 @@ Return nil when no window is created for current buffer."
   (when (get-buffer-window)
     ;; If the icon-string has a display properties, assume it is an icon image
     (let ((display-prop (get-text-property 0 'display icon-string)))
-      (cond (display-prop
+      (cond (display-prop ; svg-based icon
              (let* ((display-prop (list '(margin left-margin) display-prop))
+                    (icon-face (get-text-property 0 'face icon-string))
                     (icon-string (propertize " " 'display display-prop)))
-              ;; (setq icon-string (propertize icon-string
-              ;;                               'face 'org-remark-line-highlighter))
+               (when icon-face
+                 (setq icon-string (propertize icon-string 'face icon-face)))
                (overlay-put ov 'before-string icon-string)))
-            (icon-string
+            (icon-string ; text/string-based icon
              (let ((icon-string icon-string))
-                    ;;(propertize icon-string
-                    ;;                        'face 'org-remark-line-highlighter)))
                (overlay-put ov 'before-string (propertize " " 'display (list '(margin left-margin) icon-string)))))
             (t (ignore))))))
 
