@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 29 July 2023
-;; Last modified: 18 August 2023
+;; Last modified: 19 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -152,14 +152,6 @@ Each overlay is a highlight."
           (org-remark-icon-overlay-put
            ov icon-string
            (overlay-get ov 'org-remark-type)))))))
-
-;; (defun org-remark-icon-image-p (icon-string)
-;;   "Return t when ICON-STRING contains a display property.
-;; The string may be empty like \"\" but it may have a display
-;; property to display an icon image. In this case, we should not
-;; consider it an empty string. This is important to know when an
-;; image icon is used instead of a string."
-;;   (when (get-text-property 0 'display icon-string)))
 
 (cl-defgeneric org-remark-icon-overlay-put (_ov _icon-string _org-remark-type)
   "Default method to deal with icon.
