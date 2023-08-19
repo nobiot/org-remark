@@ -30,7 +30,7 @@
 (require 'cl-macs)
 
 (defgroup org-remark-icon nil
-  "Highlight and annotate any text files with using Org mode."
+  "Enable `org-remark' to display glyph/icon indicators."
   :group 'org-remark
   :prefix "org-remark-icon"
   :link '(url-link :tag "GitHub" "https://github.com/nobiot/org-remark"))

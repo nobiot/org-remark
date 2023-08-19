@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 16 July 2023
-;; Last modified: 04 August 2023
+;; Last modified: 19 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -64,7 +64,7 @@
 (define-minor-mode org-remark-info-mode
   "Enable Org-remark to work with `Info-mode' for Info documentation reader."
   :global t
-  :group 'org-remark
+  :group 'org-remark-info
   (if org-remark-info-mode
       ;; Enable
       (progn
