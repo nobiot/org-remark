@@ -64,9 +64,9 @@ Next: <a href="#Installation" accesskey="n" rel="next">Installation</a> &nbsp; [
 </div>
 <span id="Org_002dremark-User-Manual"></span><h1 class="top">Org-remark User Manual</h1>
 
-<p>This manual is for Org-remark version 1.1.x. Some new features are mentioned in this manual that are currently in development; these are mentioned clearly as such.
+<p>This manual is for Org-remark version 1.2.x. Some new features are mentioned in this manual that are currently in development; these are mentioned clearly as such.
 </p>
-<p>Last updated: 15 July 2023.
+<p>Last updated: 20 August 2023.
 </p>
 <p>Org-remark lets you highlight and annotate text files and websites (EWW).
 </p>
@@ -133,9 +133,13 @@ Next: <a href="#Getting-Started" accesskey="n" rel="next">Getting Started</a>, P
 ;; Optional if you would like to highlight EPUB books via nov.el
 (with-eval-after-load 'nov
   (org-remark-nov-mode +1))
+
+;; Optional if you would like to highlight Info documentation via Info-mode
+(with-eval-after-load 'info
+  (org-remark-info-mode +1))
 </pre></div>
 
-<p><code>org-remark-global-tracking-mode</code> automatically turns on <code>org-remark-mode</code> when you open a file, website via EWW, EPUB book via nov.el <a id="DOCF1" href="#FOOT1"><sup>1</sup></a>, or other supported buffer that has a marginal notes file associated with it. This is useful to keep the location of your highlights correct across Emacs sessions after you shutdown Emacs.
+<p><code>org-remark-global-tracking-mode</code> automatically turns on <code>org-remark-mode</code> when you open a file, website via EWW, EPUB book via nov.el, or other supported buffer that has a marginal notes file associated with it. This is useful to keep the location of your highlights correct across Emacs sessions after you shutdown Emacs.
 </p>
 <p>Unless you explicitly load <code>org</code> during Emacs initialization, we suggest to defer loading <code>org-remark</code> (thus there is no <code>(require 'org-remark)</code> in the example above). This is because it will also pull in <code>org</code>, which can slow down initialization. You can control the timing of loading <code>org-remark</code> by autoloading some commands in a similar way with the example keybindings below.
 </p>
@@ -170,7 +174,8 @@ Next: <a href="#Usage-Features-Concepts" accesskey="n" rel="next">Usage, Feature
 <li><a href="#Navigating-from-One-Highlight-to-Another" accesskey="2">Navigating from One Highlight to Another</a></li>
 <li><a href="#Create-Your-Own-Highlighter-Pens" accesskey="3">Create Your Own Highlighter Pens</a></li>
 <li><a href="#Highlight-and-Annotate-Websites" accesskey="4">Highlight and Annotate Websites</a></li>
-<li><a href="#Highlight-and-Annotate-EPUB-Books-_0028new-feature-being-developed-as-of-2023_002d07_002d15-and-available-only-when-the-branch-dev_002fnov-is-merged-with-the-main_0029" accesskey="5">Highlight and Annotate EPUB Books (new feature being developed as of 2023-07-15 and available only when the branch dev/nov is merged with the main)</a></li>
+<li><a href="#Highlight-and-Annotate-EPUB-Books" accesskey="5">Highlight and Annotate EPUB Books</a></li>
+<li><a href="#Highlight-and-Annotate-Info-documentation-in-Info_002dmode" accesskey="6">Highlight and Annotate Info documentation in <code>Info-mode</code></a></li>
 </ul>
 <hr>
 <div class="section" id="Highlighting-and-Annotating">
@@ -253,28 +258,42 @@ Next: <a href="#Highlight-and-Annotate-Websites" accesskey="n" rel="next">Highli
 <div class="section" id="Highlight-and-Annotate-Websites">
 <div class="header">
 <p>
-Next: <a href="#Highlight-and-Annotate-EPUB-Books-_0028new-feature-being-developed-as-of-2023_002d07_002d15-and-available-only-when-the-branch-dev_002fnov-is-merged-with-the-main_0029" accesskey="n" rel="next">Highlight and Annotate EPUB Books (new feature being developed as of 2023-07-15 and available only when the branch dev/nov is merged with the main)</a>, Previous: <a href="#Create-Your-Own-Highlighter-Pens" accesskey="p" rel="prev">Create Your Own Highlighter Pens</a>, Up: <a href="#Getting-Started" accesskey="u" rel="up">Getting Started</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#Highlight-and-Annotate-EPUB-Books" accesskey="n" rel="next">Highlight and Annotate EPUB Books</a>, Previous: <a href="#Create-Your-Own-Highlighter-Pens" accesskey="p" rel="prev">Create Your Own Highlighter Pens</a>, Up: <a href="#Getting-Started" accesskey="u" rel="up">Getting Started</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
 <span id="Highlight-and-Annotate-Websites-1"></span><h3 class="section">2.4 Highlight and Annotate Websites</h3>
 
 <span id="index-Highlighting-websites-with-EWW"></span>
 <span id="index-org_002dremark_002deww_002dmode"></span>
 
-<p><code>org-remark-eww-mode</code> lets you highlight and annotate websites just like text files. It is a global minor mode. It does not require any additional configuration. All you need is to turn it on, visit a website with <code>eww-mode</code>, and select text and highlight it. Refer to the example of a basic setup given in <a href="#Installation">Installation</a>. Org-remark can attempt to automatically adjust the position of highlights when a websites get edited. Lear more about the feature in <a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f-_0028new-feature-being-developed-as-of-2023_002d07_002d15-and-available-only-when-the-branch-dev_002fnov-is-merged-with-the-main_0029">What is Automatic Adjustment of Highlight Positions?</a>
+<p><code>org-remark-eww-mode</code> lets you highlight and annotate websites just like text files. It is a global minor mode. It does not require any additional configuration. All you need is to turn it on, visit a website with <code>eww-mode</code>, and select text and highlight it. Refer to the example of a basic setup given in <a href="#Installation">Installation</a>. Org-remark can attempt to automatically adjust the position of highlights when a websites get edited. Lear more about the feature in <a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f">What is Automatic Adjustment of Highlight Positions?</a>
 </p>
 <hr>
 </div>
-<div class="section" id="Highlight-and-Annotate-EPUB-Books-_0028new-feature-being-developed-as-of-2023_002d07_002d15-and-available-only-when-the-branch-dev_002fnov-is-merged-with-the-main_0029">
+<div class="section" id="Highlight-and-Annotate-EPUB-Books">
 <div class="header">
 <p>
-Previous: <a href="#Highlight-and-Annotate-Websites" accesskey="p" rel="prev">Highlight and Annotate Websites</a>, Up: <a href="#Getting-Started" accesskey="u" rel="up">Getting Started</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#Highlight-and-Annotate-Info-documentation-in-Info_002dmode" accesskey="n" rel="next">Highlight and Annotate Info documentation in <code>Info-mode</code></a>, Previous: <a href="#Highlight-and-Annotate-Websites" accesskey="p" rel="prev">Highlight and Annotate Websites</a>, Up: <a href="#Getting-Started" accesskey="u" rel="up">Getting Started</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
-<span id="Highlight-and-Annotate-EPUB-Books-_0028new-feature-being-developed-as-of-2023_002d07_002d15-and-available-only-when-the-branch-dev_002fnov-is-merged-with-the-main_0029-1"></span><h3 class="section">2.5 Highlight and Annotate EPUB Books (new feature being developed as of 2023-07-15 and available only when the branch dev/nov is merged with the main)</h3>
+<span id="Highlight-and-Annotate-EPUB-Books-1"></span><h3 class="section">2.5 Highlight and Annotate EPUB Books</h3>
 
 <span id="index-Highlighting-EPUB-Books-with-nov_002eel"></span>
 <span id="index-org_002dremark_002dnov_002dmode"></span>
 
-<p><code>org-remark-nov-mode</code> lets you highlight and annotate EPUB books just like text files. It is a global minor mode. It does not require any additional configuration. All you need is to turn it on, open a EPUB book with <code>nov-mode</code>, and select text and highlight it. Refer to the example of a basic setup given in <a href="#Installation">Installation</a>. If you read books with tables, it is useful to learn about the feature that automatically adjust the highlight positions: <a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f-_0028new-feature-being-developed-as-of-2023_002d07_002d15-and-available-only-when-the-branch-dev_002fnov-is-merged-with-the-main_0029">What is Automatic Adjustment of Highlight Positions?</a>
+<p><code>org-remark-nov-mode</code> lets you highlight and annotate EPUB books just like text files. It is a global minor mode. It does not require any additional configuration. All you need is to turn it on, open a EPUB book with <code>nov-mode</code>, and select text and highlight it. Refer to the example of a basic setup given in <a href="#Installation">Installation</a>. If you read books with tables, it is useful to learn about the feature that automatically adjust the highlight positions: <a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f">What is Automatic Adjustment of Highlight Positions?</a>
+</p>
+<hr>
+</div>
+<div class="section" id="Highlight-and-Annotate-Info-documentation-in-Info_002dmode">
+<div class="header">
+<p>
+Previous: <a href="#Highlight-and-Annotate-EPUB-Books" accesskey="p" rel="prev">Highlight and Annotate EPUB Books</a>, Up: <a href="#Getting-Started" accesskey="u" rel="up">Getting Started</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+</div>
+<span id="Highlight-and-Annotate-Info-documentation-in-Info_002dmode-1"></span><h3 class="section">2.6 Highlight and Annotate Info documentation in <code>Info-mode</code></h3>
+
+<span id="index-Highlighting-Info-documentation-with-Info_002dmode"></span>
+<span id="index-org_002dremark_002dinfo_002dmode"></span>
+
+<p><code>org-remark-info-mode</code> lets you highlight and annotate Info documentation just like text files. It is a global minor mode. It does not require any additional configuration. All you need is to turn it on, open an Info node with <code>Info-mode</code>, and select text and highlight it. Refer to the example of a basic setup given in <a href="#Installation">Installation</a>.
 </p>
 <hr>
 </div>
@@ -292,7 +311,7 @@ Next: <a href="#Customizing" accesskey="n" rel="next">Customizing</a>, Previous:
 <li><a href="#How-to-Automatically-Turn-On-Highlights-after-Re_002dstarting-Emacs" accesskey="2">How to Automatically Turn On Highlights after Re-starting Emacs</a></li>
 <li><a href="#How-to-Manage-Marginal-Notes" accesskey="3">How to Manage Marginal Notes</a></li>
 <li><a href="#How-to-Remove-and-Delete-Highlights" accesskey="4">How to Remove and Delete Highlights</a></li>
-<li><a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f-_0028new-feature-being-developed-as-of-2023_002d07_002d15-and-available-only-when-the-branch-dev_002fnov-is-merged-with-the-main_0029" accesskey="5">What is Automatic Adjustment of Highlight Positions? (new feature being developed as of 2023-07-15 and available only when the branch dev/nov is merged with the main)</a></li>
+<li><a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f" accesskey="5">What is Automatic Adjustment of Highlight Positions?</a></li>
 <li><a href="#Other-Commands" accesskey="6">Other Commands</a></li>
 </ul>
 <hr>
@@ -310,7 +329,7 @@ Next: <a href="#How-to-Automatically-Turn-On-Highlights-after-Re_002dstarting-Em
 <span id="index-org_002dremark_002dmark_002dred_002dline"></span>
 <span id="index-org_002dremark_002dcreate"></span>
 
-<p><code>org-remark-create</code> is a macro that lets create your own custom pen functions. Org-remark comes with two additional pens that are created by default. Use them as examples to learn how to create your own.
+<p><code>org-remark-create</code> is a macro that lets you create your own custom pen functions. Org-remark comes with two additional pens that are created by default. Use them as examples to learn how to create your own.
 </p>
 <div class="example lisp">
 <pre class="lisp">(org-remark-create &quot;red-line&quot;
@@ -507,7 +526,7 @@ Previous: <a href="#How-to-Change-Where-Marginal-Notes-File-is-Saved" accesskey=
 <div class="section" id="How-to-Remove-and-Delete-Highlights">
 <div class="header">
 <p>
-Next: <a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f-_0028new-feature-being-developed-as-of-2023_002d07_002d15-and-available-only-when-the-branch-dev_002fnov-is-merged-with-the-main_0029" accesskey="n" rel="next">What is Automatic Adjustment of Highlight Positions? (new feature being developed as of 2023-07-15 and available only when the branch dev/nov is merged with the main)</a>, Previous: <a href="#How-to-Manage-Marginal-Notes" accesskey="p" rel="prev">How to Manage Marginal Notes</a>, Up: <a href="#Usage-Features-Concepts" accesskey="u" rel="up">Usage, Features, Concepts</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f" accesskey="n" rel="next">What is Automatic Adjustment of Highlight Positions?</a>, Previous: <a href="#How-to-Manage-Marginal-Notes" accesskey="p" rel="prev">How to Manage Marginal Notes</a>, Up: <a href="#Usage-Features-Concepts" accesskey="u" rel="up">Usage, Features, Concepts</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
 <span id="How-to-Remove-and-Delete-Highlights-1"></span><h3 class="section">3.4 How to Remove and Delete Highlights</h3>
 
@@ -536,12 +555,12 @@ If there is no notes, this function will not prompt for confirmation and will re
 
 <hr>
 </div>
-<div class="section" id="What-is-Automatic-Adjustment-of-Highlight-Positions_003f-_0028new-feature-being-developed-as-of-2023_002d07_002d15-and-available-only-when-the-branch-dev_002fnov-is-merged-with-the-main_0029">
+<div class="section" id="What-is-Automatic-Adjustment-of-Highlight-Positions_003f">
 <div class="header">
 <p>
 Next: <a href="#Other-Commands" accesskey="n" rel="next">Other Commands</a>, Previous: <a href="#How-to-Remove-and-Delete-Highlights" accesskey="p" rel="prev">How to Remove and Delete Highlights</a>, Up: <a href="#Usage-Features-Concepts" accesskey="u" rel="up">Usage, Features, Concepts</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
-<span id="What-is-Automatic-Adjustment-of-Highlight-Positions_003f-_0028new-feature-being-developed-as-of-2023_002d07_002d15-and-available-only-when-the-branch-dev_002fnov-is-merged-with-the-main_0029-1"></span><h3 class="section">3.5 What is Automatic Adjustment of Highlight Positions? (new feature being developed as of 2023-07-15 and available only when the branch dev/nov is merged with the main)</h3>
+<span id="What-is-Automatic-Adjustment-of-Highlight-Positions_003f-1"></span><h3 class="section">3.5 What is Automatic Adjustment of Highlight Positions?</h3>
 
 <span id="index-Org_002dremark-automatically-adjusts-positions-of-highlights"></span>
 <span id="index-org_002dremark_002dicon_002dposition_002dadjusted"></span>
@@ -583,7 +602,7 @@ Next: <a href="#Other-Commands" accesskey="n" rel="next">Other Commands</a>, Pre
 <div class="section" id="Other-Commands">
 <div class="header">
 <p>
-Previous: <a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f-_0028new-feature-being-developed-as-of-2023_002d07_002d15-and-available-only-when-the-branch-dev_002fnov-is-merged-with-the-main_0029" accesskey="p" rel="prev">What is Automatic Adjustment of Highlight Positions? (new feature being developed as of 2023-07-15 and available only when the branch dev/nov is merged with the main)</a>, Up: <a href="#Usage-Features-Concepts" accesskey="u" rel="up">Usage, Features, Concepts</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+Previous: <a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f" accesskey="p" rel="prev">What is Automatic Adjustment of Highlight Positions?</a>, Up: <a href="#Usage-Features-Concepts" accesskey="u" rel="up">Usage, Features, Concepts</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
 <span id="Other-Commands-1"></span><h3 class="section">3.6 Other Commands</h3>
 
@@ -692,7 +711,7 @@ It&rsquo;s the icon used to indicate that the position of a given highlight has 
 </p>
 </dd>
 <dt><span>Face: <code>org-remark-highlighter-warning</code></span></dt>
-<dd><p>This face is used by the icon to indicate that the position of a given highlight has been adjusted. To know more about the feature itself, refer to <a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f-_0028new-feature-being-developed-as-of-2023_002d07_002d15-and-available-only-when-the-branch-dev_002fnov-is-merged-with-the-main_0029">What is Automatic Adjustment of Highlight Positions?</a>.
+<dd><p>This face is used by the icon to indicate that the position of a given highlight has been adjusted. To know more about the feature itself, refer to <a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f">What is Automatic Adjustment of Highlight Positions?</a>.
 </p>
 </dd>
 <dt><span>Option: <code>org-remark-open-hook</code></span></dt>
@@ -700,7 +719,7 @@ It&rsquo;s the icon used to indicate that the position of a given highlight has 
 </p>
 </dd>
 <dt><span>Option <code>org-remark-highlights-after-load-functions</code></span></dt>
-<dd><p>Abnormal hook run after Org-remark loads the highlights from the note org buffer. It is run with OVERLAYS and NOTES-BUF as arguments. OVERLAYS are highlights. It is run with the source buffer as current buffer. This hook is used by the automatic adjustment feature. To know more about the feature itself, refer to <a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f-_0028new-feature-being-developed-as-of-2023_002d07_002d15-and-available-only-when-the-branch-dev_002fnov-is-merged-with-the-main_0029">What is Automatic Adjustment of Highlight Positions?</a>.
+<dd><p>Abnormal hook run after Org-remark loads the highlights from the note org buffer. It is run with OVERLAYS and NOTES-BUF as arguments. OVERLAYS are highlights. It is run with the source buffer as current buffer. This hook is used by the automatic adjustment feature. To know more about the feature itself, refer to <a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f">What is Automatic Adjustment of Highlight Positions?</a>.
 </p></dd>
 </dl>
 
@@ -823,7 +842,8 @@ Next: <a href="#Index-_002d-Commands" accesskey="n" rel="next">Index - Commands<
 <tr><td></td><td valign="top"><a href="#index-Echo-text-_002f-Tool-tip-on-the-Highlight">Echo text / Tool tip on the Highlight</a>:</td><td>&nbsp;</td><td valign="top"><a href="#g_t_002amarginal_002dnotes_002a-Buffer">&lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index-_002d-Features_cp_letter-H">H</th><td></td><td></td></tr>
-<tr><td></td><td valign="top"><a href="#index-Highlighting-EPUB-Books-with-nov_002eel">Highlighting EPUB Books with nov.el</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlight-and-Annotate-EPUB-Books-_0028new-feature-being-developed-as-of-2023_002d07_002d15-and-available-only-when-the-branch-dev_002fnov-is-merged-with-the-main_0029">Highlight and Annotate EPUB Books (new feature being developed as of 2023-07-15 and available only when the branch dev/nov is merged with the main)</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-Highlighting-EPUB-Books-with-nov_002eel">Highlighting EPUB Books with nov.el</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlight-and-Annotate-EPUB-Books">Highlight and Annotate EPUB Books</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-Highlighting-Info-documentation-with-Info_002dmode">Highlighting Info documentation with Info-mode</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlight-and-Annotate-Info-documentation-in-Info_002dmode">Highlight and Annotate Info documentation in <code>Info-mode</code></a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Highlighting-websites-with-EWW">Highlighting websites with EWW</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlight-and-Annotate-Websites">Highlight and Annotate Websites</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index-_002d-Features_cp_letter-M">M</th><td></td><td></td></tr>
@@ -832,7 +852,7 @@ Next: <a href="#Index-_002d-Commands" accesskey="n" rel="next">Index - Commands<
 <tr><td></td><td valign="top"><a href="#index-Menu-in-the-menu-bar">Menu in the menu bar</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Navigating-from-One-Highlight-to-Another">Navigating from One Highlight to Another</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index-_002d-Features_cp_letter-O">O</th><td></td><td></td></tr>
-<tr><td></td><td valign="top"><a href="#index-Org_002dremark-automatically-adjusts-positions-of-highlights">Org-remark automatically adjusts positions of highlights</a>:</td><td>&nbsp;</td><td valign="top"><a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f-_0028new-feature-being-developed-as-of-2023_002d07_002d15-and-available-only-when-the-branch-dev_002fnov-is-merged-with-the-main_0029">What is Automatic Adjustment of Highlight Positions? (new feature being developed as of 2023-07-15 and available only when the branch dev/nov is merged with the main)</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-Org_002dremark-automatically-adjusts-positions-of-highlights">Org-remark automatically adjusts positions of highlights</a>:</td><td>&nbsp;</td><td valign="top"><a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f">What is Automatic Adjustment of Highlight Positions?</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Org_002dremark-properties-for-highlights">Org-remark properties for highlights</a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Org_002dremark-properties-for-highlights-1">Org-remark properties for highlights</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Marginal-Notes-File">Marginal Notes File</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
@@ -878,13 +898,14 @@ Next: <a href="#Index-_002d-User-Options" accesskey="n" rel="next">Index - User 
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002ddelete"><code>org-remark-delete</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Remove-and-Delete-Highlights">How to Remove and Delete Highlights</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002deww_002dmode"><code>org-remark-eww-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlight-and-Annotate-Websites">Highlight and Annotate Websites</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dglobal_002dtracking_002dmode"><code>org-remark-global-tracking-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Automatically-Turn-On-Highlights-after-Re_002dstarting-Emacs">How to Automatically Turn On Highlights after Re-starting Emacs</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dinfo_002dmode"><code>org-remark-info-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlight-and-Annotate-Info-documentation-in-Info_002dmode">Highlight and Annotate Info documentation in <code>Info-mode</code></a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark"><code>org-remark-mark</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlighting-and-Annotating">Highlighting and Annotating</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark-1"><code>org-remark-mark</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark_002dred_002dline"><code>org-remark-mark-red-line</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark_002dyellow"><code>org-remark-mark-yellow</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmode"><code>org-remark-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Automatically-Turn-On-Highlights-after-Re_002dstarting-Emacs">How to Automatically Turn On Highlights after Re-starting Emacs</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dnext"><code>org-remark-next</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Other-Commands">Other Commands</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dnov_002dmode"><code>org-remark-nov-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlight-and-Annotate-EPUB-Books-_0028new-feature-being-developed-as-of-2023_002d07_002d15-and-available-only-when-the-branch-dev_002fnov-is-merged-with-the-main_0029">Highlight and Annotate EPUB Books (new feature being developed as of 2023-07-15 and available only when the branch dev/nov is merged with the main)</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dnov_002dmode"><code>org-remark-nov-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlight-and-Annotate-EPUB-Books">Highlight and Annotate EPUB Books</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dopen"><code>org-remark-open</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlighting-and-Annotating">Highlighting and Annotating</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dprev"><code>org-remark-prev</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Other-Commands">Other Commands</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dremove"><code>org-remark-remove</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Remove-and-Delete-Highlights">How to Remove and Delete Highlights</a></td></tr>
@@ -916,11 +937,11 @@ Next: <a href="#GNU-Free-Documentation-License" accesskey="n" rel="next">GNU Fre
 <tr><th id="Index-_002d-User-Options_vr_letter-O">O</th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dcreate_002ddefault_002dpen_002dset"><code>org-remark-create-default-pen-set</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dhighlighter"><code>org-remark-highlighter</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dhighlighter_002dwarning"><code>org-remark-highlighter-warning</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f-_0028new-feature-being-developed-as-of-2023_002d07_002d15-and-available-only-when-the-branch-dev_002fnov-is-merged-with-the-main_0029">What is Automatic Adjustment of Highlight Positions? (new feature being developed as of 2023-07-15 and available only when the branch dev/nov is merged with the main)</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dhighlighter_002dwarning"><code>org-remark-highlighter-warning</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f">What is Automatic Adjustment of Highlight Positions?</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dhighlighter_002dwarning-1"><code>org-remark-highlighter-warning</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dhighlights_002dafter_002dload_002dfunctions"><code>org-remark-highlights-after-load-functions</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dicon_002dnotes"><code>org-remark-icon-notes</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dicon_002dposition_002dadjusted"><code>org-remark-icon-position-adjusted</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f-_0028new-feature-being-developed-as-of-2023_002d07_002d15-and-available-only-when-the-branch-dev_002fnov-is-merged-with-the-main_0029">What is Automatic Adjustment of Highlight Positions? (new feature being developed as of 2023-07-15 and available only when the branch dev/nov is merged with the main)</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dicon_002dposition_002dadjusted"><code>org-remark-icon-position-adjusted</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f">What is Automatic Adjustment of Highlight Positions?</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dicon_002dposition_002dadjusted-1"><code>org-remark-icon-position-adjusted</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dnotes_002dbuffer_002dname"><code>org-remark-notes-buffer-name</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dnotes_002ddisplay_002dbuffer_002daction"><code>org-remark-notes-display-buffer-action</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
@@ -1413,19 +1434,9 @@ free software license, such as the GNU General Public License,
 to permit their use in free software.
 </p>
 
-<hr>
 </div>
 </div>
-<div class="Footnotes_element" id="SEC_Foot">
-<div class="header">
-<p>
- &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
-</div>
-<h4 class="footnotes-heading">Footnotes</h4>
 
-<h5><a id="FOOT1" href="#DOCF1">(1)</a></h5>
-<p>: Feature to highlight and annotate EPUB books will be new in the latest <a href="https://elpa.gnu.org/devel/org-remark.html">GNU-devel ELPA</a> (when the dev/nov branch is merged with main) and is planned to be part of v1.2.0.</p>
-</div>
 
 
 </body>
