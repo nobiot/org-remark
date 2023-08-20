@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 29 July 2023
-;; Last modified: 19 August 2023
+;; Last modified: 20 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -28,6 +28,8 @@
 
 ;;; Code:
 (require 'cl-macs)
+;; Silence compiler
+(defvar org-remark-default-feature-modes)
 
 (defgroup org-remark-icon nil
   "Enable `org-remark' to display glyph/icon indicators."
@@ -86,6 +88,10 @@ single character, such as the default value."
   :type '(choice
           (string "(d)")
           (function)))
+
+;; Register a mode for automatic enablement at the same time as
+;; `org-remark-mode'.
+(add-to-list 'org-remark-default-feature-modes #'org-remark-icon-mode)
 
 ;;;###autoload
 (define-minor-mode org-remark-icon-mode

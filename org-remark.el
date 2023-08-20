@@ -137,9 +137,21 @@ highlights. It is run with the source buffer as current buffer."
 
 ;;;; Variables
 
-(defvar org-remark-default-features '(org-remark-icon org-remark-line))
-(defvar org-remark-default-feature-modes '(org-remark-icon-mode))
-(defvar org-remark-find-dwim-functions '(org-remark-find-overlay-at-point))
+(defvar org-remark-default-features '(org-remark-icon org-remark-line)
+  "Extension features to be enabled by default.
+It is suggested to keep them as the default, but you can choose to disable them")
+
+(defvar org-remark-default-feature-modes '()
+  "Extension minor modes to be enabled together with `org-remark-mode'.
+These minor modes should be registered to this variable by the
+respective feature where required. As an example, see
+`org-remark-line'.")
+
+(defvar org-remark-find-dwim-functions '(org-remark-find-overlay-at-point)
+  "Functions to find the highlight overlays.
+These functions should be registered to this variable by the
+respective feature where required. As an example, see
+`org-remark-line'.")
 
 (defvar org-remark-last-notes-buffer nil
   "The cloned indirect buffer visiting the notes file.
@@ -324,9 +336,9 @@ recommended to turn it on as part of Emacs initialization.
      (org-remark-mode
       ;; Activate
       (dolist (feature org-remark-default-features)
-        (unless (featurep feature) (require feature)))
+        (unless (featurep feature) (require feature nil 'noerror)))
       (dolist (feature-mode org-remark-default-feature-modes)
-        (funcall feature-mode +1))
+        (when (functionp feature-mode) (funcall feature-mode +1)))
       (org-remark-highlights-load)
       (add-hook 'after-save-hook #'org-remark-save nil t)
       (add-hook 'org-remark-highlight-link-to-source-functions
@@ -806,7 +818,8 @@ Optionally ID can be passed to find the exact ID match."
 
 (cl-defgeneric org-remark-highlight-make-overlay (_beg _end _face _org-remark-type)
   "Make overlay and return it
-Put FACE and other necessary properties to the highlight OV")
+Put FACE and other necessary properties to the highlight OV"
+  (ignore))
 
 (cl-defmethod org-remark-highlight-make-overlay (beg end face
                                                      (_org-remark-type (eql nil)))
