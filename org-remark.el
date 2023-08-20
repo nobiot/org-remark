@@ -1483,7 +1483,7 @@ highlight is a property list in the following properties:
              (org-show-children)
              ;; Headline levels now can be dynamically changed via
              ;; highlight-constructors.
-             (while (not (org-next-visible-heading 1))
+             (while (org-at-heading-p (org-next-visible-heading 1))
                (let ((id (org-entry-get (point) org-remark-prop-id))
                      (beg (org-entry-get (point)
                                          org-remark-prop-source-beg))
