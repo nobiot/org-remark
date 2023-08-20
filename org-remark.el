@@ -549,13 +549,12 @@ notes file by tracking it."
       ;; Somehow recenter is needed when a highlight is deleted and move to a
       ;; previous highlight.  Otherwise, the cursor is too low to show the
       ;; entire entry.  It looks like there is no entry.
-      (goto-char p)(org-narrow-to-subtree)(org-end-of-meta-data t)(recenter))
+      (goto-char p) (org-narrow-to-subtree) (org-end-of-meta-data t) (recenter))
     ;; Run hook with the current-buffer being the note's buffer
     (run-hooks 'org-remark-open-hook)
     ;; Avoid error when buffer-action is set to display a new frame
-    (when-let ((view-only view-only)
-               (window (get-buffer-window cbuf)))
-      (select-window window))))
+    (when view-only
+      (select-window (get-buffer-window cbuf)))))
 
 (defun org-remark-view (point)
   "View marginal notes for highlight at POINT.
