@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 31 July 2023
+;; Last modified: 20 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -1357,7 +1357,7 @@ highlight is a property list in the following properties:
              (org-show-children)
              ;; Headline levels now can be dynamically changed via
              ;; highlight-constructors.
-             (while (not (org-next-visible-heading 1))
+             (while (org-at-heading-p (org-next-visible-heading 1))
                (let ((id (org-entry-get (point) org-remark-prop-id))
                      (beg (org-entry-get (point)
                                          org-remark-prop-source-beg))
