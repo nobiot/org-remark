@@ -3,6 +3,8 @@
 
 #+html: <a href="https://www.gnu.org/software/emacs/"><img alt="GNU Emacs" src="https://img.shields.io/static/v1?logo=gnuemacs&logoColor=fafafa&label=Made%20for&message=GNU%20Emacs&color=7F5AB6&style=flat"/></a>
 #+html: <img alt="GPLv3" src="https://img.shields.io/badge/License-GPLv3-blue.svg">
+#+html: <a href="http://elpa.gnu.org/packages/org-remark.html"><img alt="GNU ELPA" src="https://elpa.gnu.org/packages/org-remark.svg"/></a>
+#+html: <a href="http://elpa.gnu.org/devel/org-remark.html"><img alt="GNU-devel ELPA" src="https://elpa.gnu.org/devel/org-remark.svg"/></a>
 
 * Breaking Changes :noexport:
 
