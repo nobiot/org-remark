@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 29 July 2023
-;; Last modified: 31 July 2023
+;; Last modified: 20 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -92,7 +92,7 @@ The icons currently available are defined in `org-remark-icons'."
     (remove-hook 'org-remark-highlights-toggle-show-functions
                  #'org-remark-icon-toggle-show :local)
     (remove-hook 'org-remark-highlights-after-load-functions
-                 #'org-remark-highlights-add-icons 80 :local)))
+                 #'org-remark-highlights-add-icons :local)))
 
 (defvar org-remark-icons
   (list

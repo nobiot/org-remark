@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 16 July 2023
-;; Last modified: 31 July 2023
+;; Last modified: 20 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -58,7 +58,9 @@
 (require 'info)
 (require 'org-remark-global-tracking)
 (defvar org-remark-prop-source-file)
+(defvar org-remark-mode)
 (declare-function org-remark-highlights-load "org-remark")
+(declare-function org-remark-mode "orgremark")
 
 ;;;###autoload
 (define-minor-mode org-remark-info-mode

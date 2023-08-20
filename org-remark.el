@@ -4,7 +4,7 @@
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
-;; Version: 1.2.0
+;; Version: 1.2.1
 ;; Created: 22 December 2020
 ;; Last modified: 20 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
@@ -38,6 +38,7 @@
 (require 'org)
 (require 'org-id)
 (require 'org-remark-global-tracking)
+(require 'org-remark-icon)
 (declare-function org-remark-convert-legacy-data "org-remark-convert-legacy")
 
 
