@@ -30,11 +30,11 @@ I will quickly show you the first option to use the new built-in library, which 
 
    In my example, I downloaded a "pen" icon as an `.svg` file from [Boxicons](https://boxicons.com/?query=pen) ([licensed under The MIT License](https://boxicons.com/usage#license)).
 
-2. Put the downloaded SVG file somewhere in your local.
+2. Put the downloaded SVG file somewhere in your local
 
    I put it at `~/.config/emacs/.cache/svg/bx-pen.svg`.
 
-3. Use `define-icon` macro to create an icon with the SVG file.
+3. Use `define-icon` macro to create an icon with the SVG file
 
    For example, I used the code below. Make sure to change my example to the path part of the file name to your own. You can also play with the `:height` property as you see fit.
 
