@@ -1,13 +1,13 @@
-Current development version
+Version 1.2.0 - 2023-08-20
 
   - feat(info): Org-remark supports Info
 
-          Advice has been implemented. It is added and removed by
-          `org-remark-info-mode`.
+          + Advice has been implemented. It is added and removed by
+            `org-remark-info-mode`.
 
-          No suitable hook is avaialble to trigger a function after the Info node
-          is rendered. This is necessary as Info renders a new node in the same
-          buffer (in the same way as Nov.el does).
+          + No suitable hook is avaialble to trigger a function after the Info node
+            is rendered. This is necessary as Info renders a new node in the same
+            buffer (in the same way as Nov.el does).
 
   - feat: icons for additional information for highlights
 
@@ -48,6 +48,10 @@ Current development version
   - feat: org-remark-highlights-after-load-functions
           Abnormal hook
 
+  Fixes:
+
+  - fix: org 9.6.7 breaks org-remark-highlights-get (#70)
+
   - fix: Make load process robust
 
          + When error occurs during the load process, instead of
@@ -76,7 +80,7 @@ Current development version
           No functional change. Changed the default color of the
           highlighter to be more visible in the dark theme.
 
-Version 1.1.0
+Version 1.1.0 - 2023-05-20
 
   Features:
 
