@@ -18,8 +18,6 @@ There are mainly two ways:
 
 1. Use the new built-in `icons` library available as of Emacs version 29.1
 
-   For more information, refer to Info nodes by evaluating `(info "(elisp)icons)` and `(info "(emacs)icons")` in Emacs
-
 2. Create a custom function and use a third-party library such as [`svg-lib`](https://github.com/rougier/svg-lib) by Nicolas Rougier
 
 I will quickly show you the first option to use the new built-in library, which I believe is the easier.
@@ -36,7 +34,7 @@ I will quickly show you the first option to use the new built-in library, which 
 
 3. Use `define-icon` macro to create an icon with the SVG file
 
-   For example, I used the code below. Make sure to change my example to the path part of the file name to your own. You can also play with the `:height` property as you see fit.
+   For example, I used the code below. Make sure to change my example to your own file name. You can also play with the `:height` property as you see fit. You can refer to the relevant Info nodes for more configuration detail by evaluating `(info "(elisp)icons)` and `(info "(emacs)icons")` in Emacs (version 29.1 onward).
 
 ``` emacs-lisp
 (define-icon annotation nil
