@@ -35,7 +35,11 @@ _________________
   [online] or or Info node `(org-remark) Getting Started'.
 
   For customization, refer to the customization group `org-remark' or
-  user manual: [online] or Info node `(org-remark) Customizing'.
+  user manual: [online] or Info node `(org-remark) Customizing'. A
+  [separate online
+  article](<https://github.com/nobiot/org-remark/tree/main/docs/articles/2023-08-20T184309_C_how-to-set-icons-to-be-svg-images.md>)
+  has been written to guide you on how to customize an icon (to be
+  incorporated into the user manual later).
 
   An [introductory video] (8 minutes) and [V1.1.0 release introduction]
   (12 minutes) are available on YouTube.
