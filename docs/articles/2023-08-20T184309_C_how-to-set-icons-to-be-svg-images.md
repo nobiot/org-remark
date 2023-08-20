@@ -38,7 +38,7 @@ I will quickly show you the first option to use the new built-in library, which 
 
    For example, I used the code below. Make sure to change my example to the path part of the file name to your own. You can also play with the `:height` property as you see fit.
 
-   ``` emacs-lisp
+``` emacs-lisp
 (define-icon annotation nil
   '((image "/home/nobiot/.config/emacs/.cache/svg/bx-pen.svg"
            :height (0.8 . em)))
