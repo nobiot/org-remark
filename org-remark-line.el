@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 01 August 2023
-;; Last modified: 19 August 2023
+;; Last modified: 20 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -130,6 +130,8 @@ in cons cell (or nil) before function
         ;; Need to reload to cater to margin changes done by `olivetti'.
         (add-hook 'window-size-change-functions
                   #'org-remark-line-highlights-redraw 96 :local)
+        (add-hook 'org-remark-highlight-other-props-functions
+                  #'org-remark-line-prop-line-number-get)
         (org-remark-line-set-window-margins))
     ;; Disable
     (remove-hook 'org-remark-find-dwim-functions #'org-remark-line-find :local)
@@ -137,6 +139,8 @@ in cons cell (or nil) before function
                  #'org-remark-line-set-window-margins :local)
     (remove-hook 'window-size-change-functions
                  #'org-remark-line-highlights-redraw :local)
+    (remove-hook 'org-remark-highlight-other-props-functions
+                 #'org-remark-line-prop-line-number-get)
     (when org-remark-line-margins-set-p
       (setq left-margin-width (car org-remark-line-margins-original))
       (setq right-margin-width (cdr org-remark-line-margins-original))
@@ -209,6 +213,13 @@ by `overlays-in'."
          (bol (org-remark-line-pos-bol point))
          (highlights (overlays-in bol bol)))
     (seq-find #'org-remark-line-highlight-p highlights)))
+
+(defun org-remark-line-prop-line-number-get (highlight)
+  "Return the line number for HIGHLIGHT overlay.
+This happens only when HIGHLIGHT is a line-highlight."
+  (when (org-remark-line-highlight-p highlight)
+    (list 'org-remark-line-number
+          (number-to-string (org-current-line (overlay-start highlight))))))
 
 (cl-defmethod org-remark-beg-end ((_org-remark-type (eql 'line)))
     (let ((bol (org-remark-line-pos-bol (point))))

@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.1.0
 ;; Created: 22 December 2020
-;; Last modified: 18 August 2023
+;; Last modified: 20 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -1056,6 +1056,21 @@ buffer for automatic sync."
    "\n" " "
    (buffer-substring-no-properties (overlay-start ov) (overlay-end ov))))
 
+(defvar org-remark-highlight-other-props-functions nil
+  "Abnormal hook to be run when adding or updating headline.
+It is called with one argument HIGHLIGHT, which is the overlay
+that represents the current highlight being worked on. The
+function is run with source buffer as the current buffer.")
+
+(defun org-remark-highlight-collect-other-props (highlight)
+  "
+Assume to be run in the source buffer."
+  (let ((props nil))
+    (dolist (fn org-remark-highlight-other-props-functions props)
+      (let ((plist (funcall fn highlight)))
+        (when plist
+          (setq props (append props plist)))))))
+
 (defun org-remark-highlight-add-or-update-highlight-headline (highlight source-buf notes-buf)
   "Add a new HIGHLIGHT headlne to the NOTES-BUF or update it.
 Return notes-props as a property list.
@@ -1079,11 +1094,13 @@ beginning of source-headline, which should be one level up."
                       (org-remark-source-find-file-name))
             link (run-hook-with-args-until-success
                   'org-remark-highlight-link-to-source-functions filename beg)
-            orgid (org-remark-highlight-get-org-id beg))
+            orgid (org-remark-highlight-get-org-id beg)
+            other-props (org-remark-highlight-collect-other-props highlight))
       ;; TODO ugly to add the beg end after setq above
       (plist-put props org-remark-prop-source-beg (number-to-string beg))
       (plist-put props org-remark-prop-source-end (number-to-string end))
-      (when link (plist-put props "org-remark-link" link)))
+      (when link (plist-put props "org-remark-link" link))
+      (when other-props (setq props (append props other-props))))
     ;;; Make it explicit that we are now in the notes-buf, though it is
     ;;; functionally redundant.
     (with-current-buffer notes-buf
