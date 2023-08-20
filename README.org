@@ -10,19 +10,17 @@
 
 * Introduction
 
-Org-remark lets you highlight and annotate text files, websites, and EPUB books with using Org mode [fn:1].
+Org-remark lets you highlight and annotate text files, websites, EPUB books and Info documentation with using Org mode.
 
 A user manual is available [[https://nobiot.github.io/org-remark/][online]] or Emacs in-system as an Info node `(org-remark)': (~C-h i~ and find the =Org-remark= node).
 
 For installation and minimum configuration, refer to [[#installation][Installation]] below or the user manual: [[https://nobiot.github.io/org-remark/#Installation][online]] or Info node `(org-remark) Installation'
 
-Getting Started in the user manual will get you started in 5 minutes: [[https://nobiot.github.io/org-remark/#getting-started][online]] or or Info node `(org-remark) Getting Started'.
+Getting Started in the user manual will get you started in 5 minutes: [[https://nobiot.github.io/org-remark/#Getting-Started][online]] or or Info node `(org-remark) Getting Started'.
 
 For customization, refer to the customization group `org-remark' or user manual: [[https://nobiot.github.io/org-remark/#Customizing][online]] or Info node `(org-remark) Customizing'.
 
 An [[https://youtu.be/c8DHrAsFiLc][introductory video]] (8 minutes) and [[https://youtu.be/BTFuS21N00k][V1.1.0 release introduction]] (12 minutes) are available on YouTube.
-
-[fn:1]: Feature to highlight and annotate EPUB books is new in the latest [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] and is planned to be part of v1.2.0.
 
 * Features
 
@@ -34,7 +32,9 @@ An [[https://youtu.be/c8DHrAsFiLc][introductory video]] (8 minutes) and [[https:
 
   + Websites when you use EWW to browse them
 
-  + EPUB books with [[https://depp.brause.cc/nov.el/][nov.el]] (latest [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] and is planned to be part of   v1.2.0.)
+  + EPUB books with [[https://depp.brause.cc/nov.el/][nov.el]]
+
+  + Info documentation
 
 * Screenshots and Videos                                           :noexport:
 
@@ -44,8 +44,8 @@ An [[https://youtu.be/c8DHrAsFiLc][introductory video]] (8 minutes) and [[https:
 [[./resources/images/2022-01-22-Context-menu.png]]
 *Figure 2*. Mouse context menu with built-in ~context-menu-mode~ available with Emacs version 28 onward
 
-[[./resources/images/2022-01-22-code.png]]
-*Figure 3*. Main notes can be any text files. Left: marginal notes file; Right: an ~org-remark.el~ file with a highlight.
+[[./resources/images/2023-08-20-epub-prince-icon.png]]
+*Figure 3*. EPUB book ("Prince" by Niccolò Machiavelli via https://www.gutenberg.org/) with icon indicating there are annotations to the highlight: new features with v1.2.0 (2023-08-20). Left: marginal notes file with annotations; Right: an EPUB book file with a highlight and simple ASCII icon.
 
 * Installation
 :PROPERTIES:
@@ -76,6 +76,10 @@ After installation, we suggest you put the setup below in your configuration.
   ;; Optional if you would like to highlight EPUB books via nov.el
   (with-eval-after-load 'nov
     (org-remark-nov-mode +1))
+
+  ;; Optional if you would like to highlight Info documentation via Info-mode
+  (with-eval-after-load 'info
+    (org-remark-info-mode +1))
 #+end_src
 
 Unless you explicitly load ~org~ during Emacs initialization, I suggest to defer loading ~org-remark~ (thus there is no ~(require 'org-remark)~ in the example above). This is because it will also pull in ~org~, which can slow down initialization. You can control the timing of loading ~org-remark~ by autoloading some commands in a similar way with the example keybindings below.
@@ -93,7 +97,8 @@ Below are example keybindings you might like to consider:
     (define-key org-remark-mode-map (kbd "C-c n o") #'org-remark-open)
     (define-key org-remark-mode-map (kbd "C-c n ]") #'org-remark-view-next)
     (define-key org-remark-mode-map (kbd "C-c n [") #'org-remark-view-prev)
-    (define-key org-remark-mode-map (kbd "C-c n r") #'org-remark-remove))
+    (define-key org-remark-mode-map (kbd "C-c n r") #'org-remark-remove)
+    (define-key org-remark-mode-map (kbd "C-c n d") #'org-remark-delete))
 #+end_src
 
 * Contributing and Feedback
@@ -113,7 +118,7 @@ Thank you.
 - Support for websites with ~eww-mode~ by Vedang Manerikar (@vedang)
 
 - Bug fixes ::
-Nan Jun Jie (@nanjj), @sgati-bodhi
+@alan-w-255, Nan Jun Jie (@nanjj), @sgati-bodhi
 
 - Documentation (including README, NEWS, CHANGELOG) ::
 @randomwangran, marty hiatt (@mooseyboots), @jsntn
@@ -124,14 +129,3 @@ Nan Jun Jie (@nanjj), @sgati-bodhi
 * License
 
 This work is licensed under a GPLv3 license. For a full copy of the license, refer to [[./LICENSE][LICENSE]].
-
-* Marginal Notes                                                   :noexport:
-:PROPERTIES:
-:org-remark-file: ~/src/org-remark/org-remark.el
-:END:
-
-This section is created by Org-remark for the source file. It serves as an example to illustrate what Org-remark can do.
-
-** defmacro org-remark-create
-
-This macro was inspired by [[https://github.com/jkitchin/ov-highlight][Ov-highlight]].  It's by John Kitchin (author of Org-ref). Great UX for markers with hydra. Saves the marker info and comments directly within the Org file as Base64 encoded string. It uses overlays with using ~ov~ package.

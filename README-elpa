@@ -21,8 +21,8 @@ _________________
 1 Introduction
 ==============
 
-  Org-remark lets you highlight and annotate text files, websites, and
-  EPUB books with using Org mode [1].
+  Org-remark lets you highlight and annotate text files, websites, EPUB
+  books and Info documentation with using Org mode.
 
   A user manual is available [online] or Emacs in-system as an Info node
   `(org-remark)': (`C-h i' and find the `Org-remark' node).
@@ -47,7 +47,7 @@ _________________
 
 [online] <https://nobiot.github.io/org-remark/#Installation>
 
-[online] <https://nobiot.github.io/org-remark/#getting-started>
+[online] <https://nobiot.github.io/org-remark/#Getting-Started>
 
 [online] <https://nobiot.github.io/org-remark/#Customizing>
 
@@ -72,13 +72,12 @@ _________________
 
     + Websites when you use EWW to browse them
 
-    + EPUB books with [nov.el] (latest [GNU-devel ELPA] and is planned
-      to be part of v1.2.0.)
+    + EPUB books with [nov.el]
+
+    + Info documentation
 
 
 [nov.el] <https://depp.brause.cc/nov.el/>
-
-[GNU-devel ELPA] <https://elpa.gnu.org/devel/org-remark.html>
 
 
 3 Installation
@@ -108,6 +107,14 @@ _________________
   | ;; Optional if you would like to highlight websites via eww-mode
   | (with-eval-after-load 'eww
   |   (org-remark-eww-mode +1))
+  | 
+  | ;; Optional if you would like to highlight EPUB books via nov.el
+  | (with-eval-after-load 'nov
+  |   (org-remark-nov-mode +1))
+  | 
+  | ;; Optional if you would like to highlight Info documentation via Info-mode
+  | (with-eval-after-load 'info
+  |   (org-remark-info-mode +1))
   `----
 
   Unless you explicitly load `org' during Emacs initialization, I
@@ -130,7 +137,8 @@ _________________
   |   (define-key org-remark-mode-map (kbd "C-c n o") #'org-remark-open)
   |   (define-key org-remark-mode-map (kbd "C-c n ]") #'org-remark-view-next)
   |   (define-key org-remark-mode-map (kbd "C-c n [") #'org-remark-view-prev)
-  |   (define-key org-remark-mode-map (kbd "C-c n r") #'org-remark-remove))
+  |   (define-key org-remark-mode-map (kbd "C-c n r") #'org-remark-remove)
+  |   (define-key org-remark-mode-map (kbd "C-c n d") #'org-remark-delete))
   `----
 
 
@@ -165,6 +173,10 @@ _________________
   New features
 
 
+
+        EPUB books (nov.el) support would not have been possible without
+        collaboration with @sati-bodhi
+
         `echo-text' update from the marginal notes to the source buffer
         by marty hiatt (@mooseyboots)
 
@@ -172,10 +184,10 @@ _________________
         (@vedang)
 
   Bug fixes
-  Nan Jun Jie (@nanjj), @sgati-bodhi
+  @alan-w-255, Nan Jun Jie (@nanjj), @sgati-bodhi
 
   Documentation (including README, NEWS, CHANGELOG)
-  @randomwangran, marty hiatt (@mooseyboots)
+  @randomwangran, marty hiatt (@mooseyboots), @jsntn
 
   All the comments, issues, and questions on GitHub
   @randomwangran, @karthink, @holtzermann17, @shombando, @magthe,
@@ -192,12 +204,3 @@ _________________
 
 
 [LICENSE] <./LICENSE>
-
-
-
-Footnotes
-_________
-
-[1] : Feature to highlight and annotate EPUB books is new in the
-latest [GNU-devel ELPA] (<https://elpa.gnu.org/devel/org-remark.html>)
-and is planned to be part of v1.2.0.
