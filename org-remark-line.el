@@ -151,6 +151,13 @@ in cons cell (or nil) before function
       (setq org-remark-line-margins-set-p nil))))
 
 ;; Default line-highlighter pen
+
+;;;###autoload
+(defun org-remark-mark-line (&args _)
+  "Dummy function definition to let autoload work.
+The actual implementation is added when this library is loaded
+and macro `org-remark-create' creates the actual function.")
+
 (org-remark-create "line"
                    `org-remark-line-highlighter
                    `(org-remark-type line))
