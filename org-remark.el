@@ -95,14 +95,19 @@ buffer with this name."
   :type 'string)
 
 (defcustom org-remark-notes-auto-delete nil
-  "How to remove notes entries when user removes them.
+  "How Org-remark removes entries when user deletes highlights.
 This controls the behavior of Org-remark when the user deletes
 the highlight in the source (for example, when deleting a whole
 line including a highlight). The default behavior is to remove
-only the properties in the notes buffer and keeping the
-entry (with using `org-remark-remove'). You can change the
-behavior to delete the entire entry when it contains no
-annotation without being asked with a prompt."
+only the properties in the notes buffer and keeping the headline
+title and any notes in the entry (with using
+`org-remark-remove').
+
+Set this customizing variable to \\=':auto-delete\\=' and you can
+change the behavior to delete the entire entry when it contains
+no notes without a prompt asking for confirmation. This is the
+same behavior as passing a single universal
+argument (\\[universal-argument]) to `org-remark-delete'."
   :type '(radio
           (const :tag "Keep entries (default)" nil)
           (const :tag "Delete entries automatically when no notes exist"
@@ -675,25 +680,43 @@ from."
 
 (defun org-remark-remove (point &optional delete)
   "Remove the highlight at POINT.
-It will remove the highlight and the properties from the
-marginalia, but will keep the headline and annotations.  This is
-to ensure to keep any notes you might have written intact.
+By default, it will remove the highlight and the properties from the marginal
+notes buffer, but will keep the headline title and any notes in
+it. This is to ensure to keep any notes you might have written
+intact.
 
-You can let this command DELETE the entire heading subtree for
-the highlight, along with the annotations you have written, by
-passing a universal argument with \\[universal-argument].
+Optionally, you can let this command delete the entire heading
+subtree for the highlight, along with the annotations you have
+written, by passing universal argument in DELETE.
 
-TODO Update with the new (16) and (4)
+This command differentiates a single or double universal
+arguments as follows:
+
+- \\[universal-argument]
+
+  Look for notes in the entry. If there is any, ask the user for
+  confirmation. Delete the entire entry only when the user
+  confirms with \\='y\\='. When \\='n\\=', remove the entry's
+  properties only. This is the same behavior as
+  function `org-remark-delete'.
+
+- \\[universal-argument] \\[universal-argument]
+
+  This is an automatic deletion. Delete the entry without asking
+  the user when there is no notes in the entry. If there are any
+  notes, remove the entry's properties only. This is the same
+  behavior as passing a single universal-argument to
+  function `org-remark-delete'.
 
 If you have done so by error, you could still `undo' it in the
-marginal notes buffer, but not in the current buffer as adding
+marginal notes buffer, and not in the current buffer as adding
 and removing overlays are not part of the undo tree."
   (interactive "d\nP")
   (let* ((ov (org-remark-find-dwim point))
          (id (overlay-get ov 'org-remark-id)))
     (when (and ov id)
-      ;; Remove the highlight overlay and id Where there is more than one,
-      ;; remove only one.  It should be last-in-first-out in general but
+      ;; Remove the highlight overlay and id. If there is more than one,
+      ;; remove only one. It should be last-in-first-out in general but
       ;; overlays functions don't guarantee it (when delete
       ;; (org-remark-open point :view-only))
       (org-remark-highlight-clear ov)
@@ -707,20 +730,29 @@ and removing overlays are not part of the undo tree."
   "Delete the highlight at POINT and marginal notes for it.
 
 This function will prompt for confirmation if there is any notes
-present in the marginal notes buffer.  When the marginal notes
-buffer is not displayed in the current frame, it will be
+present in the highlight's entry in the marginal notes buffer.
+When it is not displayed in the current frame, it will be
 temporarily displayed together with the prompt for the user to
-see the notes.
+see the notes to help with confirmation.
 
-TODO
-Now optionally takes \\[universal-argument].
-
-If there is no notes, this function will not prompt for
+If there are no notes, this function will not prompt for
 confirmation and will remove the highlight and deletes the entry
 in the marginal notes buffer.
 
-This command is identical with passing a universal argument to
-`org-remark-remove'."
+This is the same behavior as passing a single universal-argument
+to function `org-remark-remove'.
+
+Optionally, you can let this command automatically delete the
+entry when there are no notes in it by passing universal argument
+in ARG.
+
+- \\[universal-argument]
+
+  This is an automatic deletion. Delete the entry without asking
+  the user when there is no notes in the entry. If there are any
+  notes, remove the entry's properties only. This is the same
+  behavior as passing double universal-arguments to
+  function `org-remark-remove'."
   (interactive "d\nP")
   (let ((optional-arg (if (eql 4 (prefix-numeric-value arg))
                           '(16) ;; make it universal-arg x 2
@@ -1323,31 +1355,28 @@ Return the point of begining of current heading."
 
 (defun org-remark-notes-remove (id &optional delete)
   "Remove the note entry for highlight ID.
-By default, it deletes only the properties of the entry keeping
-the headline intact.
+By default, it removes only the properties of the entry keeping
+the headline title and any notes in it intact.
 
-You can pass DELETE and delete the entire note entry. Elisp can
-pass (for example, command `org-remark-remove') the following
-value to differentiate the deletion behavor:
+You can pass DELETE and delete the entire entry. Elisp can pass
+the following value to differentiate the deletion behavor (for
+example, with commands `org-remark-remove' or
+`org-remark-delete'):
 
-- :delete-no-question ::
+- :auto-delete or a list including 16 (16) The latter value is
+  generated when the user uses a command with
+  \\[universal-argument] \\[universal-argument] ::
 
-  Always delete the entire note entry without asking the user
-
-- :delete-when-no-notes ::
-
-  Delete the notes without asking the user only when there is no
-  annotations in the entry. Delete only the properties and keep
-  the annotations.
+  Delete the entry without asking the user when there is no notes
+  in the entry. If there are any notes, remove the entry's
+  properties only.
 
 - Any other non-nil value ::
 
-  Look for annotations. If there is any, ask the user for
+  Look for notes in the entry. If there is any, ask the user for
   confirmation. Delete the entire entry only when the user
-  confirms with \\='y\\='.
-
-- If there is no annotation, delete the entire entry wihtout
-  asking further.
+  confirms with \\='y\\='. When \\='n\\=', remove the entry's
+  properties only.
 
 Return t if an entry is removed or deleted."
   (let* ((ibuf (org-remark-notes-buffer-get-or-create))
@@ -1368,21 +1397,22 @@ Return t if an entry is removed or deleted."
                            delete))
                  (notes-exist-p (looking-at "."))
                  (ok-to-delete-p nil))
-             (when (and (not notes-exist-p) (eql delete :auto-delete))
+             (cond
+              ((and (not notes-exist-p) (eql delete :auto-delete))
                (setq ok-to-delete-p t))
-             (when (and (not notes-exist-p) (not (eql delete :auto-delete)))
+              ((and (not notes-exist-p) (not (eql delete :auto-delete)))
                ;; default behavior: keep the entry
                (setq ok-to-delete-p nil))
-             (when (and notes-exist-p (eql delete :auto-delete))
+              ((and notes-exist-p (eql delete :auto-delete))
                ;; keep the notes and entry when not asking the user
                (setq ok-to-delete-p nil))
-             (when (and notes-exist-p (not (eql delete :auto-delete)))
+              ((and notes-exist-p (not (eql delete :auto-delete)))
                ;; default behavior: when notes exist, ask the user
                (display-buffer ibuf
                                org-remark-notes-display-buffer-action)
                (setq ok-to-delete-p
                      (y-or-n-p "Highlight removed but notes exist.  \
-Do you also want to delete the notes?")))
+Do you also want to delete the notes?"))))
              (when ok-to-delete-p
                (delete-region (point-min)(point-max))
                (message "Deleted the marginal notes entry"))))))
