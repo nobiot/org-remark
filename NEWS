@@ -1,3 +1,6 @@
+Current development version
+  - fix: compiler warning ‘org-remark-highlight-save’ is an obsolete...
+
 Version 1.2.1 - 2023-08-20
   - fix: org-remark-icon-mode is a void symbol
 
