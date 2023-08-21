@@ -1,4 +1,13 @@
+Under current development
+
+     Features:
+
+   - (#21) Option to delete notes when highlight removed if the notes are empty
+
+   - (#71) Ability to highlight a whole line and show a mark on the margin
+
 Version 1.2.1 - 2023-08-20
+
   - fix: org-remark-icon-mode is a void symbol
 
 Version 1.2.0 - 2023-08-20
