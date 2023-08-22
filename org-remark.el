@@ -693,12 +693,16 @@ follows:
 
 - \\[universal-argument]
 
+  This is the same behavior as function `org-remark-delete'.
+
   Look for notes in the entry. If there is any, the side-window
   will show them and a prompt will ask the user for confirmation.
   The function will delete the entry only when the user confirms
   with \\='y\\='. When \\='n\\=', it will only remove the entry's
-  properties. This is the same behavior as function
-  `org-remark-delete'.
+  properties.
+
+  If there are no notes in the entry, the command will delete the
+  entry without the prompt.
 
 - \\[universal-argument] \\[universal-argument]
 
@@ -740,7 +744,7 @@ see the notes to help with confirmation.
 
 If there are no notes, this function will not prompt for
 confirmation and will remove the highlight in the source buffer
-and deletes the entry in the marginal notes buffer.
+and delete the entry in the marginal notes buffer.
 
 This is the same behavior as passing a single `universal-argument'
 to function `org-remark-remove'.
@@ -763,10 +767,10 @@ not part of the undo tree. You can undo the deletion in the
 marginal notes buffer and then save it to sync the highlight
 back in the source."
   (interactive "d\nP")
-  (let ((optional-arg (if (eql 4 (prefix-numeric-value arg))
+  (let ((delete (if (eql 4 (prefix-numeric-value arg))
                           '(16) ;; make it universal-arg x 2
                         :delete)))
-    (org-remark-remove point optional-arg)))
+    (org-remark-remove point delete)))
 
 
 ;;;; Private Functions
@@ -1364,17 +1368,19 @@ Return the point of begining of current heading."
 
 (defun org-remark-notes-remove (id &optional delete)
   "Remove the note entry for highlight ID.
-By default, it removes only the properties of the entry keeping
-the headline title and any notes in it intact.
+Return t.
 
-You can pass DELETE and delete the entire entry. Elisp can pass
-the following value to differentiate the deletion behavor (for
+By default, this function only removes the properties of the
+entry, keeping the headline title and any notes in it intact.
+
+You can pass DELETE to delete the entire entry. Elisp can pass
+the following value to differentiate the deletion behavior (for
 example, with commands `org-remark-remove' or
 `org-remark-delete'):
 
-- :auto-delete or a list including 16 (16) The latter value is
-  generated when the user uses a command with
-  \\[universal-argument] \\[universal-argument] ::
+- :auto-delete or a list that has a single element 16, that is
+  \\='(16)\\='. The latter value is generated when the user uses
+  a command with \\[universal-argument] \\[universal-argument] ::
 
   Delete the entry without asking the user when there is no notes
   in the entry. If there are any notes, remove the entry's
@@ -1387,7 +1393,8 @@ example, with commands `org-remark-remove' or
   confirms with \\='y\\='. When \\='n\\=', remove the entry's
   properties only.
 
-Return t if an entry is removed or deleted."
+  If there are no notes, do not prompt for confirmation and
+  delete the entry in the marginal notes buffer."
   (let* ((ibuf (org-remark-notes-buffer-get-or-create))
          (window (get-buffer-window ibuf)))
     (with-current-buffer ibuf
@@ -1407,14 +1414,16 @@ Return t if an entry is removed or deleted."
                  (notes-exist-p (looking-at "."))
                  (ok-to-delete-p nil))
              (cond
+              ;; Deletion Case 1. No notes. Auto-delete. OK to Delete
               ((and (not notes-exist-p) (eql delete :auto-delete))
                (setq ok-to-delete-p t))
+              ;; Deletion Case 2. No notes. Normal delete. OK to Delete
               ((and (not notes-exist-p) (not (eql delete :auto-delete)))
-               ;; default behavior: keep the entry
-               (setq ok-to-delete-p nil))
+               (setq ok-to-delete-p t))
+              ;; Deletion Case 3. Notes exist. Auto-delete. Keep.
               ((and notes-exist-p (eql delete :auto-delete))
-               ;; keep the notes and entry when not asking the user
                (setq ok-to-delete-p nil))
+              ;; Deletion Case 4. Notes exist. Normal delete. Prompt Y/N
               ((and notes-exist-p (not (eql delete :auto-delete)))
                ;; default behavior: when notes exist, ask the user
                (display-buffer ibuf
