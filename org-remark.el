@@ -103,15 +103,18 @@ only the properties in the notes buffer and keeping the headline
 title and any notes in the entry (with using
 `org-remark-remove').
 
-Set this customizing variable to \\=':auto-delete\\=' and you can
-change the behavior to delete the entire entry when it contains
-no notes without a prompt asking for confirmation. This is the
-same behavior as passing a single universal
-argument (\\[universal-argument]) to `org-remark-delete'."
+If this behavior leads to cluttering the marginal notes org file,
+you can set this customizing variable to \\=':auto-delete\\='.
+With this option, Org-remark will delete the entire entry when it
+contains no notes without a prompt asking for confirmation. This
+is the same behavior as passing a single `universal-argument'
+(\\[universal-argument]) to`org-remark-delete' or double `universal-argument'
+(\\[universal-argument] \\[universal-argument]) to `org-remark-remove'."
   :type '(radio
           (const :tag "Keep entries (default)" nil)
           (const :tag "Delete entries automatically when no notes exist"
                  :auto-delete)))
+
 (defvaralias
   'org-remark-source-path-function 'org-remark-source-file-name)
 
