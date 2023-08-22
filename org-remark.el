@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.2.1
 ;; Created: 22 December 2020
-;; Last modified: 21 August 2023
+;; Last modified: 22 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -680,37 +680,40 @@ from."
 
 (defun org-remark-remove (point &optional delete)
   "Remove the highlight at POINT.
-By default, it will remove the highlight and the properties from the marginal
-notes buffer, but will keep the headline title and any notes in
-it. This is to ensure to keep any notes you might have written
-intact.
+By default, it will remove the highlight from the source buffer
+and the properties of entry from the marginal notes buffer, but
+will keep the headline title and any notes in it. This is to
+ensure to keep any notes you might have written intact.
 
 Optionally, you can let this command delete the entire heading
-subtree for the highlight, along with the annotations you have
-written, by passing universal argument in DELETE.
-
-This command differentiates a single or double universal
-arguments as follows:
+subtree for the highlight along with the notes you have written,
+by passing universal argument in DELETE. For deletion, this
+command differentiates a single or double universal arguments as
+follows:
 
 - \\[universal-argument]
 
-  Look for notes in the entry. If there is any, ask the user for
-  confirmation. Delete the entire entry only when the user
-  confirms with \\='y\\='. When \\='n\\=', remove the entry's
-  properties only. This is the same behavior as
-  function `org-remark-delete'.
+  Look for notes in the entry. If there is any, the side-window
+  will show them and a prompt will ask the user for confirmation.
+  The function will delete the entry only when the user confirms
+  with \\='y\\='. When \\='n\\=', it will only remove the entry's
+  properties. This is the same behavior as function
+  `org-remark-delete'.
 
 - \\[universal-argument] \\[universal-argument]
 
-  This is an automatic deletion. Delete the entry without asking
-  the user when there is no notes in the entry. If there are any
-  notes, remove the entry's properties only. This is the same
-  behavior as passing a single `universal-argument' to
-  function `org-remark-delete'.
+  This is automatic deletion. This command will delete the entry
+  without asking the user when there is no notes in the entry. If
+  there are any notes, only the entry's properties will be
+  removed. This is the same behavior as passing a single
+  `universal-argument' to function `org-remark-delete'.
 
-If you have done so by error, you could still `undo' it in the
-marginal notes buffer, and not in the current buffer as adding
-and removing overlays are not part of the undo tree."
+If you have removed or deleted a highlight by error, you can
+still `undo' it in the marginal notes buffer and not in the
+current buffer. This is because adding and removing overlays are
+not part of the undo tree. You can undo the deletion in the
+marginal notes buffer and then save it to sync the highlight back
+in the source."
   (interactive "d\nP")
   (let* ((ov (org-remark-find-dwim point))
          (id (overlay-get ov 'org-remark-id)))
@@ -736,23 +739,29 @@ temporarily displayed together with the prompt for the user to
 see the notes to help with confirmation.
 
 If there are no notes, this function will not prompt for
-confirmation and will remove the highlight and deletes the entry
-in the marginal notes buffer.
+confirmation and will remove the highlight in the source buffer
+and deletes the entry in the marginal notes buffer.
 
 This is the same behavior as passing a single `universal-argument'
 to function `org-remark-remove'.
 
-Optionally, you can let this command automatically delete the
-entry when there are no notes in it by passing universal argument
-in ARG.
+Optionally, you can pass `universal-argument' to this function
+with ARG and it will behave as follows.
 
 - \\[universal-argument]
 
-  This is an automatic deletion. Delete the entry without asking
-  the user when there is no notes in the entry. If there are any
+  This is automatic deletion. Delete the entry without asking the
+  user when there is no notes in the entry. If there are any
   notes, remove the entry's properties only. This is the same
-  behavior as passing double universal-arguments to
-  function `org-remark-remove'."
+  behavior as passing double universal-arguments to function
+  `org-remark-remove'.
+
+If you have removed or deleted a highlight by error, you can
+still `undo' it in the marginal notes buffer and not in the
+current buffer. This is because adding and removing overlays are
+not part of the undo tree. You can undo the deletion in the
+marginal notes buffer and then save it to sync the highlight
+back in the source."
   (interactive "d\nP")
   (let ((optional-arg (if (eql 4 (prefix-numeric-value arg))
                           '(16) ;; make it universal-arg x 2
