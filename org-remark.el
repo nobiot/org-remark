@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.2.1
 ;; Created: 22 December 2020
-;; Last modified: 29 August 2023
+;; Last modified: 01 September 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -543,9 +543,10 @@ The marginal notes will be narrowed to the relevant headline to
 show only the highlight at point.
 
 This function creates a cloned indirect buffer for the marginal
-notes file.  You can edit it as a normal Org buffer.  Once you
-have done editing, you can simply save and kill the buffer or
-keep it around.
+notes file. You can edit it as a normal Org buffer. Once you have
+done editing, you can simply save and kill the buffer or keep it
+around. Org-remark ensures that there is only one cloned buffer
+for notes file by tracking it.
 
 The marginal notes file gets displayed by the action defined by
 `org-remark-notes-display-buffer-action' (by default in a left
@@ -556,30 +557,48 @@ You can customize the name of the marginal notes buffer with
 `org-remark-notes-buffer-name'.
 
 By default, the cursor will go to the marginal notes buffer for
-further editing.  When VIEW-ONLY is non-nil \(e.g. by passing a
-universal argument with \\[universal-argument]\), you can display
-the marginal notes buffer with the cursor remaining in the
-current buffer.
+further editing. When VIEW-ONLY is \\=':view-only\\=' \(e.g.
+Elisp program to pass the value), you can view the marginal notes
+buffer with the cursor remaining in the current buffer.
 
-This function ensures that there is only one cloned buffer for
-notes file by tracking it."
+If you pass a single universal argument with
+\\[universal-argument]\), you open the marginal notes buffer
+associated with the current buffer with `find-file' without
+narrowing it to a specific node or cloning it as indirect buffer..
+
+If you pass any other values to VIEW-ONLY, this function behaves
+in the way as passing \\=':view-only\\=' to it and simply let you
+view the marginal notes in a cloned indirect buffer in the
+side-window (as defined by user option
+`org-remark-notes-display-buffer-action')."
   (interactive "d\nP")
-  (when-let* ((ov (org-remark-find-dwim point))
-              (id (overlay-get ov 'org-remark-id))
-              (ibuf (org-remark-notes-buffer-get-or-create))
-              (cbuf (current-buffer)))
-    (pop-to-buffer ibuf org-remark-notes-display-buffer-action)
-    (widen)
-    (when-let (p (org-find-property org-remark-prop-id id))
-      ;; Somehow recenter is needed when a highlight is deleted and move to a
-      ;; previous highlight.  Otherwise, the cursor is too low to show the
-      ;; entire entry.  It looks like there is no entry.
-      (goto-char p) (org-narrow-to-subtree) (org-end-of-meta-data t) (recenter))
-    ;; Run hook with the current-buffer being the note's buffer
-    (run-hooks 'org-remark-open-hook)
-    ;; Avoid error when buffer-action is set to display a new frame
-    (when view-only
-      (select-window (get-buffer-window cbuf)))))
+  (let ((ov (org-remark-find-dwim point)))
+    ;; If C-u is used or the cursor is not on a highlight, we don't want
+    ;; to open in a normal way but open the margnal notes buffer with
+    ;; find-file.
+    (if (or (eql (prefix-numeric-value current-prefix-arg) 4)
+            (not ov))
+        (let ((notes-file (org-remark-notes-get-file-name)))
+          (when (file-exists-p notes-file) (find-file notes-file)))
+      ;; Open marginal notes normally as an indirect buffer in a side
+      ;; window.
+      (when-let*
+          ((ov ov) ;; OV must be present here.
+           (id (overlay-get ov 'org-remark-id))
+           (ibuf (org-remark-notes-buffer-get-or-create))
+           (cbuf (current-buffer)))
+        (pop-to-buffer ibuf org-remark-notes-display-buffer-action)
+        (widen)
+        (when-let (p (org-find-property org-remark-prop-id id))
+          ;; Somehow recenter is needed when a highlight is deleted and move to a
+          ;; previous highlight.  Otherwise, the cursor is too low to show the
+          ;; entire entry.  It looks like there is no entry.
+          (goto-char p) (org-narrow-to-subtree) (org-end-of-meta-data t) (recenter))
+        ;; Run hook with the current-buffer being the note's buffer
+        (run-hooks 'org-remark-open-hook)
+        ;; Avoid error when buffer-action is set to display a new frame
+        (when view-only
+          (select-window (get-buffer-window cbuf)))))))
 
 (defun org-remark-view (point)
   "View marginal notes for highlight at POINT.
