@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.2.1
 ;; Created: 22 December 2020
-;; Last modified: 22 August 2023
+;; Last modified: 29 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -168,7 +168,7 @@ These minor modes should be registered to this variable by the
 respective feature where required. As an example, see
 `org-remark-line'.")
 
-(defvar org-remark-find-dwim-functions '(org-remark-find-overlay-at-point)
+(defvar org-remark-find-dwim-functions nil
   "Functions to find the highlight overlays.
 These functions should be registered to this variable by the
 respective feature where required. As an example, see
@@ -361,7 +361,9 @@ recommended to turn it on as part of Emacs initialization.
       (dolist (feature-mode org-remark-default-feature-modes)
         (when (functionp feature-mode) (funcall feature-mode +1)))
       (org-remark-highlights-load)
-      (add-hook 'after-save-hook #'org-remark-save nil t)
+      (add-hook 'org-remark-find-dwim-functions
+                #'org-remark-find-overlay-at-point nil :local)
+      (add-hook 'after-save-hook #'org-remark-save nil :local)
       (add-hook 'org-remark-highlight-link-to-source-functions
                 #'org-remark-highlight-link-to-source-default 80)
       (add-hook 'after-revert-hook #'org-remark-highlights-load :local)
@@ -374,6 +376,8 @@ recommended to turn it on as part of Emacs initialization.
       (setq org-remark-highlights nil)
       (dolist (feature-mode org-remark-default-feature-modes)
         (funcall feature-mode -1))
+      (remove-hook 'org-remark-find-dwim-functions
+                #'org-remark-find-overlay-at-point :local)
       (remove-hook 'after-save-hook #'org-remark-save t)
       (remove-hook 'org-remark-highlight-link-to-source-functions
                    #'org-remark-highlight-link-to-source-default)
