@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 01 August 2023
-;; Last modified: 20 August 2023
+;; Last modified: 30 August 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -88,9 +88,9 @@ The maximum is set in `org-remark-line-heading-title-max-length'."
 
 (defface org-remark-line-highlighter
   '((((class color) (min-colors 88) (background light))
-     :foreground "#dbba3f")
+     :foreground "#dbba3f" :inherit default)
     (((class color) (min-colors 88) (background dark))
-     :foreground "#e2d980")
+     :foreground "#e2d980" :inherit default)
     (t
      :inherit highlight))
   "Face for the default line highlighter pen.")
@@ -173,9 +173,10 @@ marginal area does not exist, its width will be returned as nil."
           (setq org-remark-line-margins-original (window-margins))
           (setq org-remark-line-margins-set-p t)
           (setq org-remark-line-minimum-left-margin-width
-                (if (numberp org-remark-line-minimum-margin-width)
+                (+ (if (numberp org-remark-line-minimum-margin-width)
                        org-remark-line-minimum-margin-width
-                     (car org-remark-line-minimum-margin-width)))
+                     (car org-remark-line-minimum-margin-width))
+                   org-remark-line-margin-padding))
           (setq org-remark-line-minimum-right-margin-width
                 (+ (if (numberp org-remark-line-minimum-margin-width)
                        org-remark-line-minimum-margin-width
@@ -242,8 +243,6 @@ This happens only when HIGHLIGHT is a line-highlight."
                                (- left-margin
                                   (+ string-length org-remark-line-margin-padding))))
          (spaces-length (if (> spaces-base-length 0) spaces-base-length 0))
-         (spaces (with-temp-buffer (insert-char ?\s spaces-length)
-                                   (buffer-string)))
          (spacer-ov (make-overlay pos pos nil :front-advance)))
     ;; Add a spacing overlay before the line-highlight overlay but we
     ;; only need one of these; remove it if one already exits
@@ -253,7 +252,7 @@ This happens only when HIGHLIGHT is a line-highlight."
                  (propertize " "
                              'display
                              `((margin ,org-remark-line-margin-side)
-                               ,spaces)))
+                               (space . (:width ,spaces-length)))))
     (overlay-put spacer-ov 'category 'org-remark-spacer)
     spacer-ov))
 
@@ -282,8 +281,10 @@ This happens only when HIGHLIGHT is a line-highlight."
   ;; If the icon-string has a display properties, assume it is an icon image
   (let ((display-prop (get-text-property 0 'display icon-string)))
     (cond (display-prop ; svg-based icon
-           (let* ((display-prop
-                   (list `(margin ,org-remark-line-margin-side) display-prop))
+           (let* ((display-prop (list `(margin ,org-remark-line-margin-side) display-prop))
+                   ;; TODO margin needs to be calculated
+                   ;; (list `(margin ,org-remark-line-margin-side)
+                   ;;       (append display-prop '(:margin (10 . 0))))))
                   (icon-face (get-text-property 0 'face icon-string))
                   (icon-string (propertize " " 'display display-prop)))
              (when icon-face
