@@ -2,9 +2,13 @@ Under current development
 
      Features:
 
-   - (#21) Option to delete notes when highlight removed if the notes are empty
+   - Ability to highlight a whole line and show a mark on the margin (#71)
 
-   - (#71) Ability to highlight a whole line and show a mark on the margin
+   - Option to delete the whole notes entry when highlight is removed if
+     there is no notes body text (#21)
+
+   - `org-remark-open` to open the associated marginal notes file if
+     cursor outside a highlight (#72)
 
 Version 1.2.1 - 2023-08-20
 
