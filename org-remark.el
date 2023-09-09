@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.2.1
 ;; Created: 22 December 2020
-;; Last modified: 01 September 2023
+;; Last modified: 09 September 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -577,7 +577,8 @@ side-window (as defined by user option
     ;; to open in a normal way but open the margnal notes buffer with
     ;; find-file.
     (if (or (eql (prefix-numeric-value current-prefix-arg) 4)
-            (not ov))
+            ;; :view-only should not open the marginal notes buffer
+            (and (null ov) (not (eql view-only :view-only))))
         (let ((notes-file (org-remark-notes-get-file-name)))
           (when (file-exists-p notes-file) (find-file notes-file)))
       ;; Open marginal notes normally as an indirect buffer in a side
