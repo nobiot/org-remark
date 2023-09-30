@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 01 August 2023
-;; Last modified: 30 August 2023
+;; Last modified: 30 September 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -51,22 +51,20 @@ character, such as the default value.)"
   :safe 'stringp)
 
 (defcustom org-remark-line-minimum-margin-width 3
-  "Margin width in an integer or cons cell.
-It can be a single number or a cons cell. When it is a single
-number, both the left and right margin widths will be the same.
-When this customizing variable is a cons cell, the format is as
-follows: (LEFT-MARGIN-WIDTH . RIGHT-MARGIN-WIDTH). The first
-value is the left margin width and the secon value is the right
-one."
+  "Margin width in a natural number.
+It can be a single number or a cons cell of two. When it is a
+single number, both the left and right margin widths will be the
+same. When this customizing variable is a cons cell, the format
+is as follows: (LEFT-MARGIN-WIDTH . RIGHT-MARGIN-WIDTH)."
   :local t
   :type '(choice
-          (integer :tag "Minimum margin width for both left and right margins" 3)
-          (cons :tag "Left and right margin widths" integer integer)))
+          (natnum :tag "Minimum margin width for both left and right margins" 3)
+          (cons :tag "Left and right margin widths" natnum natnum)))
 
 (defcustom org-remark-line-margin-padding 1
   "Padding between the main text area the glyph/icon on the margin"
   :local t
-  :type 'integer)
+  :type 'natnum)
 
 (defcustom org-remark-line-margin-side 'left-margin
   "The side of margin to display line highlights.
@@ -78,7 +76,7 @@ Left or rigth can be chosen."
 
 (defcustom org-remark-line-heading-title-max-length 40
   "Maximum length of string included as the highlight title."
-  :type 'integer)
+  :type 'natnum)
 
 (defcustom org-remark-line-ellipsis "…"
   "Ellipsis used when the highlight title is longer than maximum.
