@@ -57,7 +57,7 @@ An [[https://youtu.be/c8DHrAsFiLc][introductory video]] (8 minutes) and [[https:
 This package is available on:
 
 - [[https://elpa.gnu.org/packages/org-remark.html][GNU-ELPA]] (releases only; equivalent to MELPA-Stable)
-- [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] (unreleased development branch; equivalent to MELPA)
+- [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] (unreleased main branch; equivalent to MELPA)
 
 GNU ELPA should be already set up in your Emacs by default. If you wish to add GNU-devel ELPA, simply add its URL to ~package-archives~ like this:
 

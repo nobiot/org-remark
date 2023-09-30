@@ -1,14 +1,14 @@
 ---
-title:    How to Set Icons to be SVG Images
+title:    How to Set Org-remark to Use SVG Icons
 created:  2023-08-20
-modified: 20 August 2023
+modified: 16 September 2023
 category: #creation
 id:       2023-08-20T184309
 ---
 
 # How to Set Org-remark to Use SVG Icons
 
-![Highlights with an icon indicating annotations exist](../../resources/images/v1.2.0/2023-08-20-SVG-icon.png "Highlights with an icon indicating annotations exist")
+![Highlights with an icon indicating annotations exist](../screen-images/v1.2.0/2023-08-20-SVG-icon.png "Highlights with an icon indicating annotations exist")
 
 I have released version 1.2.0 of Org-remark. In this version, highlights can display an icon to visually indicate that annotations exist for them. This was implemented in response to a feature request I received via YouTube comments and recorded in [issue #64](https://github.com/nobiot/org-remark/issues/64).
 
