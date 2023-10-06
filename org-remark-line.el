@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 01 August 2023
-;; Last modified: 30 September 2023
+;; Last modified: 05 October 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -31,7 +31,7 @@
 (require 'org-remark)
 
 (defgroup org-remark-line nil
-  "Enable`org-remark' to highlight and annotate whole lines. "
+  "Enable`org-remark' to highlight and annotate whole lines."
   :group 'org-remark
   :prefix "org-remark-line"
   :link '(url-link :tag "GitHub" "https://github.com/nobiot/org-remark"))
@@ -62,13 +62,13 @@ is as follows: (LEFT-MARGIN-WIDTH . RIGHT-MARGIN-WIDTH)."
           (cons :tag "Left and right margin widths" natnum natnum)))
 
 (defcustom org-remark-line-margin-padding 1
-  "Padding between the main text area the glyph/icon on the margin"
+  "Padding between the main text area the glyph/icon on the margin."
   :local t
   :type 'natnum)
 
 (defcustom org-remark-line-margin-side 'left-margin
   "The side of margin to display line highlights.
-Left or rigth can be chosen."
+Left or right can be chosen."
   :local t
   :type '(radio
           (const :tag "Left margin" left-margin)
@@ -94,10 +94,10 @@ The maximum is set in `org-remark-line-heading-title-max-length'."
   "Face for the default line highlighter pen.")
 
 (defvar-local org-remark-line-minimum-left-margin-width nil
-  "Computed minimum left-margin width.")
+  "Computed minimum `left-margin' width.")
 
 (defvar-local org-remark-line-minimum-right-margin-width nil
-  "Computed minimum right-margin width.")
+  "Computed minimum `right-margin' width.")
 
 (defvar-local org-remark-line-margins-original '()
   "Original window margin width values.
@@ -151,8 +151,9 @@ in cons cell (or nil) before function
 ;; Default line-highlighter pen
 
 ;;;###autoload
-(defun org-remark-mark-line (&args _)
-  "Dummy function definition to let autoload work.
+(defun org-remark-mark-line (_beg _end &optional _id _mode)
+  "Apply face to the region selected by BEG and END.
+Dummy function definition to let autoload work.
 The actual implementation is added when this library is loaded
 and macro `org-remark-create' creates the actual function.")
 
@@ -161,9 +162,9 @@ and macro `org-remark-create' creates the actual function.")
                    `(org-remark-type line))
 
 (defun org-remark-line-set-window-margins (&optional window)
-  "Set the margins of current window that displays current buffer.
+  "Set the margins of WINDOW or window that displays current buffer.
 Return a cons of the form (LEFT-WIDTH . RIGHT-WIDTH). If a
-marginal area does not exist, its width will be returned as nil."
+marginal area does not exist, return nil."
   (let ((window (or window (get-buffer-window))))
     (when (and (windowp window) (not (window-minibuffer-p window)))
       (cl-destructuring-bind (left-width . right-width) (window-margins)
@@ -228,11 +229,12 @@ This happens only when HIGHLIGHT is a line-highlight."
           (number-to-string (org-current-line (overlay-start highlight))))))
 
 (cl-defmethod org-remark-beg-end ((_org-remark-type (eql 'line)))
+  "Return beg and end for ORG-REMARK-TYPE line."
     (let ((bol (org-remark-line-pos-bol (point))))
       (list bol bol)))
 
 (defun org-remark-line-make-spacer-overlay (pos)
-  "Return a spacer overlay."
+  "Return a spacer overlay at POS."
   (let* ((left-margin (or (car (window-margins)) left-margin-width))
          ;;(right-margin (or (cdr (window-margins)) right-margin-width))
          (string-length (length org-remark-line-icon))
@@ -255,7 +257,8 @@ This happens only when HIGHLIGHT is a line-highlight."
     spacer-ov))
 
 (defun org-remark-line-highlights-redraw (&optional window)
-  "Redraw line-highlights to adjust the spaces/padding."
+  "Redraw line-highlights to adjust the spaces/padding.
+When WINDOW is nil, this function gets window that current buffer is displayed."
   (let ((window (or window (get-buffer-window))))
     (when (and (windowp window) (not (window-minibuffer-p window)))
       (org-with-wide-buffer
@@ -276,6 +279,7 @@ This happens only when HIGHLIGHT is a line-highlight."
              (org-remark-highlights-sort))))))))
 
 (defun org-remark-line-highlight-propertize (ov icon-string)
+  "Propertize ICON-STRING and add it to OV."
   ;; If the icon-string has a display properties, assume it is an icon image
   (let ((display-prop (get-text-property 0 'display icon-string)))
     (cond (display-prop ; svg-based icon
@@ -299,8 +303,10 @@ This happens only when HIGHLIGHT is a line-highlight."
           (t (ignore)))))
 
 (cl-defmethod org-remark-highlight-make-overlay (beg end face (_org-remark-type (eql 'line)))
-  "Make and return a highlight overlay for line-highlight.
-Return nil when no window is created for current buffer."
+  "Make and return a highlight overlay in BEG END for line-highlight.
+This function adds FACE to line icon string. If FACE is nil, this
+function uses default `org-remark-line-highlighter'. Return nil
+when no window is created for current buffer."
   (when (get-buffer-window)
     (unless org-remark-line-mode (org-remark-line-mode +1))
     (let* ((face (or face 'org-remark-line-highlighter))
@@ -328,7 +334,14 @@ Return nil when no window is created for current buffer."
                 highlights)))
 
 (defun org-remark-line-highlight-modified (ov after-p beg _end &optional _length)
-  "Move the overlay to follow the point when ENTER in the line."
+  "Move spacers and lighlight OV to follow the point.
+Without this function, the line-highlighter mark does not move
+when the user press RET to add a newline at the beginning of the
+line-highlight. This is unintuitive for the user.
+
+This function is meant to be added to insert-in-front-hooks of
+the overlay that represents line-highlight. It must be called
+AFTER-P is non-nil and move BEG to one position forward."
   (when after-p
     (save-excursion (goto-char beg)
                     (when (looking-at "\n")
@@ -341,7 +354,7 @@ Return nil when no window is created for current buffer."
                           (move-overlay (pop spacers) (1+ beg) (1+ beg))))))))
 
 (cl-defmethod org-remark-highlight-headline-text (ov (_org-remark-type (eql 'line)))
-  "Return the first N characters of the highlighted line.
+  "Return the first N characters of the highlighted line OV.
 N is customized with `org-remark-line-heading-title-max-length'.
 If the line starts with any space or tab, they will be trimmed.
 If the line (after trimming) is shorter than N, then this
@@ -365,7 +378,7 @@ loading highlights)."
                 org-remark-line-ellipsis)))))
 
 (cl-defmethod org-remark-highlights-adjust-positions-p ((_org-remark-type (eql 'line)))
-  "
+  "Return t if adjust-positions feature is relevant.
 For line-highlights, adjust-positions is not relevant."
   nil)
 
@@ -389,14 +402,14 @@ end of overlay being identical."
         (move-overlay ov ov-line-bol ov-line-bol)))))
 
 (cl-defmethod org-remark-icon-overlay-put (ov icon-string (_org-remark-type (eql 'line)))
-  "Add icons to OV.
-  Each overlay is a highlight.
-Return nil when no window is created for current buffer."
+  "Add ICON-STRING to OV.
+Each overlay is a highlight. Return nil when no window is created
+for current buffer."
   (when (get-buffer-window)
     (org-remark-line-highlight-propertize ov icon-string)))
 
 (cl-defmethod org-remark-icon-highlight-get-face (highlight (_org-remark-type (eql 'line)))
-  "Return the face of the line-highilght in a margin."
+  "Return the face of HIGHLIGHT in margin for line-highlight."
   (let* ((before-string (overlay-get highlight 'before-string))
          (face (get-text-property 0 'face before-string)))
     ;; When the highlight already is an SVG icon, face is in the display

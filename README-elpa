@@ -37,7 +37,8 @@ _________________
   For customization, refer to the customization group `org-remark' or
   user manual: [online] or Info node `(org-remark) Customizing'. A
   [separate online article] has been written to guide you on how to
-  customize an icon (to be incorporated into the user manual later).
+  customize an icon (also part of the user manual. Evaluate (info
+  "(or-gremark) How to Set Org-remark to Use SVG Icons").
 
   An [introductory video] (8 minutes) and [V1.1.0 release introduction]
   (12 minutes) are available on YouTube.
@@ -91,8 +92,7 @@ _________________
   This package is available on:
 
   - [GNU-ELPA] (releases only; equivalent to MELPA-Stable)
-  - [GNU-devel ELPA] (unreleased development branch; equivalent to
-    MELPA)
+  - [GNU-devel ELPA] (unreleased main branch; equivalent to MELPA)
 
   GNU ELPA should be already set up in your Emacs by default. If you
   wish to add GNU-devel ELPA, simply add its URL to `package-archives'

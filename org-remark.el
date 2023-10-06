@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.2.1
 ;; Created: 22 December 2020
-;; Last modified: 09 September 2023
+;; Last modified: 05 October 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -108,8 +108,8 @@ you can set this customizing variable to \\=':auto-delete\\='.
 With this option, Org-remark will delete the entire entry when it
 contains no notes without a prompt asking for confirmation. This
 is the same behavior as passing a single `universal-argument'
-(\\[universal-argument]) to`org-remark-delete' or double `universal-argument'
-(\\[universal-argument] \\[universal-argument]) to `org-remark-remove'."
+\(\\[universal-argument]) to`org-remark-delete' or double `universal-argument'
+\(\\[universal-argument] \\[universal-argument]) to `org-remark-remove'."
   :type '(radio
           (const :tag "Keep entries (default)" nil)
           (const :tag "Delete entries automatically when no notes exist"
@@ -912,13 +912,14 @@ Optionally ID can be passed to find the exact ID match."
 ;;   buffer.
 
 (cl-defgeneric org-remark-highlight-make-overlay (_beg _end _face _org-remark-type)
-  "Make overlay and return it
+  "Make overlay and return it.
 Put FACE and other necessary properties to the highlight OV"
   (ignore))
 
 (cl-defmethod org-remark-highlight-make-overlay (beg end face
                                                      (_org-remark-type (eql nil)))
-  "Put FACE and other necessary properties to the highlight OV.
+  "Make overlay BEG END and add FACE to it.
+If FACE is nil, this function uses defaul face `org-remark-highlighter'.
 This is a method for highlights of default ORG-REMARK-TYPE, that
 is for a character range."
   (let ((ov (make-overlay beg end nil :front-advance)))
@@ -1157,10 +1158,12 @@ buffer for automatic sync."
     ;;; Return notes-props
     notes-props))
 
-(cl-defgeneric org-remark-highlight-headline-text (_ov _org-remark-type))
+(cl-defgeneric org-remark-highlight-headline-text (_ov _org-remark-type)
+  "Return title text of highlight.")
 
 (cl-defmethod org-remark-highlight-headline-text (ov (_org-remark-type (eql nil)))
-  "Assume it is called within `org-with-wide-buffer' of the source."
+  "Return title text of highlight OV of default type.
+Assume it is called within `org-with-wide-buffer' of the source."
   (replace-regexp-in-string
    "\n" " "
    (buffer-substring-no-properties (overlay-start ov) (overlay-end ov))))
@@ -1172,7 +1175,7 @@ that represents the current highlight being worked on. The
 function is run with source buffer as the current buffer.")
 
 (defun org-remark-highlight-collect-other-props (highlight)
-  "
+  "Return other properties for HIGHLIGHT.
 Assume to be run in the source buffer."
   (let ((props nil))
     (dolist (fn org-remark-highlight-other-props-functions props)
@@ -1635,7 +1638,7 @@ highlight is a property list in the following properties:
            highlights))))))
 
 (defun org-remark-highlights-delay-load (window)
-  "Delay load until window for current buffer is created."
+  "Delay load until WINDOW for current buffer is created."
   (when (windowp window)
     (remove-hook 'window-state-change-functions
                  #'org-remark-highlights-delay-load 'local)
@@ -1841,6 +1844,7 @@ The current buffer is source buffer."
   t)
 
 (cl-defgeneric org-remark-highlights-housekeep-per-type (_ov _org-remark-type)
+  "Housekeep highlights per type."
   (ignore))
 
 (defun org-remark-highlights-adjust-positions (overlays _notes-buf)
@@ -1868,7 +1872,7 @@ extensions."
          ov highlight-text)))))
 
 (cl-defgeneric org-remark-highlights-adjust-positions-p (_org-remark-type)
-  "Return t if adjust-positions feature is relevant
+  "Return t if adjust-positions feature is relevant.
 Default is t and evaluated per ORG-REMARK-TYPE."
   t)
 
@@ -1889,6 +1893,7 @@ If FILENAME is nil, return nil."
       (funcall org-remark-source-file-name filename))))
 
 (cl-defgeneric org-remark-beg-end (_org-remark-type)
+  "Return beg and end for default ORG-REMARK-TYPE."
   (org-remark-region-or-word))
 
 (defun org-remark-region-or-word ()
