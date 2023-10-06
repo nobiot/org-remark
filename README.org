@@ -20,7 +20,7 @@ For installation and minimum configuration, refer to [[#installation][Installati
 
 Getting Started in the user manual will get you started in 5 minutes: [[https://nobiot.github.io/org-remark/#Getting-Started][online]] or or Info node `(org-remark) Getting Started'.
 
-For customization, refer to the customization group `org-remark' or user manual: [[https://nobiot.github.io/org-remark/#Customizing][online]] or Info node `(org-remark) Customizing'. A [[https://github.com/nobiot/org-remark/tree/main/docs/articles/2023-08-20T184309_C_how-to-set-icons-to-be-svg-images.md][separate online article]] has been written to guide you on how to customize an icon (to be incorporated into the user manual later).
+For customization, refer to the customization group `org-remark' or user manual: [[https://nobiot.github.io/org-remark/#Customizing][online]] or Info node `(org-remark) Customizing'. A [[https://github.com/nobiot/org-remark/tree/main/docs/articles/2023-08-20T184309_C_how-to-set-icons-to-be-svg-images.md][separate online article]] has been written to guide you on how to customize an icon (also part of the user manual. Evaluate (info "(or-gremark) How to Set Org-remark to Use SVG Icons").
 
 An [[https://youtu.be/c8DHrAsFiLc][introductory video]] (8 minutes) and [[https://youtu.be/BTFuS21N00k][V1.1.0 release introduction]] (12 minutes) are available on YouTube.
 
@@ -57,7 +57,7 @@ An [[https://youtu.be/c8DHrAsFiLc][introductory video]] (8 minutes) and [[https:
 This package is available on:
 
 - [[https://elpa.gnu.org/packages/org-remark.html][GNU-ELPA]] (releases only; equivalent to MELPA-Stable)
-- [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] (unreleased development branch; equivalent to MELPA)
+- [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] (unreleased main branch; equivalent to MELPA)
 
 GNU ELPA should be already set up in your Emacs by default. If you wish to add GNU-devel ELPA, simply add its URL to ~package-archives~ like this:
 
@@ -101,6 +101,32 @@ Below are example keybindings you might like to consider:
     (define-key org-remark-mode-map (kbd "C-c n [") #'org-remark-view-prev)
     (define-key org-remark-mode-map (kbd "C-c n r") #'org-remark-remove)
     (define-key org-remark-mode-map (kbd "C-c n d") #'org-remark-delete))
+#+end_src
+
+Alternatively, you can use ~use-package~ to set up Org-remark. The example provided below should be equivalent to the setup described above.
+
+#+begin_src emacs-lisp
+  (use-package org-remark
+    :bind (;; :bind keyword also implicitly defers org-remark itself.
+           ;; Keybindings before :map is set for global-map.
+           ("C-c n m" . org-remark-mark)
+           :map org-remark-mode-map
+           ("C-c n o" . org-remark-open)
+           ("C-c n ]" . org-remark-view-next)
+           ("C-c n [" . org-remark-view-prev)
+           ("C-c n r" . org-remark-remove)
+           ("C-c n d" . org-remark-delete))
+    ;; Alternative way to enable `org-remark-global-tracking-mode' in
+    ;; `after-init-hook'.
+    ;; :hook (after-init . org-remark-global-tracking-mode)
+    :init
+    ;; It is recommended that `org-remark-global-tracking-mode' be
+    ;; enabled when Emacs initializes. Alternatively, you can put it to
+    ;; `:after-init-hook' to load it after Emacs has been initialized.
+    (org-remark-global-tracking-mode +1)
+    (use-package org-remark-info :after info :config (org-remark-info-mode +1))
+    (use-package org-remark-eww  :after eww  :config (org-remark-eww-mode +1))
+    (use-package org-remark-nov  :after nov  :config (org-remark-nov-mode +1)))
 #+end_src
 
 * Contributing and Feedback
