@@ -64,7 +64,7 @@ Next: <a href="#Installation" accesskey="n" rel="next">Installation</a> &nbsp; [
 </div>
 <span id="Org_002dremark-User-Manual"></span><h1 class="top">Org-remark User Manual</h1>
 
-<p>This manual is for Org-remark version 1.3.x. The new features introduced with version 1.3.x are currently only avaiable <a href="https://elpa.gnu.org/devel/org-remark.html">GNU-devel ELPA</a> until the new version is released to <a href="https://elpa.gnu.org/packages/org-remark.html">GNU-ELPA</a>.
+<p>This manual is for Org-remark version 1.3.x. The new features introduced with version 1.3.x are currently only available <a href="https://elpa.gnu.org/devel/org-remark.html">GNU-devel ELPA</a> until the new version is released to <a href="https://elpa.gnu.org/packages/org-remark.html">GNU-ELPA</a>.
 </p>
 <p>Last updated: 06 October 2023.
 </p>
@@ -124,13 +124,13 @@ Next: <a href="#Getting-Started" accesskey="n" rel="next">Getting Started</a>, P
 
 <ul class="section-toc">
 <li><a href="#Basic-Setup" accesskey="1">Basic Setup</a></li>
-<li><a href="#Setup-with-use_002dpacakge" accesskey="2">Setup with <code>use-pacakge</code></a></li>
+<li><a href="#Setup-with-use_002dpackage" accesskey="2">Setup with <code>use-package</code></a></li>
 </ul>
 <hr>
 <div class="section" id="Basic-Setup">
 <div class="header">
 <p>
-Next: <a href="#Setup-with-use_002dpacakge" accesskey="n" rel="next">Setup with <code>use-pacakge</code></a>, Up: <a href="#Installation" accesskey="u" rel="up">Installation</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#Setup-with-use_002dpackage" accesskey="n" rel="next">Setup with <code>use-package</code></a>, Up: <a href="#Installation" accesskey="u" rel="up">Installation</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
 <span id="Basic-Setup-1"></span><h3 class="section">1.1 Basic Setup</h3>
 
@@ -175,12 +175,12 @@ Next: <a href="#Setup-with-use_002dpacakge" accesskey="n" rel="next">Setup with 
 
 <hr>
 </div>
-<div class="section" id="Setup-with-use_002dpacakge">
+<div class="section" id="Setup-with-use_002dpackage">
 <div class="header">
 <p>
 Previous: <a href="#Basic-Setup" accesskey="p" rel="prev">Basic Setup</a>, Up: <a href="#Installation" accesskey="u" rel="up">Installation</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
-<span id="Setup-with-use_002dpacakge-1"></span><h3 class="section">1.2 Setup with <code>use-pacakge</code></h3>
+<span id="Setup-with-use_002dpackage-1"></span><h3 class="section">1.2 Setup with <code>use-package</code></h3>
 
 <p>Alternatively, you can use <code>use-package</code> to set up Org-remark. The example provided below should be equivalent to the setup described above.
 </p>
@@ -486,7 +486,7 @@ Next: <a href="#Organize-Headlines-in-Marginal-Notes-Buffer-in-Your-Way" accessk
 
 <p>Essentially, the marginal notes file is a database in the plain text with using Org mode. As a plain text database, you can easily edit these properties manually if necessary. You can directly edit the marginal notes file as a normal Org file.
 </p>
-<p>The marginal notes file stores highlights and notes like this below; it is designed to organize highlights and notes for multiple files and multiple highlights.
+<p>The marginal notes file stores highlights and notes like this below; it is designed to organize highlights and notes for multiple files and multiple highlights (You are free to change the default headline titles Org-remark automatically inserts. Refer to section <a href="#Organize-Headlines-in-Marginal-Notes-Buffer-in-Your-Way">Organize Headlines in Marginal Notes Buffer in Your Way</a>).
 </p>
 <div class="example">
 <pre class="example">* File 1
@@ -514,9 +514,9 @@ Next: <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="n" rel="next"
 <span id="index-org_002dremark_002dline_002dheading_002dtitle_002dmax_002dlength"></span>
 <span id="index-org_002dremark_002dline_002dellipsis"></span>
 
-<p>When you highlight a range of text or a line, Org-remark creates a corresponding headline in the marginal notes buffer with using Org mode. By default, the headline&rsquo;s title is either the selected text for the range-highlight or the first 40 characters of the line (longer line will be truncated and replaced by an ellipsis &ldquo;…&rdquo; &ndash; both the 40 character limit and the ellipsis string can be customized with customizing variables <code>org-remark-line-heading-title-max-length</code> and <code>org-remark-line-ellipsis</code> respectively).
+<p>When you highlight a range of text or a line, Org-remark creates a corresponding headline in the marginal notes buffer with using Org mode. By default, the headline&rsquo;s title is either the selected text for the range-highlight or the first 40 characters of the line for the line-highlight. For the latter, if the string is longer than the maximum characters, it will be truncated and replaced by an ellipsis &ldquo;…&rdquo;. Both the 40 character maximum length and the ellipsis can be customized with customizing variables <code>org-remark-line-heading-title-max-length</code> and <code>org-remark-line-ellipsis</code> respectively.
 </p>
-<p>These are only default initial headline titles &ndash; you are free to change them as you see fit. For example, you may add a line-highlight to an Elisp script file on the line you define a function. The initial title of the corresponding headline in the marginal notes buffer will be something like this below.
+<p>These are only default initial headline titles and you are free to change them as you see fit. For example, you may add a line-highlight to the line where you define a function in an Emacs Lisp script file. The initial title of the corresponding headline in the marginal notes buffer will be something like this below.
 </p>
 <div class="example">
 <pre class="example">** (defun name-of-the-function (arg)...)
@@ -524,10 +524,10 @@ Next: <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="n" rel="next"
  I will revisit this function later.
 </pre></div>
 
-<p>It may make sense to change this to something like this, especially if you would rather organize these as <code>TODO</code> items so as to appear in your agenda.
+<p>It may make sense to change this to something like this, especially if you would prefer to organize marginal notes as <code>TODO</code> items so as to show the headlines in your agenda.
 </p>
 <div class="example">
-<pre class="example">** TODO review fun name-of-the-function
+<pre class="example">** TODO review name-of-the-function
  :PROPERTIES:...
  I will revisit this function later.
 </pre></div>
@@ -635,7 +635,7 @@ Next: <a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f" access
 <span id="index-org_002dremark_002ddelete"></span>
 <span id="index-org_002dremark_002dnotes_002dauto_002ddelete"></span>
 
-<p>You can remove the highlight under the cursor with command <code>org-remark-remove</code>. This command does not delete the corresponding entry in the marginal notes file. This is intentional; Org-roam is conservative when it deletes anything that the user might have edited.
+<p>You can remove the highlight under the cursor with command <code>org-remark-remove</code>. This command does not delete the corresponding entry in the marginal notes file. This is intentional; Org-remark is conservative when it deletes anything that the user might have edited.
 </p>
 <p>If you wish to delete the entry and the highlight at the same time, pass a universal argument to &lsquo;org-remark-remove&lsquo; (e.g. by adding <code>C-u</code> before <code>M-x org-remark-remove</code>) or use <code>org-remark-delete</code>. <code>org-remark-delete</code> is identical with adding <code>C-u</code> to <code>org-remark-remove</code>.
 </p>
@@ -709,7 +709,7 @@ Next: <a href="#Other-Commands" accesskey="n" rel="next">Other Commands</a>, Pre
 </div>
 <span id="How-to-Set-Org_002dremark-to-Use-SVG-Icons-1"></span><h3 class="section">3.6 How to Set Org-remark to Use SVG Icons</h3>
 
-<p>As of v1.2, highlights can display an icon. With this option, you can customize Org-remark to visually indicate that marginal notes exist for them instead of the default ASCII string &ldquo;(*)&rdquo;, or to indicate that the Org-roam has automatically adjusted the highlight position (default ASCII string &ldquo;(d)&rdquo;; refer to <a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f">What is Automatic Adjustment of Highlight Positions?</a>).
+<p>As of v1.2, highlights can display an icon. With this option, you can customize Org-remark to visually indicate that marginal notes exist for them instead of the default ASCII string &ldquo;(*)&rdquo;, or to indicate that the Org-remark has automatically adjusted the highlight position (default ASCII string &ldquo;(d)&rdquo;; refer to <a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f">What is Automatic Adjustment of Highlight Positions?</a>).
 </p>
 <p>There are mainly two ways to set up SVG icons.
 </p>
@@ -843,7 +843,7 @@ This means that when the &lsquo;<samp>Relative file name</samp>&rsquo; option is
 </p>
 </dd>
 <dt><span>Option: <code>org-remark-icon-notes</code></span></dt>
-<dd><p>It&rsquo;s the icon used to indicate that a given highlight has its associated notes entry. The default is a combination of ascii characters to be comatible with terminal and others. If it is preferred, you can set an emoji to it. The author has not experienmented well with icon fonts and other means of displaying graphic elements. The face of the icon becomes the same as the highlight, thus it does not have its own face definition.
+<dd><p>It&rsquo;s the icon used to indicate that a given highlight has its associated notes entry. The default is a combination of ASCII characters to be compatible with terminal and others. If it is preferred, you can set an emoji to it. The author has not experienced well with icon fonts and other means of displaying graphic elements. The face of the icon becomes the same as the highlight, thus it does not have its own face definition.
 </p>
 <p>By setting it to <code>nil</code>, you can disable the icon altogether.
 </p>
@@ -851,7 +851,7 @@ This means that when the &lsquo;<samp>Relative file name</samp>&rsquo; option is
 </p>
 </dd>
 <dd><p>Option: <code>org-remark-icon-position-adjusted</code> :
-It&rsquo;s the icon used to indicate that the position of a given highlight has been automatically adjusted by Org-remark. The default is a combination of ascii characters to be comatible with terminal and others. If it is preferred, you can set an emoji to it. The author has not experienmented well with icon fonts and other means of displaying graphic elements.
+It&rsquo;s the icon used to indicate that the position of a given highlight has been automatically adjusted by Org-remark. The default is a combination of ASCII characters to be compatible with terminal and others. If it is preferred, you can set an emoji to it. The author has not experienced well with icon fonts and other means of displaying graphic elements.
 </p>
 <p>By setting it to <code>nil</code>, you can disable the icon altogether.
 </p>
