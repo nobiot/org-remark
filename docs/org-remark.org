@@ -10,7 +10,7 @@
 #+texinfo: @paragraphindent asis
 #+options: toc:nil ':t
 
-This manual is for Org-remark version {{{version}}}. The new features introduced with version {{{version}}} are currently only avaiable [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] until the new version is released to [[https://elpa.gnu.org/packages/org-remark.html][GNU-ELPA]].
+This manual is for Org-remark version {{{version}}}. The new features introduced with version {{{version}}} are currently only available [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] until the new version is released to [[https://elpa.gnu.org/packages/org-remark.html][GNU-ELPA]].
 
 Last updated: {{{modified}}}.
 
@@ -96,7 +96,7 @@ Below are example keybindings you might like to consider:
     (define-key org-remark-mode-map (kbd "C-c n d") #'org-remark-delete))
 #+end_src
 
-** Setup with ~use-pacakge~
+** Setup with ~use-package~
 
 Alternatively, you can use ~use-package~ to set up Org-remark. The example provided below should be equivalent to the setup described above.
 
@@ -287,7 +287,7 @@ The important thing to note is that Org-remark uses following properties in the 
 
 Essentially, the marginal notes file is a database in the plain text with using Org mode. As a plain text database, you can easily edit these properties manually if necessary. You can directly edit the marginal notes file as a normal Org file.
 
-The marginal notes file stores highlights and notes like this below; it is designed to organize highlights and notes for multiple files and multiple highlights.
+The marginal notes file stores highlights and notes like this below; it is designed to organize highlights and notes for multiple files and multiple highlights (You are free to change the default headline titles Org-remark automatically inserts. Refer to section [[#organize-headlines][Organize Headlines in Marginal Notes Buffer in Your Way]]).
 
 #+begin_src org
   ,* File 1
@@ -304,12 +304,16 @@ You can leave the marginal notes file as it is without writing any notes. In thi
 In addition to the properties above that Org-remark reserves for itself, you can add your own custom properties and ~CATEGORY~ property. Use "org-remark-" as the prefix to the property names (or "CATEGORY", which is the only exception), and Org-remark put them to the property drawer of highlight's headline entry in the marginal notes buffer. Define the custom properties in your own custom pen functions (for how to create your own pens, [[#create-custom-pens][How to Create Custom Highlighter Pens]]).
 
 *** Organize Headlines in Marginal Notes Buffer in Your Way
+:PROPERTIES:
+:CUSTOM_ID: organize-headlines
+:END:
+
 #+vindex: org-remark-line-heading-title-max-length
 #+vindex: org-remark-line-ellipsis
 
-When you highlight a range of text or a line, Org-remark creates a corresponding headline in the marginal notes buffer with using Org mode. By default, the headline's title is either the selected text for the range-highlight or the first 40 characters of the line (longer line will be truncated and replaced by an ellipsis "…" -- both the 40 character limit and the ellipsis string can be customized with customizing variables ~org-remark-line-heading-title-max-length~ and ~org-remark-line-ellipsis~ respectively).
+When you highlight a range of text or a line, Org-remark creates a corresponding headline in the marginal notes buffer with using Org mode. By default, the headline's title is either the selected text for the range-highlight or the first 40 characters of the line for the line-highlight. For the latter, if the string is longer than the maximum characters, it will be truncated and replaced by an ellipsis "…". Both the 40 character maximum length and the ellipsis can be customized with customizing variables ~org-remark-line-heading-title-max-length~ and ~org-remark-line-ellipsis~ respectively.
 
-These are only default initial headline titles -- you are free to change them as you see fit. For example, you may add a line-highlight to an Elisp script file on the line you define a function. The initial title of the corresponding headline in the marginal notes buffer will be something like this below.
+These are only default initial headline titles and you are free to change them as you see fit. For example, you may add a line-highlight to the line where you define a function in an Emacs Lisp script file. The initial title of the corresponding headline in the marginal notes buffer will be something like this below.
 
 #+begin_example
 ,** (defun name-of-the-function (arg)...)
@@ -317,10 +321,10 @@ These are only default initial headline titles -- you are free to change them as
  I will revisit this function later.
 #+end_example
 
-It may make sense to change this to something like this, especially if you would rather organize these as ~TODO~ items so as to appear in your agenda.
+It may make sense to change this to something like this, especially if you would prefer to organize marginal notes as ~TODO~ items so as to show the headlines in your agenda.
 
 #+begin_example
-,** TODO review fun name-of-the-function
+,** TODO review name-of-the-function
  :PROPERTIES:...
  I will revisit this function later.
 #+end_example
@@ -395,7 +399,7 @@ You can customize the variable to use absolute file names, or to use a function 
 #+findex: org-remark-delete
 #+vindex: org-remark-notes-auto-delete
 
-You can remove the highlight under the cursor with command ~org-remark-remove~. This command does not delete the corresponding entry in the marginal notes file. This is intentional; Org-roam is conservative when it deletes anything that the user might have edited.
+You can remove the highlight under the cursor with command ~org-remark-remove~. This command does not delete the corresponding entry in the marginal notes file. This is intentional; Org-remark is conservative when it deletes anything that the user might have edited.
 
 If you wish to delete the entry and the highlight at the same time, pass a universal argument to `org-remark-remove` (e.g. by adding ~C-u~ before ~M-x org-remark-remove~) or use ~org-remark-delete~. ~org-remark-delete~ is identical with adding ~C-u~ to ~org-remark-remove~.
 
@@ -456,7 +460,7 @@ You can customize the icon itself and its face with the following customizing va
 :CUSTOM_ID: icon
 :END:
 
-As of v1.2, highlights can display an icon. With this option, you can customize Org-remark to visually indicate that marginal notes exist for them instead of the default ASCII string "(*)", or to indicate that the Org-roam has automatically adjusted the highlight position (default ASCII string "(d)"; refer to [[#auto-adjust][What is Automatic Adjustment of Highlight Positions?]]).
+As of v1.2, highlights can display an icon. With this option, you can customize Org-remark to visually indicate that marginal notes exist for them instead of the default ASCII string "(*)", or to indicate that the Org-remark has automatically adjusted the highlight position (default ASCII string "(d)"; refer to [[#auto-adjust][What is Automatic Adjustment of Highlight Positions?]]).
 
 There are mainly two ways to set up SVG icons.
 
@@ -557,14 +561,14 @@ Org-remark's user options are available in the customization group ~org-remark~.
   When non-nil, Org-remark adds an Org-ID link to marginal notes. The link points at the relevant Org-ID in the source file. Org-remark does not create this ID, which needs to be added manually or some other function to either the headline or file.
 
 - Option: ~org-remark-icon-notes~ ::
-  It's the icon used to indicate that a given highlight has its associated notes entry. The default is a combination of ascii characters to be comatible with terminal and others. If it is preferred, you can set an emoji to it. The author has not experienmented well with icon fonts and other means of displaying graphic elements. The face of the icon becomes the same as the highlight, thus it does not have its own face definition.
+  It's the icon used to indicate that a given highlight has its associated notes entry. The default is a combination of ASCII characters to be compatible with terminal and others. If it is preferred, you can set an emoji to it. The author has not experienced well with icon fonts and other means of displaying graphic elements. The face of the icon becomes the same as the highlight, thus it does not have its own face definition.
 
   By setting it to ~nil~, you can disable the icon altogether.
 
   ~org-remark-toggle~ also toggles the icon along with the highlight
 
 - Option: ~org-remark-icon-position-adjusted~ :
-  It's the icon used to indicate that the position of a given highlight has been automatically adjusted by Org-remark. The default is a combination of ascii characters to be comatible with terminal and others. If it is preferred, you can set an emoji to it. The author has not experienmented well with icon fonts and other means of displaying graphic elements.
+  It's the icon used to indicate that the position of a given highlight has been automatically adjusted by Org-remark. The default is a combination of ASCII characters to be compatible with terminal and others. If it is preferred, you can set an emoji to it. The author has not experienced well with icon fonts and other means of displaying graphic elements.
 
   By setting it to ~nil~, you can disable the icon altogether.
 
