@@ -1,7 +1,7 @@
 #+title: Org-remark User Manual
 #+author: Noboru Ota <me@nobiot.com>
-#+macro: version 1.2.x
-#+macro: modified 20 August 2023
+#+macro: version 1.3.x
+#+macro: modified 06 October 2023
 #+language: en
 #+export_file_name: org-remark.texi
 #+texinfo_dir_category: Emacs
@@ -10,11 +10,11 @@
 #+texinfo: @paragraphindent asis
 #+options: toc:nil ':t
 
-This manual is for Org-remark version {{{version}}}. Some new features are mentioned in this manual that are currently in development; these are mentioned clearly as such.
+This manual is for Org-remark version {{{version}}}. The new features introduced with version {{{version}}} are currently only avaiable [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] until the new version is released to [[https://elpa.gnu.org/packages/org-remark.html][GNU-ELPA]].
 
 Last updated: {{{modified}}}.
 
-Org-remark lets you highlight and annotate text files and websites (EWW).
+Org-remark lets you highlight and annotate text files, websites (EWW), EPUB books (nov.el) and Info documentation (Info-mode).
 
 #+texinfo: @insertcopying
 
@@ -23,7 +23,7 @@ Org-remark lets you highlight and annotate text files and websites (EWW).
 :COPYING: t
 :END:
 
-Copyright \copy 2021-2022  Free Software Foundation, Inc.
+Copyright \copy 2021-2023  Free Software Foundation, Inc.
 
 #+begin_quote
 Permission is granted to copy, distribute and/or modify this document
@@ -45,7 +45,7 @@ modify this GNU manual.”
 This package is available on:
 
 - [[https://elpa.gnu.org/packages/org-remark.html][GNU-ELPA]] (releases only; equivalent to MELPA-Stable)
-- [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] (unreleased development branch; equivalent to MELPA)
+- [[https://elpa.gnu.org/devel/org-remark.html][GNU-devel ELPA]] (unreleased main branch; equivalent to MELPA)
 
 GNU ELPA should be already set up in your Emacs by default. If you wish to add GNU-devel ELPA, simply add its URL to ~package-archives~ like this:
 
@@ -53,6 +53,8 @@ GNU ELPA should be already set up in your Emacs by default. If you wish to add G
   (add-to-list 'package-archives
                '("gnu-devel" . "https://elpa.gnu.org/devel/") :append)
 #+END_SRC
+
+** Basic Setup
 
 After installation, we suggest you put the setup below in your configuration.
 
@@ -94,6 +96,35 @@ Below are example keybindings you might like to consider:
     (define-key org-remark-mode-map (kbd "C-c n d") #'org-remark-delete))
 #+end_src
 
+** Setup with ~use-pacakge~
+
+Alternatively, you can use ~use-package~ to set up Org-remark. The example provided below should be equivalent to the setup described above.
+
+#+name: setup-with-use-package
+#+begin_src emacs-lisp
+  (use-package org-remark
+    :bind (;; :bind keyword also implicitly defers org-remark itself.
+           ;; Keybindings before :map is set for global-map.
+           ("C-c n m" . org-remark-mark)
+           :map org-remark-mode-map
+           ("C-c n o" . org-remark-open)
+           ("C-c n ]" . org-remark-view-next)
+           ("C-c n [" . org-remark-view-prev)
+           ("C-c n r" . org-remark-remove)
+           ("C-c n d" . org-remark-delete))
+    ;; Alternative way to enable `org-remark-global-tracking-mode' in
+    ;; `after-init-hook'.
+    ;; :hook (after-init . org-remark-global-tracking-mode)
+    :init
+    ;; It is recommended that `org-remark-global-tracking-mode' be
+    ;; enabled when Emacs initializes. Alternatively, you can put it to
+    ;; `:after-init-hook' to load it after Emacs has been initialized.
+    (org-remark-global-tracking-mode +1)
+    (use-package org-remark-info :after info :config (org-remark-info-mode +1))
+    (use-package org-remark-eww  :after eww  :config (org-remark-eww-mode +1))
+    (use-package org-remark-nov  :after nov  :config (org-remark-nov-mode +1)))
+#+end_src
+
 * Getting Started
 :PROPERTIES:
 :CUSTOM_ID: getting-started
@@ -102,15 +133,22 @@ Below are example keybindings you might like to consider:
 ** Highlighting and Annotating
 
 #+findex: org-remark-mark
+#+findex: org-remark-mark-line
 #+findex: org-remark-open
 #+findex: org-remark-view
 #+cindex: Marginal notes file
+#+cindex: line-highlight
+#+cindex: range-highlight
+#+vindex: org-remark-line-margin-side
+#+vindex: org-remark-notes-display-buffer-action
 
-Once you have installed and set it up ([[#installation][Installation]]), Org-remark is simple to use. Select a part of text and call ~M-x org-remark-mark~ to highlight it. You will see the selected text gets highlighted.
+Once you have installed and set it up ([[#installation][Installation]]), Org-remark is simple to use. Select a part of text and call ~M-x org-remark-mark~ to highlight it. You will see the selected text gets highlighted. This is a range-highlight. With the new version 1.3, you can also highlight a whole line in addition to a range of text by calling ~org-remark-mark-line~. Visually, instead of adding a highlight to the line, it will add a mark on the margin of the buffer (the left margin is the default and you can customize it with ~org-remark-line-margin-side~). This is a line-highlight. Both the range- and line-highlights behave the same way except for how they appear in the buffer you are editing or viewing. You can mix them in the same buffer as you see fit for your purposes.
 
 The menu bar item "Org-remark" is available when you turn on ~org-remark-mode~. It helps you discover Org-remark's main commands. If you use Emacs version 28 or newer, a context menu is also available by right-clicking your mouse. Turn on the Emacs built-in ~context-menu-mode~ to enable the context menu.
 
-To display the marginal notes for the highlight you have just marked, place your cursor on the highlight and call ~M-x org-remark-open~ or ~M-x org-remark-view~. This will display a new buffer to the left of the current buffer you are editing. The ~open~ command takes the cursor to the marginal notes buffer for you to edit notes; whereas the ~view~ command keeps the cursor in the current buffer only to display the marginal notes. Both commands narrow the *marginal notes file* to the entry for the highlight under the cursor.  The marginal notes file is a normal Org file. Edit your notes just as you would do with any other Org files and save the buffer.
+To display the marginal notes for the highlight you have just marked, place your cursor on the highlight and call ~M-x org-remark-open~ or ~M-x org-remark-view~. This will create a new buffer to the left of the current buffer you are editing. You can customize where the marginal notes buffer is to be placed (see the documentation of customizing variable ~org-remark-notes-display-buffer-action~).
+
+The ~open~ command takes the cursor to the marginal notes buffer for you to edit notes; the ~view~ command keeps the cursor in the current buffer only to display the marginal notes. Both commands narrow the *marginal notes file* to the entry for the highlight under the cursor.  The marginal notes file is a normal Org file. Edit your notes just as you would do with any other Org files and save the buffer.
 
 ** Navigating from One Highlight to Another
 
@@ -138,6 +176,7 @@ The ~C-c n~ part is the prefix key common to all of them. If you set the keybind
 Org-remark has a default highlighter pen function, and comes with a set of two additional pens by default:
 
 - ~org-remark-mark~        :: default highlighter pen
+- ~org-remark-mark-line~ :: default line-highlighter pen, which adds a mark on the margin instead of a range of text
 - ~org-remark-mark-yellow~    :: yellow highlight with "important" category in the marginal notes entry
 - ~org-remark-mark-red-line~   :: wavy red underline with "review" category in the marginal notes entry and "Review this" in tool-tips
 
@@ -197,11 +236,20 @@ This is all you need to get started. For more detail, refer to the rest of this 
 - Macro: ~org-remark-create~ label &optional face properties ::
   Create and register new highlighter pen functions. The newly created pen function will be registered to variable ~org-remark-available-pens~.  It is used by ~org-remark-change~ as a selection list.
 
-  LABEL is the name of the highlighter and mandatory.  The function will be named ~org-remark-mark-LABEL~.
+  ~LABEL~ is the name of the highlighter and mandatory.  The function will be named ~org-remark-mark-LABEL~.
 
-  The highlighter pen function will apply FACE to the selected region. FACE can be an anonymous face.  When FACE is nil, this macro uses the default face ~org-remark-highlighter~.
+  The highlighter pen function will apply ~FACE~ to the selected region. ~FACE~ can be an anonymous face.  When ~FACE~ is nil, this macro uses the default face ~org-remark-highlighter~.
 
-  PROPERTIES is a plist of pairs of a symbol and value. Each highlighted text region will have a corresponding Org headline in the notes file, and it can have additional properties in the property drawer from the highlighter pen.  To do this, prefix property names with "=org-remark-=" or use "=CATEGORY=".
+  ~PROPERTIES~ is a plist of pairs of a symbol and value. Each highlighted text region will have a corresponding Org headline in the notes file, and it can have additional properties in the property drawer from the highlighter pen.  To do this, prefix property names with "=org-remark-=" or use "=CATEGORY=".
+
+As of version 1.3, you can use ~org-remark-create~ to create a new line-highlighter pen. Use the ~PROPERTIES~ parameter like this example below to specify ~org-remark-type~ to be ~line~. This tells Org-remark that the highlighter pen function creates a line-highlight instead of a default range-highlight. The ~LABEL~ does not need to include "line" in it, but it is recommended for consistency with the default command ~org-remark-mark-line~.
+
+#+begin_src emacs-lisp
+  ;; This creates a custom command named org-remark-line-alt.
+  (org-remark-create "line-alt"
+                   'diff-hunk-header
+                   '(org-remark-type line))
+#+end_src
 
 #+ATTR_TEXINFO: :tag NOTE
 #+begin_quote
@@ -225,7 +273,6 @@ Without this global minor mode, you would need to remember to activate ~org-rema
 :END:
 
 *** Marginal Notes File
-
 #+cindex: Marginal notes file
 #+cindex: Org-remark properties for highlights
 
@@ -256,8 +303,29 @@ You can leave the marginal notes file as it is without writing any notes. In thi
 
 In addition to the properties above that Org-remark reserves for itself, you can add your own custom properties and ~CATEGORY~ property. Use "org-remark-" as the prefix to the property names (or "CATEGORY", which is the only exception), and Org-remark put them to the property drawer of highlight's headline entry in the marginal notes buffer. Define the custom properties in your own custom pen functions (for how to create your own pens, [[#create-custom-pens][How to Create Custom Highlighter Pens]]).
 
-*** =*marginal-notes*= Buffer
+*** Organize Headlines in Marginal Notes Buffer in Your Way
+#+vindex: org-remark-line-heading-title-max-length
+#+vindex: org-remark-line-ellipsis
 
+When you highlight a range of text or a line, Org-remark creates a corresponding headline in the marginal notes buffer with using Org mode. By default, the headline's title is either the selected text for the range-highlight or the first 40 characters of the line (longer line will be truncated and replaced by an ellipsis "…" -- both the 40 character limit and the ellipsis string can be customized with customizing variables ~org-remark-line-heading-title-max-length~ and ~org-remark-line-ellipsis~ respectively).
+
+These are only default initial headline titles -- you are free to change them as you see fit. For example, you may add a line-highlight to an Elisp script file on the line you define a function. The initial title of the corresponding headline in the marginal notes buffer will be something like this below.
+
+#+begin_example
+,** (defun name-of-the-function (arg)...)
+ :PROPERTIES:...
+ I will revisit this function later.
+#+end_example
+
+It may make sense to change this to something like this, especially if you would rather organize these as ~TODO~ items so as to appear in your agenda.
+
+#+begin_example
+,** TODO review fun name-of-the-function
+ :PROPERTIES:...
+ I will revisit this function later.
+#+end_example
+
+*** =*marginal-notes*= Buffer
 #+cindex: *marginal notes* buffer
 #+cindex: Echo text / Tool tip on the Highlight
 
@@ -325,22 +393,28 @@ You can customize the variable to use absolute file names, or to use a function 
 ** How to Remove and Delete Highlights
 #+findex: org-remark-remove
 #+findex: org-remark-delete
+#+vindex: org-remark-notes-auto-delete
 
-You can remove the highlight under the cursor with command `org-remark-remove`. This command does not delete the corresponding entry in the marginal notes file. This is intentional; Org-roam is conservative when it deletes anything that the user might have edited.
+You can remove the highlight under the cursor with command ~org-remark-remove~. This command does not delete the corresponding entry in the marginal notes file. This is intentional; Org-roam is conservative when it deletes anything that the user might have edited.
 
 If you wish to delete the entry and the highlight at the same time, pass a universal argument to `org-remark-remove` (e.g. by adding ~C-u~ before ~M-x org-remark-remove~) or use ~org-remark-delete~. ~org-remark-delete~ is identical with adding ~C-u~ to ~org-remark-remove~.
 
 The delete function will prompt for confirmation if it detects any notes present in the corresponding entry for the highlight in question in the marginal notes buffer.
 
-- Command ~org-remark-remove~ ::
-  Remove the highlight at point.
-  It will remove the highlight and the properties from the marginal notes file, but will keep the headline and annotations. This is to ensure to keep any notes you might have written intact.
-  You can let this command DELETE the entire heading subtree for the highlight along with the annotations you have written, by passing a universal argument with ~C-u~. If you have done so by error, you could still ~undo~ it in the marginal notes buffer, but not from within the current buffer as adding and removing overlays are not part of the undo tree.
+#+ATTR_TEXINFO: :tag NOTE
+#+begin_quote
+Note that you can undo the deletion or removal *in the marginal notes buffer* -- not in the source buffer where you mark text with a highlighter. Technically, highlights are overlays and are therefore not part of the undo tree in the source buffer.
+#+end_quote
 
-- Command ~org-remark-delete~ ::
-  Delete the highlight at POINT and marginal notes for it.
-  This function will prompt for confirmation if there is any notes present in the marginal notes buffer.  When the marginal notes buffer is not displayed in the current frame, it will be temporarily displayed together with the prompt for the user to see the notes.
-  If there is no notes, this function will not prompt for confirmation and will remove the highlight and deletes the entry in the marginal notes buffer. This command is identical with passing a universal argument to `org-remark-remove'.
+As of version 1.3, you can use a new optional feature, automatic deletion. When the feature is enabled, Org-remark will automatically delete the highlight's headline when you delete text that includes a highlight, provided there is no marginal notes for it. If marginal notes are present for the highlight's headline, Org-remark only removes the highlight, deleting the properties from the highlight headline -- same operation as ~org-remark-remove~. Your marginal notes will be kept intact. In either case, Org-remark does not ask for your confirmation.
+
+You can enable it with the new user option ~org-remark-notes-auto-delete~ like this example below.
+
+#+begin_src emacs-lisp
+  (setopt org-remark-notes-auto-delete :auto-delete)
+#+end_src
+
+Furthermore,  with v1.3, if you pass a universal argument to ~org-remark-delete~ (e.g. ~C-u M-x org-remark-delete~) you can manually get Org-remark to do automatic deletion for the highlight at point. You can also pass double universal arguments to ~org-remark-remove~ (e.g. ~C-u C-u M-x org-remark-remove~) for the same operation. This should make sense because passing a single universal argument to ~org-remark-remove~ is the same as ~org-remark-delete~. Refer to the documentation of the customizing variable ~org-remark-notes-auto-delete,~ the functions ~org-remark-remove~ and ~org-remark-delete~.
 
 ** What is Automatic Adjustment of Highlight Positions?
 :PROPERTIES:
@@ -376,6 +450,43 @@ You can customize the icon itself and its face with the following customizing va
 
 - Option: ~org-remark-icon-position-adjusted~
 - Face: ~org-remark-highlighter-warning~
+
+** How to Set Org-remark to Use SVG Icons
+:PROPERTIES:
+:CUSTOM_ID: icon
+:END:
+
+As of v1.2, highlights can display an icon. With this option, you can customize Org-remark to visually indicate that marginal notes exist for them instead of the default ASCII string "(*)", or to indicate that the Org-roam has automatically adjusted the highlight position (default ASCII string "(d)"; refer to [[#auto-adjust][What is Automatic Adjustment of Highlight Positions?]]).
+
+There are mainly two ways to set up SVG icons.
+
+1. Use the new built-in `icons` library available as of Emacs version 29.1
+2. Create a custom function and use a third-party library such as [[https://github.com/rougier/svg-lib][~svg-lib~]] by Nicolas Rougier
+
+Below is a quick guide on the first option to use the built-in library
+
+1. Get or create an SVG icon
+2. Put the downloaded SVG file somewhere in your local
+3. Use define-icon macro to create an icon with the SVG file
+
+First, create or download an icon as an ~.svg~ file. For example, [[https://boxicons.com/][Boxicons]] has a collection of SVG icons, which [[https://boxicons.com/usage#license][are provided under The MIT License]]. Second, place the SVG file in your local directory, e.g.   ~~/.config/emacs/.cache/svg/bx-pen.svg~. And finally, use ~define-icon~ to define the icon in your configuration like this example below.
+
+#+begin_src emacs-lisp
+  (define-icon annotation nil
+  '((image "~/.config/emacs/.cache/svg/bx-pen.svg"
+           :height (0.8 . em)))
+  "Notes svg icon for Org-remark"
+  :version 29.1)
+#+end_src
+
+Now the icon has been defined, you can set it to customizing variable ~org-remark-icon-notes~  like so:
+
+#+begin_src emacs-lisp
+  ;; This example uses `setopt' that is made available as of 29.1. `setq' works too.
+  (setopt org-remark-icon-notes (icon-string 'annotation))
+#+end_src
+
+If you have a buffer with highlights already open, use ~revert-buffer~ to reload the highlights. You should see the icon you have defined instead of the default “(*)” string.
 
 ** Other Commands
 #+findex: org-remark-toggle
@@ -467,6 +578,43 @@ Org-remark's user options are available in the customization group ~org-remark~.
 
 - Option ~org-remark-highlights-after-load-functions~ ::
   Abnormal hook run after Org-remark loads the highlights from the note org buffer. It is run with OVERLAYS and NOTES-BUF as arguments. OVERLAYS are highlights. It is run with the source buffer as current buffer. This hook is used by the automatic adjustment feature. To know more about the feature itself, refer to [[#auto-adjust][What is Automatic Adjustment of Highlight Positions?]].
+
+
+** Customizing Line Highlights
+
+#+vindex: org-remark-line-highlighter
+#+vindex: org-remark-line-icon
+#+vindex: org-remark-line-minimum-margin-width
+#+vindex: org-remark-line-margin-padding
+#+vindex: org-remark-line-margin-side
+#+vindex: org-remark-line-heading-title-max-length
+#+vindex: org-remark-line-ellipsis
+
+These are user options for line highlights available as of v1.3. They are listed in customizing group ~org-remark-line~.
+
+- Face: ~org-remark-line-highlighter~ ::
+  Face for the default line highlighter pen.
+
+- Option: ~org-remark-line-icon~ ::
+  Glyph displayed on the margin to indicate the line-highlight. You can set an SVG icon to it. Refer to [[#icon][How to Set Org-remark to Use SVG Icons]].
+
+- Option: ~org-remark-line-minimum-margin-width~ ::
+  Margin width in a natural number. It can be a single number or a cons cell of two. When it is a single number, both the left and right margin widths will be the
+same. When this customizing variable is a cons cell, the format is as follows: (LEFT-MARGIN-WIDTH . RIGHT-MARGIN-WIDTH).
+
+- Option: ~org-remark-line-margin-padding~ ::
+  Padding between the main text area the glyph/icon on the margin.
+
+- Option: ~org-remark-line-margin-side~ ::
+  The side of margin to display line highlights.
+Left or Right can be chosen.
+
+- Option: ~org-remark-line-heading-title-max-length~ ::
+  Maximum length of string included as the highlight title.
+
+- Option ~org-remark-line-ellipsis~ ::
+  Ellipsis used when the highlight title is longer than maximum.
+The maximum is set in ~org-remark-line-heading-title-max-length~.
 
 * Known Limitations
 

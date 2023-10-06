@@ -3,7 +3,7 @@
 <!-- Created by GNU Texinfo 6.8, https://www.gnu.org/software/texinfo/ -->
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<!-- Copyright (C) 2021-2022  Free Software Foundation, Inc.
+<!-- Copyright (C) 2021-2023  Free Software Foundation, Inc.
 
 Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.3 or
@@ -64,13 +64,13 @@ Next: <a href="#Installation" accesskey="n" rel="next">Installation</a> &nbsp; [
 </div>
 <span id="Org_002dremark-User-Manual"></span><h1 class="top">Org-remark User Manual</h1>
 
-<p>This manual is for Org-remark version 1.2.x. Some new features are mentioned in this manual that are currently in development; these are mentioned clearly as such.
+<p>This manual is for Org-remark version 1.3.x. The new features introduced with version 1.3.x are currently only avaiable <a href="https://elpa.gnu.org/devel/org-remark.html">GNU-devel ELPA</a> until the new version is released to <a href="https://elpa.gnu.org/packages/org-remark.html">GNU-ELPA</a>.
 </p>
-<p>Last updated: 20 August 2023.
+<p>Last updated: 06 October 2023.
 </p>
-<p>Org-remark lets you highlight and annotate text files and websites (EWW).
+<p>Org-remark lets you highlight and annotate text files, websites (EWW), EPUB books (nov.el) and Info documentation (Info-mode).
 </p>
-<p>Copyright &copy; 2021-2022  Free Software Foundation, Inc.
+<p>Copyright &copy; 2021-2023  Free Software Foundation, Inc.
 </p>
 <blockquote>
 <p>Permission is granted to copy, distribute and/or modify this document
@@ -111,7 +111,7 @@ Next: <a href="#Getting-Started" accesskey="n" rel="next">Getting Started</a>, P
 </p>
 <ul>
 <li> <a href="https://elpa.gnu.org/packages/org-remark.html">GNU-ELPA</a> (releases only; equivalent to MELPA-Stable)
-</li><li> <a href="https://elpa.gnu.org/devel/org-remark.html">GNU-devel ELPA</a> (unreleased development branch; equivalent to MELPA)
+</li><li> <a href="https://elpa.gnu.org/devel/org-remark.html">GNU-devel ELPA</a> (unreleased main branch; equivalent to MELPA)
 </li></ul>
 
 <p>GNU ELPA should be already set up in your Emacs by default. If you wish to add GNU-devel ELPA, simply add its URL to <code>package-archives</code> like this:
@@ -120,6 +120,19 @@ Next: <a href="#Getting-Started" accesskey="n" rel="next">Getting Started</a>, P
 <pre class="lisp">(add-to-list 'package-archives
              '(&quot;gnu-devel&quot; . &quot;https://elpa.gnu.org/devel/&quot;) :append)
 </pre></div>
+
+
+<ul class="section-toc">
+<li><a href="#Basic-Setup" accesskey="1">Basic Setup</a></li>
+<li><a href="#Setup-with-use_002dpacakge" accesskey="2">Setup with <code>use-pacakge</code></a></li>
+</ul>
+<hr>
+<div class="section" id="Basic-Setup">
+<div class="header">
+<p>
+Next: <a href="#Setup-with-use_002dpacakge" accesskey="n" rel="next">Setup with <code>use-pacakge</code></a>, Up: <a href="#Installation" accesskey="u" rel="up">Installation</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+</div>
+<span id="Basic-Setup-1"></span><h3 class="section">1.1 Basic Setup</h3>
 
 <p>After installation, we suggest you put the setup below in your configuration.
 </p>
@@ -162,6 +175,42 @@ Next: <a href="#Getting-Started" accesskey="n" rel="next">Getting Started</a>, P
 
 <hr>
 </div>
+<div class="section" id="Setup-with-use_002dpacakge">
+<div class="header">
+<p>
+Previous: <a href="#Basic-Setup" accesskey="p" rel="prev">Basic Setup</a>, Up: <a href="#Installation" accesskey="u" rel="up">Installation</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+</div>
+<span id="Setup-with-use_002dpacakge-1"></span><h3 class="section">1.2 Setup with <code>use-pacakge</code></h3>
+
+<p>Alternatively, you can use <code>use-package</code> to set up Org-remark. The example provided below should be equivalent to the setup described above.
+</p>
+<div class="example lisp">
+<pre class="lisp">(use-package org-remark
+  :bind (;; :bind keyword also implicitly defers org-remark itself.
+         ;; Keybindings before :map is set for global-map.
+         (&quot;C-c n m&quot; . org-remark-mark)
+         :map org-remark-mode-map
+         (&quot;C-c n o&quot; . org-remark-open)
+         (&quot;C-c n ]&quot; . org-remark-view-next)
+         (&quot;C-c n [&quot; . org-remark-view-prev)
+         (&quot;C-c n r&quot; . org-remark-remove)
+         (&quot;C-c n d&quot; . org-remark-delete))
+  ;; Alternative way to enable `org-remark-global-tracking-mode' in
+  ;; `after-init-hook'.
+  ;; :hook (after-init . org-remark-global-tracking-mode)
+  :init
+  ;; It is recommended that `org-remark-global-tracking-mode' be
+  ;; enabled when Emacs initializes. Alternatively, you can put it to
+  ;; `:after-init-hook' to load it after Emacs has been initialized.
+  (org-remark-global-tracking-mode +1)
+  (use-package org-remark-info :after info :config (org-remark-info-mode +1))
+  (use-package org-remark-eww  :after eww  :config (org-remark-eww-mode +1))
+  (use-package org-remark-nov  :after nov  :config (org-remark-nov-mode +1)))
+</pre></div>
+
+<hr>
+</div>
+</div>
 <div class="chapter" id="Getting-Started">
 <div class="header">
 <p>
@@ -187,15 +236,22 @@ Next: <a href="#Navigating-from-One-Highlight-to-Another" accesskey="n" rel="nex
 <span id="Highlighting-and-Annotating-1"></span><h3 class="section">2.1 Highlighting and Annotating</h3>
 
 <span id="index-org_002dremark_002dmark"></span>
+<span id="index-org_002dremark_002dmark_002dline"></span>
 <span id="index-org_002dremark_002dopen"></span>
 <span id="index-org_002dremark_002dview"></span>
 <span id="index-Marginal-notes-file"></span>
+<span id="index-line_002dhighlight"></span>
+<span id="index-range_002dhighlight"></span>
+<span id="index-org_002dremark_002dline_002dmargin_002dside"></span>
+<span id="index-org_002dremark_002dnotes_002ddisplay_002dbuffer_002daction"></span>
 
-<p>Once you have installed and set it up (<a href="#Installation">Installation</a>), Org-remark is simple to use. Select a part of text and call <code>M-x org-remark-mark</code> to highlight it. You will see the selected text gets highlighted.
+<p>Once you have installed and set it up (<a href="#Installation">Installation</a>), Org-remark is simple to use. Select a part of text and call <code>M-x org-remark-mark</code> to highlight it. You will see the selected text gets highlighted. This is a range-highlight. With the new version 1.3, you can also highlight a whole line in addition to a range of text by calling <code>org-remark-mark-line</code>. Visually, instead of adding a highlight to the line, it will add a mark on the margin of the buffer (the left margin is the default and you can customize it with <code>org-remark-line-margin-side</code>). This is a line-highlight. Both the range- and line-highlights behave the same way except for how they appear in the buffer you are editing or viewing. You can mix them in the same buffer as you see fit for your purposes.
 </p>
 <p>The menu bar item &ldquo;Org-remark&rdquo; is available when you turn on <code>org-remark-mode</code>. It helps you discover Org-remark&rsquo;s main commands. If you use Emacs version 28 or newer, a context menu is also available by right-clicking your mouse. Turn on the Emacs built-in <code>context-menu-mode</code> to enable the context menu.
 </p>
-<p>To display the marginal notes for the highlight you have just marked, place your cursor on the highlight and call <code>M-x org-remark-open</code> or <code>M-x org-remark-view</code>. This will display a new buffer to the left of the current buffer you are editing. The <code>open</code> command takes the cursor to the marginal notes buffer for you to edit notes; whereas the <code>view</code> command keeps the cursor in the current buffer only to display the marginal notes. Both commands narrow the <strong>marginal notes file</strong> to the entry for the highlight under the cursor.  The marginal notes file is a normal Org file. Edit your notes just as you would do with any other Org files and save the buffer.
+<p>To display the marginal notes for the highlight you have just marked, place your cursor on the highlight and call <code>M-x org-remark-open</code> or <code>M-x org-remark-view</code>. This will create a new buffer to the left of the current buffer you are editing. You can customize where the marginal notes buffer is to be placed (see the documentation of customizing variable <code>org-remark-notes-display-buffer-action</code>).
+</p>
+<p>The <code>open</code> command takes the cursor to the marginal notes buffer for you to edit notes; the <code>view</code> command keeps the cursor in the current buffer only to display the marginal notes. Both commands narrow the <strong>marginal notes file</strong> to the entry for the highlight under the cursor.  The marginal notes file is a normal Org file. Edit your notes just as you would do with any other Org files and save the buffer.
 </p>
 <hr>
 </div>
@@ -241,6 +297,9 @@ Next: <a href="#Highlight-and-Annotate-Websites" accesskey="n" rel="next">Highli
 <dl compact="compact">
 <dt><span><code>org-remark-mark</code></span></dt>
 <dd><p>default highlighter pen
+</p></dd>
+<dt><span><code>org-remark-mark-line</code></span></dt>
+<dd><p>default line-highlighter pen, which adds a mark on the margin instead of a range of text
 </p></dd>
 <dt><span><code>org-remark-mark-yellow</code></span></dt>
 <dd><p>yellow highlight with &ldquo;important&rdquo; category in the marginal notes entry
@@ -313,7 +372,8 @@ Next: <a href="#Customizing" accesskey="n" rel="next">Customizing</a>, Previous:
 <li><a href="#How-to-Manage-Marginal-Notes" accesskey="3">How to Manage Marginal Notes</a></li>
 <li><a href="#How-to-Remove-and-Delete-Highlights" accesskey="4">How to Remove and Delete Highlights</a></li>
 <li><a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f" accesskey="5">What is Automatic Adjustment of Highlight Positions?</a></li>
-<li><a href="#Other-Commands" accesskey="6">Other Commands</a></li>
+<li><a href="#How-to-Set-Org_002dremark-to-Use-SVG-Icons" accesskey="6">How to Set Org-remark to Use SVG Icons</a></li>
+<li><a href="#Other-Commands" accesskey="7">Other Commands</a></li>
 </ul>
 <hr>
 <div class="section" id="How-to-Create-Custom-Highlighter-Pens">
@@ -345,13 +405,22 @@ Next: <a href="#How-to-Automatically-Turn-On-Highlights-after-Re_002dstarting-Em
 <dt><span>Macro: <code>org-remark-create</code> label &amp;optional face properties</span></dt>
 <dd><p>Create and register new highlighter pen functions. The newly created pen function will be registered to variable <code>org-remark-available-pens</code>.  It is used by <code>org-remark-change</code> as a selection list.
 </p>
-<p>LABEL is the name of the highlighter and mandatory.  The function will be named <code>org-remark-mark-LABEL</code>.
+<p><code>LABEL</code> is the name of the highlighter and mandatory.  The function will be named <code>org-remark-mark-LABEL</code>.
 </p>
-<p>The highlighter pen function will apply FACE to the selected region. FACE can be an anonymous face.  When FACE is nil, this macro uses the default face <code>org-remark-highlighter</code>.
+<p>The highlighter pen function will apply <code>FACE</code> to the selected region. <code>FACE</code> can be an anonymous face.  When <code>FACE</code> is nil, this macro uses the default face <code>org-remark-highlighter</code>.
 </p>
-<p>PROPERTIES is a plist of pairs of a symbol and value. Each highlighted text region will have a corresponding Org headline in the notes file, and it can have additional properties in the property drawer from the highlighter pen.  To do this, prefix property names with &ldquo;&lsquo;<samp>org-remark-</samp>&rsquo;&rdquo; or use &ldquo;&lsquo;<samp>CATEGORY</samp>&rsquo;&rdquo;.
+<p><code>PROPERTIES</code> is a plist of pairs of a symbol and value. Each highlighted text region will have a corresponding Org headline in the notes file, and it can have additional properties in the property drawer from the highlighter pen.  To do this, prefix property names with &ldquo;&lsquo;<samp>org-remark-</samp>&rsquo;&rdquo; or use &ldquo;&lsquo;<samp>CATEGORY</samp>&rsquo;&rdquo;.
 </p></dd>
 </dl>
+
+<p>As of version 1.3, you can use <code>org-remark-create</code> to create a new line-highlighter pen. Use the <code>PROPERTIES</code> parameter like this example below to specify <code>org-remark-type</code> to be <code>line</code>. This tells Org-remark that the highlighter pen function creates a line-highlight instead of a default range-highlight. The <code>LABEL</code> does not need to include &ldquo;line&rdquo; in it, but it is recommended for consistency with the default command <code>org-remark-mark-line</code>.
+</p>
+<div class="example lisp">
+<pre class="lisp">;; This creates a custom command named org-remark-line-alt.
+(org-remark-create &quot;line-alt&quot;
+                 'diff-hunk-header
+                 '(org-remark-type line))
+</pre></div>
 
 <blockquote>
 <p><b>NOTE:</b> Don&rsquo;t use &lsquo;<samp>category</samp>&rsquo; (all lowercase, symbol) as a property &ndash; it&rsquo;s a special one for text properties. If you use it, the value also need to be a symbol; otherwise, you will get an error. You can use &lsquo;<samp>CATEGORY</samp>&rsquo; (all uppercase, symbol), which will result in adding &lsquo;<samp>CATEGORY</samp>&rsquo; with the value in the property drawer in marginal notes Org files.
@@ -388,15 +457,16 @@ Next: <a href="#How-to-Remove-and-Delete-Highlights" accesskey="n" rel="next">Ho
 
 <ul class="section-toc">
 <li><a href="#Marginal-Notes-File" accesskey="1">Marginal Notes File</a></li>
-<li><a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="2">&lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</a></li>
-<li><a href="#How-to-Change-Where-Marginal-Notes-File-is-Saved" accesskey="3">How to Change Where Marginal Notes File is Saved</a></li>
-<li><a href="#How-to-Use-Relative-or-Absolute-File-Names-for-Links-in-Marginal-Notes-File" accesskey="4">How to Use Relative or Absolute File Names for Links in Marginal Notes File</a></li>
+<li><a href="#Organize-Headlines-in-Marginal-Notes-Buffer-in-Your-Way" accesskey="2">Organize Headlines in Marginal Notes Buffer in Your Way</a></li>
+<li><a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="3">&lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</a></li>
+<li><a href="#How-to-Change-Where-Marginal-Notes-File-is-Saved" accesskey="4">How to Change Where Marginal Notes File is Saved</a></li>
+<li><a href="#How-to-Use-Relative-or-Absolute-File-Names-for-Links-in-Marginal-Notes-File" accesskey="5">How to Use Relative or Absolute File Names for Links in Marginal Notes File</a></li>
 </ul>
 <hr>
 <div class="subsection" id="Marginal-Notes-File">
 <div class="header">
 <p>
-Next: <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="n" rel="next">&lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</a>, Up: <a href="#How-to-Manage-Marginal-Notes" accesskey="u" rel="up">How to Manage Marginal Notes</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#Organize-Headlines-in-Marginal-Notes-Buffer-in-Your-Way" accesskey="n" rel="next">Organize Headlines in Marginal Notes Buffer in Your Way</a>, Up: <a href="#How-to-Manage-Marginal-Notes" accesskey="u" rel="up">How to Manage Marginal Notes</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
 <span id="Marginal-Notes-File-1"></span><h4 class="subsection">3.3.1 Marginal Notes File</h4>
 
@@ -434,12 +504,42 @@ Next: <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="n" rel="next"
 </p>
 <hr>
 </div>
+<div class="subsection" id="Organize-Headlines-in-Marginal-Notes-Buffer-in-Your-Way">
+<div class="header">
+<p>
+Next: <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="n" rel="next">&lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</a>, Previous: <a href="#Marginal-Notes-File" accesskey="p" rel="prev">Marginal Notes File</a>, Up: <a href="#How-to-Manage-Marginal-Notes" accesskey="u" rel="up">How to Manage Marginal Notes</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+</div>
+<span id="Organize-Headlines-in-Marginal-Notes-Buffer-in-Your-Way-1"></span><h4 class="subsection">3.3.2 Organize Headlines in Marginal Notes Buffer in Your Way</h4>
+
+<span id="index-org_002dremark_002dline_002dheading_002dtitle_002dmax_002dlength"></span>
+<span id="index-org_002dremark_002dline_002dellipsis"></span>
+
+<p>When you highlight a range of text or a line, Org-remark creates a corresponding headline in the marginal notes buffer with using Org mode. By default, the headline&rsquo;s title is either the selected text for the range-highlight or the first 40 characters of the line (longer line will be truncated and replaced by an ellipsis &ldquo;…&rdquo; &ndash; both the 40 character limit and the ellipsis string can be customized with customizing variables <code>org-remark-line-heading-title-max-length</code> and <code>org-remark-line-ellipsis</code> respectively).
+</p>
+<p>These are only default initial headline titles &ndash; you are free to change them as you see fit. For example, you may add a line-highlight to an Elisp script file on the line you define a function. The initial title of the corresponding headline in the marginal notes buffer will be something like this below.
+</p>
+<div class="example">
+<pre class="example">** (defun name-of-the-function (arg)...)
+ :PROPERTIES:...
+ I will revisit this function later.
+</pre></div>
+
+<p>It may make sense to change this to something like this, especially if you would rather organize these as <code>TODO</code> items so as to appear in your agenda.
+</p>
+<div class="example">
+<pre class="example">** TODO review fun name-of-the-function
+ :PROPERTIES:...
+ I will revisit this function later.
+</pre></div>
+
+<hr>
+</div>
 <div class="subsection" id="g_t_002amarginal_002dnotes_002a-Buffer">
 <div class="header">
 <p>
-Next: <a href="#How-to-Change-Where-Marginal-Notes-File-is-Saved" accesskey="n" rel="next">How to Change Where Marginal Notes File is Saved</a>, Previous: <a href="#Marginal-Notes-File" accesskey="p" rel="prev">Marginal Notes File</a>, Up: <a href="#How-to-Manage-Marginal-Notes" accesskey="u" rel="up">How to Manage Marginal Notes</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#How-to-Change-Where-Marginal-Notes-File-is-Saved" accesskey="n" rel="next">How to Change Where Marginal Notes File is Saved</a>, Previous: <a href="#Organize-Headlines-in-Marginal-Notes-Buffer-in-Your-Way" accesskey="p" rel="prev">Organize Headlines in Marginal Notes Buffer in Your Way</a>, Up: <a href="#How-to-Manage-Marginal-Notes" accesskey="u" rel="up">How to Manage Marginal Notes</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
-<span id="g_t_002amarginal_002dnotes_002a-Buffer-1"></span><h4 class="subsection">3.3.2 &lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</h4>
+<span id="g_t_002amarginal_002dnotes_002a-Buffer-1"></span><h4 class="subsection">3.3.3 &lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</h4>
 
 <span id="index-_002amarginal-notes_002a-buffer"></span>
 <span id="index-Echo-text-_002f-Tool-tip-on-the-Highlight"></span>
@@ -457,7 +557,7 @@ Next: <a href="#How-to-Change-Where-Marginal-Notes-File-is-Saved" accesskey="n" 
 <p>
 Next: <a href="#How-to-Use-Relative-or-Absolute-File-Names-for-Links-in-Marginal-Notes-File" accesskey="n" rel="next">How to Use Relative or Absolute File Names for Links in Marginal Notes File</a>, Previous: <a href="#g_t_002amarginal_002dnotes_002a-Buffer" accesskey="p" rel="prev">&lsquo;<samp>*marginal-notes*</samp>&rsquo; Buffer</a>, Up: <a href="#How-to-Manage-Marginal-Notes" accesskey="u" rel="up">How to Manage Marginal Notes</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
-<span id="How-to-Change-Where-Marginal-Notes-File-is-Saved-1"></span><h4 class="subsection">3.3.3 How to Change Where Marginal Notes File is Saved</h4>
+<span id="How-to-Change-Where-Marginal-Notes-File-is-Saved-1"></span><h4 class="subsection">3.3.4 How to Change Where Marginal Notes File is Saved</h4>
 
 <span id="index-org_002dremark_002dnotes_002dfile_002dname"></span>
 
@@ -496,7 +596,7 @@ Next: <a href="#How-to-Use-Relative-or-Absolute-File-Names-for-Links-in-Marginal
 <p>
 Previous: <a href="#How-to-Change-Where-Marginal-Notes-File-is-Saved" accesskey="p" rel="prev">How to Change Where Marginal Notes File is Saved</a>, Up: <a href="#How-to-Manage-Marginal-Notes" accesskey="u" rel="up">How to Manage Marginal Notes</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
-<span id="How-to-Use-Relative-or-Absolute-File-Names-for-Links-in-Marginal-Notes-File-1"></span><h4 class="subsection">3.3.4 How to Use Relative or Absolute File Names for Links in Marginal Notes File</h4>
+<span id="How-to-Use-Relative-or-Absolute-File-Names-for-Links-in-Marginal-Notes-File-1"></span><h4 class="subsection">3.3.5 How to Use Relative or Absolute File Names for Links in Marginal Notes File</h4>
 
 <span id="index-Relative-or-absolute-file-names-pointing-back-at-source-files-in-marginal-notes"></span>
 <span id="index-org_002dremark_002dsource_002dfile_002dname"></span>
@@ -533,33 +633,35 @@ Next: <a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f" access
 
 <span id="index-org_002dremark_002dremove"></span>
 <span id="index-org_002dremark_002ddelete"></span>
+<span id="index-org_002dremark_002dnotes_002dauto_002ddelete"></span>
 
-<p>You can remove the highlight under the cursor with command &lsquo;org-remark-remove&lsquo;. This command does not delete the corresponding entry in the marginal notes file. This is intentional; Org-roam is conservative when it deletes anything that the user might have edited.
+<p>You can remove the highlight under the cursor with command <code>org-remark-remove</code>. This command does not delete the corresponding entry in the marginal notes file. This is intentional; Org-roam is conservative when it deletes anything that the user might have edited.
 </p>
 <p>If you wish to delete the entry and the highlight at the same time, pass a universal argument to &lsquo;org-remark-remove&lsquo; (e.g. by adding <code>C-u</code> before <code>M-x org-remark-remove</code>) or use <code>org-remark-delete</code>. <code>org-remark-delete</code> is identical with adding <code>C-u</code> to <code>org-remark-remove</code>.
 </p>
 <p>The delete function will prompt for confirmation if it detects any notes present in the corresponding entry for the highlight in question in the marginal notes buffer.
 </p>
-<dl compact="compact">
-<dt><span>Command <code>org-remark-remove</code></span></dt>
-<dd><p>Remove the highlight at point.
-It will remove the highlight and the properties from the marginal notes file, but will keep the headline and annotations. This is to ensure to keep any notes you might have written intact.
-You can let this command DELETE the entire heading subtree for the highlight along with the annotations you have written, by passing a universal argument with <code>C-u</code>. If you have done so by error, you could still <code>undo</code> it in the marginal notes buffer, but not from within the current buffer as adding and removing overlays are not part of the undo tree.
+<blockquote>
+<p><b>NOTE:</b> Note that you can undo the deletion or removal <strong>in the marginal notes buffer</strong> &ndash; not in the source buffer where you mark text with a highlighter. Technically, highlights are overlays and are therefore not part of the undo tree in the source buffer.
 </p>
-</dd>
-<dt><span>Command <code>org-remark-delete</code></span></dt>
-<dd><p>Delete the highlight at POINT and marginal notes for it.
-This function will prompt for confirmation if there is any notes present in the marginal notes buffer.  When the marginal notes buffer is not displayed in the current frame, it will be temporarily displayed together with the prompt for the user to see the notes.
-If there is no notes, this function will not prompt for confirmation and will remove the highlight and deletes the entry in the marginal notes buffer. This command is identical with passing a universal argument to &lsquo;org-remark-remove&rsquo;.
-</p></dd>
-</dl>
+</blockquote>
 
+<p>As of version 1.3, you can use a new optional feature, automatic deletion. When the feature is enabled, Org-remark will automatically delete the highlight&rsquo;s headline when you delete text that includes a highlight, provided there is no marginal notes for it. If marginal notes are present for the highlight&rsquo;s headline, Org-remark only removes the highlight, deleting the properties from the highlight headline &ndash; same operation as <code>org-remark-remove</code>. Your marginal notes will be kept intact. In either case, Org-remark does not ask for your confirmation.
+</p>
+<p>You can enable it with the new user option <code>org-remark-notes-auto-delete</code> like this example below.
+</p>
+<div class="example lisp">
+<pre class="lisp">(setopt org-remark-notes-auto-delete :auto-delete)
+</pre></div>
+
+<p>Furthermore,  with v1.3, if you pass a universal argument to <code>org-remark-delete</code> (e.g. <code>C-u M-x org-remark-delete</code>) you can manually get Org-remark to do automatic deletion for the highlight at point. You can also pass double universal arguments to <code>org-remark-remove</code> (e.g. <code>C-u C-u M-x org-remark-remove</code>) for the same operation. This should make sense because passing a single universal argument to <code>org-remark-remove</code> is the same as <code>org-remark-delete</code>. Refer to the documentation of the customizing variable <code>org-remark-notes-auto-delete,</code> the functions <code>org-remark-remove</code> and <code>org-remark-delete</code>.
+</p>
 <hr>
 </div>
 <div class="section" id="What-is-Automatic-Adjustment-of-Highlight-Positions_003f">
 <div class="header">
 <p>
-Next: <a href="#Other-Commands" accesskey="n" rel="next">Other Commands</a>, Previous: <a href="#How-to-Remove-and-Delete-Highlights" accesskey="p" rel="prev">How to Remove and Delete Highlights</a>, Up: <a href="#Usage-Features-Concepts" accesskey="u" rel="up">Usage, Features, Concepts</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#How-to-Set-Org_002dremark-to-Use-SVG-Icons" accesskey="n" rel="next">How to Set Org-remark to Use SVG Icons</a>, Previous: <a href="#How-to-Remove-and-Delete-Highlights" accesskey="p" rel="prev">How to Remove and Delete Highlights</a>, Up: <a href="#Usage-Features-Concepts" accesskey="u" rel="up">Usage, Features, Concepts</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
 <span id="What-is-Automatic-Adjustment-of-Highlight-Positions_003f-1"></span><h3 class="section">3.5 What is Automatic Adjustment of Highlight Positions?</h3>
 
@@ -600,12 +702,57 @@ Next: <a href="#Other-Commands" accesskey="n" rel="next">Other Commands</a>, Pre
 
 <hr>
 </div>
+<div class="section" id="How-to-Set-Org_002dremark-to-Use-SVG-Icons">
+<div class="header">
+<p>
+Next: <a href="#Other-Commands" accesskey="n" rel="next">Other Commands</a>, Previous: <a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f" accesskey="p" rel="prev">What is Automatic Adjustment of Highlight Positions?</a>, Up: <a href="#Usage-Features-Concepts" accesskey="u" rel="up">Usage, Features, Concepts</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+</div>
+<span id="How-to-Set-Org_002dremark-to-Use-SVG-Icons-1"></span><h3 class="section">3.6 How to Set Org-remark to Use SVG Icons</h3>
+
+<p>As of v1.2, highlights can display an icon. With this option, you can customize Org-remark to visually indicate that marginal notes exist for them instead of the default ASCII string &ldquo;(*)&rdquo;, or to indicate that the Org-roam has automatically adjusted the highlight position (default ASCII string &ldquo;(d)&rdquo;; refer to <a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f">What is Automatic Adjustment of Highlight Positions?</a>).
+</p>
+<p>There are mainly two ways to set up SVG icons.
+</p>
+<ol>
+<li> Use the new built-in &lsquo;icons&lsquo; library available as of Emacs version 29.1
+</li><li> Create a custom function and use a third-party library such as <a href="https://github.com/rougier/svg-lib"><code>svg-lib</code></a> by Nicolas Rougier
+</li></ol>
+
+<p>Below is a quick guide on the first option to use the built-in library
+</p>
+<ol>
+<li> Get or create an SVG icon
+</li><li> Put the downloaded SVG file somewhere in your local
+</li><li> Use define-icon macro to create an icon with the SVG file
+</li></ol>
+
+<p>First, create or download an icon as an <code>.svg</code> file. For example, <a href="https://boxicons.com/">Boxicons</a> has a collection of SVG icons, which <a href="https://boxicons.com/usage#license">are provided under The MIT License</a>. Second, place the SVG file in your local directory, e.g.   <code>~/.config/emacs/.cache/svg/bx-pen.svg</code>. And finally, use <code>define-icon</code> to define the icon in your configuration like this example below.
+</p>
+<div class="example lisp">
+<pre class="lisp">(define-icon annotation nil
+'((image &quot;~/.config/emacs/.cache/svg/bx-pen.svg&quot;
+         :height (0.8 . em)))
+&quot;Notes svg icon for Org-remark&quot;
+:version 29.1)
+</pre></div>
+
+<p>Now the icon has been defined, you can set it to customizing variable <code>org-remark-icon-notes</code>  like so:
+</p>
+<div class="example lisp">
+<pre class="lisp">;; This example uses `setopt' that is made available as of 29.1. `setq' works too.
+(setopt org-remark-icon-notes (icon-string 'annotation))
+</pre></div>
+
+<p>If you have a buffer with highlights already open, use <code>revert-buffer</code> to reload the highlights. You should see the icon you have defined instead of the default “(*)” string.
+</p>
+<hr>
+</div>
 <div class="section" id="Other-Commands">
 <div class="header">
 <p>
-Previous: <a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f" accesskey="p" rel="prev">What is Automatic Adjustment of Highlight Positions?</a>, Up: <a href="#Usage-Features-Concepts" accesskey="u" rel="up">Usage, Features, Concepts</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+Previous: <a href="#How-to-Set-Org_002dremark-to-Use-SVG-Icons" accesskey="p" rel="prev">How to Set Org-remark to Use SVG Icons</a>, Up: <a href="#Usage-Features-Concepts" accesskey="u" rel="up">Usage, Features, Concepts</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
 </div>
-<span id="Other-Commands-1"></span><h3 class="section">3.6 Other Commands</h3>
+<span id="Other-Commands-1"></span><h3 class="section">3.7 Other Commands</h3>
 
 <span id="index-org_002dremark_002dtoggle"></span>
 <span id="index-org_002dremark_002dchange"></span>
@@ -650,7 +797,7 @@ Next: <a href="#Known-Limitations" accesskey="n" rel="next">Known Limitations</a
 <span id="index-org_002dremark_002dhighlighter"></span>
 <span id="index-org_002dremark_002dcreate_002ddefault_002dpen_002dset"></span>
 <span id="index-org_002dremark_002dnotes_002dfile_002dname-1"></span>
-<span id="index-org_002dremark_002dnotes_002ddisplay_002dbuffer_002daction"></span>
+<span id="index-org_002dremark_002dnotes_002ddisplay_002dbuffer_002daction-1"></span>
 <span id="index-org_002dremark_002dnotes_002dbuffer_002dname"></span>
 <span id="index-org_002dremark_002dsource_002dfile_002dname-1"></span>
 <span id="index-org_002dremark_002duse_002dorg_002did"></span>
@@ -724,7 +871,67 @@ It&rsquo;s the icon used to indicate that the position of a given highlight has 
 </p></dd>
 </dl>
 
+
+<ul class="section-toc">
+<li><a href="#Customizing-Line-Highlights" accesskey="1">Customizing Line Highlights</a></li>
+</ul>
 <hr>
+<div class="section" id="Customizing-Line-Highlights">
+<div class="header">
+<p>
+Up: <a href="#Customizing" accesskey="u" rel="up">Customizing</a> &nbsp; [<a href="#Index-_002d-Features" title="Index" rel="index">Index</a>]</p>
+</div>
+<span id="Customizing-Line-Highlights-1"></span><h3 class="section">4.1 Customizing Line Highlights</h3>
+
+<span id="index-org_002dremark_002dline_002dhighlighter"></span>
+<span id="index-org_002dremark_002dline_002dicon"></span>
+<span id="index-org_002dremark_002dline_002dminimum_002dmargin_002dwidth"></span>
+<span id="index-org_002dremark_002dline_002dmargin_002dpadding"></span>
+<span id="index-org_002dremark_002dline_002dmargin_002dside-1"></span>
+<span id="index-org_002dremark_002dline_002dheading_002dtitle_002dmax_002dlength-1"></span>
+<span id="index-org_002dremark_002dline_002dellipsis-1"></span>
+
+<p>These are user options for line highlights available as of v1.3. They are listed in customizing group <code>org-remark-line</code>.
+</p>
+<dl compact="compact">
+<dt><span>Face: <code>org-remark-line-highlighter</code></span></dt>
+<dd><p>Face for the default line highlighter pen.
+</p>
+</dd>
+<dt><span>Option: <code>org-remark-line-icon</code></span></dt>
+<dd><p>Glyph displayed on the margin to indicate the line-highlight. You can set an SVG icon to it. Refer to <a href="#How-to-Set-Org_002dremark-to-Use-SVG-Icons">How to Set Org-remark to Use SVG Icons</a>.
+</p>
+</dd>
+<dt><span>Option: <code>org-remark-line-minimum-margin-width</code></span></dt>
+<dd><p>Margin width in a natural number. It can be a single number or a cons cell of two. When it is a single number, both the left and right margin widths will be the
+</p></dd>
+</dl>
+<p>same. When this customizing variable is a cons cell, the format is as follows: (LEFT-MARGIN-WIDTH . RIGHT-MARGIN-WIDTH).
+</p>
+<dl compact="compact">
+<dt><span>Option: <code>org-remark-line-margin-padding</code></span></dt>
+<dd><p>Padding between the main text area the glyph/icon on the margin.
+</p>
+</dd>
+<dt><span>Option: <code>org-remark-line-margin-side</code></span></dt>
+<dd><p>The side of margin to display line highlights.
+</p></dd>
+</dl>
+<p>Left or Right can be chosen.
+</p>
+<dl compact="compact">
+<dt><span>Option: <code>org-remark-line-heading-title-max-length</code></span></dt>
+<dd><p>Maximum length of string included as the highlight title.
+</p>
+</dd>
+<dt><span>Option <code>org-remark-line-ellipsis</code></span></dt>
+<dd><p>Ellipsis used when the highlight title is longer than maximum.
+</p></dd>
+</dl>
+<p>The maximum is set in <code>org-remark-line-heading-title-max-length</code>.
+</p>
+<hr>
+</div>
 </div>
 <div class="chapter" id="Known-Limitations">
 <div class="header">
@@ -821,6 +1028,8 @@ Next: <a href="#Index-_002d-Commands" accesskey="n" rel="next">Index - Commands<
  &nbsp; 
 <a class="summary-letter" href="#Index-_002d-Features_cp_letter-H"><b>H</b></a>
  &nbsp; 
+<a class="summary-letter" href="#Index-_002d-Features_cp_letter-L"><b>L</b></a>
+ &nbsp; 
 <a class="summary-letter" href="#Index-_002d-Features_cp_letter-M"><b>M</b></a>
  &nbsp; 
 <a class="summary-letter" href="#Index-_002d-Features_cp_letter-O"><b>O</b></a>
@@ -847,6 +1056,9 @@ Next: <a href="#Index-_002d-Commands" accesskey="n" rel="next">Index - Commands<
 <tr><td></td><td valign="top"><a href="#index-Highlighting-Info-documentation-with-Info_002dmode">Highlighting Info documentation with Info-mode</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlight-and-Annotate-Info-documentation-in-Info_002dmode">Highlight and Annotate Info documentation in <code>Info-mode</code></a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Highlighting-websites-with-EWW">Highlighting websites with EWW</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlight-and-Annotate-Websites">Highlight and Annotate Websites</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
+<tr><th id="Index-_002d-Features_cp_letter-L">L</th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-line_002dhighlight">line-highlight</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlighting-and-Annotating">Highlighting and Annotating</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index-_002d-Features_cp_letter-M">M</th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Marginal-notes-file">Marginal notes file</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlighting-and-Annotating">Highlighting and Annotating</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Marginal-notes-file-1">Marginal notes file</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Marginal-Notes-File">Marginal Notes File</a></td></tr>
@@ -858,6 +1070,7 @@ Next: <a href="#Index-_002d-Commands" accesskey="n" rel="next">Index - Commands<
 <tr><td></td><td valign="top"><a href="#index-Org_002dremark-properties-for-highlights-1">Org-remark properties for highlights</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Marginal-Notes-File">Marginal Notes File</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index-_002d-Features_cp_letter-R">R</th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-range_002dhighlight">range-highlight</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlighting-and-Annotating">Highlighting and Annotating</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Relative-or-absolute-file-names-pointing-back-at-source-files-in-marginal-notes">Relative or absolute file names pointing back at source files in marginal notes</a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Use-Relative-or-Absolute-File-Names-for-Links-in-Marginal-Notes-File">How to Use Relative or Absolute File Names for Links in Marginal Notes File</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 </table>
@@ -869,6 +1082,8 @@ Next: <a href="#Index-_002d-Commands" accesskey="n" rel="next">Index - Commands<
 <a class="summary-letter" href="#Index-_002d-Features_cp_letter-E"><b>E</b></a>
  &nbsp; 
 <a class="summary-letter" href="#Index-_002d-Features_cp_letter-H"><b>H</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Index-_002d-Features_cp_letter-L"><b>L</b></a>
  &nbsp; 
 <a class="summary-letter" href="#Index-_002d-Features_cp_letter-M"><b>M</b></a>
  &nbsp; 
@@ -902,6 +1117,7 @@ Next: <a href="#Index-_002d-User-Options" accesskey="n" rel="next">Index - User 
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dinfo_002dmode"><code>org-remark-info-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlight-and-Annotate-Info-documentation-in-Info_002dmode">Highlight and Annotate Info documentation in <code>Info-mode</code></a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark"><code>org-remark-mark</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlighting-and-Annotating">Highlighting and Annotating</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark-1"><code>org-remark-mark</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark_002dline"><code>org-remark-mark-line</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlighting-and-Annotating">Highlighting and Annotating</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark_002dred_002dline"><code>org-remark-mark-red-line</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmark_002dyellow"><code>org-remark-mark-yellow</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Create-Custom-Highlighter-Pens">How to Create Custom Highlighter Pens</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dmode"><code>org-remark-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Automatically-Turn-On-Highlights-after-Re_002dstarting-Emacs">How to Automatically Turn On Highlights after Re-starting Emacs</a></td></tr>
@@ -944,8 +1160,20 @@ Next: <a href="#GNU-Free-Documentation-License" accesskey="n" rel="next">GNU Fre
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dicon_002dnotes"><code>org-remark-icon-notes</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dicon_002dposition_002dadjusted"><code>org-remark-icon-position-adjusted</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#What-is-Automatic-Adjustment-of-Highlight-Positions_003f">What is Automatic Adjustment of Highlight Positions?</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dicon_002dposition_002dadjusted-1"><code>org-remark-icon-position-adjusted</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dline_002dellipsis"><code>org-remark-line-ellipsis</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Organize-Headlines-in-Marginal-Notes-Buffer-in-Your-Way">Organize Headlines in Marginal Notes Buffer in Your Way</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dline_002dellipsis-1"><code>org-remark-line-ellipsis</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing-Line-Highlights">Customizing Line Highlights</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dline_002dheading_002dtitle_002dmax_002dlength"><code>org-remark-line-heading-title-max-length</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Organize-Headlines-in-Marginal-Notes-Buffer-in-Your-Way">Organize Headlines in Marginal Notes Buffer in Your Way</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dline_002dheading_002dtitle_002dmax_002dlength-1"><code>org-remark-line-heading-title-max-length</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing-Line-Highlights">Customizing Line Highlights</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dline_002dhighlighter"><code>org-remark-line-highlighter</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing-Line-Highlights">Customizing Line Highlights</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dline_002dicon"><code>org-remark-line-icon</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing-Line-Highlights">Customizing Line Highlights</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dline_002dmargin_002dpadding"><code>org-remark-line-margin-padding</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing-Line-Highlights">Customizing Line Highlights</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dline_002dmargin_002dside"><code>org-remark-line-margin-side</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlighting-and-Annotating">Highlighting and Annotating</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dline_002dmargin_002dside-1"><code>org-remark-line-margin-side</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing-Line-Highlights">Customizing Line Highlights</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dline_002dminimum_002dmargin_002dwidth"><code>org-remark-line-minimum-margin-width</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing-Line-Highlights">Customizing Line Highlights</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dnotes_002dauto_002ddelete"><code>org-remark-notes-auto-delete</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Remove-and-Delete-Highlights">How to Remove and Delete Highlights</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dnotes_002dbuffer_002dname"><code>org-remark-notes-buffer-name</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dnotes_002ddisplay_002dbuffer_002daction"><code>org-remark-notes-display-buffer-action</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dnotes_002ddisplay_002dbuffer_002daction"><code>org-remark-notes-display-buffer-action</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Highlighting-and-Annotating">Highlighting and Annotating</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-org_002dremark_002dnotes_002ddisplay_002dbuffer_002daction-1"><code>org-remark-notes-display-buffer-action</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dnotes_002dfile_002dname"><code>org-remark-notes-file-name</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#How-to-Change-Where-Marginal-Notes-File-is-Saved">How to Change Where Marginal Notes File is Saved</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dnotes_002dfile_002dname-1"><code>org-remark-notes-file-name</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-org_002dremark_002dopen_002dhook"><code>org-remark-open-hook</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing">Customizing</a></td></tr>
