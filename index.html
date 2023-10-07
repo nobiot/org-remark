@@ -66,7 +66,7 @@ Next: <a href="#Installation" accesskey="n" rel="next">Installation</a> &nbsp; [
 
 <p>This manual is for Org-remark version 1.3.x. The new features introduced with version 1.3.x are currently only available <a href="https://elpa.gnu.org/devel/org-remark.html">GNU-devel ELPA</a> until the new version is released to <a href="https://elpa.gnu.org/packages/org-remark.html">GNU-ELPA</a>.
 </p>
-<p>Last updated: 06 October 2023.
+<p>Last updated: 07 October 2023.
 </p>
 <p>Org-remark lets you highlight and annotate text files, websites (EWW), EPUB books (nov.el) and Info documentation (Info-mode).
 </p>
@@ -405,18 +405,19 @@ Next: <a href="#How-to-Automatically-Turn-On-Highlights-after-Re_002dstarting-Em
 <dt><span>Macro: <code>org-remark-create</code> label &amp;optional face properties</span></dt>
 <dd><p>Create and register new highlighter pen functions. The newly created pen function will be registered to variable <code>org-remark-available-pens</code>.  It is used by <code>org-remark-change</code> as a selection list.
 </p>
-<p><code>LABEL</code> is the name of the highlighter and mandatory.  The function will be named <code>org-remark-mark-LABEL</code>.
+<p><code>LABEL</code> is the name of the highlighter and mandatory. The function will be named <code>org-remark-mark-LABEL</code>.
 </p>
 <p>The highlighter pen function will apply <code>FACE</code> to the selected region. <code>FACE</code> can be an anonymous face.  When <code>FACE</code> is nil, this macro uses the default face <code>org-remark-highlighter</code>.
 </p>
-<p><code>PROPERTIES</code> is a plist of pairs of a symbol and value. Each highlighted text region will have a corresponding Org headline in the notes file, and it can have additional properties in the property drawer from the highlighter pen.  To do this, prefix property names with &ldquo;&lsquo;<samp>org-remark-</samp>&rsquo;&rdquo; or use &ldquo;&lsquo;<samp>CATEGORY</samp>&rsquo;&rdquo;.
+<p><code>PROPERTIES</code> is a plist of pairs of a symbol and value. Each highlighted text region will have a corresponding Org headline in the notes file, and it can have additional properties in the property drawer from the highlighter pen. To do this, prefix property names with &ldquo;&lsquo;<samp>org-remark-</samp>&rsquo;&rdquo; or use &ldquo;&lsquo;<samp>CATEGORY</samp>&rsquo;&rdquo;.
 </p></dd>
 </dl>
 
-<p>As of version 1.3, you can use <code>org-remark-create</code> to create a new line-highlighter pen. Use the <code>PROPERTIES</code> parameter like this example below to specify <code>org-remark-type</code> to be <code>line</code>. This tells Org-remark that the highlighter pen function creates a line-highlight instead of a default range-highlight. The <code>LABEL</code> does not need to include &ldquo;line&rdquo; in it, but it is recommended for consistency with the default command <code>org-remark-mark-line</code>.
+<p>As of version 1.3, you can use <code>org-remark-create</code> to create a new line-highlighter pen. Use the <code>PROPERTIES</code> parameter like the example below to specify <code>org-remark-type</code> to be <code>line</code>. This tells Org-remark to create a line-highlighter pen function instead of a default range-highlighter one. The <code>LABEL</code> does not need to include the string &ldquo;line&rdquo;, but it is recommended for consistency with the default command <code>org-remark-mark-line</code>.
 </p>
 <div class="example lisp">
-<pre class="lisp">;; This creates a custom command named org-remark-line-alt.
+<pre class="lisp">;; This creates a custom command named org-remark-mark-line-alt with
+;; face diff-hunk-header
 (org-remark-create &quot;line-alt&quot;
                  'diff-hunk-header
                  '(org-remark-type line))

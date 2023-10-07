@@ -1,7 +1,7 @@
 #+title: Org-remark User Manual
 #+author: Noboru Ota <me@nobiot.com>
 #+macro: version 1.3.x
-#+macro: modified 06 October 2023
+#+macro: modified 07 October 2023
 #+language: en
 #+export_file_name: org-remark.texi
 #+texinfo_dir_category: Emacs
@@ -236,16 +236,17 @@ This is all you need to get started. For more detail, refer to the rest of this 
 - Macro: ~org-remark-create~ label &optional face properties ::
   Create and register new highlighter pen functions. The newly created pen function will be registered to variable ~org-remark-available-pens~.  It is used by ~org-remark-change~ as a selection list.
 
-  ~LABEL~ is the name of the highlighter and mandatory.  The function will be named ~org-remark-mark-LABEL~.
+  ~LABEL~ is the name of the highlighter and mandatory. The function will be named ~org-remark-mark-LABEL~.
 
   The highlighter pen function will apply ~FACE~ to the selected region. ~FACE~ can be an anonymous face.  When ~FACE~ is nil, this macro uses the default face ~org-remark-highlighter~.
 
-  ~PROPERTIES~ is a plist of pairs of a symbol and value. Each highlighted text region will have a corresponding Org headline in the notes file, and it can have additional properties in the property drawer from the highlighter pen.  To do this, prefix property names with "=org-remark-=" or use "=CATEGORY=".
+  ~PROPERTIES~ is a plist of pairs of a symbol and value. Each highlighted text region will have a corresponding Org headline in the notes file, and it can have additional properties in the property drawer from the highlighter pen. To do this, prefix property names with "=org-remark-=" or use "=CATEGORY=".
 
-As of version 1.3, you can use ~org-remark-create~ to create a new line-highlighter pen. Use the ~PROPERTIES~ parameter like this example below to specify ~org-remark-type~ to be ~line~. This tells Org-remark that the highlighter pen function creates a line-highlight instead of a default range-highlight. The ~LABEL~ does not need to include "line" in it, but it is recommended for consistency with the default command ~org-remark-mark-line~.
+As of version 1.3, you can use ~org-remark-create~ to create a new line-highlighter pen. Use the ~PROPERTIES~ parameter like the example below to specify ~org-remark-type~ to be ~line~. This tells Org-remark to create a line-highlighter pen function instead of a default range-highlighter one. The ~LABEL~ does not need to include the string "line", but it is recommended for consistency with the default command ~org-remark-mark-line~.
 
 #+begin_src emacs-lisp
-  ;; This creates a custom command named org-remark-line-alt.
+  ;; This creates a custom command named org-remark-mark-line-alt with
+  ;; face diff-hunk-header
   (org-remark-create "line-alt"
                    'diff-hunk-header
                    '(org-remark-type line))
