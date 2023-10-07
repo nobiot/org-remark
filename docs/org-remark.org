@@ -106,6 +106,7 @@ Alternatively, you can use ~use-package~ to set up Org-remark. The example provi
     :bind (;; :bind keyword also implicitly defers org-remark itself.
            ;; Keybindings before :map is set for global-map.
            ("C-c n m" . org-remark-mark)
+           ("C-c n l" . org-remark-mark-line)
            :map org-remark-mode-map
            ("C-c n o" . org-remark-open)
            ("C-c n ]" . org-remark-view-next)
@@ -118,8 +119,9 @@ Alternatively, you can use ~use-package~ to set up Org-remark. The example provi
     :init
     ;; It is recommended that `org-remark-global-tracking-mode' be
     ;; enabled when Emacs initializes. Alternatively, you can put it to
-    ;; `:after-init-hook' to load it after Emacs has been initialized.
+    ;; `after-init-hook' as in the comment above
     (org-remark-global-tracking-mode +1)
+    :config
     (use-package org-remark-info :after info :config (org-remark-info-mode +1))
     (use-package org-remark-eww  :after eww  :config (org-remark-eww-mode +1))
     (use-package org-remark-nov  :after nov  :config (org-remark-nov-mode +1)))
