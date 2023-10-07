@@ -10,6 +10,8 @@ Current development version (release candidate 1.3.0)
    - `org-remark-open` to open the associated marginal notes file if
      cursor outside a highlight (#72)
 
+     Fixes:
+
    - fix: compiler warning ‘org-remark-highlight-save’ is an obsolete...
 
 Version 1.2.1 - 2023-08-20
