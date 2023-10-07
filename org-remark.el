@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.2.1
 ;; Created: 22 December 2020
-;; Last modified: 06 October 2023
+;; Last modified: 07 October 2023
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -561,10 +561,11 @@ further editing. When VIEW-ONLY is \\=':view-only\\=' \(e.g.
 Elisp program to pass the value), you can view the marginal notes
 buffer with the cursor remaining in the current buffer.
 
-If you pass a single universal argument with
-\\[universal-argument]\), you open the marginal notes buffer
-associated with the current buffer with `find-file' without
-narrowing it to a specific node or cloning it as indirect buffer..
+You can open the marginal notes buffer associated with the
+current buffer with `find-file' when the notes file exist and if
+there is no highlight at point. Passing a single universal
+argument with \\[universal-argument]\) also lets you open the
+notes buffer in this way.
 
 If you pass any other values to VIEW-ONLY, this function behaves
 in the way as passing \\=':view-only\\=' to it and simply let you
