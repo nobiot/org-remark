@@ -66,7 +66,7 @@ Next: <a href="#Installation" accesskey="n" rel="next">Installation</a> &nbsp; [
 
 <p>This manual is for Org-remark version 1.3.x. The new features introduced with version 1.3.x are currently only available <a href="https://elpa.gnu.org/devel/org-remark.html">GNU-devel ELPA</a> until the new version is released to <a href="https://elpa.gnu.org/packages/org-remark.html">GNU-ELPA</a>.
 </p>
-<p>Last updated: 07 October 2023.
+<p>Last updated: 01 February 2024.
 </p>
 <p>Org-remark lets you highlight and annotate text files, websites (EWW), EPUB books (nov.el) and Info documentation (Info-mode).
 </p>
@@ -163,6 +163,7 @@ Next: <a href="#Setup-with-use_002dpackage" accesskey="n" rel="next">Setup with 
 ;; globally before the library is loaded.
 
 (define-key global-map (kbd &quot;C-c n m&quot;) #'org-remark-mark)
+(define-key global-map (kbd &quot;C-c n l&quot;) #'org-remark-mark-line) ; new in v1.3
 
 ;; The rest of keybidings are done only on loading `org-remark'
 (with-eval-after-load 'org-remark
@@ -189,7 +190,7 @@ Previous: <a href="#Basic-Setup" accesskey="p" rel="prev">Basic Setup</a>, Up: <
   :bind (;; :bind keyword also implicitly defers org-remark itself.
          ;; Keybindings before :map is set for global-map.
          (&quot;C-c n m&quot; . org-remark-mark)
-         (&quot;C-c n l&quot; . org-remark-mark-line)
+         (&quot;C-c n l&quot; . org-remark-mark-line) ; new in v1.3
          :map org-remark-mode-map
          (&quot;C-c n o&quot; . org-remark-open)
          (&quot;C-c n ]&quot; . org-remark-view-next)
