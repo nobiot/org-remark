@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 29 July 2023
-;; Last modified: 21 January 2024
+;; Last modified: 23 March 2024
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -168,7 +168,8 @@ Each overlay is a highlight."
                   (when (funcall pred ov)
                     (org-remark-icon-propertize icon-name ov default-face)))))
       (let ((icon-string
-             (mapconcat #'add-icon-maybe org-remark-icons)))
+             ;; The third arg of `mapconcat' is not optional in Emacs 28 or lower.
+             (mapconcat #'add-icon-maybe org-remark-icons nil)))
         ;; `mapconcat' returns "" when all function calls for SEQUENCE
         ;; return nil, I guess to guarantee the result is a string
         (when (and icon-string
@@ -179,8 +180,8 @@ Each overlay is a highlight."
 
 (cl-defgeneric org-remark-icon-overlay-put (_ov _icon-string _org-remark-type)
   "Default method to deal with icon.
- This is used when a method specific \\='org-remark-type\\=' not
- implemented."
+This is used when a method specific \\='org-remark-type\\=' not
+implemented."
   (ignore))
 
 (cl-defmethod org-remark-icon-overlay-put (ov icon-string (_org-remark-type (eql nil)))
