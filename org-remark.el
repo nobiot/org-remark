@@ -6,7 +6,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Version: 1.2.2
 ;; Created: 22 December 2020
-;; Last modified: 25 March 2024
+;; Last modified: 29 June 2024
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
@@ -1638,10 +1638,10 @@ highlight is a property list in the following properties:
                          highlights)))))
            highlights))))))
 
-(defun org-remark-highlights-delay-load (window)
-  "Delay load until WINDOW for current buffer is created."
-  (when (windowp window)
-    (remove-hook 'window-state-change-functions
+(defun org-remark-highlights-delay-load ()
+  "Delay load until window for current buffer is created."
+  (when (get-buffer-window)
+    (remove-hook 'post-command-hook
                  #'org-remark-highlights-delay-load 'local)
     (org-remark-highlights-load)))
 
@@ -1654,7 +1654,7 @@ output a message in the echo.
 Non-nil value for UPDATE is passed for the notes-source sync
 process."
   (if (not (get-buffer-window))
-      (add-hook 'window-state-change-functions
+      (add-hook 'post-command-hook
                 #'org-remark-highlights-delay-load 95 'local)
     ;; Some major modes such as nov.el reuse the current buffer, deleting
     ;; the buffer content and insert a different file's content. In this
