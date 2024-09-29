@@ -749,19 +749,18 @@ not part of the undo tree. You can undo the deletion in the
 marginal notes buffer and then save it to sync the highlight back
 in the source."
   (interactive "d\nP")
-  (let* ((ov (org-remark-find-dwim point))
-         (id (overlay-get ov 'org-remark-id)))
-    (when (and ov id)
-      ;; Remove the highlight overlay and id. If there is more than one,
-      ;; remove only one. It should be last-in-first-out in general but
-      ;; overlays functions don't guarantee it (when delete
-      ;; (org-remark-open point :view-only))
-      (org-remark-highlight-clear ov)
-      ;; Update the notes file accordingly
-      (org-remark-notes-remove id delete)
-      (org-remark-highlights-housekeep)
-      (org-remark-highlights-sort)
-      t)))
+  (and-let* ((ov (org-remark-find-dwim point))
+             (id (overlay-get ov 'org-remark-id)))
+    ;; Remove the highlight overlay and id. If there is more than one,
+    ;; remove only one. It should be last-in-first-out in general but
+    ;; overlays functions don't guarantee it (when delete
+    ;; (org-remark-open point :view-only))
+    (org-remark-highlight-clear ov)
+    ;; Update the notes file accordingly
+    (org-remark-notes-remove id delete)
+    (org-remark-highlights-housekeep)
+    (org-remark-highlights-sort)
+    t))
 
 (defun org-remark-delete (point &optional arg)
   "Delete the highlight at POINT and marginal notes for it.
@@ -966,11 +965,14 @@ round-trip back to the notes file."
   (when org-remark-highlights-hidden (org-remark-highlights-show))
   (org-with-wide-buffer
    (let* ((org-remark-type (plist-get properties 'org-remark-type))
-          (ov (org-remark-highlight-make-overlay beg end face org-remark-type))
           ;;(make-overlay beg end nil :front-advance))
           ;; UUID is too long; does not have to be the full length
           (id (if id id (substring (org-id-uuid) 0 8)))
-          (filename (org-remark-source-find-file-name)))
+          (filename (org-remark-source-find-file-name))
+          ;; Add highlight overlay only when filename is assigned.
+          (ov (when filename
+                (org-remark-highlight-make-overlay
+                 beg end face org-remark-type))))
      (if (not filename)
          (message (format "org-remark: Highlights not saved.\
  This buffer (%s) is not supported" (symbol-name major-mode)))
