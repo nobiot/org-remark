@@ -928,7 +928,7 @@ Put FACE and other necessary properties to the highlight OV"
 (cl-defmethod org-remark-highlight-make-overlay (beg end face
                                                      (_org-remark-type (eql nil)))
   "Make overlay BEG END and add FACE to it.
-If FACE is nil, this function uses defaul face `org-remark-highlighter'.
+If FACE is nil, this function uses default face `org-remark-highlighter'.
 This is a method for highlights of default ORG-REMARK-TYPE, that
 is for a character range."
   (let ((ov (make-overlay beg end nil :front-advance)))
