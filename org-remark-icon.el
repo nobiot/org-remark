@@ -170,10 +170,7 @@ Each overlay is a highlight."
       (let ((icon-string
              ;; The third arg of `mapconcat' is not optional in Emacs 28 or lower.
              (mapconcat #'add-icon-maybe org-remark-icons nil)))
-        ;; `mapconcat' returns "" when all function calls for SEQUENCE
-        ;; return nil, I guess to guarantee the result is a string
-        (when (and icon-string
-                   (not (string= icon-string "")))
+        (when (< 0 (length icon-string))
           (org-remark-icon-overlay-put
            ov icon-string
            (overlay-get ov 'org-remark-type)))))))
