@@ -1,4 +1,4 @@
-;;; org-remark-icon.el --- Enable Org-roam to use icons -*- lexical-binding: t; -*-
+;;; org-remark-icon.el --- Enable Org-remark to use icons -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2021-2024 Free Software Foundation, Inc.
 
