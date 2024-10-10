@@ -145,6 +145,13 @@ Org-remark does not create this ID, which needs to be added
 manually or some other function to either the headline or file."
   :type 'boolean)
 
+(defcustom org-remark-report-no-highlights t
+  "When non-nil, Org-remark reports that there are no highlights in the buffer.
+If Org-remark finds no highlights or annotations in a buffer it is
+enabled in, then a non-nil value means a message indicating this will be
+shown. Otherwise, do not show such a message."
+  :type 'boolean)
+
 (defcustom org-remark-open-hook nil
   "Hook run when a note buffer is opened/visited.
 The current buffer is the note buffer."
@@ -1610,7 +1617,7 @@ highlight is a property list in the following properties:
         (org-with-wide-buffer
          (let ((heading (org-find-property
                          org-remark-prop-source-file source-file-name)))
-           (if (not heading)
+           (if (and (not heading) org-remark-report-no-highlights)
                (message "No highlights or annotations found for %s."
                         source-file-name)
              (goto-char heading)
