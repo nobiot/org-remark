@@ -1,4 +1,4 @@
-;;; org-remark-info.el --- Support Org-roam with Info-mode -*- lexical-binding: t; -*-
+;;; org-remark-info.el --- Support Org-remark with Info-mode -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2021-2024 Free Software Foundation, Inc.
 

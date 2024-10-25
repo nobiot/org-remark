@@ -1,4 +1,4 @@
-;;; org-remark-line.el --- Enable Org-roam to highlight a line -*- lexical-binding: t; -*-
+;;; org-remark-line.el --- Enable Org-remark to highlight a line -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2021-2024 Free Software Foundation, Inc.
 
