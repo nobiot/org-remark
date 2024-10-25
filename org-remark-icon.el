@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 29 July 2023
-;; Last modified: 23 March 2024
+;; Last modified: 25 October 2024
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -170,7 +170,7 @@ Each overlay is a highlight."
       (let ((icon-string
              ;; The third arg of `mapconcat' is not optional in Emacs 28 or lower.
              (mapconcat #'add-icon-maybe org-remark-icons nil)))
-        (when (< 0 (length icon-string))
+        (when (length> icon-string 0)
           (org-remark-icon-overlay-put
            ov icon-string
            (overlay-get ov 'org-remark-type)))))))
