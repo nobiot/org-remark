@@ -17,7 +17,7 @@
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; Created: 22 December 2020
-;; Last modified: 29 September 2024
+;; Last modified: 25 October 2024
 
 ;; URL: https://github.com/nobiot/org-remark
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
@@ -1206,25 +1206,26 @@ beginning of source-headline, which should be one level up."
   ;; Add org-remark-link with updated line-num as a property
   (let (title beg end props id text filename link orgid org-remark-type other-props)
     (with-current-buffer source-buf
-      (setq title (org-remark-highlight-get-title)
-            beg (overlay-start highlight)
-            end (overlay-end highlight)
-            props (overlay-properties highlight)
-            id (plist-get props 'org-remark-id)
-            org-remark-type (overlay-get highlight 'org-remark-type)
-            text (org-with-wide-buffer
-                  (org-remark-highlight-headline-text highlight org-remark-type))
-            filename (org-remark-source-get-file-name
-                      (org-remark-source-find-file-name))
-            link (run-hook-with-args-until-success
-                  'org-remark-highlight-link-to-source-functions filename beg)
-            orgid (org-remark-highlight-get-org-id beg)
-            other-props (org-remark-highlight-collect-other-props highlight))
-      ;; TODO ugly to add the beg end after setq above
-      (plist-put props org-remark-prop-source-beg (number-to-string beg))
-      (plist-put props org-remark-prop-source-end (number-to-string end))
-      (when link (plist-put props "org-remark-link" link))
-      (when other-props (setq props (append props other-props))))
+      (org-with-wide-buffer
+       (setq title (org-remark-highlight-get-title)
+             beg (overlay-start highlight)
+             end (overlay-end highlight)
+             props (overlay-properties highlight)
+             id (plist-get props 'org-remark-id)
+             org-remark-type (overlay-get highlight 'org-remark-type)
+             text (org-with-wide-buffer
+                   (org-remark-highlight-headline-text highlight org-remark-type))
+             filename (org-remark-source-get-file-name
+                       (org-remark-source-find-file-name))
+             link (run-hook-with-args-until-success
+                   'org-remark-highlight-link-to-source-functions filename beg)
+             orgid (org-remark-highlight-get-org-id beg)
+             other-props (org-remark-highlight-collect-other-props highlight))
+       ;; TODO ugly to add the beg end after setq above
+       (plist-put props org-remark-prop-source-beg (number-to-string beg))
+       (plist-put props org-remark-prop-source-end (number-to-string end))
+       (when link (plist-put props "org-remark-link" link))
+       (when other-props (setq props (append props other-props)))))
     ;;; Make it explicit that we are now in the notes-buf, though it is
     ;;; functionally redundant.
     (with-current-buffer notes-buf
