@@ -1618,9 +1618,10 @@ highlight is a property list in the following properties:
         (org-with-wide-buffer
          (let ((heading (org-find-property
                          org-remark-prop-source-file source-file-name)))
-           (if (and (not heading) org-remark-report-no-highlights)
-               (message "No highlights or annotations found for %s."
-                        source-file-name)
+           (if (not heading)
+               (when org-remark-report-no-highlights
+                 (message "No highlights or annotations found for %s."
+                          source-file-name))
              (goto-char heading)
              ;; Narrow to only subtree for a single file.  `org-find-property'
              ;; ensures that it is the beginning of a headline
