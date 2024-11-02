@@ -17,7 +17,7 @@
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; Created: 22 December 2020
-;; Last modified: 25 October 2024
+;; Last modified: 02 November 2024
 
 ;; URL: https://github.com/nobiot/org-remark
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
@@ -1036,7 +1036,10 @@ This function assumes
 the current buffer is the source buffer.
 
 Utility function to work with a single highlight overlay."
-  (or (cadr (assoc "TITLE" (org-collect-keywords '("TITLE"))))
+  (or (and (derived-mode-p 'org-mode)
+           ;; `org-collect' gives an warning if the current buffer is not an
+           ;; org-mode
+           (cadr (assoc "TITLE" (org-collect-keywords '("TITLE")))))
       (let* ((full-name (org-remark-source-find-file-name))
              (filename (if (and (string= "" (file-name-nondirectory full-name))
                                 (string-match "[\/]+\\'" full-name))
