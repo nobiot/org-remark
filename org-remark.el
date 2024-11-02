@@ -1690,17 +1690,18 @@ process."
             "Org-remark: error during loading highlights: %S"
           ;; Load highlights with demoted errors -- this makes the loading
           ;; robust against errors in loading.
-          (dolist (highlight (org-remark-highlights-get notes-buf))
-            (let ((ov (org-remark-highlight-load highlight)))
-              (when ov (push ov overlays))))
-          (unless update (org-remark-notes-setup notes-buf source-buf))
-          (if overlays
-              (progn (run-hook-with-args 'org-remark-highlights-after-load-functions
-                                         overlays notes-buf)
-                     ;; Return t
-                     t)
-            ;; if there is no overlays loaded, return nil
-            nil))))))
+          (org-with-wide-buffer
+           (dolist (highlight (org-remark-highlights-get notes-buf))
+             (let ((ov (org-remark-highlight-load highlight)))
+               (when ov (push ov overlays))))
+           (unless update (org-remark-notes-setup notes-buf source-buf))
+           (if overlays
+               (progn (run-hook-with-args 'org-remark-highlights-after-load-functions
+                                          overlays notes-buf)
+                      ;; Return t
+                      t)
+             ;; if there is no overlays loaded, return nil
+             nil)))))))
 
 (defun org-remark-highlights-clear ()
   "Delete all highlights in the buffer.
