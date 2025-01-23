@@ -1,12 +1,12 @@
 ;;; org-remark-eww.el --- Enable Org-remark for EWW -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2021-2024 Free Software Foundation, Inc.
+;; Copyright (C) 2021-2025 Free Software Foundation, Inc.
 
 ;; Authors: Vedang Manerikar <ved.manerikar@gmail.com>
 ;;          Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 23 December 2022
-;; Last modified: 21 January 2024
+;; Last modified: 23 January 2025
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 

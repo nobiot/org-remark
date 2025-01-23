@@ -1,6 +1,6 @@
 ;;; org-remark.el --- Highlight & annotate text, Info, EPUB, EWW -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2020-2024 Free Software Foundation, Inc.
+;; Copyright (C) 2020-2025 Free Software Foundation, Inc.
 
 ;; This program is free software: you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; Created: 22 December 2020
-;; Last modified: 02 November 2024
+;; Last modified: 23 January 2025
 
 ;; URL: https://github.com/nobiot/org-remark
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,

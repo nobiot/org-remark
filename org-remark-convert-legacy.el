@@ -1,10 +1,10 @@
 ;;; org-remark-convert-legacy.el --- Convert legacy Org-marginalia files to Org-remark -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2022-2024 Free Software Foundation, Inc.
+;; Copyright (C) 2022-2025 Free Software Foundation, Inc.
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
-;; Last modified: 21 January 2024
+;; Last modified: 23 January 2025
 ;; Created: 16 January 2022
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, writing, note-taking, marginal notes

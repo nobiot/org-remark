@@ -1,11 +1,11 @@
 ;;; org-remark-line.el --- Enable Org-remark to highlight a line -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2021-2024 Free Software Foundation, Inc.
+;; Copyright (C) 2021-2025 Free Software Foundation, Inc.
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 01 August 2023
-;; Last modified: 22 April 2024
+;; Last modified: 23 January 2025
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
