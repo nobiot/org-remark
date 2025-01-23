@@ -830,7 +830,8 @@ Return nil if not and outputs a message in the echo."
                (org-remark-find-prev-highlight))))
       (if p (progn
               (goto-char p)
-              (org-remark--reveal-context)
+              (when (and org-remark-reveal-p (org-invisible-p (point))
+                         (org-remark--reveal-context)))
               ;; Setup the overriding keymap.
               (unless overriding-terminal-local-map
                 (let ((prefix-keys (substring (this-single-command-keys) 0 -1))
@@ -844,16 +845,12 @@ Return nil if not and outputs a message in the echo."
         nil))))
 
 (defun org-remark--reveal-context ()
-  (cond
-   ((and (derived-mode-p 'org)
-              (org-invisible-p (point)))
-    (org-fold-show-context 'link-search))
-   ((pcase-let*
-        ((`(,fn . ,ov) (get-char-property-and-overlay
-                         (point)
-                         'isearch-open-invisible))
-         (_ (functionp fn)))
-      (funcall fn ov)))))
+  (pcase-let
+      ((`(,fn . ,ov)
+        (get-char-property-and-overlay (point) 'isearch-open-invisible)))
+    (cond ((and (functionp fn) ov) (funcall fn ov))
+          ((and (derived-mode-p 'org-mode))
+           (org-fold-show-context 'link-search)))))
 
 (defun org-remark-find-next-highlight ()
   "Return the beg point of the next highlight.
