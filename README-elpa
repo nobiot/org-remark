@@ -151,27 +151,31 @@ _________________
   above.
 
   ,----
+  | (use-package org-remark-global-tracking
+  |   ;; It is recommended that `org-remark-global-tracking-mode' be
+  |   ;; enabled when Emacs initializes. You can put it to
+  |   ;; `after-init-hook' as in the comment above
+  |   :hook after-init
+  |   :config
+  |   (org-remark-global-tracking-mode +1)
+  |   ;; Selectively keep or comment out the following if you want to use
+  |   ;; extensions for Info-mode, EWW, and NOV.el (EPUB) respectively.
+  |   (use-package org-remark-info :after info :config (org-remark-info-mode +1))
+  |   (use-package org-remark-eww  :after eww  :config (org-remark-eww-mode +1))
+  |   (use-package org-remark-nov  :after nov  :config (org-remark-nov-mode +1)))
+  | 
   | (use-package org-remark
   |   :bind (;; :bind keyword also implicitly defers org-remark itself.
-  |          ;; Keybindings before :map is set for global-map.
+  |          ;; Keybindings before :map is set for global-map. Adjust the keybinds
+  |          ;; as you see fit.
   |          ("C-c n m" . org-remark-mark)
+  |          ("C-c n l" . org-remark-mark-line)
   |          :map org-remark-mode-map
   |          ("C-c n o" . org-remark-open)
   |          ("C-c n ]" . org-remark-view-next)
   |          ("C-c n [" . org-remark-view-prev)
   |          ("C-c n r" . org-remark-remove)
-  |          ("C-c n d" . org-remark-delete))
-  |   ;; Alternative way to enable `org-remark-global-tracking-mode' in
-  |   ;; `after-init-hook'.
-  |   ;; :hook (after-init . org-remark-global-tracking-mode)
-  |   :init
-  |   ;; It is recommended that `org-remark-global-tracking-mode' be
-  |   ;; enabled when Emacs initializes. Alternatively, you can put it to
-  |   ;; `:after-init-hook' to load it after Emacs has been initialized.
-  |   (org-remark-global-tracking-mode +1)
-  |   (use-package org-remark-info :after info :config (org-remark-info-mode +1))
-  |   (use-package org-remark-eww  :after eww  :config (org-remark-eww-mode +1))
-  |   (use-package org-remark-nov  :after nov  :config (org-remark-nov-mode +1)))
+  |          ("C-c n d" . org-remark-delete)))
   `----
 
 
@@ -203,30 +207,23 @@ _________________
 5 Contributors
 ==============
 
-  New features
+  *New features*
 
+  - EPUB books (nov.el) support would not have been possible without
+    collaboration with @sati-bodhi
+  - `echo-text' update from the marginal notes to the source buffer by
+    marty hiatt (@mooseyboots)
+  - Support for websites with `eww-mode' by Vedang Manerikar (@vedang)
 
+  *Bug fixes*
 
-        EPUB books (nov.el) support would not have been possible without
-        collaboration with @sati-bodhi
-
-        `echo-text' update from the marginal notes to the source buffer
-        by marty hiatt (@mooseyboots)
-
-        Support for websites with `eww-mode' by Vedang Manerikar
-        (@vedang)
-
-  Bug fixes
   @alan-w-255, Nan Jun Jie (@nanjj), @sgati-bodhi
 
-  Documentation (including README, NEWS, CHANGELOG)
+  *Documentation (including README, NEWS, CHANGELOG)*
+
   @randomwangran, marty hiatt (@mooseyboots), @jsntn
 
-  All the comments, issues, and questions on GitHub
-  @randomwangran, @karthink, @holtzermann17, @shombando, @magthe,
-  @linwaytin, @rtrppl, @ryanprior, @ericsfraga, @darcamo, @zhewy,
-  @QMeqGR, @Vidianos-Giannitsis, @AtomicNess123, @mooseyboots, @ouboub,
-  @dian-yu-luo, @SylvianHemus, @basaran, @Ypot, @oatmealm, @sati-bodhi
+  Thank-you to all the comments, issues, and questions on GitHub!
 
 
 6 License
