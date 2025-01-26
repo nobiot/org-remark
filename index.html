@@ -182,29 +182,30 @@ Previous: <a href="#Basic-Setup" accesskey="p" rel="prev">Basic Setup</a>, Up: <
 <p>Alternatively, you can use <code class="code">use-package</code> to set up Org-remark. The example provided below should be equivalent to the setup described above.
 </p>
 <div class="example lisp">
-<pre class="lisp-preformatted">(use-package org-remark
+<pre class="lisp-preformatted">(use-package org-remark-global-tracking
+  ;; It is recommended that `org-remark-global-tracking-mode' be
+  ;; enabled when Emacs initializes. You can set it in
+  ;; `after-init-hook'.
+  :hook after-init
+  :config
+  ;; Selectively keep or comment out the following if you want to use
+  ;; extensions for Info-mode, EWW, and NOV.el (EPUB) respectively.
+  (use-package org-remark-info :after info :config (org-remark-info-mode +1))
+  (use-package org-remark-eww  :after eww  :config (org-remark-eww-mode +1))
+  (use-package org-remark-nov  :after nov  :config (org-remark-nov-mode +1)))
+
+(use-package org-remark
   :bind (;; :bind keyword also implicitly defers org-remark itself.
-         ;; Keybindings before :map is set for global-map.
+         ;; Keybindings before :map is set for global-map. Adjust the keybinds
+         ;; as you see fit.
          (&quot;C-c n m&quot; . org-remark-mark)
-         (&quot;C-c n l&quot; . org-remark-mark-line) ; new in v1.3
+         (&quot;C-c n l&quot; . org-remark-mark-line)
          :map org-remark-mode-map
          (&quot;C-c n o&quot; . org-remark-open)
          (&quot;C-c n ]&quot; . org-remark-view-next)
          (&quot;C-c n [&quot; . org-remark-view-prev)
          (&quot;C-c n r&quot; . org-remark-remove)
-         (&quot;C-c n d&quot; . org-remark-delete))
-  ;; Alternative way to enable `org-remark-global-tracking-mode' in
-  ;; `after-init-hook'.
-  ;; :hook (after-init . org-remark-global-tracking-mode)
-  :init
-  ;; It is recommended that `org-remark-global-tracking-mode' be
-  ;; enabled when Emacs initializes. Alternatively, you can put it to
-  ;; `after-init-hook' as in the comment above
-  (org-remark-global-tracking-mode +1)
-  :config
-  (use-package org-remark-info :after info :config (org-remark-info-mode +1))
-  (use-package org-remark-eww  :after eww  :config (org-remark-eww-mode +1))
-  (use-package org-remark-nov  :after nov  :config (org-remark-nov-mode +1)))
+         (&quot;C-c n d&quot; . org-remark-delete)))
 </pre></div>
 
 <hr>
