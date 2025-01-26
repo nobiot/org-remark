@@ -108,11 +108,10 @@ Alternatively, you can use ~use-package~ to set up Org-remark. The example provi
 #+begin_src emacs-lisp
   (use-package org-remark-global-tracking
     ;; It is recommended that `org-remark-global-tracking-mode' be
-    ;; enabled when Emacs initializes. You can put it to
-    ;; `after-init-hook' as in the comment above
+    ;; enabled when Emacs initializes. You can set it in
+    ;; `after-init-hook'.
     :hook after-init
     :config
-    (org-remark-global-tracking-mode +1)
     ;; Selectively keep or comment out the following if you want to use
     ;; extensions for Info-mode, EWW, and NOV.el (EPUB) respectively.
     (use-package org-remark-info :after info :config (org-remark-info-mode +1))
