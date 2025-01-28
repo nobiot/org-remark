@@ -17,7 +17,7 @@
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; Created: 22 December 2020
-;; Last modified: 23 January 2025
+;; Last modified: 28 January 2025
 
 ;; URL: https://github.com/nobiot/org-remark
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
@@ -1059,6 +1059,7 @@ non-nil.  Returns nil otherwise, or when no Org-ID is found.
 
 This function assumes the current buffer is the source buffer."
   (and org-remark-use-org-id
+       (derived-mode-p 'org-mode)
        (org-entry-get point "ID" :inherit)))
 
 (define-obsolete-function-alias
