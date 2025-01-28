@@ -6,10 +6,6 @@
 #+html: <a href="http://elpa.gnu.org/packages/org-remark.html"><img alt="GNU ELPA" src="https://elpa.gnu.org/packages/org-remark.svg"/></a>
 #+html: <a href="http://elpa.gnu.org/devel/org-remark.html"><img alt="GNU-devel ELPA" src="https://elpa.gnu.org/devel/org-remark.svg"/></a>
 
-* Breaking Changes :noexport:
-
-- [18 January 2022] Package name change from Org-marginalia to Org-remark. See [[https://github.com/nobiot/org-remark/issues/11#issuecomment-1382824948][detail on data conversion]]. In most cases, no action is required for you.
-
 * Introduction
 
 Org-remark lets you highlight and annotate text files, websites, EPUB books and Info documentation with using Org mode.
@@ -32,22 +28,29 @@ An [[https://youtu.be/c8DHrAsFiLc][introductory video]] (8 minutes) and [[https:
 
 - Have the same highlighting and annotating functionality for
 
-  + Websites when you use EWW to browse them
+   + Websites when you use EWW to browse them
 
-  + EPUB books with [[https://depp.brause.cc/nov.el/][nov.el]]
+   + EPUB books with [[https://depp.brause.cc/nov.el/][nov.el]]
 
-  + Info documentation
+   + Info documentation
+
+   + [[https://github.com/chenyanming/wallabag.el][wallabag.el]] (it has been [[https://github.com/nobiot/org-remark/issues/92#issuecomment-2601307855][reported]])
+
+Refer to  [[https://github.com/nobiot/org-remark/blob/main/NEWS][NEWS]] file for a list of new features and fixes.
 
 * Screenshots and Videos                                           :noexport:
 
 [[./resources/images/2022-01-22-Title.png]]
-*Figure 1*. Left: Org-mode with text enlarged; Right: marginal notes with an inline image. [[https://youtu.be/c8DHrAsFiLc][Introductory video]] (8 minutes) and [[https://youtu.be/BTFuS21N00k][V1.1.0 release introduction]] (12 minutes) are available on YouTube
+*Figure 1*. Left: Org-mode with text enlarged; Right: marginal notes with an inline image. [[https://youtu.be/c8DHrAsFiLc][Introductory video]] (8 minutes) and [[https://youtu.be/BTFuS21N00k][v1.1.0 release introduction]] (12 minutes) are available on YouTube
 
 [[./resources/images/2022-01-22-Context-menu.png]]
 *Figure 2*. Mouse context menu with built-in ~context-menu-mode~ available with Emacs version 28 onward
 
 [[./resources/images/2023-08-20-epub-prince-icon.png]]
 *Figure 3*. EPUB book ("Prince" by Niccolò Machiavelli via https://www.gutenberg.org/) with icon indicating there are annotations to the highlight: new features with v1.2.0 (2023-08-20). Left: marginal notes file with annotations; Right: an EPUB book file with a highlight and simple ASCII icon.
+
+[[./resources/images/v1.3.0/2023-08-19-line-highlights-with-icons.png]]
+*Figure 4*. Line-highlights with using icons (as of v1.3.0). Refer to the user manual or [[https://nobiot.com/blog/2023-09-11_org-remark-v1.3-line-highlight/][this article]] for more detail.
 
 * Installation
 :PROPERTIES:
@@ -144,6 +147,7 @@ Thank you.
 
 *New features*
 
+- User option `org-remark-report-no-highlights`by Kristoffer Balintona (@krisbalintona)
 - EPUB books (nov.el) support would not have been possible without
   collaboration with @sati-bodhi
 - ~echo-text~ update from the marginal notes to the source buffer by marty hiatt (@mooseyboots)
@@ -151,7 +155,7 @@ Thank you.
 
 *Bug fixes*
 
-@alan-w-255, Nan Jun Jie (@nanjj), @sgati-bodhi
+Joseph Turner (@josephmturner) @alan-w-255, Nan Jun Jie (@nanjj), @sgati-bodhi
 
 *Documentation (including README, NEWS, CHANGELOG)*
 

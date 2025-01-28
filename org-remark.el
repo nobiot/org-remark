@@ -22,7 +22,7 @@
 ;; URL: https://github.com/nobiot/org-remark
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
 
-;; Version: 1.2.2
+;; Version: 1.3.0
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 
 ;; This file is not part of GNU Emacs.
@@ -100,7 +100,7 @@ buffer with this name."
   "How Org-remark removes entries when user deletes highlights.
 This controls the behavior of Org-remark when the user deletes
 the highlight in the source (for example, when deleting a whole
-line including a highlight). The default behavior is to remove
+line including a highlight).  The default behavior is to remove
 only the properties in the notes buffer and keeping the headline
 title and any notes in the entry (with using
 `org-remark-remove').
@@ -108,7 +108,7 @@ title and any notes in the entry (with using
 If this behavior leads to cluttering the marginal notes org file,
 you can set this customizing variable to \\=':auto-delete\\='.
 With this option, Org-remark will delete the entire entry when it
-contains no notes without a prompt asking for confirmation. This
+contains no notes without a prompt asking for confirmation.  This
 is the same behavior as passing a single `universal-argument'
 \(\\[universal-argument]) to`org-remark-delete' or double `universal-argument'
 \(\\[universal-argument] \\[universal-argument]) to `org-remark-remove'."
@@ -149,7 +149,7 @@ manually or some other function to either the headline or file."
   "When non-nil, Org-remark reports that there are no highlights in the buffer.
 If Org-remark finds no highlights or annotations in a buffer it is
 enabled in, then a non-nil value means a message indicating this will be
-shown. Otherwise, do not show such a message."
+shown.  Otherwise, do not show such a message."
   :type 'boolean)
 
 (defcustom org-remark-open-hook nil
@@ -160,8 +160,8 @@ The current buffer is the note buffer."
 (defcustom org-remark-highlights-after-load-functions
   '(org-remark-highlights-adjust-positions)
   "Abnormal hook run after `org-remark-highlights-load'.
-It is run with OVERLAYS and NOTES-BUF as arguments. OVERLAYS are
-highlights. It is run with the source buffer as current buffer."
+It is run with OVERLAYS and NOTES-BUF as arguments.  OVERLAYS are
+highlights.  It is run with the source buffer as current buffer."
   :type 'hook)
 
 
@@ -174,13 +174,13 @@ It is suggested to keep them as the default, but you can choose to disable them"
 (defvar org-remark-default-feature-modes '()
   "Extension minor modes to be enabled together with `org-remark-mode'.
 These minor modes should be registered to this variable by the
-respective feature where required. As an example, see
+respective feature where required.  As an example, see
 `org-remark-line'.")
 
 (defvar org-remark-find-dwim-functions nil
   "Functions to find the highlight overlays.
 These functions should be registered to this variable by the
-respective feature where required. As an example, see
+respective feature where required.  As an example, see
 `org-remark-line'.")
 
 (defvar org-remark-last-notes-buffer nil
@@ -189,9 +189,9 @@ It is meant to exist only one of these in each Emacs session.")
 
 (defvar org-remark-available-pens (list #'org-remark-mark)
   "A list of pens available.
-Each pen is a function. Users can create a new custom pen with
+Each pen is a function.  Users can create a new custom pen with
 using `org-remark-create', which automatically add a new pen
-function this list. It is used by `org-remark-change' as a
+function this list.  It is used by `org-remark-change' as a
 selection list.")
 
 (defvar-local org-remark-highlights '()
@@ -219,7 +219,7 @@ killed so that this needs to be checked with `buffer-live-p'.")
 (defvar-local org-remark-highlights-toggle-hide-functions nil
   "Functions to be called when toggling to hide highlights.
 Each function is called with one argument HIGHLIGHT, which is an
-overlay that shows the highlight. It also stores properties to
+overlay that shows the highlight.  It also stores properties to
 control visibility such as \\=':face\\='.
 
 This variable is an abnormal hook and is intended to be used to
@@ -228,7 +228,7 @@ add additional controls for the overlay properties.")
 (defvar-local org-remark-highlights-toggle-show-functions nil
   "Functions to be called when toggling to show highlights.
 Each function is called with one argument HIGHLIGHT, which is an
-overlay that shows the highlight. It also stores properties to
+overlay that shows the highlight.  It also stores properties to
 control visibility such as \\=':face\\='.
 
 This variable is an abnormal hook and is intended to be used to
@@ -552,9 +552,9 @@ The marginal notes will be narrowed to the relevant headline to
 show only the highlight at point.
 
 This function creates a cloned indirect buffer for the marginal
-notes file. You can edit it as a normal Org buffer. Once you have
+notes file.  You can edit it as a normal Org buffer.  Once you have
 done editing, you can simply save and kill the buffer or keep it
-around. Org-remark ensures that there is only one cloned buffer
+around.  Org-remark ensures that there is only one cloned buffer
 for notes file by tracking it.
 
 The marginal notes file gets displayed by the action defined by
@@ -566,13 +566,13 @@ You can customize the name of the marginal notes buffer with
 `org-remark-notes-buffer-name'.
 
 By default, the cursor will go to the marginal notes buffer for
-further editing. When VIEW-ONLY is \\=':view-only\\=' \(e.g.
+further editing.  When VIEW-ONLY is \\=':view-only\\=' \(e.g.
 Elisp program to pass the value), you can view the marginal notes
 buffer with the cursor remaining in the current buffer.
 
 You can open the marginal notes buffer associated with the
 current buffer with `find-file' when the notes file exist and if
-there is no highlight at point. Passing a single universal
+there is no highlight at point.  Passing a single universal
 argument with \\[universal-argument]\) also lets you open the
 notes buffer in this way.
 
@@ -719,12 +719,12 @@ from."
   "Remove the highlight at POINT.
 By default, it will remove the highlight from the source buffer
 and the properties of entry from the marginal notes buffer, but
-will keep the headline title and any notes in it. This is to
+will keep the headline title and any notes in it.  This is to
 ensure to keep any notes you might have written intact.
 
 Optionally, you can let this command delete the entire heading
 subtree for the highlight along with the notes you have written,
-by passing universal argument in DELETE. For deletion, this
+by passing universal argument in DELETE.  For deletion, this
 command differentiates a single or double universal arguments as
 follows:
 
@@ -732,10 +732,10 @@ follows:
 
   This is the same behavior as function `org-remark-delete'.
 
-  Look for notes in the entry. If there is any, the side-window
+  Look for notes in the entry.  If there is any, the side-window
   will show them and a prompt will ask the user for confirmation.
   The function will delete the entry only when the user confirms
-  with \\='y\\='. When \\='n\\=', it will only remove the entry's
+  with \\='y\\='.  When \\='n\\=', it will only remove the entry's
   properties.
 
   If there are no notes in the entry, the command will delete the
@@ -743,16 +743,16 @@ follows:
 
 - \\[universal-argument] \\[universal-argument]
 
-  This is automatic deletion. This command will delete the entry
-  without asking the user when there is no notes in the entry. If
+  This is automatic deletion.  This command will delete the entry
+  without asking the user when there is no notes in the entry.  If
   there are any notes, only the entry's properties will be
-  removed. This is the same behavior as passing a single
+  removed.  This is the same behavior as passing a single
   `universal-argument' to function `org-remark-delete'.
 
 If you have removed or deleted a highlight by error, you can
 still `undo' it in the marginal notes buffer and not in the
-current buffer. This is because adding and removing overlays are
-not part of the undo tree. You can undo the deletion in the
+current buffer.  This is because adding and removing overlays are
+not part of the undo tree.  You can undo the deletion in the
 marginal notes buffer and then save it to sync the highlight back
 in the source."
   (interactive "d\nP")
@@ -790,16 +790,16 @@ with ARG and it will behave as follows.
 
 - \\[universal-argument]
 
-  This is automatic deletion. Delete the entry without asking the
-  user when there is no notes in the entry. If there are any
-  notes, remove the entry's properties only. This is the same
+  This is automatic deletion.  Delete the entry without asking the
+  user when there is no notes in the entry.  If there are any
+  notes, remove the entry's properties only.  This is the same
   behavior as passing double universal-arguments to function
   `org-remark-remove'.
 
 If you have removed or deleted a highlight by error, you can
 still `undo' it in the marginal notes buffer and not in the
-current buffer. This is because adding and removing overlays are
-not part of the undo tree. You can undo the deletion in the
+current buffer.  This is because adding and removing overlays are
+not part of the undo tree.  You can undo the deletion in the
 marginal notes buffer and then save it to sync the highlight
 back in the source."
   (interactive "d\nP")
@@ -864,13 +864,13 @@ Look through `org-remark-highlights' list (in descending order)."
   "Return one highlight overlay for the context.
 
 It is a generic wrapper function to get and return as what the
-context requires. This is achieved via abnormal hook that passed
+context requires.  This is achieved via abnormal hook that passed
 the POINT as a single argument.
 
 The highligh to be returned can be the range-highlight at point.
 POINT is optional and if not passed, the current point is used.
 It can also be a line-highlight for the line, which is a zero
-length overlay put to the beginning of the line. For the latter,
+length overlay put to the beginning of the line.  For the latter,
 the user's point can be anywhere."
   (or (run-hook-with-args-until-success
        'org-remark-find-dwim-functions point)
@@ -1070,7 +1070,7 @@ save the notes file to disk; hence the name change")
 (cl-defgeneric org-remark-highlight-get-constructors ()
   "Construct lists for creating MAJOR-MODE specific hierarchy.
 
-This is the default one. Return the value in a alist like this:
+This is the default one.  Return the value in a alist like this:
 
    (SOURCE-FILENAME-FN TITLE-FN PROP-TO-FIND)"
   (let* ((headline-1 (list
@@ -1187,7 +1187,7 @@ Assume it is called within `org-with-wide-buffer' of the source."
 (defvar org-remark-highlight-other-props-functions nil
   "Abnormal hook to be run when adding or updating headline.
 It is called with one argument HIGHLIGHT, which is the overlay
-that represents the current highlight being worked on. The
+that represents the current highlight being worked on.  The
 function is run with source buffer as the current buffer.")
 
 (defun org-remark-highlight-collect-other-props (highlight)
@@ -1395,8 +1395,8 @@ Default function for `org-remark-highlight-link-to-source-functions'."
 
 This function assumes that the point is in the notes buffer.
 
-LEVEL is the headline level to be added. TITLE is the headline
-title. PROPS is the alist of properties to be added to the headline.
+LEVEL is the headline level to be added.  TITLE is the headline
+title.  PROPS is the alist of properties to be added to the headline.
 
 Return the point of begining of current heading."
   ;; If file-headline does not exist, create one at the bottom
@@ -1420,24 +1420,24 @@ Return t.
 By default, this function only removes the properties of the
 entry, keeping the headline title and any notes in it intact.
 
-You can pass DELETE to delete the entire entry. Elisp can pass
+You can pass DELETE to delete the entire entry.  Elisp can pass
 the following value to differentiate the deletion behavior (for
 example, with commands `org-remark-remove' or
 `org-remark-delete'):
 
 - :auto-delete or a list that has a single element 16, that is
-  \\='(16)\\='. The latter value is generated when the user uses
+  \\='(16)\\='.  The latter value is generated when the user uses
   a command with \\[universal-argument] \\[universal-argument] ::
 
   Delete the entry without asking the user when there is no notes
-  in the entry. If there are any notes, remove the entry's
+  in the entry.  If there are any notes, remove the entry's
   properties only.
 
 - Any other non-nil value ::
 
-  Look for notes in the entry. If there is any, ask the user for
-  confirmation. Delete the entire entry only when the user
-  confirms with \\='y\\='. When \\='n\\=', remove the entry's
+  Look for notes in the entry.  If there is any, ask the user for
+  confirmation.  Delete the entire entry only when the user
+  confirms with \\='y\\='.  When \\='n\\=', remove the entry's
   properties only.
 
   If there are no notes, do not prompt for confirmation and
@@ -1489,9 +1489,9 @@ Do you also want to delete the notes?"))))
     t))
 
 (defun org-remark-notes-buffer-get-or-create ()
-  "Return marginal notes buffer. Create one if it does not exist.
+  "Return marginal notes buffer.  Create one if it does not exist.
 It's a cloned indirect buffer of a buffer visiting the marginal
-notes file of the current buffer. This function ensures there is
+notes file of the current buffer.  This function ensures there is
 only one of the marginal notes buffer per session."
   ;; Compare the target marginal notes buffer and current marginal notes buffer.
   ;; For the latter, we need the base buffer of an indirect buffer.

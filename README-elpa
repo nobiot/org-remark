@@ -82,8 +82,19 @@ _________________
 
     + Info documentation
 
+    + [wallabag.el] (it has been [reported])
+
+  Refer to [NEWS] file for a list of new features and fixes.
+
 
 [nov.el] <https://depp.brause.cc/nov.el/>
+
+[wallabag.el] <https://github.com/chenyanming/wallabag.el>
+
+[reported]
+<https://github.com/nobiot/org-remark/issues/92#issuecomment-2601307855>
+
+[NEWS] <https://github.com/nobiot/org-remark/blob/main/NEWS>
 
 
 3 Installation
@@ -153,11 +164,10 @@ _________________
   ,----
   | (use-package org-remark-global-tracking
   |   ;; It is recommended that `org-remark-global-tracking-mode' be
-  |   ;; enabled when Emacs initializes. You can put it to
-  |   ;; `after-init-hook' as in the comment above
+  |   ;; enabled when Emacs initializes. You can set it in
+  |   ;; `after-init-hook'.
   |   :hook after-init
   |   :config
-  |   (org-remark-global-tracking-mode +1)
   |   ;; Selectively keep or comment out the following if you want to use
   |   ;; extensions for Info-mode, EWW, and NOV.el (EPUB) respectively.
   |   (use-package org-remark-info :after info :config (org-remark-info-mode +1))
@@ -209,6 +219,8 @@ _________________
 
   *New features*
 
+  - User option `org-remark-report-no-highlights`by Kristoffer Balintona
+    (@krisbalintona)
   - EPUB books (nov.el) support would not have been possible without
     collaboration with @sati-bodhi
   - `echo-text' update from the marginal notes to the source buffer by
@@ -217,7 +229,8 @@ _________________
 
   *Bug fixes*
 
-  @alan-w-255, Nan Jun Jie (@nanjj), @sgati-bodhi
+  Joseph Turner (@josephmturner) @alan-w-255, Nan Jun Jie (@nanjj),
+  @sgati-bodhi
 
   *Documentation (including README, NEWS, CHANGELOG)*
 
