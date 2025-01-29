@@ -10,9 +10,12 @@
 
 Org-remark lets you highlight and annotate text files, websites, EPUB books and Info documentation with using Org mode.
 
-A user manual is available [[https://nobiot.github.io/org-remark/][online]] or Emacs in-system as an Info node `(org-remark)': (~C-h i~ and find the =Org-remark= node).
+A user manual is available [[https://nobiot.github.io/org-remark/][online]] or Emacs in-system as an Info node `(org-remark)': (~C-h i~ and find the =Org-remark= node) .
 
-For installation and minimum configuration, refer to [[#installation][Installation]] below or the user manual: [[https://nobiot.github.io/org-remark/#Installation][online]] or Info node `(org-remark) Installation'
+The user manual is also available in Japanese: [[https://qiita.com/ayatakesi/items/69d43671b28bb27a9c52][マニュアル日本語版]] 🇯🇵
+(translated by ayatajesi, GitHub user @ayatakesi) together with his review with EWW, "[[https://qiita.com/ayatakesi/items/8986af2bf2ccca170439][org-remarkでウェブページに注釈をつける]]".
+
+For installation and minimum configuration, refer to [[#installation][Installation]] below or the user manual: [[https://nobiot.github.io/org-remark/#Installation][online]] or Info node `(org-remark) Installation'.
 
 Getting Started in the user manual will get you started in 5 minutes: [[https://nobiot.github.io/org-remark/#Getting-Started][online]] or or Info node `(org-remark) Getting Started'.
 
