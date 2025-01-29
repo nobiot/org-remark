@@ -17,7 +17,7 @@
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; Created: 22 December 2020
-;; Last modified: 28 January 2025
+;; Last modified: 29 January 2025
 
 ;; URL: https://github.com/nobiot/org-remark
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
@@ -1218,7 +1218,13 @@ beginning of source-headline, which should be one level up."
              id (plist-get props 'org-remark-id)
              org-remark-type (overlay-get highlight 'org-remark-type)
              text (org-with-wide-buffer
-                   (org-remark-highlight-headline-text highlight org-remark-type))
+                   ;; BUG #79. When the notes-buffer = source-buffer, the
+                   ;; point is now at the end of notes headline, which is
+                   ;; incorrect to get the title text. We need to temporarily
+                   ;; move the point back to the start of the highlight.
+                   (save-excursion
+                     (goto-char beg)
+                     (org-remark-highlight-headline-text highlight org-remark-type)))
              filename (org-remark-source-get-file-name
                        (org-remark-source-find-file-name))
              link (run-hook-with-args-until-success

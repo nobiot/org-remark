@@ -1,3 +1,9 @@
+Current development version
+
+     Fixes:
+
+   - fix: When the notes = source, the title is incorrect #97
+
 Version 1.3.0 - 2025-01-28
 
      Features:
