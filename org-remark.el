@@ -17,7 +17,7 @@
 
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; Created: 22 December 2020
-;; Last modified: 29 January 2025
+;; Last modified: 06 February 2025
 
 ;; URL: https://github.com/nobiot/org-remark
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp,
@@ -1608,7 +1608,9 @@ It is meant to be used in `after-save-hook'."
 ;;;;; org-remark-highlights
 ;;    Work on all the highlights in the current buffer
 
-(defun org-remark-highlights-get (notes-buf)
+(cl-defgeneric org-remark-highlights-get (notes-buf))
+
+(cl-defmethod org-remark-highlights-get (notes-buf)
   "Return a list of highlights from NOTES-BUF.
 The file name is returned by `org-remark-notes-get-file-name'.
 It is assumed that the current buffer is source buffer.  Each
