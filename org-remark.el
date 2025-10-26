@@ -357,41 +357,43 @@ file.  `org-remark-global-tracking-mode' automates this.  It is
 recommended to turn it on as part of Emacs initialization.
 
 \\{org-remark-mode-map}"
-    :init-value nil
-    :lighter " ormk"
-    :global nil
-    :keymap (let ((map (make-sparse-keymap)))
-              map)
-    (cond
-     (org-remark-mode
-      ;; Activate
-      (dolist (feature org-remark-default-features)
-        (unless (featurep feature) (require feature nil 'noerror)))
-      (dolist (feature-mode org-remark-default-feature-modes)
-        (when (functionp feature-mode) (funcall feature-mode +1)))
-      (org-remark-highlights-load)
-      (add-hook 'org-remark-find-dwim-functions
-                #'org-remark-find-overlay-at-point nil :local)
-      (add-hook 'after-save-hook #'org-remark-save nil :local)
-      (add-hook 'org-remark-highlight-link-to-source-functions
-                #'org-remark-highlight-link-to-source-default 80)
-      (add-hook 'after-revert-hook #'org-remark-highlights-load 80 :local)
-      (add-hook 'clone-buffer-hook #'org-remark-highlights-load 80 :local))
-     (t
-      ;; Deactivate
-      (when org-remark-highlights
-        (dolist (highlight org-remark-highlights)
-          (delete-overlay highlight)))
-      (setq org-remark-highlights nil)
-      (dolist (feature-mode org-remark-default-feature-modes)
-        (funcall feature-mode -1))
-      (remove-hook 'org-remark-find-dwim-functions
-                #'org-remark-find-overlay-at-point :local)
-      (remove-hook 'after-save-hook #'org-remark-save t)
-      (remove-hook 'org-remark-highlight-link-to-source-functions
-                   #'org-remark-highlight-link-to-source-default)
-      (remove-hook 'after-revert-hook #'org-remark-highlights-load :local)
-      (remove-hook 'clone-buffer-hook #'org-remark-highlights-load :local))))
+  :init-value nil
+  :lighter " ormk"
+  :global nil
+  :keymap (let ((map (make-sparse-keymap)))
+            map)
+  (cond
+   (org-remark-mode
+    ;; Activate
+    (dolist (feature org-remark-default-features)
+      (unless (featurep feature) (require feature nil 'noerror)))
+    (dolist (feature-mode org-remark-default-feature-modes)
+      (when (functionp feature-mode) (funcall feature-mode +1)))
+    (org-remark-highlights-load)
+    (add-hook 'org-remark-find-dwim-functions
+              #'org-remark-find-overlay-at-point nil :local)
+    (add-hook 'after-save-hook #'org-remark-save nil :local)
+    (add-hook 'post-command-hook #'org-remark-display-note-at-point nil :local)
+    (add-hook 'org-remark-highlight-link-to-source-functions
+              #'org-remark-highlight-link-to-source-default 80)
+    (add-hook 'after-revert-hook #'org-remark-highlights-load 80 :local)
+    (add-hook 'clone-buffer-hook #'org-remark-highlights-load 80 :local))
+   (t
+    ;; Deactivate
+    (when org-remark-highlights
+      (dolist (highlight org-remark-highlights)
+        (delete-overlay highlight)))
+    (setq org-remark-highlights nil)
+    (dolist (feature-mode org-remark-default-feature-modes)
+      (funcall feature-mode -1))
+    (remove-hook 'org-remark-find-dwim-functions
+                 #'org-remark-find-overlay-at-point :local)
+    (remove-hook 'after-save-hook #'org-remark-save t)
+    (remove-hook 'post-command-hook #'org-remark-display-note-at-point :local)
+    (remove-hook 'org-remark-highlight-link-to-source-functions
+                 #'org-remark-highlight-link-to-source-default)
+    (remove-hook 'after-revert-hook #'org-remark-highlights-load :local)
+    (remove-hook 'clone-buffer-hook #'org-remark-highlights-load :local))))
 
 
 ;;;; Org-remark Menu
@@ -1051,6 +1053,13 @@ Utility function to work with a single highlight overlay."
         (if (or (null filename) (string= "" filename))
             (error "Could not extract highlight title")
             (file-name-sans-extension (file-name-nondirectory filename))))))
+(defun org-remark-display-note-at-point ()
+  "Display note in echo area when point is on a highlight."
+  (let ((ov (org-remark-find-overlay-at-point)))
+    (when ov
+      (let ((note (overlay-get ov '*org-remark-note-body)))
+        (when note
+          (message "%s" note))))))
 
 (defun org-remark-highlight-get-org-id (point)
   "Return Org-ID closest to POINT of the source buffer.
