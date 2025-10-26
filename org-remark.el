@@ -375,6 +375,8 @@ recommended to turn it on as part of Emacs initialization.
       (add-hook 'after-save-hook #'org-remark-save nil :local)
       (add-hook 'org-remark-highlight-link-to-source-functions
                 #'org-remark-highlight-link-to-source-default 80)
+      (add-hook 'eldoc-documentation-functions
+                #'org-remark-eldoc-function nil :local)
       (add-hook 'after-revert-hook #'org-remark-highlights-load 80 :local)
       (add-hook 'clone-buffer-hook #'org-remark-highlights-load 80 :local))
      (t
@@ -390,6 +392,8 @@ recommended to turn it on as part of Emacs initialization.
       (remove-hook 'after-save-hook #'org-remark-save t)
       (remove-hook 'org-remark-highlight-link-to-source-functions
                    #'org-remark-highlight-link-to-source-default)
+      (remove-hook 'eldoc-documentation-functions
+                   #'org-remark-eldoc-function nil :local)
       (remove-hook 'after-revert-hook #'org-remark-highlights-load :local)
       (remove-hook 'clone-buffer-hook #'org-remark-highlights-load :local))))
 
@@ -807,6 +811,20 @@ back in the source."
                           '(16) ;; make it universal-arg x 2
                         :delete)))
     (org-remark-remove point delete)))
+
+(defun org-remark-eldoc-function (&rest _args)
+  "Show org-remark note under point in eldoc."
+  (condition-case err
+      (when-let* ((ov (org-remark-find-overlay-at-point))
+                  (note (overlay-get ov '*org-remark-note-body)))
+        (let ((s (replace-regexp-in-string "[ \t\n\r]+"
+                                           " " (string-trim note))))
+          (if (> (length s) 120)
+              (concat (substring s 0 117) "…")
+            s)))
+    (error
+     (message "org-remark eldoc error: %S" err)
+     nil)))
 
 
 ;;;; Private Functions
