@@ -193,7 +193,7 @@ This is all you need to get started. For more detail, refer to the rest of this 
 #+cindex: Highlighting websites with EWW
 #+findex: org-remark-eww-mode
 
-~org-remark-eww-mode~ lets you highlight and annotate websites just like text files. It is a global minor mode. It does not require any additional configuration. All you need is to turn it on, visit a website with ~eww-mode~, and select text and highlight it. Refer to the example of a basic setup given in [[#installation][Installation]]. Org-remark can attempt to automatically adjust the position of highlights when a websites get edited. Lear more about the feature in [[#auto-adjust][What is Automatic Adjustment of Highlight Positions?]]
+~org-remark-eww-mode~ lets you highlight and annotate websites just like text files. It is a global minor mode. It does not require any additional configuration. All you need is to turn it on, visit a website with ~eww-mode~, and select text and highlight it. Refer to the example of a basic setup given in [[#installation][Installation]]. Org-remark can attempt to automatically adjust the position of highlights when a websites get edited. Learn more about the feature in [[#auto-adjust][What is Automatic Adjustment of Highlight Positions?]]
 
 ** Highlight and Annotate EPUB Books
 
