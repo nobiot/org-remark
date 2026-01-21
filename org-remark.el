@@ -830,6 +830,8 @@ Return nil if not and outputs a message in the echo."
                (org-remark-find-prev-highlight))))
       (if p (progn
               (goto-char p)
+              (when (and org-remark-reveal-p (org-invisible-p (point))
+                         (org-remark--reveal-context)))
               ;; Setup the overriding keymap.
               (unless overriding-terminal-local-map
                 (let ((prefix-keys (substring (this-single-command-keys) 0 -1))
@@ -841,6 +843,14 @@ Return nil if not and outputs a message in the echo."
               t)
         (message "No visible highlights present in the buffer")
         nil))))
+
+(defun org-remark--reveal-context ()
+  (pcase-let
+      ((`(,fn . ,ov)
+        (get-char-property-and-overlay (point) 'isearch-open-invisible)))
+    (cond ((and (functionp fn) ov) (funcall fn ov))
+          ((and (derived-mode-p 'org-mode))
+           (org-fold-show-context 'link-search)))))
 
 (defun org-remark-find-next-highlight ()
   "Return the beg point of the next highlight.
@@ -1720,6 +1730,18 @@ This function also set `org-remark-highlights' to nil."
      (when (overlay-get ov 'org-remark-id)
        (delete-overlay ov)))))
 
+(defvar-local org-remark-reveal-p nil)
+
+(defun org-remark-reveal-activate-locally ()
+  (interactive)
+  (setq-local org-remark-reveal-p t)
+  (message "Org-remark-next/prev now show hidden highlighs."))
+
+(defun org-remark-reveal-deactivate-locally ()
+  (interactive)
+  (setq-local org-remark-reveal-p nil)
+  (message "Org-remark-next/prev now keep hidden highlighs hidden."))
+
 (defun org-remark-highlights-get-positions (&optional reverse)
   "Return list of the beginning point of all visible highlights in this buffer.
 By default, the list is in ascending order.  If REVERSE is
@@ -1735,13 +1757,17 @@ If none, return nil."
                   (lambda (h)
                     (let ((p (overlay-start h)))
                       ;; Checking if the p is visible or not
-                      (if (or
-                           (> p (point-max))
-                           (< p (point-min))
-                           ;; When the highlight is within a visible folded
-                           ;; area, this function returns 'outline
-                           (org-invisible-p p))
-                          nil p)))
+                      (cond ((or (> p (point-max)) (< p (point-min))) nil)
+                            ;; When the highlight is within a visible folded
+                            ;; area, this function returns 'outline
+
+                            ;; When `org-remark-reveal-p' is non-nil, invisible
+                            ;; highlights due to folding will be
+                            ;; revealed. Those highlights outside the narrowed
+                            ;; regions will remain hidden.
+                            ((org-invisible-p p)
+                             (if org-remark-reveal-p p nil))
+                            (t p))))
                   list))
       (setq list (remove nil list))
       (when list
