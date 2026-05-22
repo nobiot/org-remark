@@ -8,7 +8,7 @@
 
 * Introduction
 
-Org-remark lets you highlight and annotate text files, websites, EPUB books and Info documentation with using Org mode.
+Org-remark lets you highlight and annotate text files, websites, EPUB books and Info documentation using Org mode.
 
 A user manual is available [[https://nobiot.github.io/org-remark/][online]] or Emacs in-system as an Info node `(org-remark)': (~C-h i~ and find the =Org-remark= node) .
 
