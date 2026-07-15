@@ -155,7 +155,10 @@ in cons cell (or nil) before function
   "Apply face to the region selected by BEG and END.
 Dummy function definition to let autoload work.
 The actual implementation is added when this library is loaded
-and macro `org-remark-create' creates the actual function.")
+and macro `org-remark-create' creates the actual function.
+The `interactive' spec never runs but must be present: it is
+what makes the generated autoload interactive (see #112)."
+  (interactive (org-remark-beg-end 'line)))
 
 (org-remark-create "line"
                    `org-remark-line-highlighter
