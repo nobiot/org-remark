@@ -5,7 +5,7 @@
 ;; Author: Noboru Ota <me@nobiot.com>
 ;; URL: https://github.com/nobiot/org-remark
 ;; Created: 01 August 2023
-;; Last modified: 23 January 2025
+;; Last modified: 23 November 2026
 ;; Package-Requires: ((emacs "27.1") (org "9.4"))
 ;; Keywords: org-mode, annotation, note-taking, marginal-notes, wp
 
@@ -167,9 +167,9 @@ Return a cons of the form (LEFT-WIDTH . RIGHT-WIDTH). If a
 marginal area does not exist, return nil."
   (let ((window (or window (get-buffer-window))))
     (when (and (windowp window) (not (window-minibuffer-p window)))
-      (cl-destructuring-bind (left-width . right-width) (window-margins)
+      (cl-destructuring-bind (left-width . right-width) (window-margins window)
         (unless org-remark-line-margins-set-p
-          (setq org-remark-line-margins-original (window-margins))
+          (setq org-remark-line-margins-original (window-margins window))
           (setq org-remark-line-margins-set-p t)
           (setq org-remark-line-minimum-left-margin-width
                 (+ (if (numberp org-remark-line-minimum-margin-width)
@@ -189,16 +189,18 @@ marginal area does not exist, return nil."
                                         org-remark-line-minimum-right-margin-width))
             (setq right-margin-width org-remark-line-minimum-right-margin-width)
           (setq right-margin-width right-width))
-        ;; For `set-window-margins' window should be specified.
-        ;; Howerver, `set-window-buffer' should get nil for window.
-        ;; Otherwise, the minibuffer also gets the margins. It's a
-        ;; little tricky behaviour. Both functions seem to be required.
-        ;; The former changes the current window's margin display
-        ;; immediately. The latter makes the margin widths the default
-        ;; for future, when window gets split, etc.
+        ;; FIX #111. `set-window-margins' changes WINDOW's margin display
+        ;; immediately. `set-window-buffer' makes the margin widths the
+        ;; default for future, when the window gets split, etc. Both functions
+        ;; are required. Both must be given WINDOW, not nil: nil means the
+        ;; selected window, which, when this function runs from
+        ;; `window-size-change-functions', can be another window or the
+        ;; minibuffer. Passing nil there made that window display the current
+        ;; buffer (#111). The minibuffer is already excluded by the
+        ;; `window-minibuffer-p' guard above.
         (set-window-margins window left-margin-width right-margin-width)
-        (set-window-buffer nil (current-buffer) 'keep-margins)
-        (window-margins)))))
+        (set-window-buffer window (current-buffer) 'keep-margins)
+        (window-margins window)))))
 
 (defun org-remark-line-pos-bol (pos)
   "Return the beginning of the line position for POS."
