@@ -1332,8 +1332,10 @@ It searches for TEXT, which should be the original text of the highlight."
        ;; Search from the beginning of the previous paragraph to the end
        ;; of next paragraph relative to the begining of the highlight
        ;; overlay; this way, you don't need to look forward and backward
-       ;; separately.
-       (when (re-search-forward text paragraph-end :noerror)
+       ;; separately.  TEXT is the stored text of the highlight, so it is
+       ;; searched for literally; without quoting, a highlight containing
+       ;; regexp metacharacters would silently move or shrink.
+       (when (re-search-forward (regexp-quote text) paragraph-end :noerror)
          (move-overlay highlight (match-beginning 0) (match-end 0)))
        ;; Add property to indicate that the position has somehow been
        ;; adjusted. Even if the new location could not be found,
